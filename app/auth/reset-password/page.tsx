@@ -4,6 +4,7 @@
 export const dynamic = 'force-dynamic'
 
 import type React from "react"
+import { Suspense } from "react"
 
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -15,7 +16,7 @@ import { useState, useEffect } from "react"
 import { Eye, EyeOff } from "lucide-react"
 import Image from "next/image"
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
@@ -224,5 +225,13 @@ export default function ResetPasswordPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div>Carregando...</div>}>
+      <ResetPasswordContent />
+    </Suspense>
   )
 }
