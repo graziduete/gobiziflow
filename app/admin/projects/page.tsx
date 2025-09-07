@@ -63,6 +63,16 @@ export default function ProjectsPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [projectsPerPage] = useState(10)
 
+  const formatDateUTC = (iso: string) => {
+    try {
+      if (!iso) return ""
+      const d = new Date(iso)
+      return new Intl.DateTimeFormat("pt-BR", { timeZone: "UTC" }).format(d)
+    } catch {
+      return new Date(iso).toLocaleDateString("pt-BR")
+    }
+  }
+
   useEffect(() => {
     fetchCompanies()
   }, [])
@@ -414,9 +424,9 @@ export default function ProjectsPage() {
                     <span>Empresa: {companyNames[project.company_id] || "Desconhecida"}</span>
                     {project.budget && <span>Orçamento: R$ {Number(project.budget).toLocaleString("pt-BR")}</span>}
                     {project.start_date && (
-                      <span>Início: {new Date(project.start_date).toLocaleDateString("pt-BR")}</span>
+                      <span>Início: {formatDateUTC(project.start_date)}</span>
                     )}
-                    {project.end_date && <span>Término: {new Date(project.end_date).toLocaleDateString("pt-BR")}</span>}
+                    {project.end_date && <span>Término: {formatDateUTC(project.end_date)}</span>}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">

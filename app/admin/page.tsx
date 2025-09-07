@@ -623,7 +623,7 @@ export default function AdminDashboard() {
                     {selectedCompany !== "all" 
                       ? (isForecastVisible ? totalProjectsCount : "••••")
                       : (isForecastVisible 
-                          ? `R$ ${(expectedValueData.totalExpected / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                          ? `R$ ${((expectedValueData.breakdown || []).reduce((sum, item) => sum + (item.expectedValue || 0), 0) / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                           : "••••••••"
                         )
                     }
@@ -665,13 +665,15 @@ export default function AdminDashboard() {
                                   </div>
                                 </>
                               ) : (
-                                <>
-                                  <span className="font-medium text-blue-700">{item.companyName}</span>
-                                  <span className="text-blue-600 ml-2">• {item.metricType}</span>
+                                <div>
+                                  <div>
+                                    <span className="font-medium text-blue-700">{item.companyName}</span>
+                                    <span className="text-blue-600 ml-2">• {item.metricType}</span>
+                                  </div>
                                   {item.details && (
-                                    <span className="text-blue-600 ml-2">• {item.details}</span>
+                                    <div className="text-xs text-blue-600 mt-1">{item.details}</div>
                                   )}
-                                </>
+                                </div>
                               )}
                             </div>
                             <div className="text-right">

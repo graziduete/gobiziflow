@@ -93,22 +93,25 @@ export class DashboardService {
         console.log(`📊 Processando métrica: ${metric.metric_type} - ${companyName}`)
         console.log(`📊 Métrica completa:`, metric)
         
-        if (!this.isMonthWithinRange(metric.start_date, metric.end_date, monthYear)) {
-          // Ignora métricas cujo período não intersecta o mês selecionado
-          continue
+        // Para métricas parceladas, não dependemos do período start/end da métrica.
+        // Primeiro, tente somar as parcelas do mês.
+        if (metric.metric_type === 'installments') {
+          const installmentInfo = await this.calculateInstallmentsValue(metric, monthYear)
+          if (installmentInfo.total > 0) {
+            totalExpected += installmentInfo.total
+            breakdown.push({
+              companyId: metric.company_id,
+              companyName,
+              metricType: 'Parcelado',
+              expectedValue: Math.round(installmentInfo.total * 100),
+              details: installmentInfo.details
+            })
+            continue
+          }
         }
 
-        // PRIORIDADE: se existirem parcelas configuradas (detail_type 'installment') para o mês, usar elas
-        const installmentInfo = await this.calculateInstallmentsValue(metric, monthYear)
-        if (installmentInfo.total > 0) {
-          totalExpected += installmentInfo.total
-          breakdown.push({
-            companyId: metric.company_id,
-            companyName,
-            metricType: 'Parcelado',
-            expectedValue: Math.round(installmentInfo.total * 100),
-            details: installmentInfo.details
-          })
+        if (!this.isMonthWithinRange(metric.start_date, metric.end_date, monthYear)) {
+          // Ignora as demais métricas cujo período não intersecta o mês selecionado
           continue
         }
 

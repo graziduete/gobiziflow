@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Calendar } from 'lucide-react'
@@ -50,6 +50,11 @@ export function ExpectedValueCard({ selectedMonth }: ExpectedValueCardProps) {
     const date = new Date(parseInt(year), parseInt(month) - 1, 1)
     return date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
   }
+
+  const computedTotal = useMemo(() => {
+    const list = expectedData?.breakdown || []
+    return list.reduce((sum, item) => sum + (item.expectedValue || 0), 0)
+  }, [expectedData])
 
   const getMetricTypeColor = (metricType: string) => {
     switch (metricType) {
@@ -120,7 +125,7 @@ export function ExpectedValueCard({ selectedMonth }: ExpectedValueCardProps) {
           {/* Valor Total */}
           <div className="text-center">
             <div className="text-3xl font-bold text-green-600">
-              R$ {(expectedData?.totalExpected || 0 / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              R$ {(computedTotal / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </div>
             <p className="text-sm text-gray-600 mt-1">
               Total esperado para o mês

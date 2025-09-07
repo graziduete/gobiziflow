@@ -150,7 +150,8 @@ export function GanttView({ projects, companies = [] }: GanttViewProps) {
         console.log("❌ [GanttView] Invalid date:", dateString)
         return "Não definido"
       }
-      const formatted = date.toLocaleDateString("pt-BR")
+      // Forçar fuso UTC para consistência com o backend
+      const formatted = new Intl.DateTimeFormat("pt-BR", { timeZone: "UTC" }).format(date)
       console.log("✅ [GanttView] Formatted date:", formatted)
       return formatted
     } catch (error) {
