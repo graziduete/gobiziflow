@@ -1,0 +1,239 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Updated color palette to modern cyan-based system with better contrast and visual hierarchy */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.35 0 0);
+  --card: oklch(0.99 0 0);
+  --card-foreground: oklch(0.35 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.35 0 0);
+  --primary: oklch(0.55 0.15 195);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.65 0.12 160);
+  --secondary-foreground: oklch(1 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.55 0 0);
+  --accent: oklch(0.65 0.12 160);
+  --accent-foreground: oklch(1 0 0);
+  --destructive: oklch(0.65 0.15 25);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.92 0 0);
+  --input: oklch(0.97 0 0);
+  --ring: oklch(0.55 0.15 195 / 0.3);
+  --chart-1: oklch(0.55 0.15 195);
+  --chart-2: oklch(0.65 0.12 160);
+  --chart-3: oklch(0.65 0.15 25);
+  --chart-4: oklch(0.45 0.1 270);
+  --chart-5: oklch(0.75 0.08 120);
+  --radius: 0.75rem;
+  --sidebar: oklch(0.99 0 0);
+  --sidebar-foreground: oklch(0.35 0 0);
+  --sidebar-primary: oklch(0.55 0.15 195);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.35 0 0);
+  --sidebar-border: oklch(0.92 0 0);
+  --sidebar-ring: oklch(0.55 0.15 195 / 0.3);
+
+  /* Added success and warning colors for better status indication */
+  --success: oklch(0.65 0.12 160);
+  --success-foreground: oklch(1 0 0);
+  --warning: oklch(0.75 0.15 65);
+  --warning-foreground: oklch(0.2 0 0);
+  --info: oklch(0.6 0.12 240);
+  --info-foreground: oklch(1 0 0);
+}
+
+.dark {
+  /* Enhanced dark mode with better contrast ratios and modern color scheme */
+  --background: oklch(0.08 0 0);
+  --foreground: oklch(0.95 0 0);
+  --card: oklch(0.1 0 0);
+  --card-foreground: oklch(0.95 0 0);
+  --popover: oklch(0.08 0 0);
+  --popover-foreground: oklch(0.95 0 0);
+  --primary: oklch(0.65 0.15 195);
+  --primary-foreground: oklch(0.08 0 0);
+  --secondary: oklch(0.75 0.12 160);
+  --secondary-foreground: oklch(0.08 0 0);
+  --muted: oklch(0.15 0 0);
+  --muted-foreground: oklch(0.65 0 0);
+  --accent: oklch(0.75 0.12 160);
+  --accent-foreground: oklch(0.08 0 0);
+  --destructive: oklch(0.7 0.15 25);
+  --destructive-foreground: oklch(0.95 0 0);
+  --border: oklch(0.18 0 0);
+  --input: oklch(0.15 0 0);
+  --ring: oklch(0.65 0.15 195 / 0.3);
+  --chart-1: oklch(0.65 0.15 195);
+  --chart-2: oklch(0.75 0.12 160);
+  --chart-3: oklch(0.7 0.15 25);
+  --chart-4: oklch(0.6 0.1 270);
+  --chart-5: oklch(0.8 0.08 120);
+  --sidebar: oklch(0.05 0 0);
+  --sidebar-foreground: oklch(0.95 0 0);
+  --sidebar-primary: oklch(0.65 0.15 195);
+  --sidebar-primary-foreground: oklch(0.08 0 0);
+  --sidebar-accent: oklch(0.15 0 0);
+  --sidebar-accent-foreground: oklch(0.95 0 0);
+  --sidebar-border: oklch(0.18 0 0);
+  --sidebar-ring: oklch(0.65 0.15 195 / 0.3);
+
+  --success: oklch(0.75 0.12 160);
+  --success-foreground: oklch(0.08 0 0);
+  --warning: oklch(0.8 0.15 65);
+  --warning-foreground: oklch(0.08 0 0);
+  --info: oklch(0.7 0.12 240);
+  --info-foreground: oklch(0.95 0 0);
+}
+
+@theme inline {
+  /* Added modern font configuration with Inter and JetBrains Mono */
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Added semantic color tokens for status indicators */
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  /* Added smooth transitions and improved focus states */
+  button,
+  a,
+  [role="button"] {
+    @apply transition-all duration-200 ease-in-out;
+  }
+
+  /* Enhanced scrollbar styling for modern look */
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-muted/30;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/30 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/50;
+  }
+}
+
+/* Added utility classes for modern design patterns */
+@layer utilities {
+  .glass-effect {
+    @apply bg-background/80 backdrop-blur-sm border border-border/50;
+  }
+
+  .gradient-primary {
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%);
+  }
+
+  .shadow-glow {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.1);
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+/* Animações para o fundo da tela de login */
+@keyframes blob {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+.animation-delay-6000 {
+  animation-delay: 6s;
+}
+
+/* Fix for Select dropdown z-index issues */
+[data-radix-select-content] {
+  z-index: 9999 !important;
+}
+
+[data-radix-dialog-content] {
+  z-index: 9998 !important;
+}
