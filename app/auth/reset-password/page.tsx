@@ -1,5 +1,8 @@
 "use client"
 
+// Evitar pre-render estático desta página para permitir o uso seguro de useSearchParams
+export const dynamic = 'force-dynamic'
+
 import type React from "react"
 
 import { createClient } from "@/lib/supabase/client"
