@@ -692,7 +692,9 @@ export default function AdminDashboard() {
                       <div className="border-t border-blue-300 pt-2 mt-2">
                         <div className="flex items-center justify-between text-sm font-medium text-blue-800">
                           <span>Total Previsto:</span>
-                          <span>R$ {(expectedValueData.totalExpected / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                          <span>
+                            {`R$ ${((expectedValueData.breakdown || []).reduce((sum, item) => sum + (item.expectedValue || 0), 0) / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                          </span>
                         </div>
                       </div>
                     </div>

@@ -93,7 +93,7 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-background overflow-hidden">
       <SidebarWrapper className="shrink-0" />
       <div className="flex flex-1 flex-col overflow-hidden">
         <Header userData={userData} />
