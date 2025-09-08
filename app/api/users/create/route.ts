@@ -10,8 +10,8 @@ export async function POST(request: NextRequest) {
 
     console.log('📝 Dados recebidos para criação de usuário:', { full_name, email, role, company_id })
 
-    // Validações básicas
-    if (!full_name || !email || !role || !company_id) {
+    // Validações básicas (company_id obrigatório apenas para clientes)
+    if (!full_name || !email || !role || (role === 'client' && !company_id)) {
       return NextResponse.json(
         { error: 'Todos os campos são obrigatórios' },
         { status: 400 }
@@ -59,19 +59,22 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verificar se a empresa existe
-    const { data: company, error: companyError } = await supabase
-      .from('companies')
-      .select('id, name')
-      .eq('id', company_id)
-      .single()
-
-    if (companyError || !company) {
-      console.error('❌ Empresa não encontrada:', companyError)
-      return NextResponse.json(
-        { error: 'Empresa não encontrada' },
-        { status: 404 }
-      )
+    // Verificar empresa apenas quando cliente
+    let company: any = null
+    if (role === 'client') {
+      const { data: companyData, error: companyError } = await supabase
+        .from('companies')
+        .select('id, name')
+        .eq('id', company_id)
+        .single()
+      if (companyError || !companyData) {
+        console.error('❌ Empresa não encontrada:', companyError)
+        return NextResponse.json(
+          { error: 'Empresa não encontrada' },
+          { status: 404 }
+        )
+      }
+      company = companyData
     }
 
     // Usar o UserService para criar o usuário
@@ -89,17 +92,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Criar associação com a empresa
-    const { error: companyError2 } = await supabase
-      .from('user_companies')
-      .insert({
-        user_id: result.user.id,
-        company_id: company_id
-      })
-
-    if (companyError2) {
-      console.error('❌ Erro ao associar usuário à empresa:', companyError2)
-      // Não vamos falhar a criação por causa disso, mas vamos logar
+    // Criar associação com a empresa (somente cliente)
+    if (role === 'client' && company_id) {
+      const { error: companyError2 } = await supabase
+        .from('user_companies')
+        .insert({
+          user_id: result.user.id,
+          company_id: company_id
+        })
+      if (companyError2) {
+        console.error('❌ Erro ao associar usuário à empresa:', companyError2)
+      }
     }
 
     console.log('✅ Usuário criado com sucesso:', {
@@ -107,7 +110,7 @@ export async function POST(request: NextRequest) {
       email,
       full_name,
       role,
-      company: company.name
+      company: company?.name
     })
 
     // Enviar email com credenciais
@@ -119,7 +122,7 @@ export async function POST(request: NextRequest) {
           email: email,
           password: result.password,
           appUrl: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-          companyName: company.name,
+          companyName: company?.name,
         })
       })
 
@@ -137,7 +140,7 @@ export async function POST(request: NextRequest) {
         email,
         role,
         company_id,
-        company_name: company.name,
+        company_name: company?.name,
         password: result.password // Para exibir no frontend se o email falhar
       }
     })
