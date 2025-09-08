@@ -221,8 +221,21 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
     }
 
     console.log('🔍 Projetos filtrados finais:', filtered.length)
+    // Ordenar por data de início ascendente; nulos por último
+    filtered.sort((a, b) => {
+      const ad = a?.start_date ? new Date(a.start_date).getTime() : Infinity
+      const bd = b?.start_date ? new Date(b.start_date).getTime() : Infinity
+      return ad - bd
+    })
     return filtered
   }
+
+  // Ordenação para a lista principal (não expandida)
+  const sortedMainProjects = [...projects].sort((a, b) => {
+    const ad = a?.start_date ? new Date(a.start_date).getTime() : Infinity
+    const bd = b?.start_date ? new Date(b.start_date).getTime() : Infinity
+    return ad - bd
+  })
 
   const clearExpandedFilters = () => {
     setExpandedFilters({
@@ -261,7 +274,7 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
           {projects.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">Nenhum projeto encontrado</p>
           ) : (
-            projects.map((project) => (
+            sortedMainProjects.map((project) => (
               <div key={project.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex-1">

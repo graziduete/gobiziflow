@@ -432,6 +432,12 @@ export default function AdminDashboard() {
       filtered = filtered.filter((project) => project.status === filters.status)
     }
 
+    // Ordenar por data de início ascendente (nulos por último)
+    filtered.sort((a, b) => {
+      const ad = a?.start_date ? new Date(a.start_date).getTime() : Infinity
+      const bd = b?.start_date ? new Date(b.start_date).getTime() : Infinity
+      return ad - bd
+    })
     setFilteredProjects(filtered)
     
     // Buscar estatísticas de horas atualizadas quando os filtros mudarem

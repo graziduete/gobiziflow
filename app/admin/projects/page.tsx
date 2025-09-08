@@ -127,7 +127,7 @@ export default function ProjectsPage() {
           `id, name, description, status, priority, project_type, start_date, end_date, budget, created_at, company_id`,
           { count: "exact" }
         )
-        .order("created_at", { ascending: false })
+        .order("start_date", { ascending: true, nullsFirst: false })
 
       if (filters.company_id && filters.company_id !== "all") {
         query = query.eq("company_id", filters.company_id)
