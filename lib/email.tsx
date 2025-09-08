@@ -177,7 +177,7 @@ export const emailTemplates = {
               <div class="logo-text">GobiZi</div>
               <div class="logo-flow">Flow</div>
             </div>
-            <h1>🎉 Bem-vindo ao Sistema!</h1>
+            <h1>🎉 Bem-vindo ao GobiZi Flow!</h1>
             <p>Sua conta foi criada com sucesso</p>
           </div>
           
@@ -212,11 +212,11 @@ export const emailTemplates = {
             </div>
             
             <div style="text-align: center;">
-              <a href="https://flow.gobi-zi.com/auth/login" class="cta-button">
+              <a href="https://gobiziflow.vercel.app/auth/login" class="cta-button">
                 🚀 Acessar o Sistema
               </a>
               <p style="margin-top: 10px; font-size: 14px; color: #6b7280;">
-                <strong>flow.gobi-zi.com</strong>
+                <strong>gobiziflow.vercel.app</strong>
               </p>
             </div>
             
@@ -251,7 +251,7 @@ Senha Temporária: ${data.password}
 
 ⚠️ Importante: Por segurança, você será obrigado a alterar sua senha no primeiro acesso.
 
-🚀 Acesse o sistema: https://flow.gobi-zi.com/auth/login
+🚀 Acesse o sistema: https://gobiziflow.vercel.app/auth/login
 
 📋 Como acessar:
 1. Acesse o sistema usando o link acima
