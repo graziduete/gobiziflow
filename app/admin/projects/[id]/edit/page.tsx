@@ -1,6 +1,9 @@
 import { createClient } from "@/lib/supabase/server"
 import { ProjectForm } from "@/components/admin/project-form"
 import { notFound } from "next/navigation"
+import { ProjectDocsCard } from "@/components/admin/project-docs-card"
+import { cookies } from "next/headers"
+import { createServerClient } from "@supabase/ssr"
 
 interface EditProjectPageProps {
   params: Promise<{
@@ -31,6 +34,9 @@ export default async function EditProjectPage({ params }: EditProjectPageProps) 
       <div className="flex justify-center">
         <ProjectForm project={project} />
       </div>
+
+      {/* Documentos do Projeto */}
+      <ProjectDocsCard projectId={project.id} userId={project.created_by || ""} />
     </div>
   )
 }

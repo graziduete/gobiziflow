@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { GanttChart } from "@/components/admin/gantt-chart"
+import { ProjectDocsList } from "@/components/client/project-docs-list"
 import { createClient } from "@/lib/supabase/client"
 
 interface Project {
@@ -268,6 +269,9 @@ export function ClientProjectDetail({ project }: ClientProjectDetailProps) {
           )}
         </CardContent>
       </Card>
+
+      {/* Documentos do Projeto (somente visualização/baixa) */}
+      <ProjectDocsList projectId={project.id} />
     </>
   )
 }

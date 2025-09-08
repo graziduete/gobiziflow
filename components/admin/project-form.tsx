@@ -199,6 +199,7 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
       console.log("[v0] Project data prepared:", projectData)
       console.log("[v0] Tasks to save:", tasks)
 
+      let savedProjectId: string | null = null
       if (!isOffline) {
         try {
           const supabase = createClient()
@@ -217,6 +218,7 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
 
           // Salvar as tarefas após o projeto ser criado/atualizado
           const projectId = result.data.id
+          savedProjectId = projectId
           
           if (tasks.length > 0) {
             console.log("[v0] Saving tasks for project:", projectId)
@@ -275,7 +277,7 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
         console.log("[v0] Offline mode: Project and tasks would be saved when connection is restored")
       }
 
-      if (!project?.id) {
+      if (!project?.id && savedProjectId) {
         try {
           await fetch("/api/notifications/project-created", {
             method: "POST",
@@ -283,7 +285,7 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              projectId: project?.id || "mock-project-id",
+              projectId: savedProjectId,
               createdById: user.id,
             }),
           })
@@ -292,9 +294,15 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
         }
       }
 
-      if (onSuccess) {
-        onSuccess()
-      } else {
+      // Após criar um novo projeto, levar para a tela de edição para anexar documentos
+      if (!project?.id && savedProjectId) {
+        router.push(`/admin/projects/${savedProjectId}/edit`)
+        router.refresh()
+        return
+      }
+
+      if (onSuccess) onSuccess()
+      else {
         router.push("/admin/projects")
         router.refresh()
       }

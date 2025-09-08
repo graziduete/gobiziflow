@@ -78,14 +78,16 @@ interface ClientSidebarProps {
 export function ClientSidebar({ className }: ClientSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const [collapsed, setCollapsed] = useState(() => {
-    // Inicializar com valor do localStorage apenas uma vez
-    if (typeof window !== 'undefined') {
+  // Importante para evitar hydration mismatch: iniciar com valor estático
+  const [collapsed, setCollapsed] = useState(false)
+
+  // Após montar no cliente, ler preferência persistida
+  useEffect(() => {
+    try {
       const savedCollapsed = localStorage.getItem('client-sidebar-collapsed')
-      return savedCollapsed ? JSON.parse(savedCollapsed) : false
-    }
-    return false
-  })
+      if (savedCollapsed !== null) setCollapsed(JSON.parse(savedCollapsed))
+    } catch {}
+  }, [])
 
   // Salvar estado no localStorage quando mudar (debounced)
   useEffect(() => {
