@@ -173,10 +173,7 @@ export const emailTemplates = {
       <body>
         <div class="container">
           <div class="header">
-            <div class="logo">
-              <div class="logo-text">GobiZi</div>
-              <div class="logo-flow">Flow</div>
-            </div>
+            
             <h1>🎉 Bem-vindo ao GobiZi Flow!</h1>
             <p>Sua conta foi criada com sucesso</p>
           </div>
