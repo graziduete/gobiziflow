@@ -86,7 +86,7 @@ export function Header({ title, userData }: HeaderProps) {
   }
 
   return (
-    <header className="flex h-14 items-center justify-between border-b bg-background px-6">
+    <header className="flex h-16 items-center justify-between border-b bg-background px-6">
       <div>
         {title && <h1 className="text-lg font-semibold">{title}</h1>}
       </div>

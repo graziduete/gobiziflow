@@ -95,7 +95,7 @@ export function ClientHeader({ title }: ClientHeaderProps) {
   }, [user, isLoading])
 
   return (
-    <header className="flex h-14 items-center justify-between border-b bg-background px-6">
+    <header className="flex h-16 items-center justify-between border-b bg-background px-6">
       <div>
         <h1 className="text-base font-semibold">Portal do Cliente</h1>
       </div>
