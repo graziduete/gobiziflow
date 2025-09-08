@@ -352,25 +352,33 @@ export default function AdminDashboard() {
         console.log("📅 Usando filtro por interseção de período do projeto com mês/ano selecionado")
         const startOfMonth = new Date(selectedYear, (selectedMonth || 1) - 1, 1)
         const endOfMonth = new Date(selectedYear, (selectedMonth || 1), 0)
-        // Mostrar projetos ativos no mês: [start_date, end_date] intersecta o mês
+        // Mostrar projetos ativos no mês OU (se filtro status = concluído) concluídos até o fim do mês
         filtered = filtered.filter((project) => {
           const hasStart = !!project.start_date && !isNaN(new Date(project.start_date).getTime())
           const hasEnd = !!project.end_date && !isNaN(new Date(project.end_date).getTime())
+          let includeByMonth = false
           if (hasStart && hasEnd) {
             const s = new Date(project.start_date)
             const e = new Date(project.end_date)
-            return s <= endOfMonth && e >= startOfMonth
-          }
-          // Fallback para projetos antigos: usar created_at
-          if (project.created_at) {
+            includeByMonth = s <= endOfMonth && e >= startOfMonth
+          } else if (project.created_at) {
+            // Fallback para projetos antigos: usar created_at
             const d = new Date(project.created_at)
             if (!isNaN(d.getTime())) {
-              return (selectedMonth === null)
+              includeByMonth = (selectedMonth === null)
                 ? d.getFullYear() === selectedYear
                 : (d.getMonth() + 1 === selectedMonth && d.getFullYear() === selectedYear)
             }
           }
-          return true
+
+          // Inclusão adicional: quando status filtrado for "completed", aceitar projetos com end_date <= fim do mês
+          let includeByCompleted = false
+          if (filters.status === 'completed' && hasEnd) {
+            const e = new Date(project.end_date)
+            includeByCompleted = e <= endOfMonth
+          }
+
+          return includeByMonth || includeByCompleted
         })
       }
     } else {
@@ -380,20 +388,28 @@ export default function AdminDashboard() {
       filtered = filtered.filter((project) => {
         const hasStart = !!project.start_date && !isNaN(new Date(project.start_date).getTime())
         const hasEnd = !!project.end_date && !isNaN(new Date(project.end_date).getTime())
+        let includeByMonth = false
         if (hasStart && hasEnd) {
           const s = new Date(project.start_date)
           const e = new Date(project.end_date)
-          return s <= endOfMonth && e >= startOfMonth
-        }
-        if (project.created_at) {
+          includeByMonth = s <= endOfMonth && e >= startOfMonth
+        } else if (project.created_at) {
           const d = new Date(project.created_at)
           if (!isNaN(d.getTime())) {
-            return (selectedMonth === null)
+            includeByMonth = (selectedMonth === null)
               ? d.getFullYear() === selectedYear
               : (d.getMonth() + 1 === selectedMonth && d.getFullYear() === selectedYear)
           }
         }
-        return true
+
+        // Inclusão adicional para concluídos
+        let includeByCompleted = false
+        if (filters.status === 'completed' && hasEnd) {
+          const e = new Date(project.end_date)
+          includeByCompleted = e <= endOfMonth
+        }
+
+        return includeByMonth || includeByCompleted
       })
     }
 
@@ -897,7 +913,7 @@ export default function AdminDashboard() {
 
         <ModernGanttFilters companies={companies} onFiltersChange={handleFiltersChange} />
 
-        <GanttView projects={filteredProjects} companies={companies} />
+        <GanttView projects={filteredProjects} allProjects={projects} companies={companies} selectedMonth={selectedMonth} selectedYear={selectedYear} />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">

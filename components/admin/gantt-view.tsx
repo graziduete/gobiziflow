@@ -11,8 +11,11 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface GanttViewProps {
-  projects: any[]
+  projects: any[] // já filtrados pelo container
+  allProjects?: any[] // lista completa para regras especiais na expandida
   companies?: any[]
+  selectedMonth?: number | null
+  selectedYear?: number
 }
 
 interface ExpandedFilters {
@@ -22,7 +25,7 @@ interface ExpandedFilters {
   status: string
 }
 
-export function GanttView({ projects, companies = [] }: GanttViewProps) {
+export function GanttView({ projects, allProjects, companies = [], selectedMonth, selectedYear }: GanttViewProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [expandedFilters, setExpandedFilters] = useState<ExpandedFilters>({
     search: "",
@@ -202,6 +205,21 @@ export function GanttView({ projects, companies = [] }: GanttViewProps) {
       console.log('🔍 Após filtro de status:', filtered.length)
     }
 
+    // Regra adicional (Opção A): quando status = 'completed', incluir projetos
+    // concluídos até o fim do mês/ano selecionado no Dashboard.
+    // Como o componente não recebe diretamente o mês/ano, usamos created_at/start/end
+    // para relaxar a regra caso o projeto não intersecte o mês já aplicado pelo container.
+    if (expandedFilters.status === 'completed') {
+      // Inclusão de concluídos até o fim do mês selecionado
+      const baseYear = selectedYear ?? new Date().getFullYear()
+      const baseMonth = (selectedMonth ?? (new Date().getMonth() + 1))
+      const endOfMonth = new Date(baseYear, baseMonth, 0)
+      filtered = [
+        ...filtered,
+        ...((allProjects ?? projects).filter(p => p.status === 'completed' && p.end_date && new Date(p.end_date) <= endOfMonth && !filtered.some(f => f.id === p.id)))
+      ]
+    }
+
     console.log('🔍 Projetos filtrados finais:', filtered.length)
     return filtered
   }
@@ -277,7 +295,7 @@ export function GanttView({ projects, companies = [] }: GanttViewProps) {
                   <div className="flex items-center gap-2 text-sm text-gray-600">
                     <Clock className="h-4 w-4" />
                     <span>
-                      {project.consumed_hours || 0}h / {project.estimated_hours || 0}h
+                      {project.estimated_hours ? `${project.estimated_hours}h` : ""}
                     </span>
                   </div>
                 </div>
@@ -342,113 +360,98 @@ export function GanttView({ projects, companies = [] }: GanttViewProps) {
             </Button>
           </div>
           
-          <div className="flex flex-col h-[calc(100vh-80px)] p-6">
-            {/* Filtros */}
-            <div className="bg-gray-50 p-4 rounded-lg mb-4">
+          <div className="flex h-[calc(100vh-80px)]">
+            {/* Painel lateral de filtros */}
+            <aside className="w-[320px] border-r bg-gray-50 p-4 overflow-y-auto">
               <div className="space-y-4">
                 {/* Busca */}
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <Input
                     placeholder="Buscar projeto..."
                     value={expandedFilters.search}
-                    onChange={(e) => {
-                      console.log('🔍 Campo de busca alterado:', e.target.value)
-                      updateExpandedFilter("search", e.target.value)
-                    }}
+                    onChange={(e) => updateExpandedFilter("search", e.target.value)}
                     className="pl-12 h-12 text-base bg-white border-gray-300 hover:border-gray-400 focus:border-blue-500"
                   />
                 </div>
 
-                {/* Filtros em grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                  {/* Empresa */}
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block flex items-center gap-2">
-                      <Building2 className="h-4 w-4" />
-                      Empresa
-                    </label>
-                    <Select value={expandedFilters.company} onValueChange={(value) => {
-                      console.log('🏢 Select empresa clicado:', value)
-                      updateExpandedFilter("company", value)
-                    }}>
-                      <SelectTrigger className="w-full h-12 text-sm bg-white border-gray-300 hover:border-gray-400 focus:border-blue-500">
-                        <SelectValue placeholder="Todas as empresas" />
-                      </SelectTrigger>
-                      <SelectContent className="z-[10000]">
-                        <SelectItem value="all">Todas as empresas</SelectItem>
-                        {companies.map((company) => (
-                          <SelectItem key={company.id} value={company.id}>
-                            {company.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Tipo */}
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block flex items-center gap-2">
-                      <Tag className="h-4 w-4" />
-                      Tipo
-                    </label>
-                    <Select value={expandedFilters.type} onValueChange={(value) => {
-                      console.log('🏷️ Select tipo clicado:', value)
-                      updateExpandedFilter("type", value)
-                    }}>
-                      <SelectTrigger className="w-full h-12 text-sm bg-white border-gray-300 hover:border-gray-400 focus:border-blue-500">
-                        <SelectValue placeholder="Todos os tipos" />
-                      </SelectTrigger>
-                      <SelectContent className="z-[10000]">
-                        <SelectItem value="all">Todos os tipos</SelectItem>
-                        {projectTypes.map((type) => (
-                          <SelectItem key={type.value} value={type.value}>
-                            {type.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Status */}
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block flex items-center gap-2">
-                      <Activity className="h-4 w-4" />
-                      Status
-                    </label>
-                    <Select value={expandedFilters.status} onValueChange={(value) => {
-                      console.log('📊 Select status clicado:', value)
-                      updateExpandedFilter("status", value)
-                    }}>
-                      <SelectTrigger className="w-full h-12 text-sm bg-white border-gray-300 hover:border-gray-400 focus:border-blue-500">
-                        <SelectValue placeholder="Todos os status" />
-                      </SelectTrigger>
-                      <SelectContent className="z-[10000]">
-                        <SelectItem value="all">Todos os status</SelectItem>
-                        {statusOptions.map((status) => (
-                          <SelectItem key={status.value} value={status.value}>
-                            {status.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                {/* Empresa */}
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block flex items-center gap-2">
+                    <Building2 className="h-4 w-4" />
+                    Empresa
+                  </label>
+                  <Select value={expandedFilters.company} onValueChange={(value) => updateExpandedFilter("company", value)}>
+                    <SelectTrigger className="w-full h-12 text-sm bg-white border-gray-300 hover:border-gray-400 focus:border-blue-500">
+                      <SelectValue placeholder="Todas as empresas" />
+                    </SelectTrigger>
+                    <SelectContent className="z-[10000]">
+                      <SelectItem value="all">Todas as empresas</SelectItem>
+                      {companies.map((company) => (
+                        <SelectItem key={company.id} value={company.id}>
+                          {company.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
-                {/* Botões de ação */}
-                <div className="flex justify-between items-center">
-                  <Button variant="outline" onClick={clearExpandedFilters}>
+                {/* Tipo */}
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block flex items-center gap-2">
+                    <Tag className="h-4 w-4" />
+                    Tipo
+                  </label>
+                  <Select value={expandedFilters.type} onValueChange={(value) => updateExpandedFilter("type", value)}>
+                    <SelectTrigger className="w-full h-12 text-sm bg-white border-gray-300 hover:border-gray-400 focus:border-blue-500">
+                      <SelectValue placeholder="Todos os tipos" />
+                    </SelectTrigger>
+                    <SelectContent className="z-[10000]">
+                      <SelectItem value="all">Todos os tipos</SelectItem>
+                      {projectTypes.map((type) => (
+                        <SelectItem key={type.value} value={type.value}>
+                          {type.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Status */}
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block flex items-center gap-2">
+                    <Activity className="h-4 w-4" />
+                    Status
+                  </label>
+                  <Select value={expandedFilters.status} onValueChange={(value) => updateExpandedFilter("status", value)}>
+                    <SelectTrigger className="w-full h-12 text-sm bg-white border-gray-300 hover:border-gray-400 focus:border-blue-500">
+                      <SelectValue placeholder="Todos os status" />
+                    </SelectTrigger>
+                    <SelectContent className="z-[10000]">
+                      <SelectItem value="all">Todos os status</SelectItem>
+                      {statusOptions.map((status) => (
+                        <SelectItem key={status.value} value={status.value}>
+                          {status.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Ações */}
+                <div className="pt-2 space-y-2">
+                  <Button variant="outline" onClick={clearExpandedFilters} className="w-full">
                     Limpar Filtros
                   </Button>
-                  <div className="text-sm text-gray-600">
+                  <div className="text-xs text-gray-600 text-center">
                     {getFilteredProjects().length} de {projects.length} projetos
                   </div>
                 </div>
               </div>
-            </div>
+            </aside>
 
             {/* Lista de projetos */}
-            <div className="flex-1 overflow-y-auto min-h-0">
+            <section className="flex-1 overflow-y-auto p-6">
               <div className="space-y-3">
                 {getFilteredProjects().length === 0 ? (
                   <p className="text-center text-muted-foreground py-8">Nenhum projeto encontrado</p>
@@ -487,7 +490,13 @@ export function GanttView({ projects, companies = [] }: GanttViewProps) {
                         <div className="flex items-center gap-2 text-sm text-gray-600">
                           <Clock className="h-4 w-4" />
                           <span>
-                            {project.consumed_hours || 0}h / {project.estimated_hours || 0}h
+                            {project.estimated_hours ? `${project.estimated_hours}h` : ""}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <Clock className="h-4 w-4" />
+                          <span>
+                            {project.estimated_hours ? `${project.estimated_hours}h` : ""}
                           </span>
                         </div>
                       </div>
@@ -514,7 +523,7 @@ export function GanttView({ projects, companies = [] }: GanttViewProps) {
                   ))
                 )}
               </div>
-            </div>
+            </section>
           </div>
         </div>
       )}
