@@ -209,11 +209,11 @@ export const emailTemplates = {
             </div>
             
             <div style="text-align: center;">
-              <a href="https://gobiziflow.vercel.app/auth/login" class="cta-button">
+              <a href="https://flow.gobi-zi.com/auth/login" class="cta-button">
                 🚀 Acessar o Sistema
               </a>
               <p style="margin-top: 10px; font-size: 14px; color: #6b7280;">
-                <strong>gobiziflow.vercel.app</strong>
+                <strong>flow.gobi-zi.com</strong>
               </p>
             </div>
             
@@ -248,7 +248,7 @@ Senha Temporária: ${data.password}
 
 ⚠️ Importante: Por segurança, você será obrigado a alterar sua senha no primeiro acesso.
 
-🚀 Acesse o sistema: https://gobiziflow.vercel.app/auth/login
+🚀 Acesse o sistema: https://flow.gobi-zi.com/auth/login
 
 📋 Como acessar:
 1. Acesse o sistema usando o link acima
