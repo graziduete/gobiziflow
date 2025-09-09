@@ -132,7 +132,7 @@ export function useClientData() {
           company_id
         `)
         .eq("company_id", companyId || '')
-        .order("created_at", { ascending: false })
+        .order("start_date", { ascending: true, nullsFirst: false })
 
       if (projectsError) throw projectsError
 

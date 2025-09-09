@@ -69,6 +69,12 @@ export default function ClientProjectsPage() {
       )
     }
 
+    // Ordenar por data de início ascendente; nulos por último
+    filtered.sort((a, b) => {
+      const ad = a?.start_date ? new Date(a.start_date).getTime() : Infinity
+      const bd = b?.start_date ? new Date(b.start_date).getTime() : Infinity
+      return ad - bd
+    })
     return filtered
   }, [projects, filters])
 
@@ -228,7 +234,7 @@ export default function ClientProjectsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
+      <div>
           <h2 className="text-3xl font-bold tracking-tight">Projetos</h2>
           <p className="text-muted-foreground">
             Projetos da empresa {company?.name || "Carregando..."}
@@ -365,9 +371,9 @@ export default function ClientProjectsPage() {
                     <span>Empresa: {company?.name || "Carregando..."}</span>
                     {project.budget && <span>Orçamento: R$ {Number(project.budget).toLocaleString("pt-BR")}</span>}
                     {project.start_date && (
-                      <span>Início: {new Date(project.start_date).toLocaleDateString("pt-BR")}</span>
+                      <span>Início: {new Date(project.start_date).toLocaleDateString("pt-BR", { timeZone: 'UTC' })}</span>
                     )}
-                    {project.end_date && <span>Término: {new Date(project.end_date).toLocaleDateString("pt-BR")}</span>}
+                    {project.end_date && <span>Término: {new Date(project.end_date).toLocaleDateString("pt-BR", { timeZone: 'UTC' })}</span>}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
