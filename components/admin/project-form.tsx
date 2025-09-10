@@ -133,16 +133,16 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
         const supabase = createClient()
         const { data, error } = await supabase
           .from("tasks")
-          .select("id, name, description, start_date, end_date, status, responsible")
+          .select("id, name, description, start_date, end_date, status, responsible, \"order\"")
           .eq("project_id", project.id)
-          .order("created_at")
+          .order("\"order\"", { ascending: true })
 
         if (error) throw error
 
         if (data) {
           console.log("[v0] Tasks fetched successfully:", data.length)
           // Adicionar ordem para tarefas existentes que não têm ordem
-          const tasksWithOrder = data.map((task, index) => ({
+          const tasksWithOrder = data.map((task: any, index: number) => ({
             ...task,
             order: task.order || index
           }))
@@ -243,6 +243,7 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
               responsible: task.responsible || null,
               project_id: projectId,
               created_by: user.id,
+              order: task.order || 0, // Incluir campo order
             }))
 
             console.log("[v0] Tasks data prepared:", tasksData)
