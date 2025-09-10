@@ -46,6 +46,15 @@ export default function ClientProjectsPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [projectsPerPage] = useState(10)
 
+  // Contar filtros ativos
+  const activeFiltersCount = useMemo(() => {
+    let count = 0
+    if (filters.status !== "all") count++
+    if (filters.priority !== "all") count++
+    if (filters.search.trim()) count++
+    return count
+  }, [filters])
+
   // Memoizar projetos filtrados para evitar recálculos desnecessários
   const filteredProjects = useMemo(() => {
     let filtered = [...projects]
@@ -251,10 +260,15 @@ export default function ClientProjectsPage() {
           <Button 
             variant="outline" 
             onClick={() => setShowFilters(true)}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 relative"
           >
             <Filter className="h-4 w-4" />
             Filtros
+            {activeFiltersCount > 0 && (
+              <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs">
+                {activeFiltersCount}
+              </Badge>
+            )}
           </Button>
         </div>
       </div>
