@@ -9,8 +9,7 @@ export async function GET(
 ) {
   try {
     const resolvedParams = await params
-    console.log("🔍 API Route - ID do projeto:", resolvedParams.id)
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     
     const supabase = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
       cookies: {

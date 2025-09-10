@@ -117,11 +117,13 @@ export function ClientSidebar({ className }: ClientSidebarProps) {
   }), [pathname])
 
   return (
-    <div className={cn(
-      "flex h-full flex-col bg-sidebar/50 backdrop-blur-sm border-r border-sidebar-border transition-all duration-300",
-      collapsed ? "w-16" : "w-64",
-      className
-    )}>
+    <div
+      className={cn(
+        "flex h-full flex-col border-r border-sidebar-border transition-all duration-300 bg-gradient-to-b from-emerald-500/15 via-cyan-500/10 to-sky-500/5",
+        collapsed ? "w-16" : "w-64",
+        className
+      )}
+    >
       <div className="flex h-16 items-center justify-between px-4 border-b border-sidebar-border">
         <div className="flex-1 flex justify-center">
           <GobiZiLogo collapsed={collapsed} />

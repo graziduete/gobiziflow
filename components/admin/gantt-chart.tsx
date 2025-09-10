@@ -3,7 +3,10 @@ import React from "react"
 import { createPortal } from "react-dom"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock, TrendingUp, Users, Maximize2, Minimize2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Calendar, Clock, TrendingUp, Users, Maximize2, Minimize2, Download, FileImage, FileText } from "lucide-react"
+import { useGanttDownload } from "@/hooks/use-gantt-download"
 
 interface Task {
   id: string
@@ -26,6 +29,34 @@ interface GanttChartProps {
 export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExpanded = false, projectName }: GanttChartProps) {
   // Estado para controlar a expansão da tela
   const [isExpanded, setIsExpanded] = React.useState(defaultExpanded)
+  
+  // Hook para download
+  const { downloadAsImage } = useGanttDownload()
+
+  // Funções de download
+  const handleDownloadPNG = async () => {
+    const elementId = isExpanded ? 'gantt-chart-content-expanded' : 'gantt-chart-content'
+    const result = await downloadAsImage(elementId, {
+      format: 'png',
+      filename: `cronograma-${projectName || 'projeto'}-${new Date().toISOString().split('T')[0]}`
+    })
+    
+    if (!result.success) {
+      alert('Erro ao fazer download: ' + result.error)
+    }
+  }
+
+  const handleDownloadPDF = async () => {
+    const elementId = isExpanded ? 'gantt-chart-content-expanded' : 'gantt-chart-content'
+    const result = await downloadAsImage(elementId, {
+      format: 'pdf',
+      filename: `cronograma-${projectName || 'projeto'}-${new Date().toISOString().split('T')[0]}`
+    })
+    
+    if (!result.success) {
+      alert('Erro ao fazer download: ' + result.error)
+    }
+  }
 
   // Bloquear scroll da página quando expandido
   React.useEffect(() => {
@@ -253,6 +284,29 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
     }
   }
 
+  // Função para calcular progresso baseado no status
+  const getTaskProgress = (task: Task) => {
+    switch (task.status.toLowerCase()) {
+      case 'não iniciado':
+      case 'not_started':
+        return 0
+      case 'em andamento':
+      case 'in_progress':
+        return 60 // Progresso médio para tarefas em andamento
+      case 'concluído':
+      case 'completed':
+        return 100
+      case 'atrasado':
+      case 'delayed':
+        return 80 // Progresso alto mas atrasado
+      case 'pausado':
+      case 'on_hold':
+        return 30 // Progresso baixo para tarefas pausadas
+      default:
+        return 0
+    }
+  }
+
   const getStatusText = (status: string) => {
     switch (status.toLowerCase()) {
       case 'não iniciado':
@@ -363,7 +417,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
   // Renderizar Gantt expandido em um portal para ficar acima de tudo
   if (isExpanded) {
     return createPortal(
-      <div className="fixed inset-0 bg-white z-[999999]">
+      <div className="fixed inset-0 bg-white z-50" style={{ zIndex: 999999 }}>
         <Card className="h-full border-0 shadow-none bg-white overflow-hidden">
           <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50 border-b border-slate-200">
             <div className="flex items-center justify-between">
@@ -379,20 +433,42 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                 </div>
               </CardTitle>
               
-              {/* Botão para expandir/colapsar */}
-              <button
-                onClick={() => setIsExpanded(false)}
-                className="p-1.5 bg-gray-100 hover:bg-gray-200 rounded-md text-gray-600 hover:text-gray-700 transition-all duration-200"
-                title="Colapsar visualização"
-              >
-                <Minimize2 className="w-4 h-4" />
-              </button>
+              {/* Botões de ação */}
+              <div className="flex items-center gap-2">
+                {/* Botão de download */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="p-2">
+                      <Download className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="z-[999999]">
+                    <DropdownMenuItem onClick={handleDownloadPNG} className="gap-2">
+                      <FileImage className="w-4 h-4" />
+                      Baixar como PNG
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleDownloadPDF} className="gap-2">
+                      <FileText className="w-4 h-4" />
+                      Baixar como PDF
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                
+                {/* Botão para colapsar */}
+                <button
+                  onClick={() => setIsExpanded(false)}
+                  className="p-1.5 bg-gray-100 hover:bg-gray-200 rounded-md text-gray-600 hover:text-gray-700 transition-all duration-200"
+                  title="Colapsar visualização"
+                >
+                  <Minimize2 className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </CardHeader>
           
           <CardContent className="p-0 h-[calc(100vh-8rem)] overflow-y-auto">
             <div className="overflow-x-auto">
-              <div className="min-w-[900px]">
+              <div id="gantt-chart-content-expanded" className="min-w-[900px]">
                 {/* Cabeçalho dos meses (altura/tipografia reduzidas) */}
                 <div className="grid sticky top-0 z-10" style={{ gridTemplateColumns: `280px repeat(${weeks.length}, 120px)` }}>
                   <div className="h-12 bg-gradient-to-r from-slate-100 to-slate-200 border-r border-slate-300"></div>
@@ -435,18 +511,19 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                 {validTasks.map((task, taskIndex) => (
                   <div
                     key={task.id}
+                    data-task-id={task.id}
                     className="grid hover:bg-slate-50 transition-colors duration-200 relative"
                     style={{ gridTemplateColumns: `280px repeat(${weeks.length}, 120px)` }}
                   >
                     {/* Informações da tarefa */}
                     <div className="h-20 border-r border-slate-200 bg-white p-3 flex flex-col justify-center">
-                      <div className="font-semibold text-slate-800 text-sm leading-tight mb-2">
+                      <div className="font-semibold text-slate-800 text-sm leading-tight mb-2" data-task-title={task.name}>
                         {task.name}
                       </div>
                       <div className="flex items-center gap-2">
                         <Users className="w-3 h-3 text-slate-500" />
-                        <span className="text-xs text-slate-600">{task.responsible}</span>
-                        <Badge className={`text-xs px-1.5 py-0.5 border ${getStatusBadgeColor(task.status)}`}>
+                        <span className="text-xs text-slate-600" data-task-assignee={task.responsible}>{task.responsible}</span>
+                        <Badge className={`text-xs px-1.5 py-0.5 border ${getStatusBadgeColor(task.status)}`} data-task-status={getStatusText(task.status)}>
                           {getStatusText(task.status)}
                         </Badge>
                       </div>
@@ -466,6 +543,10 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                         className={`absolute top-7 bottom-7 bg-gradient-to-r ${getTaskColor(task.status)} shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer group rounded-md`}
                         style={getTaskBarStyle(task)}
                         title={`${task.name}: ${task.start_date} a ${task.end_date}`}
+                        data-progress-bar="true"
+                        data-start-date={task.start_date}
+                        data-end-date={task.end_date}
+                        data-progress={getTaskProgress(task)}
                       >
                         <div className="px-2 py-1 text-white font-medium text-xs leading-tight opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                           <div className="font-bold">{task.name}</div>
@@ -533,20 +614,42 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
             </div>
           </CardTitle>
           
-          {/* Botão para expandir/colapsar */}
-          <button
-            onClick={() => setIsExpanded(true)}
-            className="p-1.5 bg-gray-100 hover:bg-gray-200 rounded-md text-gray-600 hover:text-gray-700 transition-all duration-200"
-            title="Expandir visualização"
-          >
-            <Maximize2 className="w-4 h-4" />
-          </button>
+          {/* Botões de ação */}
+          <div className="flex items-center gap-2">
+            {/* Botão de download */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="p-2">
+                  <Download className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleDownloadPNG} className="gap-2">
+                  <FileImage className="w-4 h-4" />
+                  Baixar como PNG
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleDownloadPDF} className="gap-2">
+                  <FileText className="w-4 h-4" />
+                  Baixar como PDF
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
+            {/* Botão para expandir */}
+            <button
+              onClick={() => setIsExpanded(true)}
+              className="p-1.5 bg-gray-100 hover:bg-gray-200 rounded-md text-gray-600 hover:text-gray-700 transition-all duration-200"
+              title="Expandir visualização"
+            >
+              <Maximize2 className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </CardHeader>
       
       <CardContent className="p-0">
         <div className="overflow-x-auto">
-          <div className="min-w-[900px]">
+          <div id="gantt-chart-content" className="min-w-[900px]">
             {/* Cabeçalho dos meses (altura/tipografia reduzidas) */}
             <div className="grid sticky top-0 z-10" style={{ gridTemplateColumns: `280px repeat(${weeks.length}, 120px)` }}>
               <div className="h-12 bg-gradient-to-r from-slate-100 to-slate-200 border-r border-slate-300"></div>
@@ -589,18 +692,19 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
             {validTasks.map((task, taskIndex) => (
               <div
                 key={task.id}
+                data-task-id={task.id}
                 className="grid hover:bg-slate-50 transition-colors duration-200 relative"
                 style={{ gridTemplateColumns: `280px repeat(${weeks.length}, 120px)` }}
               >
                 {/* Informações da tarefa */}
                 <div className="h-20 border-r border-slate-200 bg-white p-3 flex flex-col justify-center">
-                  <div className="font-semibold text-slate-800 text-sm leading-tight mb-2">
+                  <div className="font-semibold text-slate-800 text-sm leading-tight mb-2" data-task-title={task.name}>
                     {task.name}
                   </div>
                   <div className="flex items-center gap-2">
                     <Users className="w-3 h-3 text-slate-500" />
-                    <span className="text-xs text-slate-600">{task.responsible}</span>
-                    <Badge className={`text-xs px-1.5 py-0.5 border ${getStatusBadgeColor(task.status)}`}>
+                    <span className="text-xs text-slate-600" data-task-assignee={task.responsible}>{task.responsible}</span>
+                    <Badge className={`text-xs px-1.5 py-0.5 border ${getStatusBadgeColor(task.status)}`} data-task-status={getStatusText(task.status)}>
                       {getStatusText(task.status)}
                     </Badge>
                   </div>
@@ -620,6 +724,10 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                     className={`absolute top-6 bottom-6 bg-gradient-to-r ${getTaskColor(task.status)} shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer group rounded-md`}
                     style={getTaskBarStyle(task)}
                     title={`${task.name}: ${task.start_date} a ${task.end_date}`}
+                    data-progress-bar="true"
+                    data-start-date={task.start_date}
+                    data-end-date={task.end_date}
+                    data-progress={getTaskProgress(task)}
                   >
                     <div className="px-2 py-1 text-white font-medium text-xs leading-tight opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                       <div className="font-bold">{task.name}</div>

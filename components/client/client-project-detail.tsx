@@ -93,7 +93,7 @@ export function ClientProjectDetail({ project }: ClientProjectDetailProps) {
           responsible: task.responsible || '—',
           description: task.description || ''
         }))
-        .filter(t => !!t.start_date && !!t.end_date)
+        .filter((t: any) => !!t.start_date && !!t.end_date)
 
       console.log("🧩 [fetchTasks] Tarefas formatadas: ", formattedTasks)
       setTasks(formattedTasks)
@@ -205,10 +205,10 @@ export function ClientProjectDetail({ project }: ClientProjectDetailProps) {
               <h4 className="text-sm font-medium text-muted-foreground">Datas</h4>
               <div className="space-y-1">
                 <div className="text-sm">
-                  <span className="text-muted-foreground">Início:</span> {project.start_date ? new Date(project.start_date).toLocaleDateString('pt-BR') : 'Não definido'}
+                  <span className="text-muted-foreground">Início:</span> {project.start_date ? new Date(project.start_date + 'T00:00:00').toLocaleDateString('pt-BR') : 'Não definido'}
                 </div>
                 <div className="text-sm">
-                  <span className="text-muted-foreground">Término:</span> {project.end_date ? new Date(project.end_date).toLocaleDateString('pt-BR') : 'Não definido'}
+                  <span className="text-muted-foreground">Término:</span> {project.end_date ? new Date(project.end_date + 'T00:00:00').toLocaleDateString('pt-BR') : 'Não definido'}
                 </div>
               </div>
             </div>
