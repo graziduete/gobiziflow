@@ -20,6 +20,7 @@ interface Project {
   status: string
   priority: string
   project_type: string | null
+  category: string
   start_date: string | null
   end_date: string | null
   budget: number | null
@@ -30,6 +31,7 @@ interface Project {
 interface ProjectFilters {
   status: string
   priority: string
+  category: string
   search: string
 }
 
@@ -38,6 +40,7 @@ export default function ClientProjectsPage() {
   const [filters, setFilters] = useState<ProjectFilters>({
     status: "all",
     priority: "all",
+    category: "all",
     search: ""
   })
   const [showFilters, setShowFilters] = useState(false)
@@ -51,6 +54,7 @@ export default function ClientProjectsPage() {
     let count = 0
     if (filters.status !== "all") count++
     if (filters.priority !== "all") count++
+    if (filters.category !== "all") count++
     if (filters.search.trim()) count++
     return count
   }, [filters])
@@ -67,6 +71,11 @@ export default function ClientProjectsPage() {
     // Filtro por prioridade
     if (filters.priority && filters.priority !== "all") {
       filtered = filtered.filter(project => project.priority === filters.priority)
+    }
+
+    // Filtro por categoria
+    if (filters.category && filters.category !== "all") {
+      filtered = filtered.filter(project => project.category === filters.category)
     }
 
     // Filtro por busca
@@ -175,6 +184,28 @@ export default function ClientProjectsPage() {
         return "Média"
       default:
         return "Baixa"
+    }
+  }, [])
+
+  const getCategoryColor = useCallback((category: string) => {
+    switch (category) {
+      case "project":
+        return "bg-blue-100 text-blue-800"
+      case "improvement":
+        return "bg-orange-100 text-orange-800"
+      default:
+        return "bg-gray-100 text-gray-800"
+    }
+  }, [])
+
+  const getCategoryText = useCallback((category: string) => {
+    switch (category) {
+      case "project":
+        return "Projeto"
+      case "improvement":
+        return "Melhoria"
+      default:
+        return "Projeto"
     }
   }, [])
 
@@ -296,7 +327,7 @@ export default function ClientProjectsPage() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               {/* Status */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700 block">Status</label>
@@ -332,10 +363,24 @@ export default function ClientProjectsPage() {
                   </SelectContent>
                 </Select>
               </div>
+              {/* Categoria */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700 block">Categoria</label>
+                <Select value={filters.category} onValueChange={(value) => setFilters({ ...filters, category: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Todas as categorias" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas as categorias</SelectItem>
+                    <SelectItem value="project">Projeto</SelectItem>
+                    <SelectItem value="improvement">Melhoria</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
           <div className="flex justify-end gap-2 pt-4">
-            <Button variant="outline" onClick={() => setFilters({ status: "all", priority: "all", search: "" })}>
+            <Button variant="outline" onClick={() => setFilters({ status: "all", priority: "all", category: "all", search: "" })}>
               <X className="h-4 w-4 mr-2" />
               Limpar
             </Button>
@@ -378,6 +423,7 @@ export default function ClientProjectsPage() {
                     <h3 className="font-medium">{project.name}</h3>
                     <Badge className={getStatusColor(project.status)}>{getStatusText(project.status)}</Badge>
                     <Badge className={getPriorityColor(project.priority)}>{getPriorityText(project.priority)}</Badge>
+                    <Badge className={getCategoryColor(project.category)}>{getCategoryText(project.category)}</Badge>
                     <Badge className={getProjectTypeColor(project.project_type)}>{getProjectTypeText(project.project_type)}</Badge>
                   </div>
                   <p className="text-sm text-muted-foreground">{project.description || "Sem descrição"}</p>
@@ -402,12 +448,13 @@ export default function ClientProjectsPage() {
             ))}
             {currentProjects.length === 0 && (
               <div className="text-center py-12">
-                {(filters.status !== "all" || filters.priority !== "all" || filters.search) ? (
+                {(filters.status !== "all" || filters.priority !== "all" || filters.category !== "all" || filters.search) ? (
                   <div>
                     <p className="text-muted-foreground mb-2">Nenhum projeto encontrado com os filtros aplicados</p>
                     <Button variant="outline" onClick={() => setFilters({
                       status: "all",
                       priority: "all",
+                      category: "all",
                       search: ""
                     })}>
                       Limpar Filtros

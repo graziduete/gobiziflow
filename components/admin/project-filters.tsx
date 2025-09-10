@@ -21,6 +21,7 @@ export function ProjectFilters({ companies, users, filters: externalFilters, onF
     company_id: externalFilters?.company_id || "all",
     priority: externalFilters?.priority || "all", 
     status: externalFilters?.status || "all",
+    category: externalFilters?.category || "all",
     search: externalFilters?.search || "",
   })
 
@@ -31,6 +32,7 @@ export function ProjectFilters({ companies, users, filters: externalFilters, onF
         company_id: externalFilters.company_id || "all",
         priority: externalFilters.priority || "all",
         status: externalFilters.status || "all",
+        category: externalFilters.category || "all",
         search: externalFilters.search || "",
       })
     }
@@ -77,6 +79,7 @@ export function ProjectFilters({ companies, users, filters: externalFilters, onF
       company_id: "all",
       priority: "all",
       status: "all",
+      category: "all",
       search: "",
     }
     setFilters(clearedFilters)
@@ -173,6 +176,24 @@ export function ProjectFilters({ companies, users, filters: externalFilters, onF
                       {status.label}
                     </SelectItem>
                   ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div style={{ flex: '1', minWidth: '200px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500', color: '#374151' }}>Categoria</label>
+              <Select value={filters.category} onValueChange={(value) => handleFilterChange("category", value)}>
+                <SelectTrigger style={{ width: '100%' }}>
+                  <SelectValue placeholder="Todas as categorias" />
+                </SelectTrigger>
+                <SelectContent 
+                  className="!z-[9999]" 
+                  position="popper"
+                  style={{ zIndex: 9999 }}
+                >
+                  <SelectItem value="all">Todas as categorias</SelectItem>
+                  <SelectItem value="project">Projeto</SelectItem>
+                  <SelectItem value="improvement">Melhoria</SelectItem>
                 </SelectContent>
               </Select>
             </div>

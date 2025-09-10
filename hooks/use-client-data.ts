@@ -9,6 +9,7 @@ interface Project {
   status: string
   priority: string
   project_type: string | null
+  category: string
   start_date: string | null
   end_date: string | null
   budget: number | null
@@ -124,6 +125,7 @@ export function useClientData() {
           status,
           priority,
           project_type,
+          category,
           start_date,
           end_date,
           estimated_hours,

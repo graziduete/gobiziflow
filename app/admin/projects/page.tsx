@@ -17,6 +17,7 @@ interface Project {
   status: string
   priority: string
   project_type: string | null
+  category: string
   start_date: string | null
   end_date: string | null
   budget: number | null
@@ -33,6 +34,7 @@ interface ProjectFilters {
   company_id: string
   status: string
   priority: string
+  category: string
   search: string
 }
 
@@ -44,6 +46,7 @@ export default function ProjectsPage() {
     company_id: "all",
     status: "all",
     priority: "all",
+    category: "all",
     search: ""
   })
   // Quando buscar do backend já aplicando filtros, não precisamos manter uma cópia filtrada
@@ -55,6 +58,7 @@ export default function ProjectsPage() {
     if (filters.company_id && filters.company_id !== "all") count++
     if (filters.status && filters.status !== "all") count++
     if (filters.priority && filters.priority !== "all") count++
+    if (filters.category && filters.category !== "all") count++
     if (filters.search && filters.search.trim() !== "") count++
     return count
   }, [filters])
@@ -124,7 +128,7 @@ export default function ProjectsPage() {
       let query = supabase
         .from("projects")
         .select(
-          `id, name, description, status, priority, project_type, start_date, end_date, budget, created_at, company_id`,
+          `id, name, description, status, priority, project_type, category, start_date, end_date, budget, created_at, company_id`,
           { count: "exact" }
         )
         .order("start_date", { ascending: true, nullsFirst: false })
@@ -137,6 +141,9 @@ export default function ProjectsPage() {
       }
       if (filters.priority && filters.priority !== "all") {
         query = query.eq("priority", filters.priority)
+      }
+      if (filters.category && filters.category !== "all") {
+        query = query.eq("category", filters.category)
       }
       if (filters.search) {
         const s = filters.search.trim()
@@ -232,6 +239,28 @@ export default function ProjectsPage() {
         return "Média"
       default:
         return "Baixa"
+    }
+  }
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case "project":
+        return "bg-blue-100 text-blue-800"
+      case "improvement":
+        return "bg-orange-100 text-orange-800"
+      default:
+        return "bg-gray-100 text-gray-800"
+    }
+  }
+
+  const getCategoryText = (category: string) => {
+    switch (category) {
+      case "project":
+        return "Projeto"
+      case "improvement":
+        return "Melhoria"
+      default:
+        return "Projeto"
     }
   }
 
@@ -417,6 +446,7 @@ export default function ProjectsPage() {
                     <h3 className="font-medium">{project.name}</h3>
                     <Badge className={getStatusColor(project.status)}>{getStatusText(project.status)}</Badge>
                     <Badge className={getPriorityColor(project.priority)}>{getPriorityText(project.priority)}</Badge>
+                    <Badge className={getCategoryColor(project.category)}>{getCategoryText(project.category)}</Badge>
                     <Badge className={getProjectTypeColor(project.project_type)}>{getProjectTypeText(project.project_type)}</Badge>
                   </div>
                   <p className="text-sm text-muted-foreground">{project.description || "Sem descrição"}</p>

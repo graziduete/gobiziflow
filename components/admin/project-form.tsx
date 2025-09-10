@@ -44,6 +44,7 @@ interface ProjectFormProps {
     status: string
     priority: string
     project_type?: string
+    category?: string
     start_date?: string
     end_date?: string
     budget?: number
@@ -73,6 +74,7 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
     status: getSafeValue(project?.status, "planning"),
     priority: getSafeValue(project?.priority, "medium"),
     project_type: getSafeValue(project?.project_type, ""),
+    category: getSafeValue(project?.category, ""),
     start_date: getSafeValue(project?.start_date, ""),
     end_date: getSafeValue(project?.end_date, ""),
     budget: getSafeValue(project?.budget, ""),
@@ -183,6 +185,7 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
         status: formData.status,
         priority: formData.priority,
         project_type: formData.project_type || null,
+        category: formData.category || "project",
         start_date: formData.start_date || null,
         end_date: formData.end_date || null,
         budget: formData.budget ? parseFloat(formData.budget.replace(/\./g, '').replace(',', '.')) : null,
@@ -391,8 +394,8 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
             />
           </div>
 
-          {/* Empresa, Tipo de Projeto, Status e Prioridade - Segunda linha */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {/* Empresa, Tipo de Projeto, Categoria, Status e Prioridade - Segunda linha */}
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div className="space-y-2">
               <Label htmlFor="company_id">Empresa *</Label>
               <Select value={formData.company_id} onValueChange={(value) => handleChange("company_id", value)}>
@@ -425,6 +428,18 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
                   <SelectItem value="infrastructure">Infraestrutura/Cloud</SelectItem>
                   <SelectItem value="support">Suporte / Sustentação</SelectItem>
                   <SelectItem value="training">Treinamento / Capacitação</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="category">Categoria</Label>
+              <Select value={formData.category} onValueChange={(value) => handleChange("category", value)}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Selecione a categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="project">Projeto</SelectItem>
+                  <SelectItem value="improvement">Melhoria</SelectItem>
                 </SelectContent>
               </Select>
             </div>
