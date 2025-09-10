@@ -14,6 +14,7 @@ import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { Plus, Trash2, Calendar, Clock, User, Users } from "lucide-react"
 import { GanttChart } from "./gantt-chart"
+import { DraggableTaskList } from "./draggable-task-list"
 
 const mockCompanies = [
   { id: "1", name: "TechCorp Solutions" },
@@ -34,6 +35,7 @@ interface Task {
   status: string
   responsible: string
   description?: string
+  order?: number
 }
 
 interface ProjectFormProps {
@@ -139,7 +141,12 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
 
         if (data) {
           console.log("[v0] Tasks fetched successfully:", data.length)
-          setTasks(data)
+          // Adicionar ordem para tarefas existentes que não têm ordem
+          const tasksWithOrder = data.map((task, index) => ({
+            ...task,
+            order: task.order || index
+          }))
+          setTasks(tasksWithOrder)
         } else {
           console.log("[v0] No tasks found for project")
           setTasks([])
@@ -330,6 +337,7 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
       status: "not_started",
       responsible: "",
       description: "",
+      order: tasks.length, // Ordem baseada no número de tarefas existentes
     }
     setTasks([...tasks, newTask])
   }
@@ -342,6 +350,20 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
 
   const removeTask = (taskId: string) => {
     setTasks(tasks.filter(task => task.id !== taskId))
+  }
+
+  const reorderTasks = (oldIndex: number, newIndex: number) => {
+    const reorderedTasks = Array.from(tasks)
+    const [reorderedItem] = reorderedTasks.splice(oldIndex, 1)
+    reorderedTasks.splice(newIndex, 0, reorderedItem)
+    
+    // Atualizar a ordem de todas as tarefas
+    const updatedTasks = reorderedTasks.map((task, index) => ({
+      ...task,
+      order: index
+    }))
+    
+    setTasks(updatedTasks)
   }
 
   const getStatusColor = (status: string) => {
@@ -650,86 +672,12 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
             </CardHeader>
             <CardContent>
               {tasks.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr className="border-b bg-gray-50">
-                        <th className="text-left p-4 font-medium text-sm w-1/3">Tarefa</th>
-                        <th className="text-left p-4 font-medium text-sm w-1/6">Data Início</th>
-                        <th className="text-left p-4 font-medium text-sm w-1/6">Data Fim</th>
-                        <th className="text-left p-4 font-medium text-sm w-1/6">Responsável</th>
-                        <th className="text-left p-4 font-medium text-sm w-1/6">Status</th>
-                        <th className="text-center p-4 font-medium text-sm w-1/12">Ações</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {tasks.map((task, index) => (
-                        <tr key={task.id} className="border-b hover:bg-blue-50">
-                          <td className="p-4">
-                            <Input
-                              value={task.name}
-                              onChange={(e) => updateTask(task.id, "name", e.target.value)}
-                              placeholder="Nome da tarefa"
-                              className="border-0 bg-transparent p-0 text-sm focus:ring-0 w-full"
-                            />
-                          </td>
-                          <td className="p-4">
-                            <Input
-                              type="date"
-                              value={task.start_date}
-                              onChange={(e) => updateTask(task.id, "start_date", e.target.value)}
-                              className="border-0 bg-transparent p-0 text-sm focus:ring-0 w-full"
-                            />
-                          </td>
-                          <td className="p-4">
-                            <Input
-                              type="date"
-                              value={task.end_date}
-                              onChange={(e) => updateTask(task.id, "end_date", e.target.value)}
-                              className="border-0 bg-transparent p-0 text-sm focus:ring-0 w-full"
-                            />
-                          </td>
-                          <td className="p-4">
-                            <Input
-                              value={task.responsible}
-                              onChange={(e) => updateTask(task.id, "responsible", e.target.value)}
-                              placeholder="Responsável"
-                              className="border-0 bg-transparent p-0 text-sm focus:ring-0 w-full"
-                            />
-                          </td>
-                          <td className="p-4">
-                            <Select
-                              value={task.status}
-                              onValueChange={(value) => updateTask(task.id, "status", value)}
-                            >
-                              <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-full">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="not_started">Não Iniciado</SelectItem>
-                                <SelectItem value="in_progress">Em Andamento</SelectItem>
-                                <SelectItem value="completed">Concluído</SelectItem>
-                                <SelectItem value="on_hold">Pausado</SelectItem>
-                                <SelectItem value="delayed">Atrasado</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </td>
-                          <td className="p-4 text-center">
-                            <Button
-                              type="button"
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => removeTask(task.id)}
-                              className="h-6 w-6 p-0"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </Button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                <DraggableTaskList
+                  tasks={tasks}
+                  onUpdateTask={updateTask}
+                  onRemoveTask={removeTask}
+                  onReorderTasks={reorderTasks}
+                />
               ) : (
                 <div className="text-center py-8 text-gray-500">
                   <Calendar className="w-12 h-12 mx-auto mb-2 text-gray-300" />
