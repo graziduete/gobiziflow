@@ -98,8 +98,8 @@ export function SustentacaoDashboard({ companyId, useV2 = false }: { companyId: 
       // Tentar usar Google Sheets se configurado
       console.log('🔄 Carregando dados do Google Sheets...', filters);
       
-      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
-      const apiEndpoint = useV2 ? `${baseUrl}/api/sustentacao/chamados-v2` : `${baseUrl}/api/sustentacao/chamados`;
+      // Usar URL relativa para evitar problemas de CORS
+      const apiEndpoint = useV2 ? '/api/sustentacao/chamados-v2' : '/api/sustentacao/chamados';
       
       const response = await fetch(apiEndpoint, {
         method: 'POST',
