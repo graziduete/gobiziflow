@@ -54,6 +54,11 @@ const navigation = [
     icon: FolderKanban,
   },
   {
+    name: "Sustentação",
+    href: "/admin/sustentacao",
+    icon: Shield,
+  },
+  {
     name: "Configurações",
     href: "/admin/settings",
     icon: Settings,
