@@ -99,7 +99,8 @@ export function SustentacaoDashboard({ companyId, useV2 = false }: { companyId: 
       console.log('🔄 Carregando dados do Google Sheets...', filters);
       
       // Usar URL relativa para evitar problemas de CORS
-      const apiEndpoint = useV2 ? '/api/sustentacao/chamados-v2' : '/api/sustentacao/chamados';
+      const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+      const apiEndpoint = useV2 ? `${baseUrl}/api/sustentacao/chamados-v2` : `${baseUrl}/api/sustentacao/chamados`;
       
       const response = await fetch(apiEndpoint, {
         method: 'POST',
