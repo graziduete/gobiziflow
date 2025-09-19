@@ -98,7 +98,8 @@ export function SustentacaoDashboard({ companyId, useV2 = false }: { companyId: 
       // Tentar usar Google Sheets se configurado
       console.log('🔄 Carregando dados do Google Sheets...', filters);
       
-      const apiEndpoint = useV2 ? 'http://localhost:3000/api/sustentacao/chamados-v2' : 'http://localhost:3000/api/sustentacao/chamados';
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://flow.gobi-zi.com';
+      const apiEndpoint = useV2 ? `${baseUrl}/api/sustentacao/chamados-v2` : `${baseUrl}/api/sustentacao/chamados`;
       
       const response = await fetch(apiEndpoint, {
         method: 'POST',
