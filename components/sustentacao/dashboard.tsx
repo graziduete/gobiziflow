@@ -37,7 +37,7 @@ export function SustentacaoDashboard({ companyId, useV2 = false }: { companyId: 
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
-  const [refreshInterval, setRefreshInterval] = useState(30000); // 30 segundos
+  const [refreshInterval, setRefreshInterval] = useState(300000); // 5 minutos
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   
   // Filtros da listagem
