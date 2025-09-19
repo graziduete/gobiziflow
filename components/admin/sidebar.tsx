@@ -56,7 +56,7 @@ const navigation = [
   {
     name: "Sustentação",
     href: "/admin/sustentacao",
-    icon: Shield,
+    icon: Settings,
   },
   {
     name: "Configurações",
