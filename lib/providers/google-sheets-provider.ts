@@ -147,7 +147,8 @@ export class GoogleSheetsProvider implements GoogleSheetsProviderInterface {
         const companyId = filters.companyId || filters.company_id;
         if (companyId) {
           console.log('🔍 Buscando configuração para companyId:', companyId);
-          const configResponse = await fetch(`http://localhost:3000/api/sustentacao/config-empresa?companyId=${companyId}`);
+          const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://flow.gobi-zi.com';
+          const configResponse = await fetch(`${baseUrl}/api/sustentacao/config-empresa?companyId=${companyId}`);
           if (configResponse.ok) {
             const configData = await configResponse.json();
             if (configData.success && configData.data) {
