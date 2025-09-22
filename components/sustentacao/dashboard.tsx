@@ -464,26 +464,26 @@ export function SustentacaoDashboard({
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
+          <Table className="w-full">
             <TableHeader>
               <TableRow className="border-gray-200">
-                <TableHead className="font-semibold text-gray-900">Id Ellevo</TableHead>
-                <TableHead className="font-semibold text-gray-900">Qual automação</TableHead>
-                <TableHead className="font-semibold text-gray-900">Assunto</TableHead>
-                <TableHead className="font-semibold text-gray-900">Categoria</TableHead>
-                <TableHead className="font-semibold text-gray-900">Status</TableHead>
-                <TableHead className="font-semibold text-gray-900">Solicitante</TableHead>
-                <TableHead className="font-semibold text-gray-900">Data da Abertura</TableHead>
-                <TableHead className="font-semibold text-gray-900">Data da resolução</TableHead>
-                <TableHead className="font-semibold text-gray-900">Tempo de Atendimento</TableHead>
+                <TableHead className="font-semibold text-gray-900 w-20">Id Ellevo</TableHead>
+                <TableHead className="font-semibold text-gray-900 w-24">Qual automação</TableHead>
+                <TableHead className="font-semibold text-gray-900 min-w-48">Assunto</TableHead>
+                <TableHead className="font-semibold text-gray-900 w-28">Categoria</TableHead>
+                <TableHead className="font-semibold text-gray-900 w-24">Status</TableHead>
+                <TableHead className="font-semibold text-gray-900 w-40">Solicitante</TableHead>
+                <TableHead className="font-semibold text-gray-900 w-32">Data da Abertura</TableHead>
+                <TableHead className="font-semibold text-gray-900 w-32">Data da resolução</TableHead>
+                <TableHead className="font-semibold text-gray-900 w-28 text-center">Tempo de Atendimento</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredChamados.map((chamado, index) => (
                 <TableRow key={index} className="border-gray-200 hover:bg-gray-50 transition-colors">
-                  <TableCell className="font-medium text-gray-900">{chamado.idEllevo}</TableCell>
-                  <TableCell className="text-gray-700">{chamado.automacao}</TableCell>
-                  <TableCell className="text-gray-700">
+                  <TableCell className="font-medium text-gray-900 w-20">{chamado.idEllevo}</TableCell>
+                  <TableCell className="text-gray-700 w-24">{chamado.automacao}</TableCell>
+                  <TableCell className="text-gray-700 min-w-48">
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -497,7 +497,7 @@ export function SustentacaoDashboard({
                       </Tooltip>
                     </TooltipProvider>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="w-28">
                     <Badge 
                       variant="outline" 
                       className={`${
@@ -512,7 +512,7 @@ export function SustentacaoDashboard({
                       {chamado.categoria}
                     </Badge>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="w-24">
                     <Badge 
                       variant="outline"
                       className={`${
@@ -525,10 +525,10 @@ export function SustentacaoDashboard({
                       {chamado.status === 'RESOLVED' ? 'Resolvido' : chamado.status}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-gray-700">{chamado.solicitante}</TableCell>
-                  <TableCell className="text-gray-700">{chamado.dataAbertura}</TableCell>
-                  <TableCell className="text-gray-700">{chamado.dataResolucao}</TableCell>
-                  <TableCell className="text-gray-700 text-center">
+                  <TableCell className="text-gray-700 w-40">{chamado.solicitante}</TableCell>
+                  <TableCell className="text-gray-700 w-32">{chamado.dataAbertura}</TableCell>
+                  <TableCell className="text-gray-700 w-32">{chamado.dataResolucao}</TableCell>
+                  <TableCell className="text-gray-700 text-center w-28">
                     {chamado.tempoAtendimento || '00:00:00'}
                   </TableCell>
                 </TableRow>

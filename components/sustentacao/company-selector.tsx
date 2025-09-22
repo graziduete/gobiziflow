@@ -179,7 +179,7 @@ export function CompanySelector({ onCompanySelect, selectedCompanyId, showConfig
         <p className="text-gray-600">Escolha a empresa para visualizar os dados de sustentação</p>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 max-w-4xl mx-auto">
+      <div className="grid grid-cols-1 gap-6 max-w-6xl mx-auto">
         {companies.map((company) => (
           <Card 
             key={company.id} 

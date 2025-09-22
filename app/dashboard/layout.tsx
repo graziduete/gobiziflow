@@ -40,8 +40,8 @@ export default async function ClientLayout({
       <ClientSidebar className="shrink-0" />
       <div className="flex flex-1 flex-col overflow-hidden">
         <ClientHeader />
-        <main className="flex-1 overflow-y-auto p-6">
-          <div className="mx-auto max-w-7xl">
+        <main className="flex-1 overflow-y-auto p-2">
+          <div className="mx-auto max-w-full">
             {children}
           </div>
         </main>
