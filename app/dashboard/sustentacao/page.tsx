@@ -24,36 +24,36 @@ export default function ClientSustentacaoPage() {
           return
         }
 
-        // Buscar company_id do usuário
-        console.log('🔍 Buscando perfil para user.id:', user.id)
+        // Buscar company_id do usuário através da tabela user_companies
+        console.log('🔍 Buscando empresa do usuário:', user.id)
         
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('company_id, id, email')
-          .eq('id', user.id)
+        const { data: userCompany, error: userCompanyError } = await supabase
+          .from('user_companies')
+          .select('company_id, companies(id, name)')
+          .eq('user_id', user.id)
           .single()
 
-        console.log('🔍 Profile data:', { 
-          profile, 
-          profileError,
+        console.log('🔍 User company data:', { 
+          userCompany, 
+          userCompanyError,
           userEmail: user.email,
           userId: user.id
         })
 
-        if (profileError) {
-          console.error('❌ Erro ao buscar perfil:', profileError)
+        if (userCompanyError) {
+          console.error('❌ Erro ao buscar empresa do usuário:', userCompanyError)
           setLoading(false)
           return
         }
 
-        if (!profile?.company_id) {
-          console.log('⚠️ Usuário não tem company_id configurado')
+        if (!userCompany?.company_id) {
+          console.log('⚠️ Usuário não está associado a nenhuma empresa')
           setLoading(false)
           return
         }
 
-        setUserCompanyId(profile.company_id)
-        setSelectedCompanyId(profile.company_id) // Auto-selecionar a empresa do usuário
+        setUserCompanyId(userCompany.company_id)
+        setSelectedCompanyId(userCompany.company_id) // Auto-selecionar a empresa do usuário
         setLoading(false)
       } catch (error) {
         console.error('Erro ao carregar dados do cliente:', error)
