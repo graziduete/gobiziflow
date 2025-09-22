@@ -4,9 +4,9 @@ import { redirect } from 'next/navigation'
 import { SustentacaoDashboard } from '@/components/sustentacao/dashboard'
 
 export default async function ClientSustentacaoPage() {
-  const supabase = createClient()
-  
   try {
+    const supabase = await createClient()
+    
     // Buscar dados do usuário logado
     const { data: { user }, error: userError } = await supabase.auth.getUser()
     
