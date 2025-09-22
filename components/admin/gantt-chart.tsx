@@ -191,6 +191,37 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
     }
   }, [tasks])
 
+  // Calcular posição da linha da data atual
+  const currentDateLinePosition = React.useMemo(() => {
+    try {
+      const today = new Date()
+      const todayTime = today.getTime()
+      
+      // Encontrar a semana que contém a data atual
+      for (let i = 0; i < weeks.length; i++) {
+        const week = weeks[i]
+        const weekStartTime = week.start.getTime()
+        const weekEndTime = week.end.getTime()
+        
+        if (todayTime >= weekStartTime && todayTime <= weekEndTime) {
+          // Calcular a posição dentro da semana (0 = início, 1 = fim)
+          const weekDuration = weekEndTime - weekStartTime
+          const daysFromStart = todayTime - weekStartTime
+          const positionInWeek = daysFromStart / weekDuration
+          
+          // Retornar posição: índice da semana + posição dentro da semana
+          return i + positionInWeek
+        }
+      }
+      
+      // Se não encontrou, retornar null (não mostrar linha)
+      return null
+    } catch (error) {
+      console.error("Erro ao calcular posição da linha da data atual:", error)
+      return null
+    }
+  }, [weeks])
+
   // Agrupar semanas por mês
   const monthsWithWeeks = React.useMemo(() => {
     try {
@@ -513,6 +544,24 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                   ))}
                 </div>
 
+                {/* Container das tarefas com posicionamento relativo para a linha */}
+                <div className="relative">
+                  {/* Linha da data atual */}
+                  {currentDateLinePosition !== null && (
+                    <div 
+                      className="absolute w-0.5 bg-green-500 z-10 pointer-events-none"
+                      style={{
+                        left: `calc(280px + ${currentDateLinePosition * 120}px)`,
+                        top: '0px',
+                        height: `${validTasks.length * 80}px`, // Altura baseada no número de tarefas
+                        boxShadow: '0 0 4px rgba(34, 197, 94, 0.5)'
+                      }}
+                    >
+                      <div className="absolute -top-2 -left-1 w-2 h-2 bg-green-500 rounded-full"></div>
+                      <div className="absolute -bottom-2 -left-1 w-2 h-2 bg-green-500 rounded-full"></div>
+                    </div>
+                  )}
+
                 {/* Tarefas com barras contínuas */}
                 {validTasks.map((task, taskIndex) => (
                   <div
@@ -570,6 +619,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                     )}
                   </div>
                 ))}
+                </div> {/* Fechar container das tarefas */}
               </div>
             </div>
 
@@ -694,6 +744,24 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
               ))}
             </div>
 
+            {/* Container das tarefas com posicionamento relativo para a linha */}
+            <div className="relative">
+              {/* Linha da data atual */}
+              {currentDateLinePosition !== null && (
+                <div 
+                  className="absolute w-0.5 bg-green-500 z-10 pointer-events-none"
+                  style={{
+                    left: `calc(280px + ${currentDateLinePosition * 120}px)`,
+                    top: '0px',
+                    height: `${validTasks.length * 80}px`, // Altura baseada no número de tarefas
+                    boxShadow: '0 0 4px rgba(34, 197, 94, 0.5)'
+                  }}
+                >
+                  <div className="absolute -top-2 -left-1 w-2 h-2 bg-green-500 rounded-full"></div>
+                  <div className="absolute -bottom-2 -left-1 w-2 h-2 bg-green-500 rounded-full"></div>
+                </div>
+              )}
+
             {/* Tarefas com barras contínuas */}
             {validTasks.map((task, taskIndex) => (
               <div
@@ -751,6 +819,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                 )}
               </div>
             ))}
+            </div> {/* Fechar container das tarefas */}
           </div>
         </div>
 
