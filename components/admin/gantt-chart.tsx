@@ -351,7 +351,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
       case 'on_hold':
         return 'bg-slate-100 text-slate-800 border-slate-200'
       case 'commercial_proposal':
-        return 'bg-blue-50 text-blue-700 border-blue-200'
+        return 'bg-purple-50 text-purple-700 border-purple-200'
       default:
         return 'bg-blue-100 text-blue-800 border-blue-200'
     }

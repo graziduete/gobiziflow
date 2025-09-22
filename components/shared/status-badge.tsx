@@ -31,6 +31,10 @@ export function StatusBadge({ status, type = "project", className }: StatusBadge
           label: "Planejamento",
           className: "bg-muted text-muted-foreground border-border hover:bg-muted/80",
         },
+    commercial_proposal: {
+      label: "Proposta Comercial",
+      className: "bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100",
+    },
       },
       task: {
         completed: {

@@ -138,7 +138,7 @@ export default function ClientProjectsPage() {
       case "cancelled":
         return "bg-red-100 text-red-800"
       case "commercial_proposal":
-        return "bg-blue-50 text-blue-700 border-blue-200"
+        return "bg-purple-50 text-purple-700 border-purple-200"
       default:
         return "bg-gray-100 text-gray-800"
     }

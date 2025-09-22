@@ -73,7 +73,7 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
       case "planning":
         return "bg-blue-500"
       case "commercial_proposal":
-        return "bg-indigo-500"
+        return "bg-purple-500"
       case "in_progress":
         return "bg-yellow-500"
       case "homologation":
