@@ -192,6 +192,8 @@ export default function ProjectsPage() {
         return "bg-red-100 text-red-800"
       case "cancelled":
         return "bg-red-100 text-red-800"
+      case "commercial_proposal":
+        return "bg-blue-50 text-blue-700 border-blue-200"
       default:
         return "bg-gray-100 text-gray-800"
     }
@@ -211,6 +213,8 @@ export default function ProjectsPage() {
         return "Atrasado"
       case "cancelled":
         return "Cancelado"
+      case "commercial_proposal":
+        return "Proposta Comercial"
       default:
         return "Planejamento"
     }

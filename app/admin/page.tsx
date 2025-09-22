@@ -63,7 +63,8 @@ export default function AdminDashboard() {
       'in_progress': 'Em Andamento',
       'completed': 'Concluído',
       'on_hold': 'Pausado',
-      'delayed': 'Atrasado'
+      'delayed': 'Atrasado',
+      'commercial_proposal': 'Proposta Comercial'
     }
     return statusMap[status] || status
   }
