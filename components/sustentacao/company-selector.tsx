@@ -28,9 +28,10 @@ interface CompanySelectorProps {
   showConfig?: boolean;
   onConfigSaved?: () => void;
   isClientView?: boolean; // Nova prop para indicar se é visualização do cliente
+  userCompanyId?: string; // ID da empresa do usuário para filtrar apenas ela
 }
 
-export function CompanySelector({ onCompanySelect, selectedCompanyId, showConfig, onConfigSaved, isClientView = false }: CompanySelectorProps) {
+export function CompanySelector({ onCompanySelect, selectedCompanyId, showConfig, onConfigSaved, isClientView = false, userCompanyId }: CompanySelectorProps) {
   const router = useRouter();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
@@ -79,7 +80,15 @@ export function CompanySelector({ onCompanySelect, selectedCompanyId, showConfig
         const allConfigs = configsResult.success ? configsResult.data : [];
         
         // Mapear empresas com configurações (pegar a mais recente de cada empresa)
-        const companiesWithConfig = companiesResult.data.map((company: any) => {
+        let companiesToProcess = companiesResult.data;
+        
+        // Se for visualização do cliente, filtrar apenas a empresa do usuário
+        if (isClientView && userCompanyId) {
+          companiesToProcess = companiesResult.data.filter((company: any) => company.id === userCompanyId);
+          console.log('🔍 Modo cliente: filtrando apenas empresa do usuário:', userCompanyId);
+        }
+        
+        const companiesWithConfig = companiesToProcess.map((company: any) => {
           const companyConfigs = allConfigs.filter((c: any) => c.company_id === company.id);
           // Pegar a configuração mais recente (primeira da lista ordenada por created_at DESC)
           const config = companyConfigs.length > 0 ? companyConfigs[0] : null;

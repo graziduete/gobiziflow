@@ -116,6 +116,7 @@ export default function ClientSustentacaoPage() {
           onCompanySelect={handleCompanySelect}
           selectedCompanyId={userCompanyId}
           isClientView={true} // Nova prop para indicar que é visualização do cliente
+          userCompanyId={userCompanyId} // Passar o ID da empresa do usuário para filtrar
         />
       ) : (
         <div className="space-y-4">
