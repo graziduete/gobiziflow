@@ -60,6 +60,7 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
 
   const statusOptions = [
     { value: "planning", label: "Planejamento" },
+    { value: "commercial_proposal", label: "Proposta Comercial" },
     { value: "in_progress", label: "Em Andamento" },
     { value: "homologation", label: "Homologação" },
     { value: "on_hold", label: "Pausado" },
@@ -71,6 +72,8 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
     switch (status) {
       case "planning":
         return "bg-blue-500"
+      case "commercial_proposal":
+        return "bg-indigo-500"
       case "in_progress":
         return "bg-yellow-500"
       case "homologation":
@@ -104,6 +107,8 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
         return "Concluído"
       case "cancelled":
         return "Cancelado"
+      case "commercial_proposal":
+        return "Proposta Comercial"
       default:
         return "Planejamento"
     }
@@ -122,6 +127,8 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
     
     // Caso contrário, usar porcentagem baseada no status
     switch (status) {
+      case "commercial_proposal":
+        return 0  // Proposta comercial ainda não aprovada
       case "planning":
         return 10
       case "in_progress":

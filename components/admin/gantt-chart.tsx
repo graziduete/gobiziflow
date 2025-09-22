@@ -302,6 +302,8 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
       case 'pausado':
       case 'on_hold':
         return 30 // Progresso baixo para tarefas pausadas
+      case 'commercial_proposal':
+        return 0 // Proposta comercial ainda não aprovada
       default:
         return 0
     }
@@ -324,6 +326,8 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
       case 'pausado':
       case 'on_hold':
         return 'Pausado'
+      case 'commercial_proposal':
+        return 'Proposta Comercial'
       default:
         return status
     }
@@ -346,6 +350,8 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
       case 'pausado':
       case 'on_hold':
         return 'bg-slate-100 text-slate-800 border-slate-200'
+      case 'commercial_proposal':
+        return 'bg-blue-50 text-blue-700 border-blue-200'
       default:
         return 'bg-blue-100 text-blue-800 border-blue-200'
     }
