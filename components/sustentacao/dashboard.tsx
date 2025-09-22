@@ -22,7 +22,17 @@ const converterDecimalParaRelogio = (decimal: number): string => {
 };
 
 
-export function SustentacaoDashboard({ companyId, useV2 = false }: { companyId: string; useV2?: boolean }) {
+export function SustentacaoDashboard({ 
+  companyId, 
+  useV2 = false, 
+  companyName,
+  isClientView = false 
+}: { 
+  companyId: string; 
+  useV2?: boolean;
+  companyName?: string;
+  isClientView?: boolean;
+}) {
   const [chamados, setChamados] = useState<any[]>([]);
   const [metricas, setMetricas] = useState<any>(null);
   const [categorias, setCategorias] = useState<any[]>([]);

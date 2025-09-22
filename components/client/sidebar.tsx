@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { LayoutDashboard, FolderKanban, CheckSquare, User, LogOut, ChevronLeft, ChevronRight } from "lucide-react"
+import { LayoutDashboard, FolderKanban, CheckSquare, User, LogOut, ChevronLeft, ChevronRight, Shield } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState, useEffect, useMemo, useCallback, memo } from "react"
@@ -63,6 +63,11 @@ const navigation = [
     name: "Minhas Tarefas",
     href: "/dashboard/tasks",
     icon: CheckSquare,
+  },
+  {
+    name: "Sustentação",
+    href: "/dashboard/sustentacao",
+    icon: Shield,
   },
   {
     name: "Perfil",
