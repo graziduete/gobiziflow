@@ -60,7 +60,7 @@ export class GoogleSheetsProvider implements GoogleSheetsProviderInterface {
         } catch (error) {
           if (attempts < maxAttempts - 1) {
             console.log(`⚠️ Erro na tentativa ${attempts + 1}/${maxAttempts}, aguardando 2s...`);
-            await new Promise(resolve => setTimeout(resolve, 2000)); // Esperar 2 segundos
+            await new Promise(resolve => setTimeout(resolve, 5000)); // Esperar 5 segundos para evitar 429
           } else {
             throw error; // Re-lançar o erro após todas as tentativas
           }
