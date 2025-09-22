@@ -27,9 +27,10 @@ interface CompanySelectorProps {
   selectedCompanyId?: string;
   showConfig?: boolean;
   onConfigSaved?: () => void;
+  isClientView?: boolean; // Nova prop para indicar se é visualização do cliente
 }
 
-export function CompanySelector({ onCompanySelect, selectedCompanyId, showConfig, onConfigSaved }: CompanySelectorProps) {
+export function CompanySelector({ onCompanySelect, selectedCompanyId, showConfig, onConfigSaved, isClientView = false }: CompanySelectorProps) {
   const router = useRouter();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
@@ -270,18 +271,20 @@ export function CompanySelector({ onCompanySelect, selectedCompanyId, showConfig
                         Reativar Configuração
                       </Button>
                     ) : (
-                      <div className="grid grid-cols-2 gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation(); // Para a propagação do evento
-                          window.location.href = `/admin/sustentacao/configuracao/${company.id}`;
-                        }}
-                      >
-                        <Edit className="h-3 w-3 mr-1" />
-                        Editar
-                      </Button>
+                      <div className={isClientView ? "grid grid-cols-1 gap-2" : "grid grid-cols-2 gap-2"}>
+                        {!isClientView && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation(); // Para a propagação do evento
+                              window.location.href = `/admin/sustentacao/configuracao/${company.id}`;
+                            }}
+                          >
+                            <Edit className="h-3 w-3 mr-1" />
+                            Editar
+                          </Button>
+                        )}
                         <Button
                           variant="secondary"
                           size="sm"

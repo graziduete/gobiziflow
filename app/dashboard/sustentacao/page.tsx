@@ -1,15 +1,17 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
-import { SustentacaoDashboard } from '@/components/sustentacao/dashboard'
+import { useState, useEffect } from "react";
+import { createClient } from '@/lib/supabase/client';
+import { useRouter } from 'next/navigation';
+import { SustentacaoDashboard } from '@/components/sustentacao/dashboard';
+import { CompanySelector } from '@/components/sustentacao/company-selector';
 
 export default function ClientSustentacaoPage() {
-  const [companyId, setCompanyId] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
-  const router = useRouter()
-  const supabase = createClient()
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
+  const [userCompanyId, setUserCompanyId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const supabase = createClient();
 
   useEffect(() => {
     async function loadUserData() {
@@ -25,36 +27,35 @@ export default function ClientSustentacaoPage() {
         // Buscar company_id do usuário
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
-          .select('company_id')
+          .select('company_id, id, email')
           .eq('id', user.id)
           .single()
 
-        console.log('🔍 Profile data:', { profile, profileError })
-
-        if (profileError) {
-          console.error('❌ Erro ao buscar perfil:', profileError)
-          // Se erro ao buscar perfil, mostrar erro
-          setLoading(false)
-          return
-        }
-
-        if (!profile?.company_id) {
+        if (profileError || !profile?.company_id) {
           console.log('⚠️ Usuário não tem company_id configurado')
-          // Se não tem company_id, mostrar mensagem
           setLoading(false)
           return
         }
 
-        setCompanyId(profile.company_id)
+        setUserCompanyId(profile.company_id)
+        setSelectedCompanyId(profile.company_id) // Auto-selecionar a empresa do usuário
         setLoading(false)
       } catch (error) {
         console.error('Erro ao carregar dados do cliente:', error)
-        router.push('/dashboard/profile')
+        setLoading(false)
       }
     }
 
     loadUserData()
   }, [router, supabase])
+
+  const handleCompanySelect = (companyId: string) => {
+    setSelectedCompanyId(companyId);
+  };
+
+  const handleBackToSelector = () => {
+    setSelectedCompanyId(null);
+  };
 
   if (loading) {
     return (
@@ -67,7 +68,7 @@ export default function ClientSustentacaoPage() {
     )
   }
 
-  if (!companyId) {
+  if (!userCompanyId) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
@@ -95,14 +96,33 @@ export default function ClientSustentacaoPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard Sustentação</h1>
-      </div>
-      
-      <SustentacaoDashboard 
-        companyId={companyId}
-        isClientView={true}
-      />
+      {!selectedCompanyId ? (
+        <CompanySelector 
+          onCompanySelect={handleCompanySelect}
+          selectedCompanyId={userCompanyId}
+          isClientView={true} // Nova prop para indicar que é visualização do cliente
+        />
+      ) : (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={handleBackToSelector}
+                className="text-blue-600 hover:text-blue-700 text-lg font-medium p-1 rounded-md hover:bg-blue-50 transition-colors"
+                title="Voltar para seleção"
+              >
+                ←
+              </button>
+              <div className="h-6 w-px bg-gray-300"></div>
+              <h1 className="text-2xl font-bold text-gray-900">Dashboard Sustentação</h1>
+            </div>
+          </div>
+          <SustentacaoDashboard 
+            companyId={selectedCompanyId} 
+            isClientView={true}
+          />
+        </div>
+      )}
     </div>
-  )
+  );
 }
