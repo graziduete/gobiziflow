@@ -25,13 +25,28 @@ export default function ClientSustentacaoPage() {
         }
 
         // Buscar company_id do usuário
+        console.log('🔍 Buscando perfil para user.id:', user.id)
+        
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('company_id, id, email')
           .eq('id', user.id)
           .single()
 
-        if (profileError || !profile?.company_id) {
+        console.log('🔍 Profile data:', { 
+          profile, 
+          profileError,
+          userEmail: user.email,
+          userId: user.id
+        })
+
+        if (profileError) {
+          console.error('❌ Erro ao buscar perfil:', profileError)
+          setLoading(false)
+          return
+        }
+
+        if (!profile?.company_id) {
           console.log('⚠️ Usuário não tem company_id configurado')
           setLoading(false)
           return
