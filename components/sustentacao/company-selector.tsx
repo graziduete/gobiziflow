@@ -179,21 +179,21 @@ export function CompanySelector({ onCompanySelect, selectedCompanyId, showConfig
         <p className="text-gray-600">Escolha a empresa para visualizar os dados de sustentação</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-6 max-w-4xl mx-auto">
         {companies.map((company) => (
           <Card 
             key={company.id} 
-            className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
+            className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${
               selectedCompanyId === company.id 
                 ? 'ring-2 ring-blue-500 bg-blue-50' 
-                : 'hover:shadow-sm'
+                : 'hover:shadow-md'
             }`}
             onClick={() => {
               // Clique no card vai para o dashboard da empresa específica
               onCompanySelect(company.id);
             }}
           >
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <Building2 className="h-5 w-5 text-gray-600" />
@@ -225,7 +225,7 @@ export function CompanySelector({ onCompanySelect, selectedCompanyId, showConfig
               </div>
             </CardHeader>
             
-            <CardContent>
+            <CardContent className="pt-4">
               {company.sustentacaoConfig ? (
                 <div className="space-y-2">
                          <div className="flex items-center justify-between text-sm">
@@ -263,14 +263,14 @@ export function CompanySelector({ onCompanySelect, selectedCompanyId, showConfig
               )}
               
               {/* Botões de ação */}
-              <div className="mt-4 pt-4 border-t space-y-2">
+              <div className="mt-6 pt-4 border-t space-y-3">
                 {company.sustentacaoConfig ? (
                   <>
                     {company.sustentacaoConfig.status === 'inativo' ? (
                       <Button
                         variant="outline"
-                        size="sm"
-                        className="w-full"
+                        size="default"
+                        className="w-full h-10"
                         onClick={(e) => {
                           e.stopPropagation(); // Para a propagação do evento
                           window.location.href = `/admin/sustentacao/configuracao/${company.id}`;
@@ -282,27 +282,29 @@ export function CompanySelector({ onCompanySelect, selectedCompanyId, showConfig
                     ) : (
                       <div className={isClientView ? "grid grid-cols-1 gap-2" : "grid grid-cols-2 gap-2"}>
                         {!isClientView && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation(); // Para a propagação do evento
-                              window.location.href = `/admin/sustentacao/configuracao/${company.id}`;
-                            }}
-                          >
-                            <Edit className="h-3 w-3 mr-1" />
-                            Editar
-                          </Button>
+                        <Button
+                          variant="outline"
+                          size="default"
+                          className="h-10"
+                          onClick={(e) => {
+                            e.stopPropagation(); // Para a propagação do evento
+                            window.location.href = `/admin/sustentacao/configuracao/${company.id}`;
+                          }}
+                        >
+                          <Edit className="h-4 w-4 mr-2" />
+                          Editar
+                        </Button>
                         )}
                         <Button
                           variant="secondary"
-                          size="sm"
+                          size="default"
+                          className="h-10"
                           onClick={(e) => {
                             e.stopPropagation(); // Para a propagação do evento
                             onCompanySelect(company.id);
                           }}
                         >
-                          <CheckCircle className="h-3 w-3 mr-1" />
+                          <CheckCircle className="h-4 w-4 mr-2" />
                           Visualizar Dashboard
                         </Button>
                       </div>
@@ -311,14 +313,14 @@ export function CompanySelector({ onCompanySelect, selectedCompanyId, showConfig
                 ) : (
                   <Button
                     variant="outline"
-                    size="sm"
-                    className="w-full"
+                    size="default"
+                    className="w-full h-10"
                     onClick={(e) => {
                       e.stopPropagation(); // Para a propagação do evento
                       setConfiguringCompany(company.id);
                     }}
                   >
-                    <Settings className="h-3 w-3 mr-2" />
+                    <Settings className="h-4 w-4 mr-2" />
                     Configurar
                   </Button>
                 )}
@@ -328,16 +330,6 @@ export function CompanySelector({ onCompanySelect, selectedCompanyId, showConfig
         ))}
       </div>
 
-      {selectedCompanyId && (
-        <div className="text-center pt-4">
-          <Button 
-            onClick={() => onCompanySelect(selectedCompanyId)}
-            className="bg-blue-600 hover:bg-blue-700"
-          >
-            Continuar para Dashboard
-          </Button>
-        </div>
-      )}
     </div>
   );
 }
