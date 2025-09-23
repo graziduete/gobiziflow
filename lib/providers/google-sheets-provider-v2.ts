@@ -143,9 +143,11 @@ export class GoogleSheetsProviderV2 {
 
       if (filters.mes && filters.ano) {
         filteredChamados = chamados.filter((chamado: any) => {
-          const mesChamado = Number(chamado['mês']) || 0;
-          const anoChamado = Number(chamado.ano) || 0;
-          return mesChamado === filters.mes && anoChamado === filters.ano;
+          const mesChamado = Number(chamado['mês']);
+          const anoChamado = Number(chamado.ano);
+          // Se não houver mês/ano definidos na linha, mantemos o item (não descartamos)
+          if (!mesChamado || !anoChamado) return true;
+          return mesChamado === Number(filters.mes) && anoChamado === Number(filters.ano);
         });
       } else if (filters.ano) {
         filteredChamados = chamados.filter((chamado: any) => {
@@ -153,6 +155,13 @@ export class GoogleSheetsProviderV2 {
           return anoChamado === filters.ano;
         });
       }
+
+      console.log('🧪 [V2] Totais', {
+        totalLido: (rows?.length ?? 0) - 1,
+        totalProcessado: chamados.length,
+        totalFiltrado: filteredChamados.length,
+        exemplo: filteredChamados[0]
+      });
 
       console.log(`✅ ${filteredChamados.length} chamados encontrados para os filtros aplicados`);
       return filteredChamados;
