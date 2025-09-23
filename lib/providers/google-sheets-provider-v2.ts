@@ -193,12 +193,13 @@ export class GoogleSheetsProviderV2 {
     if (!tempo || typeof tempo !== 'string') return 0;
     
     const partes = tempo.split(':');
-    if (partes.length !== 2) return 0;
+    if (partes.length < 2) return 0;
     
     const horas = parseInt(partes[0]) || 0;
     const minutos = parseInt(partes[1]) || 0;
+    const segundos = partes.length >= 3 ? (parseInt(partes[2]) || 0) : 0;
     
-    return horas + (minutos / 60);
+    return horas + (minutos / 60) + (segundos / 3600);
   }
 
   private converterDecimalParaHoras(decimal: number): string {
