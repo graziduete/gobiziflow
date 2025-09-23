@@ -262,29 +262,107 @@ export class GoogleSheetsProviderV2 {
         console.log('⚠️ [V2] Erro ao buscar configuração, usando valor padrão:', error);
       }
 
-      // Calcular horas consumidas dos chamados com filtros
+      // Calcular horas consumidas dos chamados com filtros (replicar V1)
       const chamados = await this.getChamados(filters);
-      const tempoTotal = chamados.reduce((total: number, chamado: any) => {
-        const tempo = parseFloat(chamado.tempoAtendimento || '0');
-        return total + tempo;
-      }, 0);
+      const tempoTotal = chamados.reduce((total: string, chamado: any) => {
+        return this.somarTempos(total, chamado.tempoAtendimento || '00:00');
+      }, '00:00');
 
-      const horasConsumidas = tempoTotal;
-      const saldo = horasContratadas - horasConsumidas;
-      const percentualConsumido = horasContratadas > 0 ? (horasConsumidas / horasContratadas) * 100 : 0;
+      const chamadosAtivos = chamados.filter((c: any) => c.status === 'Ativo').length;
+
+      const horasConsumidasDecimal = this.converterRelogioParaDecimal(tempoTotal);
+      const horasRestantesDecimal = horasContratadas - horasConsumidasDecimal;
+
+      // Lógica para Saldo Acumulado (considerando período de vigência)
+      let saldoAcumuladoMesesAnteriores = 0;
+      const hoje = new Date();
+      const mesAtual = filters.mes || hoje.getMonth() + 1;
+      const anoAtual = filters.ano || hoje.getFullYear();
+
+      console.log('📅 [V2] Período de vigência do contrato:', {
+        dataInicio: dataInicio?.toLocaleDateString('pt-BR'),
+        dataFim: dataFim?.toLocaleDateString('pt-BR'),
+        mesInicioContrato: dataInicio?.getMonth(),
+        anoInicioContrato: dataInicio?.getFullYear(),
+        mesAtual,
+        anoAtual
+      });
+
+      if (dataInicio && dataFim) {
+        for (let ano = dataInicio.getFullYear(); ano <= anoAtual; ano++) {
+          const mesInicialLoop = (ano === dataInicio.getFullYear()) ? dataInicio.getMonth() + 1 : 1;
+          const mesFinalLoop = (ano === anoAtual) ? mesAtual - 1 : 12;
+
+          for (let mes = mesInicialLoop; mes <= mesFinalLoop; mes++) {
+            // Verificar se o mês/ano está dentro do período de vigência
+            const dataReferencia = new Date(ano, mes - 1, 1);
+            if (dataReferencia < dataInicio || dataReferencia > dataFim) {
+              console.log(`⏭️ [V2] Mês ${mes} fora do período de vigência, pulando...`);
+              continue;
+            }
+
+            const chamadosMesAnterior = await this.getChamados({ mes, ano });
+            const tempoTotalMesAnterior = chamadosMesAnterior.reduce((total: string, chamado: any) => {
+              return this.somarTempos(total, chamado.tempoAtendimento || '00:00');
+            }, '00:00');
+            const horasConsumidasMesAnteriorDecimal = this.converterRelogioParaDecimal(tempoTotalMesAnterior);
+
+            let saldoMesAnterior = horasContratadas - horasConsumidasMesAnteriorDecimal;
+            if (!permiteSaldoNegativo && saldoMesAnterior < 0) {
+              saldoMesAnterior = 0;
+            }
+            saldoAcumuladoMesesAnteriores += saldoMesAnterior;
+          }
+        }
+      } else {
+        console.log('⚠️ [V2] Período de vigência não encontrado, usando cálculo padrão');
+        // Se não houver data de início/fim, calcular saldo acumulado de todos os meses anteriores ao atual
+        for (let ano = 2023; ano <= anoAtual; ano++) { // Começa de um ano razoável
+          const mesInicialLoop = (ano === 2023) ? 1 : 1;
+          const mesFinalLoop = (ano === anoAtual) ? mesAtual - 1 : 12;
+
+          for (let mes = mesInicialLoop; mes <= mesFinalLoop; mes++) {
+            const chamadosMesAnterior = await this.getChamados({ mes, ano });
+            const tempoTotalMesAnterior = chamadosMesAnterior.reduce((total: string, chamado: any) => {
+              return this.somarTempos(total, chamado.tempoAtendimento || '00:00');
+            }, '00:00');
+            const horasConsumidasMesAnteriorDecimal = this.converterRelogioParaDecimal(tempoTotalMesAnterior);
+
+            let saldoMesAnterior = horasContratadas - horasConsumidasMesAnteriorDecimal;
+            if (!permiteSaldoNegativo && saldoMesAnterior < 0) {
+              saldoMesAnterior = 0;
+            }
+            saldoAcumuladoMesesAnteriores += saldoMesAnterior;
+          }
+        }
+      }
+
+      let saldoMesAtualDecimal = horasContratadas - horasConsumidasDecimal;
+      if (!permiteSaldoNegativo && saldoMesAtualDecimal < 0) {
+        saldoMesAtualDecimal = 0;
+      }
+
+      let saldoFinalProximoMes = horasContratadas + saldoAcumuladoMesesAnteriores;
+
+      if (!permiteSaldoNegativo) {
+        saldoFinalProximoMes = Math.max(0, saldoFinalProximoMes);
+        console.log('⚠️ [V2] Saldo negativo não permitido, usando apenas horas contratadas:', horasContratadas);
+      }
+
+      console.log('✅ [V2] Saldo negativo permitido - cálculo final:', {
+        horasContratadasProximoMes: horasContratadas,
+        saldoAcumuladoMesesAnteriores,
+        saldoMesAtual: saldoMesAtualDecimal,
+        saldoFinalProximoMes
+      });
 
       const metricas = {
-        horasContratadas,
-        horasConsumidas,
-        saldo,
-        percentualConsumido,
-        permiteSaldoNegativo,
-        dataInicio,
-        dataFim,
-        totalChamados: chamados.length,
-        chamadosResolvidos: chamados.filter((c: any) => c.status === 'Resolvido').length,
-        chamadosPendentes: chamados.filter((c: any) => c.status === 'Pendente').length,
-        chamadosEmAndamento: chamados.filter((c: any) => c.status === 'Em Andamento').length
+        horasContratadas: this.converterDecimalParaHoras(horasContratadas),
+        horasConsumidas: tempoTotal,
+        horasRestantes: this.converterDecimalParaHoras(horasRestantesDecimal),
+        saldoProximoMes: this.converterDecimalParaHoras(saldoMesAtualDecimal), // Mostra o saldo do mês atual
+        saldoAcumulado: this.converterDecimalParaHoras(saldoAcumuladoMesesAnteriores + saldoMesAtualDecimal), // Saldo acumulado
+        chamadosAtivos,
       };
 
       console.log('✅ [V2] Métricas calculadas:', metricas);
