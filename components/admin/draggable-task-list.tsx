@@ -98,7 +98,7 @@ function SortableTaskItem({ task, index, onUpdateTask, onRemoveTask }: SortableT
       {/* Nome da tarefa */}
       <td className="p-4">
         <Input
-          value={task.name}
+          value={task.name || ''}
           onChange={(e) => onUpdateTask(task.id, "name", e.target.value)}
           placeholder="Nome da tarefa"
           className="border-0 bg-transparent p-0 text-sm focus:ring-0 w-full"
@@ -109,7 +109,7 @@ function SortableTaskItem({ task, index, onUpdateTask, onRemoveTask }: SortableT
       <td className="p-4">
         <Input
           type="date"
-          value={task.start_date}
+          value={task.start_date || ''}
           onChange={(e) => onUpdateTask(task.id, "start_date", e.target.value)}
           className="border-0 bg-transparent p-0 text-sm focus:ring-0 w-full"
         />
@@ -119,7 +119,7 @@ function SortableTaskItem({ task, index, onUpdateTask, onRemoveTask }: SortableT
       <td className="p-4">
         <Input
           type="date"
-          value={task.end_date}
+          value={task.end_date || ''}
           onChange={(e) => onUpdateTask(task.id, "end_date", e.target.value)}
           className="border-0 bg-transparent p-0 text-sm focus:ring-0 w-full"
         />
@@ -128,7 +128,7 @@ function SortableTaskItem({ task, index, onUpdateTask, onRemoveTask }: SortableT
       {/* Responsável */}
       <td className="p-4">
         <Input
-          value={task.responsible}
+          value={task.responsible || ''}
           onChange={(e) => onUpdateTask(task.id, "responsible", e.target.value)}
           placeholder="Responsável"
           className="border-0 bg-transparent p-0 text-sm focus:ring-0 w-full"
