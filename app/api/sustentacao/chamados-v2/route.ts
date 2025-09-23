@@ -4,9 +4,12 @@ import { GoogleSheetsProviderV2 } from '@/lib/providers/google-sheets-provider-v
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { mes, ano, companyId } = body;
+    // Aceitar tanto { mes, ano, companyId } quanto { companyId, filters: { mes, ano } }
+    const companyId: string | undefined = body.companyId ?? body.filters?.companyId;
+    const mes: number = body.mes ?? body.filters?.mes ?? (new Date().getMonth() + 1);
+    const ano: number = body.ano ?? body.filters?.ano ?? (new Date().getFullYear());
 
-    console.log('📊 [V2] Buscando chamados com nova lógica...', { mes, ano, companyId });
+    console.log('📊 [V2] Buscando chamados com nova lógica...', { mes, ano, companyId, rawBodyKeys: Object.keys(body || {}) });
 
     // Verificar configuração
     const apiKey = process.env.GOOGLE_SHEETS_API_KEY;
@@ -27,7 +30,22 @@ export async function POST(request: NextRequest) {
     let spreadsheetId: string;
     let tabName: string = 'Página1';
 
-    if (companyId === 'copersucar') {
+    if (!companyId) {
+      console.error('❌ Company ID não fornecido');
+      return NextResponse.json(
+        { 
+          success: false,
+          error: 'Company ID é obrigatório',
+          message: 'ID da empresa não fornecido'
+        },
+        { status: 400 }
+      );
+    }
+
+    // UUID real da Copersucar
+    const COPERSUCAR_ID = '443a6a0e-768f-48e4-a9ea-0cd972375a30';
+
+    if (companyId === COPERSUCAR_ID) {
       // Copersucar usa configuração hardcoded
       spreadsheetId = process.env.GOOGLE_SHEETS_COPERCUSAR_ID || '';
       if (!spreadsheetId) {
@@ -83,18 +101,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    if (!companyId) {
-      console.error('❌ Company ID não fornecido');
-      return NextResponse.json(
-        { 
-          success: false,
-          error: 'Company ID é obrigatório',
-          message: 'ID da empresa não fornecido'
-        },
-        { status: 400 }
-      );
-    }
-
     // Criar provider V2
     const provider = new GoogleSheetsProviderV2(spreadsheetId, tabName);
 
@@ -112,10 +118,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Buscar dados
-    const chamados = await provider.getChamados({ mes, ano });
-    const metricas = await provider.getMetricas({ mes, ano });
-    const categorias = await provider.getChamadosPorCategoria({ mes, ano });
+    // Buscar dados (sempre incluir companyId nos filtros para métricas)
+    const filtros = { mes, ano, companyId };
+    const chamados = await provider.getChamados(filtros);
+    const metricas = await provider.getMetricas(filtros);
+    const categorias = await provider.getChamadosPorCategoria(filtros);
 
     console.log('✅ [V2] Dados obtidos com sucesso:', {
       chamados: chamados.length,
