@@ -129,8 +129,6 @@ export async function POST(request: NextRequest) {
       data_inicio: dataInicio,
       data_fim: dataFim,
       saldo_negativo: saldoNegativo,
-      google_sheets_spreadsheet_id: googleSheetsSpreadsheetId,
-      google_sheets_tab: googleSheetsTab,
       status: 'ativo'
     });
     
