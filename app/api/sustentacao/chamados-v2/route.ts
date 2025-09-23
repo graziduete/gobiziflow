@@ -10,9 +10,8 @@ export async function POST(request: NextRequest) {
 
     // Verificar configuração
     const apiKey = process.env.GOOGLE_SHEETS_API_KEY;
-    const spreadsheetId = process.env.GOOGLE_SHEETS_COPERCUSAR_ID;
 
-    if (!apiKey || !spreadsheetId) {
+    if (!apiKey) {
       console.error('❌ Configuração Google Sheets não encontrada');
       return NextResponse.json(
         { 
@@ -22,6 +21,66 @@ export async function POST(request: NextRequest) {
         },
         { status: 500 }
       );
+    }
+
+    // Buscar configuração da empresa
+    let spreadsheetId: string;
+    let tabName: string = 'Página1';
+
+    if (companyId === 'copersucar') {
+      // Copersucar usa configuração hardcoded
+      spreadsheetId = process.env.GOOGLE_SHEETS_COPERCUSAR_ID || '';
+      if (!spreadsheetId) {
+        console.error('❌ Configuração Copersucar não encontrada');
+        return NextResponse.json(
+          { 
+            success: false,
+            error: 'Configuração Copersucar não encontrada',
+            message: 'Variável GOOGLE_SHEETS_COPERCUSAR_ID não configurada'
+          },
+          { status: 500 }
+        );
+      }
+    } else {
+      // Outras empresas usam configuração do banco
+      try {
+        const { createClient } = await import('@/lib/supabase/server');
+        const supabase = await createClient();
+        
+        const { data: config, error } = await supabase
+          .from('sustentacao_google_sheets_config')
+          .select('spreadsheet_id, tab_name')
+          .eq('company_id', companyId)
+          .eq('is_active', true)
+          .single();
+
+        if (error || !config) {
+          console.error('❌ Configuração Google Sheets não encontrada para empresa:', companyId);
+          return NextResponse.json(
+            { 
+              success: false,
+              error: 'Configuração Google Sheets não encontrada',
+              message: `Empresa ${companyId} não possui configuração de Google Sheets`
+            },
+            { status: 404 }
+          );
+        }
+
+        spreadsheetId = config.spreadsheet_id;
+        tabName = config.tab_name || 'Página1';
+        
+        console.log('✅ Configuração encontrada:', { companyId, spreadsheetId, tabName });
+      } catch (error) {
+        console.error('❌ Erro ao buscar configuração:', error);
+        return NextResponse.json(
+          { 
+            success: false,
+            error: 'Erro ao buscar configuração',
+            message: 'Falha ao consultar configuração da empresa'
+          },
+          { status: 500 }
+        );
+      }
     }
 
     if (!companyId) {
@@ -37,11 +96,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Criar provider V2
-    const provider = new GoogleSheetsProviderV2({
-      spreadsheetId,
-      apiKey,
-      companyId
-    });
+    const provider = new GoogleSheetsProviderV2(spreadsheetId, tabName);
 
     // Testar conexão
     const isConnected = await provider.testConnection();
