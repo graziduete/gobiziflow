@@ -201,7 +201,7 @@ export class GoogleSheetsProviderV2 {
     return horas + (minutos / 60);
   }
 
-  private converterDecimalParaRelogio(decimal: number): string {
+  private converterDecimalParaHoras(decimal: number): string {
     if (isNaN(decimal) || decimal < 0) return '00:00';
     
     const horas = Math.floor(decimal);
@@ -215,7 +215,7 @@ export class GoogleSheetsProviderV2 {
     const decimal2 = this.converterRelogioParaDecimal(tempo2);
     const soma = decimal1 + decimal2;
     
-    return this.converterDecimalParaRelogio(soma);
+    return this.converterDecimalParaHoras(soma);
   }
 
   // Método para buscar métricas
