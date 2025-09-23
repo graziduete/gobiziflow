@@ -129,6 +129,8 @@ export function EmpresaConfigForm({ companyId, configId, onConfigSaved }: Empres
             
             // Carregar configuração do Google Sheets se não for Copersucar
             if (!isCopersucar) {
+              // Atualizar selectedCompanyId com o company_id da configuração
+              setSelectedCompanyId(config.company_id);
               await loadGoogleSheetsConfig();
             }
           }
@@ -161,8 +163,10 @@ export function EmpresaConfigForm({ companyId, configId, onConfigSaved }: Empres
 
   const loadGoogleSheetsConfig = async () => {
     try {
-      console.log('🔧 Carregando configuração do Google Sheets para empresa:', selectedCompanyId);
-      const response = await fetch(`/api/sustentacao/google-sheets-config?companyId=${selectedCompanyId}`);
+      // Usar companyId se disponível, senão selectedCompanyId
+      const targetCompanyId = companyId || selectedCompanyId;
+      console.log('🔧 Carregando configuração do Google Sheets para empresa:', targetCompanyId);
+      const response = await fetch(`/api/sustentacao/google-sheets-config?companyId=${targetCompanyId}`);
       if (response.ok) {
         const result = await response.json();
         if (result.success && result.data && result.data.length > 0) {
