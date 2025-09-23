@@ -126,6 +126,11 @@ export function EmpresaConfigForm({ companyId, configId, onConfigSaved }: Empres
             setDataInicio(config.data_inicio || '');
             setDataFim(config.data_fim || '');
             setSaldoNegativo(config.saldo_negativo || false);
+            
+            // Carregar configuração do Google Sheets se não for Copersucar
+            if (!isCopersucar) {
+              await loadGoogleSheetsConfig();
+            }
           }
         }
       } else {
@@ -141,11 +146,34 @@ export function EmpresaConfigForm({ companyId, configId, onConfigSaved }: Empres
             setDataInicio(config.data_inicio || '');
             setDataFim(config.data_fim || '');
             setSaldoNegativo(config.saldo_negativo || false);
+            
+            // Carregar configuração do Google Sheets se não for Copersucar
+            if (!isCopersucar) {
+              await loadGoogleSheetsConfig();
+            }
           }
         }
       }
     } catch (error) {
       console.error('Erro ao carregar configuração existente:', error);
+    }
+  };
+
+  const loadGoogleSheetsConfig = async () => {
+    try {
+      console.log('🔧 Carregando configuração do Google Sheets para empresa:', selectedCompanyId);
+      const response = await fetch(`/api/sustentacao/google-sheets-config?companyId=${selectedCompanyId}`);
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success && result.data && result.data.length > 0) {
+          const googleConfig = result.data[0];
+          console.log('🔧 Configuração Google Sheets carregada:', googleConfig);
+          setGoogleSheetsSpreadsheetId(googleConfig.spreadsheet_id || '');
+          setGoogleSheetsTab(googleConfig.tab_name || 'Página1');
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao carregar configuração do Google Sheets:', error);
     }
   };
 

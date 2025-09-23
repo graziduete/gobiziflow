@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 // GET - Listar configurações de Google Sheets
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { searchParams } = new URL(request.url);
     const companyId = searchParams.get('companyId');
 
@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
 // POST - Criar nova configuração de Google Sheets
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const body = await request.json();
     
     const { 
@@ -67,14 +67,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar se já existe configuração ativa para esta empresa
-    const { data: existingConfig } = await supabase
+    const { data: existingConfigs } = await supabase
       .from('sustentacao_google_sheets_config')
       .select('id')
       .eq('company_id', companyId)
-      .eq('is_active', true)
-      .single();
+      .eq('is_active', true);
 
-    if (existingConfig) {
+    if (existingConfigs && existingConfigs.length > 0) {
       return NextResponse.json({ 
         success: false, 
         error: 'Já existe uma configuração ativa para esta empresa' 
@@ -82,6 +81,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Criar nova configuração
+    console.log('🔧 Criando configuração Google Sheets:', {
+      company_id: companyId,
+      spreadsheet_id: spreadsheetId,
+      tab_name: tabName,
+      is_active: true
+    });
+
     const { data, error } = await supabase
       .from('sustentacao_google_sheets_config')
       .insert({
@@ -94,10 +100,10 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Erro ao criar configuração de Google Sheets:', error);
+      console.error('❌ Erro ao criar configuração de Google Sheets:', error);
       return NextResponse.json({ 
         success: false, 
-        error: 'Erro ao criar configuração de Google Sheets' 
+        error: `Erro ao criar configuração de Google Sheets: ${error.message}` 
       }, { status: 500 });
     }
 
@@ -118,7 +124,7 @@ export async function POST(request: NextRequest) {
 // PUT - Atualizar configuração de Google Sheets
 export async function PUT(request: NextRequest) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const body = await request.json();
     
     const { 
@@ -173,7 +179,7 @@ export async function PUT(request: NextRequest) {
 // DELETE - Deletar configuração de Google Sheets
 export async function DELETE(request: NextRequest) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 
