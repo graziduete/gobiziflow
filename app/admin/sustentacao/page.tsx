@@ -39,7 +39,7 @@ export default function SustentacaoPage() {
           </div>
           <SustentacaoDashboard 
             companyId={selectedCompanyId} 
-            useV2={selectedCompanyId !== 'copersucar'}
+            useV2={selectedCompanyId !== '443a6a0e-768f-48e4-a9ea-0cd972375a30'}
           />
         </div>
       )}
