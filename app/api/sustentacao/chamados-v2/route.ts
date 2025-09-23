@@ -130,13 +130,11 @@ export async function POST(request: NextRequest) {
       categorias: categorias.length
     });
 
+    // Importante: manter o MESMO formato da v1 para evitar quebras no frontend
     return NextResponse.json({
-      success: true,
-      data: {
-        chamados,
-        metricas,
-        categorias
-      }
+      chamados,
+      metricas,
+      categorias
     });
 
   } catch (error) {
