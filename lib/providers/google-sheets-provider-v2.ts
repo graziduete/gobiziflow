@@ -70,28 +70,13 @@ export class GoogleSheetsProviderV2 {
         return [];
       }
 
-      // Processar dados com normalização de cabeçalhos
+      // Processar dados replicando a lógica da V1 (manter diacríticos, remover somente espaços)
       const rawHeaders = rows[0] as string[];
       const dataRows = rows.slice(1);
 
-      const normalize = (text: string = '') => {
-        return (text || '')
-          .toString()
-          .normalize('NFD')
-          .replace(/\p{Diacritic}/gu, '')
-          .replace(/[^a-zA-Z0-9]/g, '')
-          .toLowerCase();
-      };
-
-      const headers = rawHeaders.map((h) => normalize(h));
-      console.log('🧭 [V2] Cabeçalhos normalizados:', headers);
-
-      const getByKeys = (obj: Record<string, any>, keys: string[]) => {
-        for (const k of keys) {
-          if (obj[k] !== undefined && obj[k] !== null && obj[k] !== '') return obj[k];
-        }
-        return '';
-      };
+      const normV1 = (h: string) => h.toLowerCase().replace(/\s/g, '');
+      const headers = rawHeaders.map(normV1);
+      console.log('🧭 [V2] Cabeçalhos (modo V1):', headers);
 
       const chamados = dataRows.map((row: any[]) => {
         const rowObj: Record<string, any> = {};
@@ -99,18 +84,17 @@ export class GoogleSheetsProviderV2 {
           rowObj[key] = row[index] ?? '';
         });
 
-        // Mapear campos para o formato esperado pelo frontend (múltiplas possibilidades)
-        const idEllevo = getByKeys(rowObj, ['idellevo', 'id', 'n', 'num', 'numero', 'idellevo', 'idellevoellevo']);
-        const automacao = getByKeys(rowObj, ['qualautomacao', 'automacao', 'numerorpa', 'rpa', 'rpanumero']);
-        const assunto = getByKeys(rowObj, ['assunto', 'titulo', 'descricao']);
-        const categoria = getByKeys(rowObj, ['categoria', 'tipo']);
-        const status = getByKeys(rowObj, ['status', 'situacao']);
-        const solicitante = getByKeys(rowObj, ['solicitante', 'requisitante', 'usuario']);
-        const tempoAtendimento = getByKeys(rowObj, ['tempodeatendimento', 'horas', 'tempo', 'duracao']);
+        // Mapear exatamente como a V1
+        const idEllevo = rowObj['#id'] ?? rowObj['id'] ?? '';
+        const automacao = rowObj['númerorpa'] ?? rowObj['numerorpa'] ?? rowObj['rpa'] ?? '';
+        const assunto = rowObj['assunto'] ?? '';
+        const categoria = rowObj['categoria'] ?? '';
+        const status = rowObj['status'] ?? '';
+        const solicitante = rowObj['solicitante'] ?? '';
+        const tempoAtendimento = rowObj['horas'] ?? rowObj['tempodeatendimento'] ?? '';
 
-        // Datas e mês/ano
-        const dataAberturaRaw = getByKeys(rowObj, ['datadaabertura', 'dataabertura', 'abertura', 'aberturadata']);
-        const dataResolucaoRaw = getByKeys(rowObj, ['datadaresolucao', 'dataresolucao', 'resolucao', 'resolucaodata']);
+        const dataAberturaRaw = rowObj['dataabertura'] ?? rowObj['datadaabertura'] ?? '';
+        const dataResolucaoRaw = rowObj['dataresolução'] ?? rowObj['dataresolucao'] ?? '';
 
         const parseDate = (value: any) => {
           if (!value) return '';
@@ -129,8 +113,8 @@ export class GoogleSheetsProviderV2 {
         const dataResolucaoISO = parseDate(dataResolucaoRaw);
 
         // Derivar mês/ano se existirem colunas especificas, senão da data
-        const mesSheet = getByKeys(rowObj, ['mes', 'm']);
-        const anoSheet = getByKeys(rowObj, ['ano', 'a']);
+        const mesSheet = rowObj['mês'] ?? rowObj['mes'];
+        const anoSheet = rowObj['ano'];
         let mes = Number(mesSheet) || undefined;
         let ano = Number(anoSheet) || undefined;
         if ((!mes || !ano) && dataAberturaISO) {
@@ -149,7 +133,7 @@ export class GoogleSheetsProviderV2 {
           tempoAtendimento,
           dataAbertura: dataAberturaISO,
           dataResolucao: dataResolucaoISO,
-          mes,
+          'mês': mes,
           ano
         } as any;
       });
@@ -159,7 +143,7 @@ export class GoogleSheetsProviderV2 {
 
       if (filters.mes && filters.ano) {
         filteredChamados = chamados.filter((chamado: any) => {
-          const mesChamado = Number(chamado.mes) || 0;
+          const mesChamado = Number(chamado['mês']) || 0;
           const anoChamado = Number(chamado.ano) || 0;
           return mesChamado === filters.mes && anoChamado === filters.ano;
         });
