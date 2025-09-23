@@ -53,6 +53,7 @@ export function ProjectFilters({ companies, users, filters: externalFilters, onF
 
   const projectStatuses = [
     { value: "planning", label: "Planejamento" },
+    { value: "commercial_proposal", label: "Proposta Comercial" },
     { value: "in_progress", label: "Em Andamento" },
     { value: "homologation", label: "Homologação" },
     { value: "on_hold", label: "Pausado" },

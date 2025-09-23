@@ -11,6 +11,35 @@ export class GoogleSheetsProviderV2 {
     this.tabName = tabName;
   }
 
+  // Método para testar conexão
+  async testConnection(): Promise<boolean> {
+    try {
+      if (!this.apiKey) {
+        console.error('❌ API Key não configurada');
+        return false;
+      }
+
+      if (!this.spreadsheetId) {
+        console.error('❌ Spreadsheet ID não configurado');
+        return false;
+      }
+
+      const sheets = google.sheets({ version: 'v4', auth: this.apiKey });
+      const range = `${this.tabName}!A1`;
+      
+      await sheets.spreadsheets.values.get({
+        spreadsheetId: this.spreadsheetId,
+        range,
+      });
+
+      console.log('✅ Conexão com Google Sheets testada com sucesso');
+      return true;
+    } catch (error) {
+      console.error('❌ Erro ao testar conexão:', error);
+      return false;
+    }
+  }
+
   // Método para buscar dados da planilha específica
   async getChamados(filters: any) {
     try {
@@ -126,5 +155,123 @@ export class GoogleSheetsProviderV2 {
     const soma = decimal1 + decimal2;
     
     return this.converterDecimalParaRelogio(soma);
+  }
+
+  // Método para buscar métricas
+  async getMetricas(filters: any = {}): Promise<any> {
+    try {
+      console.log('📊 [V2] Buscando métricas do Google Sheets...', filters);
+
+      // Buscar configuração ativa da empresa
+      let horasContratadas = 40; // Valor padrão como fallback
+      let permiteSaldoNegativo = false; // Valor padrão como fallback
+      let dataInicio = null; // Data de início do contrato
+      let dataFim = null; // Data de fim do contrato
+
+      try {
+        // Buscar configuração ativa da empresa
+        const companyId = filters.companyId || filters.company_id;
+        if (companyId) {
+          console.log('🔍 [V2] Buscando configuração para companyId:', companyId);
+          const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://flow.gobi-zi.com';
+          const configResponse = await fetch(`${baseUrl}/api/sustentacao/config-empresa?companyId=${companyId}`);
+          if (configResponse.ok) {
+            const configData = await configResponse.json();
+            if (configData.success && configData.data) {
+              horasContratadas = configData.data.horas_contratadas;
+              permiteSaldoNegativo = configData.data.saldo_negativo;
+              dataInicio = new Date(configData.data.data_inicio);
+              dataFim = new Date(configData.data.data_fim);
+              console.log('✅ [V2] Usando configuração da empresa:', {
+                horasContratadas,
+                permiteSaldoNegativo,
+                dataInicio: dataInicio.toLocaleDateString('pt-BR'),
+                dataFim: dataFim.toLocaleDateString('pt-BR')
+              });
+            } else {
+              console.log('⚠️ [V2] Nenhuma configuração ativa encontrada para a empresa');
+            }
+          } else {
+            console.log('⚠️ [V2] Erro na API de configuração:', configResponse.status);
+          }
+        } else {
+          console.log('⚠️ [V2] CompanyId não encontrado nos filtros:', filters);
+        }
+      } catch (error) {
+        console.log('⚠️ [V2] Erro ao buscar configuração, usando valor padrão:', error);
+      }
+
+      // Calcular horas consumidas dos chamados com filtros
+      const chamados = await this.getChamados(filters);
+      const tempoTotal = chamados.reduce((total: number, chamado: any) => {
+        const tempo = parseFloat(chamado.tempoAtendimento || '0');
+        return total + tempo;
+      }, 0);
+
+      const horasConsumidas = tempoTotal;
+      const saldo = horasContratadas - horasConsumidas;
+      const percentualConsumido = horasContratadas > 0 ? (horasConsumidas / horasContratadas) * 100 : 0;
+
+      const metricas = {
+        horasContratadas,
+        horasConsumidas,
+        saldo,
+        percentualConsumido,
+        permiteSaldoNegativo,
+        dataInicio,
+        dataFim,
+        totalChamados: chamados.length,
+        chamadosResolvidos: chamados.filter((c: any) => c.status === 'Resolvido').length,
+        chamadosPendentes: chamados.filter((c: any) => c.status === 'Pendente').length,
+        chamadosEmAndamento: chamados.filter((c: any) => c.status === 'Em Andamento').length
+      };
+
+      console.log('✅ [V2] Métricas calculadas:', metricas);
+      return metricas;
+    } catch (error) {
+      console.error('❌ [V2] Erro ao buscar métricas:', error);
+      throw error;
+    }
+  }
+
+  // Método para buscar chamados por categoria
+  async getChamadosPorCategoria(filters: any = {}): Promise<any[]> {
+    try {
+      console.log('📊 [V2] Buscando chamados por categoria...', filters);
+      
+      const chamados = await this.getChamados(filters);
+      
+      // Agrupar por categoria
+      const categoriasMap = new Map();
+      
+      chamados.forEach((chamado: any) => {
+        const categoria = chamado.categoria || 'Sem Categoria';
+        if (!categoriasMap.has(categoria)) {
+          categoriasMap.set(categoria, {
+            categoria,
+            total: 0,
+            resolvidos: 0,
+            pendentes: 0,
+            emAndamento: 0,
+            tempoTotal: 0
+          });
+        }
+        
+        const cat = categoriasMap.get(categoria);
+        cat.total++;
+        cat.tempoTotal += parseFloat(chamado.tempoAtendimento || '0');
+        
+        if (chamado.status === 'Resolvido') cat.resolvidos++;
+        else if (chamado.status === 'Pendente') cat.pendentes++;
+        else if (chamado.status === 'Em Andamento') cat.emAndamento++;
+      });
+      
+      const categorias = Array.from(categoriasMap.values());
+      console.log('✅ [V2] Categorias calculadas:', categorias.length);
+      return categorias;
+    } catch (error) {
+      console.error('❌ [V2] Erro ao buscar categorias:', error);
+      throw error;
+    }
   }
 }

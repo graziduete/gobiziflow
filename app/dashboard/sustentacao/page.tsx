@@ -135,6 +135,7 @@ export default function ClientSustentacaoPage() {
           </div>
           <SustentacaoDashboard 
             companyId={selectedCompanyId} 
+            useV2={true}
             isClientView={true}
           />
         </div>

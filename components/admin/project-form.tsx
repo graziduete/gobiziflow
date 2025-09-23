@@ -474,6 +474,7 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="planning">Planejamento</SelectItem>
+                  <SelectItem value="commercial_proposal">Proposta Comercial</SelectItem>
                   <SelectItem value="in_progress">Em Andamento</SelectItem>
                   <SelectItem value="homologation">Homologação</SelectItem>
                   <SelectItem value="on_hold">Pausado</SelectItem>
