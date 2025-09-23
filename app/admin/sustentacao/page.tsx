@@ -37,7 +37,10 @@ export default function SustentacaoPage() {
               <h1 className="text-2xl font-bold text-gray-900">Dashboard Sustentação</h1>
             </div>
           </div>
-          <SustentacaoDashboard companyId={selectedCompanyId} />
+          <SustentacaoDashboard 
+            companyId={selectedCompanyId} 
+            useV2={true}
+          />
         </div>
       )}
     </div>

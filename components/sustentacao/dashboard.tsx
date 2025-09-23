@@ -112,6 +112,13 @@ export function SustentacaoDashboard({
       const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
       const apiEndpoint = useV2 ? `${baseUrl}/api/sustentacao/chamados-v2` : `${baseUrl}/api/sustentacao/chamados`;
       
+      console.log('🔧 [DEBUG] Dashboard config:', {
+        useV2,
+        companyId,
+        apiEndpoint,
+        filters
+      });
+      
       const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: {
