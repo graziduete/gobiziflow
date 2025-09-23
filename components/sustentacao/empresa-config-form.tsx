@@ -20,6 +20,9 @@ interface EmpresaConfigFormProps {
   onConfigSaved: () => void;
 }
 
+// ID da Copersucar (empresa que usa hardcoded)
+const COPERSUCAR_ID = '443a6a0e-768f-48e4-a9ea-0cd972375a30';
+
 export function EmpresaConfigForm({ companyId, configId, onConfigSaved }: EmpresaConfigFormProps) {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState(companyId);
@@ -27,9 +30,14 @@ export function EmpresaConfigForm({ companyId, configId, onConfigSaved }: Empres
   const [dataInicio, setDataInicio] = useState('');
   const [dataFim, setDataFim] = useState('');
   const [saldoNegativo, setSaldoNegativo] = useState(false);
+  const [googleSheetsSpreadsheetId, setGoogleSheetsSpreadsheetId] = useState('');
+  const [googleSheetsTab, setGoogleSheetsTab] = useState('Página1');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  // Verificar se é a Copersucar (usa hardcoded)
+  const isCopersucar = selectedCompanyId === COPERSUCAR_ID;
 
   // Funções utilitárias para conversão de horas
   const converterDecimalParaRelogio = (decimal: number): string => {
@@ -202,6 +210,33 @@ export function EmpresaConfigForm({ companyId, configId, onConfigSaved }: Empres
       const result = await response.json();
       
       if (result.success) {
+        // Se não for Copersucar e tiver dados do Google Sheets, salvar configuração da planilha
+        if (!isCopersucar && googleSheetsSpreadsheetId) {
+          try {
+            const googleSheetsResponse = await fetch('/api/sustentacao/google-sheets-config', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                companyId: selectedCompanyId,
+                spreadsheetId: googleSheetsSpreadsheetId,
+                tabName: googleSheetsTab
+              })
+            });
+
+            const googleSheetsResult = await googleSheetsResponse.json();
+            
+            if (googleSheetsResult.success) {
+              console.log('✅ Configuração do Google Sheets salva:', googleSheetsResult.data);
+            } else {
+              console.warn('⚠️ Erro ao salvar configuração do Google Sheets:', googleSheetsResult.error);
+            }
+          } catch (error) {
+            console.warn('⚠️ Erro ao salvar configuração do Google Sheets:', error);
+          }
+        }
+
         setSuccess(true);
         console.log('✅ Configuração salva:', result.data);
         
@@ -357,6 +392,54 @@ export function EmpresaConfigForm({ companyId, configId, onConfigSaved }: Empres
             </p>
           </div>
 
+          {/* Configuração do Google Sheets - Apenas para empresas que não sejam Copersucar */}
+          {!isCopersucar && (
+            <div className="space-y-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="flex items-center space-x-2">
+                <Info className="h-5 w-5 text-blue-600" />
+                <h4 className="font-medium text-blue-900">Configuração do Google Sheets</h4>
+              </div>
+              <p className="text-sm text-blue-700">
+                Configure a planilha do Google Sheets para esta empresa. A Copersucar usa configuração automática.
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="googleSheetsSpreadsheetId" className="text-sm font-medium text-gray-700">
+                    ID da Planilha do Google Sheets
+                  </Label>
+                  <Input
+                    id="googleSheetsSpreadsheetId"
+                    type="text"
+                    value={googleSheetsSpreadsheetId}
+                    onChange={(e) => setGoogleSheetsSpreadsheetId(e.target.value)}
+                    placeholder="Ex: 1lJjoUifFO43gTHBrRkM3V_K13O1hV1Bz5Br7e0IIQtE"
+                    className="w-full"
+                  />
+                  <p className="text-xs text-gray-500">
+                    ID encontrado na URL da planilha (parte após /d/)
+                  </p>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="googleSheetsTab" className="text-sm font-medium text-gray-700">
+                    Nome da Aba
+                  </Label>
+                  <Input
+                    id="googleSheetsTab"
+                    type="text"
+                    value={googleSheetsTab}
+                    onChange={(e) => setGoogleSheetsTab(e.target.value)}
+                    placeholder="Ex: Página1"
+                    className="w-full"
+                  />
+                  <p className="text-xs text-gray-500">
+                    Nome da aba da planilha (padrão: Página1)
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Explicação da Lógica */}
           <div className="p-4 bg-gray-50 rounded-lg">
@@ -380,6 +463,8 @@ export function EmpresaConfigForm({ companyId, configId, onConfigSaved }: Empres
                 setDataInicio("");
                 setDataFim("");
                 setSaldoNegativo(false);
+                setGoogleSheetsSpreadsheetId("");
+                setGoogleSheetsTab("Página1");
                 setError(null);
                 setSuccess(false);
               }}
