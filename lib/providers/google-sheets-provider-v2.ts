@@ -149,6 +149,14 @@ export class GoogleSheetsProviderV2 {
           if (!mesChamado || !anoChamado) return true;
           return mesChamado === Number(filters.mes) && anoChamado === Number(filters.ano);
         });
+
+        // Fallback: se não houver resultados para o mês, mostrar do ano todo
+        if (filteredChamados.length === 0) {
+          filteredChamados = chamados.filter((chamado: any) => {
+            const anoChamado = Number(chamado.ano);
+            return !!anoChamado && anoChamado === Number(filters.ano);
+          });
+        }
       } else if (filters.ano) {
         filteredChamados = chamados.filter((chamado: any) => {
           const anoChamado = Number(chamado.ano) || 0;
