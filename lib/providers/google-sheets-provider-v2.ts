@@ -70,28 +70,88 @@ export class GoogleSheetsProviderV2 {
         return [];
       }
 
-      // Processar dados (mesma lógica do provider original)
-      const headers = rows[0];
+      // Processar dados com normalização de cabeçalhos
+      const rawHeaders = rows[0] as string[];
       const dataRows = rows.slice(1);
 
+      const normalize = (text: string = '') => {
+        return (text || '')
+          .toString()
+          .normalize('NFD')
+          .replace(/\p{Diacritic}/gu, '')
+          .replace(/[^a-zA-Z0-9]/g, '')
+          .toLowerCase();
+      };
+
+      const headers = rawHeaders.map((h) => normalize(h));
+      console.log('🧭 [V2] Cabeçalhos normalizados:', headers);
+
+      const getByKeys = (obj: Record<string, any>, keys: string[]) => {
+        for (const k of keys) {
+          if (obj[k] !== undefined && obj[k] !== null && obj[k] !== '') return obj[k];
+        }
+        return '';
+      };
+
       const chamados = dataRows.map((row: any[]) => {
-        const chamado: any = {};
-        headers.forEach((header: string, index: number) => {
-          chamado[header] = row[index] || '';
+        const rowObj: Record<string, any> = {};
+        headers.forEach((key: string, index: number) => {
+          rowObj[key] = row[index] ?? '';
         });
 
-        // Mapear campos para o formato esperado pelo frontend
-        chamado.idEllevo = chamado['#id'];
-        chamado.automacao = chamado.númerorpa;
-        chamado.dataAbertura = chamado.dataabertura;
-        chamado.dataResolucao = chamado.dataresolução;
-        chamado.tempoAtendimento = chamado.horas;
-        chamado.assunto = chamado.assunto;
-        chamado.categoria = chamado.categoria;
-        chamado.status = chamado.status;
-        chamado.solicitante = chamado.solicitante;
+        // Mapear campos para o formato esperado pelo frontend (múltiplas possibilidades)
+        const idEllevo = getByKeys(rowObj, ['idellevo', 'id', 'n', 'num', 'numero', 'idellevo', 'idellevoellevo']);
+        const automacao = getByKeys(rowObj, ['qualautomacao', 'automacao', 'numerorpa', 'rpa', 'rpanumero']);
+        const assunto = getByKeys(rowObj, ['assunto', 'titulo', 'descricao']);
+        const categoria = getByKeys(rowObj, ['categoria', 'tipo']);
+        const status = getByKeys(rowObj, ['status', 'situacao']);
+        const solicitante = getByKeys(rowObj, ['solicitante', 'requisitante', 'usuario']);
+        const tempoAtendimento = getByKeys(rowObj, ['tempodeatendimento', 'horas', 'tempo', 'duracao']);
 
-        return chamado;
+        // Datas e mês/ano
+        const dataAberturaRaw = getByKeys(rowObj, ['datadaabertura', 'dataabertura', 'abertura', 'aberturadata']);
+        const dataResolucaoRaw = getByKeys(rowObj, ['datadaresolucao', 'dataresolucao', 'resolucao', 'resolucaodata']);
+
+        const parseDate = (value: any) => {
+          if (!value) return '';
+          const d = new Date(value);
+          if (!isNaN(d.getTime())) return d.toISOString();
+          // Tentar formato dd/mm/yyyy
+          const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(String(value));
+          if (m) {
+            const iso = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1])).toISOString();
+            return iso;
+          }
+          return String(value);
+        };
+
+        const dataAberturaISO = parseDate(dataAberturaRaw);
+        const dataResolucaoISO = parseDate(dataResolucaoRaw);
+
+        // Derivar mês/ano se existirem colunas especificas, senão da data
+        const mesSheet = getByKeys(rowObj, ['mes', 'm']);
+        const anoSheet = getByKeys(rowObj, ['ano', 'a']);
+        let mes = Number(mesSheet) || undefined;
+        let ano = Number(anoSheet) || undefined;
+        if ((!mes || !ano) && dataAberturaISO) {
+          const d = new Date(dataAberturaISO);
+          if (!mes) mes = d.getMonth() + 1;
+          if (!ano) ano = d.getFullYear();
+        }
+
+        return {
+          idEllevo: idEllevo,
+          automacao,
+          assunto,
+          categoria,
+          status,
+          solicitante,
+          tempoAtendimento,
+          dataAbertura: dataAberturaISO,
+          dataResolucao: dataResolucaoISO,
+          mes,
+          ano
+        } as any;
       });
 
       // Aplicar filtros
@@ -99,13 +159,13 @@ export class GoogleSheetsProviderV2 {
 
       if (filters.mes && filters.ano) {
         filteredChamados = chamados.filter((chamado: any) => {
-          const mesChamado = parseInt(chamado.mês) || 0;
-          const anoChamado = parseInt(chamado.ano) || 0;
+          const mesChamado = Number(chamado.mes) || 0;
+          const anoChamado = Number(chamado.ano) || 0;
           return mesChamado === filters.mes && anoChamado === filters.ano;
         });
       } else if (filters.ano) {
         filteredChamados = chamados.filter((chamado: any) => {
-          const anoChamado = parseInt(chamado.ano) || 0;
+          const anoChamado = Number(chamado.ano) || 0;
           return anoChamado === filters.ano;
         });
       }
