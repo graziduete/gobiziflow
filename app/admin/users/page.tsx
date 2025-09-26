@@ -333,8 +333,8 @@ export default function UsersPage() {
                 <div className="space-y-1 flex-1">
                   <div className="flex items-center gap-2">
                     <h3 className="font-medium">{user.full_name || "Nome não informado"}</h3>
-                    <Badge variant={user.role === "admin" ? "default" : "secondary"}>
-                      {user.role === "admin" ? "Admin" : "Cliente"}
+                    <Badge variant={user.role === "admin" ? "default" : user.role === "admin_operacional" ? "outline" : "secondary"}>
+                      {user.role === "admin" ? "Admin" : user.role === "admin_operacional" ? "Admin Operacional" : "Cliente"}
                     </Badge>
                     {user.is_first_login && <Badge variant="outline">Primeiro Login</Badge>}
                   </div>
