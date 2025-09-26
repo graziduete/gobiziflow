@@ -9,7 +9,7 @@ interface SidebarWrapperProps {
 }
 
 export function SidebarWrapper({ className }: SidebarWrapperProps) {
-  const [collapsed, setCollapsed] = useState(false)
+  const [collapsed, setCollapsed] = useState(true)
   const [userRole, setUserRole] = useState<string | null>(null)
 
   useEffect(() => {

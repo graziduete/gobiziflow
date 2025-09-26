@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { ClientSidebar } from "@/components/client/sidebar"
 import { ClientHeader } from "@/components/client/header"
+import { RedirectToAdmin } from "@/components/admin/redirect-to-admin"
 
 export default async function ClientLayout({
   children,
@@ -21,8 +22,16 @@ export default async function ClientLayout({
     // Check if user is client (not admin)
     const { data: profile } = await supabase.from("profiles").select("role").eq("id", data.user.id).single()
 
+    console.log("🔍 [ClientLayout] User role check:", {
+      userId: data.user.id,
+      userEmail: data.user.email,
+      profileRole: profile?.role,
+      shouldRedirect: profile?.role === "admin" || profile?.role === "admin_operacional"
+    })
+
     if (profile?.role === "admin" || profile?.role === "admin_operacional") {
-      redirect("/admin")
+      console.log("🔄 [ClientLayout] Redirecting admin/admin_operacional to /admin")
+      return <RedirectToAdmin />
     }
   } catch (networkError) {
     console.error("[v0] Network error in client layout:", networkError)
