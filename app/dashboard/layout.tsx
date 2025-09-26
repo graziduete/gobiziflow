@@ -21,7 +21,7 @@ export default async function ClientLayout({
     // Check if user is client (not admin)
     const { data: profile } = await supabase.from("profiles").select("role").eq("id", data.user.id).single()
 
-    if (profile?.role === "admin") {
+    if (profile?.role === "admin" || profile?.role === "admin_operacional") {
       redirect("/admin")
     }
   } catch (networkError) {

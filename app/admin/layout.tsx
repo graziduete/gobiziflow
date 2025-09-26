@@ -65,7 +65,7 @@ export default async function AdminLayout({
       redirect("/auth/login")
     }
 
-    if (profile.role !== "admin") {
+    if (profile.role !== "admin" && profile.role !== "admin_operacional") {
       console.log("🚨 [AdminLayout] Non-admin user detected, redirecting to dashboard:", {
         userId: user.id,
         userEmail: user.email,
