@@ -47,6 +47,9 @@ export default function AdminDashboard() {
     breakdown: []
   })
   
+  // Estado para o role do usuário
+  const [userRole, setUserRole] = useState<string | null>(null)
+  
   // Estados para controle de privacidade dos cards
   const [isRevenueVisible, setIsRevenueVisible] = useState(true)
   const [isForecastVisible, setIsForecastVisible] = useState(true)
@@ -87,6 +90,20 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchData()
+    
+    // Buscar role do usuário
+    const getUserRole = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .single()
+        setUserRole(profile?.role || null)
+      }
+    }
+    getUserRole()
     
     // Refresh quando a página volta a ter foco (usuário volta da criação de empresa)
     const handleFocus = () => {
@@ -579,6 +596,8 @@ export default function AdminDashboard() {
         />
         
         {/* Cards de Resumo do Sistema - Dados filtrados */}
+        {/* Esconder cards financeiros para admin_operacional */}
+        {userRole !== "admin_operacional" && (
         <div className="grid gap-4 md:grid-cols-3">
           <Card className="border-0 bg-gradient-to-r from-green-50 to-emerald-50">
             <CardContent className="p-4">
@@ -752,6 +771,7 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
         </div>
+        )}
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Sidebar } from "./sidebar"
+import { createClient } from "@/lib/supabase/client"
 
 interface SidebarWrapperProps {
   className?: string
@@ -9,12 +10,30 @@ interface SidebarWrapperProps {
 
 export function SidebarWrapper({ className }: SidebarWrapperProps) {
   const [collapsed, setCollapsed] = useState(false)
+  const [userRole, setUserRole] = useState<string | null>(null)
+
+  useEffect(() => {
+    const getUserRole = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .single()
+        setUserRole(profile?.role || null)
+      }
+    }
+    getUserRole()
+  }, [])
 
   return (
     <Sidebar 
-      className={`${className} transition-all duration-300 ease-in-out ${collapsed ? 'w-16' : 'w-64'}`}
+      className={className}
       collapsed={collapsed} 
-      onCollapsedChange={setCollapsed} 
+      onCollapsedChange={setCollapsed}
+      userRole={userRole}
     />
   )
-} 
+}

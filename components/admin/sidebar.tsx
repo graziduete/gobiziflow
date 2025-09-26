@@ -37,31 +37,37 @@ const navigation = [
     name: "Dashboard",
     href: "/admin",
     icon: LayoutDashboard,
+    roles: ["admin", "admin_operacional"]
   },
   {
     name: "Empresas",
     href: "/admin/companies",
     icon: Building2,
+    roles: ["admin"] // Only admin can see
   },
   {
     name: "Usuários",
     href: "/admin/users",
     icon: Users,
+    roles: ["admin"] // Only admin can see
   },
   {
     name: "Projetos",
     href: "/admin/projects",
     icon: FolderKanban,
+    roles: ["admin", "admin_operacional"]
   },
   {
     name: "Sustentação",
     href: "/admin/sustentacao",
     icon: Settings,
+    roles: ["admin", "admin_operacional"]
   },
   {
     name: "Configurações",
     href: "/admin/settings",
     icon: Settings,
+    roles: ["admin", "admin_operacional"]
   },
 ]
 
@@ -69,11 +75,17 @@ interface SidebarProps {
   className?: string
   collapsed: boolean
   onCollapsedChange: (collapsed: boolean) => void
+  userRole?: string | null
 }
 
-export function Sidebar({ className, collapsed, onCollapsedChange }: SidebarProps) {
+export function Sidebar({ className, collapsed, onCollapsedChange, userRole }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
+
+  // Filtrar navegação baseada no role do usuário
+  const filteredNavigation = navigation.filter(item => 
+    !userRole || item.roles.includes(userRole)
+  )
 
   const handleLogout = async () => {
     const supabase = createClient()
@@ -101,7 +113,7 @@ export function Sidebar({ className, collapsed, onCollapsedChange }: SidebarProp
 
       <ScrollArea className="flex-1 px-3 py-6">
         <nav className="space-y-2">
-          {navigation.map((item) => {
+            {filteredNavigation.map((item) => {
             const isActive = pathname === item.href
             return (
               <Link key={item.name} href={item.href}>
