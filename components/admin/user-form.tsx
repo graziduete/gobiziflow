@@ -243,6 +243,13 @@ export function UserForm({ user, onSuccess }: UserFormProps) {
               >
                 🔧 Administrador
               </ToggleGroupItem>
+              <ToggleGroupItem 
+                value="admin_operacional" 
+                aria-label="Admin Operacional"
+                className="px-12 py-4 flex-1"
+              >
+                ⚙️ Admin Operacional
+              </ToggleGroupItem>
             </ToggleGroup>
           </div>
 
