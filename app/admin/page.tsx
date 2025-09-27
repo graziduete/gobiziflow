@@ -965,7 +965,14 @@ export default function AdminDashboard() {
 
         <ModernGanttFilters companies={companies} onFiltersChange={handleFiltersChange} />
 
-        <GanttView projects={filteredProjects} allProjects={projects} companies={companies} selectedMonth={selectedMonth} selectedYear={selectedYear} />
+        <GanttView 
+          projects={filteredProjects} 
+          allProjects={projects} 
+          companies={companies} 
+          selectedMonth={selectedMonth} 
+          selectedYear={selectedYear}
+          externalFilters={filters}
+        />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -16,6 +16,7 @@ interface GanttViewProps {
   companies?: any[]
   selectedMonth?: number | null
   selectedYear?: number
+  externalFilters?: ExpandedFilters // filtros externos do dashboard
 }
 
 interface ExpandedFilters {
@@ -25,7 +26,7 @@ interface ExpandedFilters {
   status: string
 }
 
-export function GanttView({ projects, allProjects, companies = [], selectedMonth, selectedYear }: GanttViewProps) {
+export function GanttView({ projects, allProjects, companies = [], selectedMonth, selectedYear, externalFilters }: GanttViewProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [expandedFilters, setExpandedFilters] = useState<ExpandedFilters>({
     search: "",
@@ -33,6 +34,14 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
     type: "all",
     status: "all"
   })
+
+  // Sincronizar filtros externos com filtros internos
+  useEffect(() => {
+    if (externalFilters) {
+      console.log('🔄 [GanttView] Sincronizando filtros externos:', externalFilters)
+      setExpandedFilters(externalFilters)
+    }
+  }, [externalFilters])
 
   // Debug: verificar dados dos projetos
   console.log("🔍 [GanttView] Projects data:", projects)
