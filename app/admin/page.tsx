@@ -624,8 +624,7 @@ export default function AdminDashboard() {
         
         {/* Cards de Resumo do Sistema - Dados filtrados */}
         {/* Esconder cards financeiros para admin_operacional */}
-        {userRole !== "admin_operacional" && (
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className={`grid gap-4 md:grid-cols-3 ${userRole === null ? 'opacity-0' : userRole === "admin_operacional" ? 'hidden' : 'opacity-100'}`}>
           <Card className="border-0 bg-gradient-to-r from-green-50 to-emerald-50">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
@@ -798,7 +797,6 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
         </div>
-        )}
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
