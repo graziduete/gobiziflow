@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validar role
-    if (!['client', 'admin'].includes(role)) {
+    if (!['client', 'admin', 'admin_operacional'].includes(role)) {
       return NextResponse.json(
         { error: 'Tipo de usuário inválido' },
         { status: 400 }

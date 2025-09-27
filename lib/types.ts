@@ -2,7 +2,7 @@ export interface User {
   id: string
   email: string
   full_name: string
-  role: 'admin' | 'client'
+  role: 'admin' | 'admin_operacional' | 'client'
   is_first_login: boolean
   created_at: string
   updated_at: string
