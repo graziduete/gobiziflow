@@ -141,14 +141,14 @@ export default function AdminDashboard() {
       console.log("🔄 Iniciando busca de dados...")
       
       const [companiesResult, usersResult, userCompaniesResult, projectsResult] = await Promise.all([
-        supabase.from("companies").select("*"),
-        supabase.from("profiles").select("*"),
+      supabase.from("companies").select("*"),
+      supabase.from("profiles").select("*"),
         supabase.from("user_companies").select("*"),
-        supabase.from("projects").select(`
-          *,
+      supabase.from("projects").select(`
+        *,
           companies(name, has_hour_package, contracted_hours)
-        `),
-      ])
+      `),
+    ])
 
       if (companiesResult.error) {
         console.error("❌ Erro ao buscar empresas:", companiesResult.error)
@@ -475,33 +475,46 @@ export default function AdminDashboard() {
   }
 
   const handleFiltersChange = (newFilters: any) => {
+    console.log('🔍 [Dashboard] handleFiltersChange chamado com:', newFilters)
+    console.log('🔍 [Dashboard] Projetos originais:', projects.length)
+    console.log('🔍 [Dashboard] Projetos originais (detalhes):', projects.map(p => ({ id: p.id, name: p.name, company_id: p.company_id })))
+    
     setFilters(newFilters)
     
     // Aplicar filtros aos projetos
     let filtered = [...projects]
+    console.log('🔍 [Dashboard] Projetos antes dos filtros:', filtered.length)
     
     // Filtro por busca
     if (newFilters.search && newFilters.search.trim() !== "") {
       filtered = filtered.filter(project =>
         project.name.toLowerCase().includes(newFilters.search.toLowerCase())
       )
+      console.log('🔍 [Dashboard] Após filtro de busca:', filtered.length)
     }
     
     // Filtro por empresa
     if (newFilters.company && newFilters.company !== "all") {
+      console.log('🔍 [Dashboard] Filtrando por empresa:', newFilters.company)
+      console.log('🔍 [Dashboard] Projetos antes do filtro de empresa:', filtered.map(p => ({ id: p.id, name: p.name, company_id: p.company_id })))
       filtered = filtered.filter(project => project.company_id === newFilters.company)
+      console.log('🔍 [Dashboard] Após filtro de empresa:', filtered.length)
+      console.log('🔍 [Dashboard] Projetos filtrados por empresa:', filtered.map(p => ({ id: p.id, name: p.name, company_id: p.company_id })))
     }
     
     // Filtro por tipo
     if (newFilters.type && newFilters.type !== "all") {
       filtered = filtered.filter(project => project.project_type === newFilters.type)
+      console.log('🔍 [Dashboard] Após filtro de tipo:', filtered.length)
     }
     
     // Filtro por status
     if (newFilters.status && newFilters.status !== "all") {
       filtered = filtered.filter(project => project.status === newFilters.status)
+      console.log('🔍 [Dashboard] Após filtro de status:', filtered.length)
     }
     
+    console.log('🔍 [Dashboard] Projetos finais filtrados:', filtered.length)
     setFilteredProjects(filtered)
   }
 
@@ -609,11 +622,11 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-6">
       <div className="space-y-4">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Dashboard Administrativo</h2>
-          <p className="text-muted-foreground">Visão geral completa do sistema de gerenciamento de projetos</p>
-        </div>
-        
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight">Dashboard Administrativo</h2>
+        <p className="text-muted-foreground">Visão geral completa do sistema de gerenciamento de projetos</p>
+      </div>
+
         {/* Filtros - Acima dos cards para filtrar os dados */}
         <ModernDateFilter 
           onDateChange={handleDateChange} 
