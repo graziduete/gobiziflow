@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { createBrowserClient } from "@supabase/ssr"
 import { StatsCard } from "@/components/admin/stats-card"
 import { ModernDateFilter } from "@/components/admin/modern-date-filter"
-import { ModernGanttFilters } from "@/components/admin/modern-gantt-filters"
 import { GanttView } from "@/components/admin/gantt-view"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Building2, FolderKanban, TrendingUp, Clock, CheckCircle, AlertTriangle, Package, Eye, EyeOff } from "lucide-react"
@@ -23,7 +22,6 @@ export default function AdminDashboard() {
   const [selectedMonth, setSelectedMonth] = useState<number | null>(new Date().getMonth() + 1)
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
   const [selectedCompany, setSelectedCompany] = useState("all")
-  const [filters, setFilters] = useState<any>({})
   const [hourStats, setHourStats] = useState<CompanyHourStats[]>([])
   // monthlyForecast REMOVIDA - Agora usa apenas payment_metrics
   const [showForecastDetails, setShowForecastDetails] = useState(false)
@@ -474,11 +472,6 @@ export default function AdminDashboard() {
     }
   }
 
-  const handleFiltersChange = (newFilters: any) => {
-    console.log('🔍 [Dashboard] handleFiltersChange chamado com:', newFilters)
-    setFilters(newFilters)
-    // O GanttView vai fazer a filtragem usando os filtros externos
-  }
 
   // Contagem de empresas e usuários (filtrado por empresa selecionada)
   const companiesForCount = selectedCompany !== "all" 
@@ -938,15 +931,12 @@ export default function AdminDashboard() {
           <p className="text-sm text-muted-foreground">Timeline e progresso dos projetos</p>
         </div>
 
-        <ModernGanttFilters companies={companies} onFiltersChange={handleFiltersChange} />
-
         <GanttView 
           projects={projects} 
           allProjects={projects} 
           companies={companies} 
           selectedMonth={selectedMonth} 
           selectedYear={selectedYear}
-          externalFilters={filters}
         />
       </div>
 

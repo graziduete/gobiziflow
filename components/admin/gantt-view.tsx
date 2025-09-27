@@ -16,7 +16,6 @@ interface GanttViewProps {
   companies?: any[]
   selectedMonth?: number | null
   selectedYear?: number
-  externalFilters?: ExpandedFilters // filtros externos do dashboard
 }
 
 interface ExpandedFilters {
@@ -26,7 +25,7 @@ interface ExpandedFilters {
   status: string
 }
 
-export function GanttView({ projects, allProjects, companies = [], selectedMonth, selectedYear, externalFilters }: GanttViewProps) {
+export function GanttView({ projects, allProjects, companies = [], selectedMonth, selectedYear }: GanttViewProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [expandedFilters, setExpandedFilters] = useState<ExpandedFilters>({
     search: "",
@@ -35,15 +34,6 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
     status: "all"
   })
 
-  // Sincronizar filtros externos com filtros internos
-  useEffect(() => {
-    if (externalFilters) {
-      console.log('🔄 [GanttView] Sincronizando filtros externos:', externalFilters)
-      setExpandedFilters(externalFilters)
-    } else {
-      console.log('⚠️ [GanttView] Nenhum filtro externo recebido')
-    }
-  }, [externalFilters])
 
   // Debug: verificar dados dos projetos
   console.log("🔍 [GanttView] Projects data:", projects)
@@ -197,52 +187,46 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
   }
 
   const getFilteredProjects = () => {
-    // Sempre usar allProjects como base para filtros
+    // Usar allProjects como base para filtros
     let baseProjects = allProjects || projects
     let filtered = [...baseProjects]
     
-    console.log('🔍 Filtros atuais (expandedFilters):', expandedFilters)
-    console.log('🔍 Filtros externos:', externalFilters)
-    console.log('🔍 Projetos base (allProjects):', baseProjects.length)
-    console.log('🔍 Projetos base (projects):', projects.length)
+    console.log('🔍 Filtros atuais:', expandedFilters)
+    console.log('🔍 Projetos base:', baseProjects.length)
 
     // Aplicar filtros de busca
-    const searchFilter = externalFilters?.search || expandedFilters.search
-    if (searchFilter && searchFilter.trim() !== '') {
+    if (expandedFilters.search && expandedFilters.search.trim() !== '') {
       filtered = filtered.filter(project =>
-        project.name.toLowerCase().includes(searchFilter.toLowerCase())
+        project.name.toLowerCase().includes(expandedFilters.search.toLowerCase())
       )
       console.log('🔍 Após filtro de busca:', filtered.length)
     }
 
     // Aplicar filtro de empresa
-    const companyFilter = externalFilters?.company || expandedFilters.company
-    if (companyFilter && companyFilter !== 'all') {
-      console.log('🔍 Filtrando por empresa:', companyFilter)
+    if (expandedFilters.company && expandedFilters.company !== 'all') {
+      console.log('🔍 Filtrando por empresa:', expandedFilters.company)
       console.log('🔍 Projetos antes do filtro de empresa:', filtered.map(p => ({ id: p.id, name: p.name, company_id: p.company_id })))
-      filtered = filtered.filter(project => project.company_id === companyFilter)
+      filtered = filtered.filter(project => project.company_id === expandedFilters.company)
       console.log('🔍 Após filtro de empresa:', filtered.length)
       console.log('🔍 Projetos filtrados por empresa:', filtered.map(p => ({ id: p.id, name: p.name, company_id: p.company_id })))
     }
 
     // Aplicar filtro de tipo
-    const typeFilter = externalFilters?.type || expandedFilters.type
-    if (typeFilter && typeFilter !== 'all') {
-      console.log('🔍 Filtrando por tipo:', typeFilter)
+    if (expandedFilters.type && expandedFilters.type !== 'all') {
+      console.log('🔍 Filtrando por tipo:', expandedFilters.type)
       console.log('🔍 Projetos antes do filtro de tipo:', filtered.map(p => ({ id: p.id, name: p.name, project_type: p.project_type })))
-      filtered = filtered.filter(project => project.project_type === typeFilter)
+      filtered = filtered.filter(project => project.project_type === expandedFilters.type)
       console.log('🔍 Após filtro de tipo:', filtered.length)
     }
 
     // Aplicar filtro de status
-    const statusFilter = externalFilters?.status || expandedFilters.status
-    if (statusFilter && statusFilter !== 'all') {
-      console.log('🔍 Filtrando por status:', statusFilter)
+    if (expandedFilters.status && expandedFilters.status !== 'all') {
+      console.log('🔍 Filtrando por status:', expandedFilters.status)
       console.log('🔍 Projetos antes do filtro de status:', filtered.map(p => ({ id: p.id, name: p.name, status: p.status })))
       
       // Filtro case-insensitive para status
       filtered = filtered.filter(project => 
-        project.status?.toLowerCase() === statusFilter.toLowerCase()
+        project.status?.toLowerCase() === expandedFilters.status.toLowerCase()
       )
       
       console.log('🔍 Após filtro de status:', filtered.length)
