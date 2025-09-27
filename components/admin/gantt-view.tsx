@@ -197,15 +197,14 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
   }
 
   const getFilteredProjects = () => {
-    // Se temos filtros externos, usar allProjects como base e aplicar filtros externos
-    // Senão, usar projects (já filtrados pelo dashboard) como base
-    let baseProjects = externalFilters ? (allProjects || projects) : projects
+    // Sempre usar allProjects como base para filtros
+    let baseProjects = allProjects || projects
     let filtered = [...baseProjects]
     
     console.log('🔍 Filtros atuais (expandedFilters):', expandedFilters)
     console.log('🔍 Filtros externos:', externalFilters)
-    console.log('🔍 Projetos base:', baseProjects.length)
-    console.log('🔍 Usando filtros externos:', !!externalFilters)
+    console.log('🔍 Projetos base (allProjects):', baseProjects.length)
+    console.log('🔍 Projetos base (projects):', projects.length)
 
     // Aplicar filtros de busca
     const searchFilter = externalFilters?.search || expandedFilters.search
