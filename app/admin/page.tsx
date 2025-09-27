@@ -132,7 +132,7 @@ export default function AdminDashboard() {
       await loadExpectedValue()
     }
     runFilters()
-  }, [projects, selectedMonth, selectedYear, selectedCompany, filters])
+  }, [projects, selectedMonth, selectedYear, selectedCompany])
 
   const fetchData = async () => {
     try {
