@@ -40,6 +40,8 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
     if (externalFilters) {
       console.log('🔄 [GanttView] Sincronizando filtros externos:', externalFilters)
       setExpandedFilters(externalFilters)
+    } else {
+      console.log('⚠️ [GanttView] Nenhum filtro externo recebido')
     }
   }, [externalFilters])
 
@@ -195,12 +197,12 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
   }
 
   const getFilteredProjects = () => {
-    // Usar allProjects se disponível, senão usar projects
-    let filtered = [...(allProjects || projects)]
+    // Usar projects (já filtrados pelo dashboard) como base
+    let filtered = [...projects]
     console.log('🔍 Filtros atuais:', expandedFilters)
-    console.log('🔍 Projetos originais (allProjects):', allProjects?.length || 0)
     console.log('🔍 Projetos originais (projects):', projects.length)
-    console.log('🔍 Usando allProjects:', !!allProjects)
+    console.log('🔍 Projetos originais (allProjects):', allProjects?.length || 0)
+    console.log('🔍 Usando projects como base (já filtrados pelo dashboard)')
 
     if (expandedFilters.search && expandedFilters.search.trim() !== '') {
       filtered = filtered.filter(project =>
@@ -214,6 +216,7 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
       console.log('🔍 Projetos antes do filtro de empresa:', filtered.map(p => ({ id: p.id, name: p.name, company_id: p.company_id })))
       filtered = filtered.filter(project => project.company_id === expandedFilters.company)
       console.log('🔍 Após filtro de empresa:', filtered.length)
+      console.log('🔍 Projetos filtrados por empresa:', filtered.map(p => ({ id: p.id, name: p.name, company_id: p.company_id })))
     }
 
     if (expandedFilters.type && expandedFilters.type !== 'all') {
