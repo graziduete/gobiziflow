@@ -387,14 +387,7 @@ export default function AdminDashboard() {
             }
           }
 
-          // Inclusão adicional: quando status filtrado for "completed", aceitar projetos com end_date <= fim do mês
-          let includeByCompleted = false
-          if (filters.status === 'completed' && hasEnd) {
-            const e = new Date(project.end_date)
-            includeByCompleted = e <= endOfMonth
-          }
-
-          return includeByMonth || includeByCompleted
+          return includeByMonth
         })
       }
     } else {
@@ -418,34 +411,8 @@ export default function AdminDashboard() {
           }
         }
 
-        // Inclusão adicional para concluídos
-        let includeByCompleted = false
-        if (filters.status === 'completed' && hasEnd) {
-          const e = new Date(project.end_date)
-          includeByCompleted = e <= endOfMonth
-        }
-
-        return includeByMonth || includeByCompleted
+        return includeByMonth
       })
-    }
-
-    // Aplicar filtros adicionais do Gantt
-    if (filters.search && filters.search.trim() !== '') {
-      filtered = filtered.filter((project) =>
-        project.name.toLowerCase().includes(filters.search.toLowerCase())
-      )
-    }
-
-    if (filters.company && filters.company !== 'all') {
-      filtered = filtered.filter((project) => project.company_id === filters.company)
-    }
-
-    if (filters.type && filters.type !== 'all') {
-      filtered = filtered.filter((project) => project.project_type === filters.type)
-    }
-
-    if (filters.status && filters.status !== 'all') {
-      filtered = filtered.filter((project) => project.status === filters.status)
     }
 
     // Ordenar por data de início ascendente (nulos por último)
