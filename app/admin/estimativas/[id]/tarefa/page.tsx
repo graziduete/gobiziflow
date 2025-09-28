@@ -17,7 +17,8 @@ import {
   Target,
   Settings,
   DollarSign,
-  User
+  User,
+  Trash2
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useEstimativaDownload } from "@/hooks/use-estimativa-download"
@@ -40,6 +41,14 @@ interface Estimativa {
   created_by: string
   tipo: string
   user_name?: string
+}
+
+const statusConfig = {
+  proposta_comercial: { label: "Proposta Comercial", variant: "default" as const },
+  em_aprovacao: { label: "Em Aprovação", variant: "secondary" as const },
+  aprovada: { label: "Aprovada", variant: "default" as const },
+  rejeitada: { label: "Rejeitada", variant: "destructive" as const },
+  convertida_projeto: { label: "Convertida em Projeto", variant: "outline" as const },
 }
 
 interface TarefaEstimativa {
@@ -256,6 +265,55 @@ export default function VisualizarEstimativaTarefaPage({ params }: { params: Pro
     }
   }
 
+  const handleDelete = async () => {
+    if (!estimativa) return
+    
+    const confirmed = window.confirm(
+      `Tem certeza que deseja excluir a estimativa "${estimativa.nome_projeto}"? Esta ação não pode ser desfeita.`
+    )
+    
+    if (!confirmed) return
+    
+    try {
+      // Excluir tarefas relacionadas primeiro
+      const { error: tarefasError } = await supabase
+        .from('tarefas_estimativa')
+        .delete()
+        .eq('estimativa_id', estimativaId)
+      
+      if (tarefasError) throw tarefasError
+      
+      // Excluir links públicos
+      await supabase
+        .from('estimativas_publicas')
+        .delete()
+        .eq('estimativa_id', estimativaId)
+      
+      // Excluir a estimativa
+      const { error: estimativaError } = await supabase
+        .from('estimativas')
+        .delete()
+        .eq('id', estimativaId)
+      
+      if (estimativaError) throw estimativaError
+      
+      toast({
+        title: "Estimativa excluída",
+        description: "A estimativa foi excluída com sucesso.",
+      })
+      
+      // Redirecionar para a lista
+      router.push('/admin/estimativas')
+    } catch (error) {
+      console.error('Erro ao excluir estimativa:', error)
+      toast({
+        title: "Erro",
+        description: "Não foi possível excluir a estimativa. Tente novamente.",
+        variant: "destructive",
+      })
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -308,8 +366,8 @@ export default function VisualizarEstimativaTarefaPage({ params }: { params: Pro
               <div>
                 <div className="flex items-center gap-3">
                   <h1 className="text-3xl font-bold tracking-tight">{estimativa.nome_projeto}</h1>
-                  <Badge className="bg-green-500 text-white border-green-400 text-sm px-3 py-1">
-                    Por Tarefa
+                  <Badge variant={statusConfig[estimativa.status as keyof typeof statusConfig]?.variant || "default"}>
+                    {statusConfig[estimativa.status as keyof typeof statusConfig]?.label || estimativa.status}
                   </Badge>
                 </div>
                 <p className="text-muted-foreground">
@@ -319,14 +377,6 @@ export default function VisualizarEstimativaTarefaPage({ params }: { params: Pro
             </div>
               
             <div className="flex items-center gap-2">
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => router.push(`/admin/estimativas/${estimativaId}/editar-tarefa`)}
-              >
-                <Edit className="h-4 w-4 mr-2" />
-                Editar
-              </Button>
               <Button 
                 variant="outline" 
                 size="sm"
@@ -344,6 +394,22 @@ export default function VisualizarEstimativaTarefaPage({ params }: { params: Pro
               >
                 <Download className="h-4 w-4 mr-2" />
                 {generatingPDF ? 'Gerando...' : 'Exportar PDF'}
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => router.push(`/admin/estimativas/${estimativaId}/editar-tarefa`)}
+              >
+                <Edit className="h-4 w-4 mr-2" />
+                Editar
+              </Button>
+              <Button 
+                variant="destructive" 
+                size="sm"
+                onClick={handleDelete}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Excluir
               </Button>
             </div>
           </div>
@@ -363,25 +429,20 @@ export default function VisualizarEstimativaTarefaPage({ params }: { params: Pro
                   <p className="text-lg font-semibold">{estimativa.nome_projeto}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Status</Label>
-                  <div className="mt-2">
-                    <Badge className="bg-blue-100 text-blue-800 border-blue-200">
-                      {estimativa.status}
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
                   <Label className="text-sm font-medium text-muted-foreground">Valor Hora</Label>
                   <p className="text-lg font-semibold">
                     R$ {estimativa.valor_hora.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </p>
                 </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label className="text-sm font-medium text-muted-foreground">Gordura</Label>
                   <p className="text-lg font-semibold">{estimativa.percentual_gordura}%</p>
+                </div>
+                <div>
+                  {/* Espaço vazio para manter o layout equilibrado */}
                 </div>
               </div>
 
