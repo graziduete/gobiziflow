@@ -192,9 +192,11 @@ export default function EstimativasPage() {
         console.log('Estimativas carregadas:', estimativasComProfiles.length)
         console.log('Valores individuais:', estimativasComProfiles.map(e => ({ 
           nome: e.nome_projeto, 
-          total_com_impostos: e.total_com_impostos 
+          total_com_impostos: e.total_com_impostos,
+          total_estimado: e.total_estimado
         })))
-        console.log('Soma total:', estimativasComProfiles.reduce((sum, e) => sum + e.total_com_impostos, 0))
+        console.log('Soma total_com_impostos:', estimativasComProfiles.reduce((sum, e) => sum + e.total_com_impostos, 0))
+        console.log('Soma total_estimado:', estimativasComProfiles.reduce((sum, e) => sum + e.total_estimado, 0))
         
         setEstimativas(estimativasComProfiles)
       } else {
