@@ -87,7 +87,10 @@ export default function NovaEstimativaPage() {
           { id: '7', nome: 'Consultor Técnico', taxa_hora_padrao: 200.00, descricao: 'Consultoria especializada' },
           { id: '8', nome: 'Designer UX/UI', taxa_hora_padrao: 90.00, descricao: 'Design de interface' },
           { id: '9', nome: 'DevOps', taxa_hora_padrao: 130.00, descricao: 'Infraestrutura e deploy' },
-          { id: '10', nome: 'Analista de Negócios', taxa_hora_padrao: 95.00, descricao: 'Análise de requisitos' }
+          { id: '10', nome: 'Analista de Negócios', taxa_hora_padrao: 95.00, descricao: 'Análise de requisitos' },
+          { id: '11', nome: 'Analista de Dados', taxa_hora_padrao: 105.00, descricao: 'Análise e ciência de dados' },
+          { id: '12', nome: 'Desenvolvedor RPA', taxa_hora_padrao: 115.00, descricao: 'Automação de processos' },
+          { id: '13', nome: 'Engenheiro de Software', taxa_hora_padrao: 140.00, descricao: 'Engenharia de software' }
         ])
       }
     }
@@ -287,7 +290,12 @@ export default function NovaEstimativaPage() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Nova Estimativa - Por Recurso</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold tracking-tight">Nova Estimativa</h1>
+            <Badge variant="secondary" className="bg-blue-500 text-white border-blue-400 text-sm px-3 py-1">
+              Por Recurso
+            </Badge>
+          </div>
           <p className="text-muted-foreground">
             Crie uma estimativa detalhada alocando recursos e horas por semana
           </p>
@@ -580,8 +588,8 @@ function RecursoCard({
             <Input
               id={`nome-${recurso.id}`}
               value={recurso.nome_recurso}
-              onChange={(e) => onUpdate('nome_recurso', e.target.value)}
-              className="font-medium"
+              disabled
+              className="font-medium bg-gray-100 cursor-not-allowed"
             />
           </div>
           <div className="space-y-1">
