@@ -712,7 +712,7 @@ export function useEstimativaDownload() {
     pdf.setDrawColor(226, 232, 240)
     pdf.setLineWidth(0.5)
     const cardHeight = 20 + (tarefas.length * 7) + 8 // 20 (título) + (tarefas * 7) + 8 (margem)
-    pdf.roundedRect(15, currentY, 260, cardHeight, 3, 3, 'FD')
+    pdf.roundedRect(15, currentY, 220, cardHeight, 3, 3, 'FD')
     
     // Título compacto
     pdf.setFontSize(14)
@@ -734,13 +734,12 @@ export function useEstimativaDownload() {
     
     // Cabeçalho da tabela compacto
     pdf.setFillColor(59, 130, 246)
-    pdf.roundedRect(20, currentY, 250, 8, 2, 2, 'F')
+    pdf.roundedRect(20, currentY, 200, 8, 2, 2, 'F')
     
     pdf.setFontSize(10)
     pdf.setTextColor(255, 255, 255)
     pdf.text('Funcionalidade', 25, currentY + 5)
     pdf.text('Estimativa', 150, currentY + 5)
-    pdf.text('Valor', 220, currentY + 5)
     
     currentY += 10
     
@@ -749,7 +748,7 @@ export function useEstimativaDownload() {
       // Alternar cor de fundo
       if (index % 2 === 0) {
         pdf.setFillColor(248, 250, 252)
-        pdf.roundedRect(20, currentY - 1, 250, 6, 1, 1, 'F')
+        pdf.roundedRect(20, currentY - 1, 200, 6, 1, 1, 'F')
       }
       
       pdf.setFontSize(9)
@@ -764,11 +763,6 @@ export function useEstimativaDownload() {
       // Estimativa
       pdf.setTextColor(16, 185, 129)
       pdf.text(`${tarefa.total_com_gordura.toFixed(1)}h`, 150, currentY + 3)
-      
-      // Valor
-      const valorTotal = tarefa.total_com_gordura * (estimativa.valor_hora || 0)
-      pdf.setTextColor(15, 23, 42)
-      pdf.text(formatCurrency(valorTotal), 220, currentY + 3)
       
       currentY += 7
     })
@@ -807,12 +801,12 @@ export function useEstimativaDownload() {
     const leftCol = 20
     const rightCol = 200
     
-    // Estimativa total (horas)
+    // Quantidade de tarefas
     pdf.setFontSize(12)
     pdf.setTextColor(100, 116, 139)
-    pdf.text('Estimativa Total:', leftCol, currentY)
+    pdf.text('Quantidade de Tarefas:', leftCol, currentY)
     pdf.setTextColor(16, 185, 129)
-    pdf.text(`${totalHoras.toFixed(1)}h`, leftCol + 30, currentY)
+    pdf.text(`${tarefas.length}`, leftCol + 35, currentY)
     
     currentY += 8
     
