@@ -319,118 +319,40 @@ export default function VisualizarEstimativaPage() {
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Conteúdo Principal */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Informações do Projeto */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calculator className="h-5 w-5" />
-                Informações do Projeto
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Duração</label>
-                  <p className="text-lg font-semibold flex items-center gap-2">
-                    <Clock className="h-4 w-4" />
-                    {estimativa.meses_previstos} meses
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Impostos</label>
-                  <p className="text-lg font-semibold">{estimativa.percentual_imposto}%</p>
-                </div>
+      <div className="space-y-6">
+        {/* Informações do Projeto */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calculator className="h-5 w-5" />
+              Informações do Projeto
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Duração</label>
+                <p className="text-lg font-semibold flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  {estimativa.meses_previstos} meses
+                </p>
               </div>
-              {estimativa.observacoes && (
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Observações</label>
-                  <p className="text-sm mt-1 p-3 bg-muted rounded-md">{estimativa.observacoes}</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Impostos</label>
+                <p className="text-lg font-semibold">{estimativa.percentual_imposto}%</p>
+              </div>
+            </div>
+            {estimativa.observacoes && (
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Observações</label>
+                <p className="text-sm mt-1 p-3 bg-muted rounded-md">{estimativa.observacoes}</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
-          {/* Recursos da Estimativa */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                Recursos da Estimativa
-              </CardTitle>
-              <CardDescription>
-                Equipe e custos por recurso
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {recursos.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Nenhum recurso encontrado</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {recursos.map((recurso) => (
-                    <div key={recurso.id} className="border rounded-lg p-4 bg-gray-50">
-                      <div className="flex items-center justify-between mb-3">
-                        <div>
-                          <h4 className="font-semibold text-lg">{recurso.nome_recurso}</h4>
-                          <p className="text-sm text-muted-foreground">
-                            Taxa: {formatCurrency(recurso.taxa_hora)}/hora
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-2xl font-bold text-primary">
-                            {formatCurrency(recurso.total_custo)}
-                          </div>
-                          <p className="text-sm text-muted-foreground">
-                            {recurso.total_horas.toFixed(1)} horas totais
-                          </p>
-                        </div>
-                      </div>
-                      
-                      {/* Resumo por mês */}
-                      <div className="mt-4">
-                        <h5 className="font-medium text-sm text-muted-foreground mb-2">
-                          Distribuição por Mês:
-                        </h5>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                          {Array.from({ length: Math.ceil(semanas.length / 4) }, (_, mesIndex) => {
-                            const semanasDoMes = semanas.slice(mesIndex * 4, (mesIndex + 1) * 4)
-                            const horasDoMes = semanasDoMes.reduce((total, semana) => {
-                              const alocacao = recurso.alocacoes.find(a => a.semana === semana)
-                              return total + (alocacao?.horas || 0)
-                            }, 0)
-                            const custoDoMes = horasDoMes * recurso.taxa_hora
-                            
-                            return (
-                              <div key={mesIndex} className="bg-white p-3 rounded border text-center">
-                                <div className="text-sm font-medium text-muted-foreground">
-                                  Mês {mesIndex + 1}
-                                </div>
-                                <div className="text-lg font-semibold text-primary">
-                                  {formatCurrency(custoDoMes)}
-                                </div>
-                                <div className="text-xs text-muted-foreground">
-                                  {horasDoMes.toFixed(1)}h
-                                </div>
-                              </div>
-                            )
-                          })}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Resumo */}
-        <div className="space-y-6">
+        {/* Resumo Financeiro e Estatísticas */}
+        <div className="grid gap-6 md:grid-cols-2">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -494,6 +416,81 @@ export default function VisualizarEstimativaPage() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Recursos da Estimativa */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              Recursos da Estimativa
+            </CardTitle>
+            <CardDescription>
+              Equipe e custos por recurso
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {recursos.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>Nenhum recurso encontrado</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {recursos.map((recurso) => (
+                  <div key={recurso.id} className="border rounded-lg p-4 bg-gray-50">
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <h4 className="font-semibold text-lg">{recurso.nome_recurso}</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Taxa: {formatCurrency(recurso.taxa_hora)}/hora
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-primary">
+                          {formatCurrency(recurso.total_custo)}
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          {recurso.total_horas.toFixed(1)} horas totais
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {/* Resumo por mês */}
+                    <div className="mt-4">
+                      <h5 className="font-medium text-sm text-muted-foreground mb-2">
+                        Distribuição por Mês:
+                      </h5>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        {Array.from({ length: Math.ceil(semanas.length / 4) }, (_, mesIndex) => {
+                          const semanasDoMes = semanas.slice(mesIndex * 4, (mesIndex + 1) * 4)
+                          const horasDoMes = semanasDoMes.reduce((total, semana) => {
+                            const alocacao = recurso.alocacoes.find(a => a.semana === semana)
+                            return total + (alocacao?.horas || 0)
+                          }, 0)
+                          const custoDoMes = horasDoMes * recurso.taxa_hora
+                          
+                          return (
+                            <div key={mesIndex} className="bg-white p-3 rounded border text-center">
+                              <div className="text-sm font-medium text-muted-foreground">
+                                Mês {mesIndex + 1}
+                              </div>
+                              <div className="text-lg font-semibold text-primary">
+                                {formatCurrency(custoDoMes)}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {horasDoMes.toFixed(1)}h
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
       
       {/* Modal de Confirmação */}
