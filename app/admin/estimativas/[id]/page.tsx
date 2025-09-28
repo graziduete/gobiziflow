@@ -22,6 +22,8 @@ import {
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useConfirmationDialog } from "@/components/ui/confirmation-dialog"
+import { useEstimativaDownload } from "@/hooks/use-estimativa-download"
+import { ShareModal } from "@/components/ui/share-modal"
 import { toast } from "sonner"
 
 interface Estimativa {
@@ -69,6 +71,12 @@ export default function VisualizarEstimativaPage() {
   const [estimativa, setEstimativa] = useState<Estimativa | null>(null)
   const [recursos, setRecursos] = useState<RecursoEstimativa[]>([])
   const [loading, setLoading] = useState(true)
+  const [generatingLink, setGeneratingLink] = useState(false)
+  const [generatingPDF, setGeneratingPDF] = useState(false)
+  const [shareModalOpen, setShareModalOpen] = useState(false)
+  const [shareUrl, setShareUrl] = useState('')
+  
+  const { downloadEstimativaPDF } = useEstimativaDownload()
 
   useEffect(() => {
     if (estimativaId) {
@@ -172,6 +180,81 @@ export default function VisualizarEstimativaPage() {
     toast.info('Funcionalidade de conversão será implementada em breve')
   }
 
+  const handleDownloadPDF = async () => {
+    if (!estimativa) return
+    
+    try {
+      setGeneratingPDF(true)
+      const result = await downloadEstimativaPDF(estimativa, recursos, {
+        filename: `estimativa-${estimativa.nome_projeto.replace(/\s+/g, '-').toLowerCase()}`
+      })
+      
+      if (result.success) {
+        toast.success('PDF gerado com sucesso!')
+      } else {
+        toast.error('Erro ao gerar PDF: ' + result.error)
+      }
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error)
+      toast.error('Erro ao gerar PDF')
+    } finally {
+      setGeneratingPDF(false)
+    }
+  }
+
+  const handleShareLink = async () => {
+    if (!estimativa) return
+    
+    try {
+      setGeneratingLink(true)
+      
+      // Verificar se já existe link público
+      const { data: existingLink } = await supabase
+        .from('estimativas_publicas')
+        .select('token')
+        .eq('estimativa_id', estimativaId)
+        .single()
+      
+      let token = existingLink?.token
+      
+      if (!token) {
+        // Gerar novo token (função simples no frontend)
+        const generateToken = () => {
+          const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+          let result = ''
+          for (let i = 0; i < 32; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length))
+          }
+          return result
+        }
+        
+        token = generateToken()
+        
+        // Criar link público
+        const { error: insertError } = await supabase
+          .from('estimativas_publicas')
+          .insert({
+            estimativa_id: estimativaId,
+            token: token,
+            created_by: estimativa.created_by
+          })
+        
+        if (insertError) throw insertError
+      }
+      
+      // Gerar URL pública
+      const publicUrl = `${window.location.origin}/estimativa/${token}`
+      setShareUrl(publicUrl)
+      setShareModalOpen(true)
+      
+    } catch (error) {
+      console.error('Erro ao gerar link:', error)
+      toast.error('Erro ao gerar link de compartilhamento')
+    } finally {
+      setGeneratingLink(false)
+    }
+  }
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -258,7 +341,8 @@ export default function VisualizarEstimativaPage() {
   const semanas = Array.from({ length: estimativa.meses_previstos * 4 }, (_, i) => i + 1)
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen overflow-y-auto">
+      <div className="space-y-6 p-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -286,13 +370,23 @@ export default function VisualizarEstimativaPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={handleShareLink}
+            disabled={generatingLink}
+          >
             <Share className="h-4 w-4 mr-2" />
-            Compartilhar
+            {generatingLink ? 'Gerando...' : 'Compartilhar'}
           </Button>
-          <Button variant="outline" size="sm">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={handleDownloadPDF}
+            disabled={generatingPDF}
+          >
             <Download className="h-4 w-4 mr-2" />
-            Exportar
+            {generatingPDF ? 'Gerando...' : 'Exportar PDF'}
           </Button>
           <Button 
             variant="outline" 
@@ -495,6 +589,15 @@ export default function VisualizarEstimativaPage() {
       
       {/* Modal de Confirmação */}
       {ConfirmationDialog}
+      
+      {/* Modal de Compartilhamento */}
+      <ShareModal
+        isOpen={shareModalOpen}
+        onClose={() => setShareModalOpen(false)}
+        shareUrl={shareUrl}
+        projectName={estimativa?.nome_projeto || ''}
+      />
+      </div>
     </div>
   )
 }
