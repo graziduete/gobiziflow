@@ -8,6 +8,7 @@ import {
   Building2,
   Users,
   FolderKanban,
+  Calculator,
   Settings,
   LogOut,
   ChevronLeft,
@@ -55,6 +56,12 @@ const navigation = [
     name: "Projetos",
     href: "/admin/projects",
     icon: FolderKanban,
+    roles: ["admin", "admin_operacional"]
+  },
+  {
+    name: "Estimativas",
+    href: "/admin/estimativas",
+    icon: Calculator,
     roles: ["admin", "admin_operacional"]
   },
   {
