@@ -694,7 +694,7 @@ export function useEstimativaDownload() {
     
     // Status
     pdf.setFillColor(59, 130, 246)
-    pdf.roundedRect(middleCol, currentY - 3, 35, 6, 2, 2, 'F')
+    pdf.roundedRect(middleCol, currentY - 3, 40, 6, 2, 2, 'F')
     pdf.setFontSize(8)
     pdf.setTextColor(255, 255, 255)
     pdf.text(estimativa.status.replace('_', ' ').toUpperCase(), middleCol + 2, currentY + 1)
