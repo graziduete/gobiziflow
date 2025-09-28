@@ -5,13 +5,16 @@ import jsPDF from 'jspdf'
 
 interface EstimativaData {
   nome_projeto: string
-  meses_previstos: number
+  meses_previstos?: number
   status: string
   percentual_imposto: number
   observacoes?: string
-  total_estimado: number
-  total_com_impostos: number
+  total_estimado?: number
+  total_com_impostos?: number
   created_at: string
+  tipo?: string
+  valor_hora?: number
+  percentual_gordura?: number
   profiles?: {
     full_name: string
     email: string
@@ -25,6 +28,21 @@ interface RecursoEstimativa {
   total_horas: number
   total_custo: number
   alocacoes: { semana: number; horas: number; custo_semanal: number }[]
+}
+
+interface TarefaEstimativa {
+  id: string
+  funcionalidade: string
+  quantidade: number
+  tecnologia_id: string
+  complexidade_id: string
+  tipo_tarefa_id: string
+  fator_aplicado: number
+  total_base: number
+  total_com_gordura: number
+  tecnologias?: { nome: string }
+  complexidades?: { nome: string }
+  tipos_tarefa?: { nome: string }
 }
 
 interface DownloadOptions {
@@ -351,7 +369,356 @@ export function useEstimativaDownload() {
     return currentY + 20
   }, [formatCurrency])
 
-  // Função principal de download
+  // Função para criar card de tarefas
+  const createTasksSection = useCallback((pdf: jsPDF, tarefas: TarefaEstimativa[], estimativa: EstimativaData, yPosition: number) => {
+    let currentY = yPosition
+    
+    // Card principal
+    pdf.setFillColor(255, 255, 255) // Branco
+    pdf.setDrawColor(226, 232, 240) // Cinza claro
+    pdf.setLineWidth(0.5)
+    pdf.roundedRect(15, currentY, 180, 40 + (tarefas.length * 12), 3, 3, 'FD')
+    
+    // Título do card
+    pdf.setFontSize(18)
+    pdf.setTextColor(15, 23, 42)
+    pdf.text('TAREFAS DO PROJETO', 25, currentY + 12)
+    
+    // Linha decorativa
+    pdf.setDrawColor(59, 130, 246)
+    pdf.setLineWidth(1)
+    pdf.line(25, currentY + 15, 50, currentY + 15)
+    currentY += 25
+    
+    if (tarefas.length === 0) {
+      pdf.setFontSize(12)
+      pdf.setTextColor(100, 116, 139)
+      pdf.text('Nenhuma tarefa encontrada', 25, currentY)
+      return currentY + 20
+    }
+    
+    // Cabeçalho da tabela moderno
+    pdf.setFillColor(59, 130, 246) // Azul
+    pdf.roundedRect(20, currentY, 170, 12, 2, 2, 'F')
+    
+    pdf.setFontSize(10)
+    pdf.setTextColor(255, 255, 255) // Branco
+    pdf.text('Funcionalidade', 25, currentY + 8)
+    pdf.text('Qtd', 80, currentY + 8)
+    pdf.text('Tecnologia', 95, currentY + 8)
+    pdf.text('Complex.', 130, currentY + 8)
+    pdf.text('Tipo', 150, currentY + 8)
+    pdf.text('Fator', 165, currentY + 8)
+    
+    currentY += 15
+    
+    // Dados das tarefas com design moderno
+    tarefas.forEach((tarefa, index) => {
+      // Alternar cor de fundo sutil
+      if (index % 2 === 0) {
+        pdf.setFillColor(248, 250, 252) // Cinza muito claro
+        pdf.roundedRect(20, currentY - 2, 170, 10, 1, 1, 'F')
+      }
+      
+      pdf.setFontSize(9)
+      pdf.setTextColor(15, 23, 42)
+      
+      // Funcionalidade (truncar se muito longa)
+      const funcionalidade = tarefa.funcionalidade.length > 20 
+        ? tarefa.funcionalidade.substring(0, 20) + '...'
+        : tarefa.funcionalidade
+      pdf.text(funcionalidade, 25, currentY + 6)
+      
+      // Quantidade
+      pdf.text(tarefa.quantidade.toString(), 80, currentY + 6)
+      
+      // Tecnologia
+      const tecnologia = tarefa.tecnologias?.nome || tarefa.tecnologia_id
+      const tecnologiaNome = tecnologia.length > 8 
+        ? tecnologia.substring(0, 8) + '...'
+        : tecnologia
+      pdf.text(tecnologiaNome, 95, currentY + 6)
+      
+      // Complexidade
+      const complexidade = tarefa.complexidades?.nome || tarefa.complexidade_id
+      const complexidadeNome = complexidade.length > 6 
+        ? complexidade.substring(0, 6) + '...'
+        : complexidade
+      pdf.text(complexidadeNome, 130, currentY + 6)
+      
+      // Tipo
+      const tipo = tarefa.tipos_tarefa?.nome || tarefa.tipo_tarefa_id
+      const tipoNome = tipo.length > 6 
+        ? tipo.substring(0, 6) + '...'
+        : tipo
+      pdf.text(tipoNome, 150, currentY + 6)
+      
+      // Fator
+      pdf.text(tarefa.fator_aplicado.toString(), 165, currentY + 6)
+      
+      currentY += 12
+    })
+    
+    return currentY + 20
+  }, [])
+
+  // Função para criar resumo de tarefas
+  const createTasksSummary = useCallback((pdf: jsPDF, tarefas: TarefaEstimativa[], estimativa: EstimativaData, yPosition: number) => {
+    let currentY = yPosition
+    
+    // Calcular totais
+    const totalObjetos = tarefas.reduce((sum, t) => sum + t.quantidade, 0)
+    const totalHoras = tarefas.reduce((sum, t) => sum + t.total_com_gordura, 0)
+    const subtotalHoras = tarefas.reduce((sum, t) => sum + t.total_base, 0)
+    const totalEstimado = tarefas.reduce((sum, t) => sum + (t.total_com_gordura * (estimativa.valor_hora || 0)), 0)
+    const impostos = totalEstimado * estimativa.percentual_imposto / 100
+    const totalComImpostos = totalEstimado + impostos
+    
+    // Card principal com gradiente sutil
+    pdf.setFillColor(255, 255, 255) // Branco
+    pdf.setDrawColor(16, 185, 129) // Verde
+    pdf.setLineWidth(1)
+    pdf.roundedRect(15, currentY, 180, 80, 3, 3, 'FD')
+    
+    // Título do card
+    pdf.setFontSize(18)
+    pdf.setTextColor(15, 23, 42)
+    pdf.text('RESUMO DA ESTIMATIVA', 25, currentY + 12)
+    
+    // Linha decorativa verde
+    pdf.setDrawColor(16, 185, 129)
+    pdf.setLineWidth(1)
+    pdf.line(25, currentY + 15, 50, currentY + 15)
+    currentY += 25
+    
+    // Métricas de horas
+    pdf.setFontSize(12)
+    pdf.setTextColor(100, 116, 139)
+    pdf.text('Total Base:', 25, currentY)
+    pdf.setFontSize(14)
+    pdf.setTextColor(59, 130, 246) // Azul
+    pdf.text(`${subtotalHoras.toFixed(1)}h`, 150, currentY)
+    currentY += 12
+    
+    pdf.setFontSize(12)
+    pdf.setTextColor(100, 116, 139)
+    pdf.text(`Com Gordura (${estimativa.percentual_gordura || 0}%):`, 25, currentY)
+    pdf.setFontSize(14)
+    pdf.setTextColor(16, 185, 129) // Verde
+    pdf.text(`${totalHoras.toFixed(1)}h`, 150, currentY)
+    currentY += 12
+    
+    pdf.setFontSize(12)
+    pdf.setTextColor(100, 116, 139)
+    pdf.text('Valor Hora:', 25, currentY)
+    pdf.setFontSize(14)
+    pdf.setTextColor(15, 23, 42)
+    pdf.text(formatCurrency(estimativa.valor_hora || 0), 150, currentY)
+    currentY += 15
+    
+    // Linha separadora
+    pdf.setDrawColor(226, 232, 240)
+    pdf.setLineWidth(0.5)
+    pdf.line(25, currentY, 170, currentY)
+    currentY += 8
+    
+    // Resumo financeiro
+    pdf.setFontSize(12)
+    pdf.setTextColor(100, 116, 139)
+    pdf.text('Subtotal:', 25, currentY)
+    pdf.setFontSize(14)
+    pdf.setTextColor(15, 23, 42)
+    pdf.text(formatCurrency(totalEstimado), 150, currentY)
+    currentY += 12
+    
+    pdf.setFontSize(12)
+    pdf.setTextColor(100, 116, 139)
+    pdf.text(`Impostos (${estimativa.percentual_imposto}%):`, 25, currentY)
+    pdf.setFontSize(14)
+    pdf.setTextColor(15, 23, 42)
+    pdf.text(formatCurrency(impostos), 150, currentY)
+    currentY += 12
+    
+    // Total destacado
+    pdf.setFillColor(16, 185, 129) // Verde
+    pdf.roundedRect(15, currentY - 2, 180, 8, 2, 2, 'F')
+    
+    pdf.setFontSize(16)
+    pdf.setTextColor(255, 255, 255) // Branco
+    pdf.text('TOTAL GERAL:', 20, currentY + 4)
+    pdf.text(formatCurrency(totalComImpostos), 150, currentY + 4)
+    
+    return currentY + 20
+  }, [formatCurrency])
+
+  // Função para download de PDF de tarefas
+  const downloadTarefasPDF = useCallback(async (
+    estimativa: EstimativaData,
+    tarefas: TarefaEstimativa[],
+    options: DownloadOptions = {}
+  ) => {
+    try {
+      // Criar PDF
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      })
+      
+      // Header
+      await createPDFHeader(pdf)
+      
+      let currentY = 45
+      
+      // Informações do projeto (adaptado para tarefas)
+      currentY = createProjectInfoTarefas(pdf, estimativa, currentY)
+      
+      // Tarefas
+      currentY = createTasksSection(pdf, tarefas, estimativa, currentY)
+      
+      // Verificar se precisa de nova página antes do resumo
+      if (currentY > 180) {
+        pdf.addPage()
+        currentY = 25
+      }
+      
+      // Resumo da estimativa
+      currentY = createTasksSummary(pdf, tarefas, estimativa, currentY)
+      
+      // Footer elegante em todas as páginas
+      const pageCount = pdf.getNumberOfPages()
+      for (let i = 1; i <= pageCount; i++) {
+        pdf.setPage(i)
+        
+        // Linha decorativa
+        pdf.setDrawColor(226, 232, 240)
+        pdf.setLineWidth(0.5)
+        pdf.line(15, 280, 195, 280)
+        
+        // Footer com design moderno
+        pdf.setFontSize(9)
+        pdf.setTextColor(100, 116, 139)
+        pdf.text('Este documento foi gerado automaticamente pelo sistema GobiZi Flow', 15, 285)
+        
+        // Número da página com estilo
+        pdf.setFillColor(59, 130, 246)
+        pdf.roundedRect(150, 275, 40, 8, 2, 2, 'F')
+        pdf.setTextColor(255, 255, 255)
+        pdf.setFontSize(8)
+        pdf.text(`Página ${i} de ${pageCount}`, 155, 280)
+      }
+      
+      // Download
+      const filename = options.filename || `estimativa-tarefas-${estimativa.nome_projeto.replace(/\s+/g, '-').toLowerCase()}-${new Date().toISOString().split('T')[0]}`
+      pdf.save(`${filename}.pdf`)
+      
+      return { success: true }
+      
+    } catch (error) {
+      console.error('Erro ao gerar PDF da estimativa de tarefas:', error)
+      return { success: false, error: error instanceof Error ? error.message : 'Erro desconhecido' }
+    }
+  }, [createPDFHeader, createTasksSection, createTasksSummary])
+
+  // Função para criar informações do projeto para tarefas
+  const createProjectInfoTarefas = useCallback((pdf: jsPDF, estimativa: EstimativaData, yPosition: number) => {
+    let currentY = yPosition
+    
+    // Card principal com sombra sutil
+    pdf.setFillColor(255, 255, 255) // Branco
+    pdf.setDrawColor(226, 232, 240) // Cinza claro
+    pdf.setLineWidth(0.5)
+    pdf.roundedRect(15, currentY, 180, 70, 3, 3, 'FD') // Fill + Draw com cantos arredondados
+    
+    // Título do card
+    pdf.setFontSize(18)
+    pdf.setTextColor(15, 23, 42) // Cinza escuro
+    pdf.text('INFORMAÇÕES DO PROJETO', 25, currentY + 12)
+    
+    // Linha decorativa
+    pdf.setDrawColor(59, 130, 246)
+    pdf.setLineWidth(1)
+    pdf.line(25, currentY + 15, 50, currentY + 15)
+    currentY += 25
+    
+    // Grid de informações em 2 colunas
+    const leftCol = 25
+    const rightCol = 105
+    const rowHeight = 12
+    
+    // Nome do projeto (destaque)
+    pdf.setFontSize(16)
+    pdf.setTextColor(59, 130, 246) // Azul
+    pdf.text('Nome do Projeto', leftCol, currentY)
+    pdf.setFontSize(14)
+    pdf.setTextColor(15, 23, 42)
+    pdf.text(estimativa.nome_projeto, leftCol, currentY + 6)
+    currentY += 15
+    
+    // Status com badge
+    pdf.setFillColor(59, 130, 246)
+    pdf.roundedRect(leftCol, currentY - 2, 40, 6, 2, 2, 'F')
+    pdf.setFontSize(9)
+    pdf.setTextColor(255, 255, 255)
+    pdf.text(estimativa.status.replace('_', ' ').toUpperCase(), leftCol + 2, currentY + 2)
+    
+    // Valor Hora
+    pdf.setFontSize(11)
+    pdf.setTextColor(100, 116, 139)
+    pdf.text('Valor Hora:', rightCol, currentY)
+    pdf.setTextColor(15, 23, 42)
+    pdf.text(formatCurrency(estimativa.valor_hora || 0), rightCol + 20, currentY)
+    currentY += 10
+    
+    // Gordura
+    pdf.setTextColor(100, 116, 139)
+    pdf.text('Gordura:', rightCol, currentY)
+    pdf.setTextColor(15, 23, 42)
+    pdf.text(`${estimativa.percentual_gordura || 0}%`, rightCol + 20, currentY)
+    currentY += 10
+    
+    // Data de criação
+    pdf.setTextColor(100, 116, 139)
+    pdf.text('Criado em:', rightCol, currentY)
+    pdf.setTextColor(15, 23, 42)
+    pdf.text(formatDate(estimativa.created_at), rightCol + 20, currentY)
+    currentY += 10
+    
+    // Criado por
+    if (estimativa.profiles?.full_name) {
+      pdf.setTextColor(100, 116, 139)
+      pdf.text('Criado por:', rightCol, currentY)
+      pdf.setTextColor(15, 23, 42)
+      pdf.text(estimativa.profiles.full_name, rightCol + 20, currentY)
+      currentY += 10
+    }
+    
+    // Observações em card separado se existir
+    if (estimativa.observacoes) {
+      currentY += 5
+      pdf.setFillColor(248, 250, 252) // Cinza muito claro
+      pdf.setDrawColor(226, 232, 240)
+      pdf.roundedRect(15, currentY, 180, 25, 3, 3, 'FD')
+      
+      pdf.setFontSize(11)
+      pdf.setTextColor(100, 116, 139)
+      pdf.text('Observações:', 25, currentY + 8)
+      
+      const maxWidth = 160
+      const lines = pdf.splitTextToSize(estimativa.observacoes, maxWidth)
+      pdf.setFontSize(10)
+      pdf.setTextColor(15, 23, 42)
+      lines.forEach((line: string, index: number) => {
+        pdf.text(line, 25, currentY + 15 + (index * 4))
+      })
+      
+      currentY += 30
+    }
+    
+    return currentY + 20
+  }, [formatDate])
+
+  // Função principal de download (recursos)
   const downloadEstimativaPDF = useCallback(async (
     estimativa: EstimativaData,
     recursos: RecursoEstimativa[],
@@ -421,6 +788,7 @@ export function useEstimativaDownload() {
   }, [createPDFHeader, createProjectInfo, createFinancialSummary, createResourcesSection])
 
   return {
-    downloadEstimativaPDF
+    downloadEstimativaPDF,
+    downloadTarefasPDF
   }
 }

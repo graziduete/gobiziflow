@@ -71,7 +71,7 @@ export default function VisualizarEstimativaTarefaPage({ params }: { params: Pro
   const router = useRouter()
   const { id: estimativaId } = React.use(params)
   const supabase = createClient()
-  const { downloadEstimativaPDF } = useEstimativaDownload()
+  const { downloadTarefasPDF } = useEstimativaDownload()
   const { toast } = useToast()
 
   const [loading, setLoading] = useState(true)
@@ -179,7 +179,7 @@ export default function VisualizarEstimativaTarefaPage({ params }: { params: Pro
     
     try {
       setGeneratingPDF(true)
-      const result = await downloadEstimativaPDF(estimativa, tarefas, {
+      const result = await downloadTarefasPDF(estimativa, tarefas, {
         filename: `estimativa-tarefa-${estimativa.nome_projeto.replace(/\s+/g, '-').toLowerCase()}`
       })
       
