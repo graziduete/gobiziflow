@@ -712,7 +712,7 @@ export function useEstimativaDownload() {
     pdf.setDrawColor(226, 232, 240)
     pdf.setLineWidth(0.5)
     const cardHeight = 20 + (tarefas.length * 7) + 8 // 20 (título) + (tarefas * 7) + 8 (margem)
-    pdf.roundedRect(15, currentY, 220, cardHeight, 3, 3, 'FD')
+    pdf.roundedRect(15, currentY, 260, cardHeight, 3, 3, 'FD')
     
     // Título compacto
     pdf.setFontSize(14)
@@ -734,12 +734,12 @@ export function useEstimativaDownload() {
     
     // Cabeçalho da tabela compacto
     pdf.setFillColor(59, 130, 246)
-    pdf.roundedRect(20, currentY, 200, 8, 2, 2, 'F')
+    pdf.roundedRect(20, currentY, 250, 8, 2, 2, 'F')
     
     pdf.setFontSize(10)
     pdf.setTextColor(255, 255, 255)
     pdf.text('Funcionalidade', 25, currentY + 5)
-    pdf.text('Estimativa', 150, currentY + 5)
+    pdf.text('Estimativa', 200, currentY + 5)
     
     currentY += 10
     
@@ -748,21 +748,21 @@ export function useEstimativaDownload() {
       // Alternar cor de fundo
       if (index % 2 === 0) {
         pdf.setFillColor(248, 250, 252)
-        pdf.roundedRect(20, currentY - 1, 200, 6, 1, 1, 'F')
+        pdf.roundedRect(20, currentY - 1, 250, 6, 1, 1, 'F')
       }
       
       pdf.setFontSize(9)
       pdf.setTextColor(15, 23, 42)
       
       // Funcionalidade (limitada)
-      const funcionalidade = tarefa.funcionalidade.length > 50 
-        ? tarefa.funcionalidade.substring(0, 50) + '...'
+      const funcionalidade = tarefa.funcionalidade.length > 60 
+        ? tarefa.funcionalidade.substring(0, 60) + '...'
         : tarefa.funcionalidade
       pdf.text(funcionalidade, 25, currentY + 3)
       
       // Estimativa
       pdf.setTextColor(16, 185, 129)
-      pdf.text(`${tarefa.total_com_gordura.toFixed(1)}h`, 150, currentY + 3)
+      pdf.text(`${tarefa.total_com_gordura.toFixed(1)}h`, 200, currentY + 3)
       
       currentY += 7
     })
@@ -840,7 +840,7 @@ export function useEstimativaDownload() {
       // Header
       await createPDFHeader(pdf)
       
-      let currentY = options.clientVersion ? 25 : 45
+      let currentY = options.clientVersion ? 35 : 45
       
       // Informações do projeto (adaptado para tarefas)
       if (options.clientVersion) {
