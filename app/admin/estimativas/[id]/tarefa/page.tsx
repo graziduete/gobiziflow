@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -58,9 +58,9 @@ interface TarefaEstimativa {
   tipo_tarefa_nome?: string
 }
 
-export default function VisualizarEstimativaTarefaPage({ params }: { params: { id: string } }) {
+export default function VisualizarEstimativaTarefaPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
-  const estimativaId = params.id
+  const { id: estimativaId } = React.use(params)
   const supabase = createClient()
   const { downloadEstimativaPDF } = useEstimativaDownload()
   const { toast } = useToast()
@@ -364,17 +364,15 @@ export default function VisualizarEstimativaTarefaPage({ params }: { params: { i
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-muted-foreground">Status</Label>
-                  <Badge className="bg-blue-100 text-blue-800 border-blue-200">
-                    {estimativa.status}
-                  </Badge>
+                  <div className="mt-2">
+                    <Badge className="bg-blue-100 text-blue-800 border-blue-200">
+                      {estimativa.status}
+                    </Badge>
+                  </div>
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Meses Previstos</Label>
-                  <p className="text-lg font-semibold">{estimativa.meses_previstos}</p>
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label className="text-sm font-medium text-muted-foreground">Valor Hora</Label>
                   <p className="text-lg font-semibold">
@@ -423,156 +421,135 @@ export default function VisualizarEstimativaTarefaPage({ params }: { params: { i
                 </div>
               ) : (
                 <div className="space-y-4">
+                  {/* Cabeçalho da tabela */}
+                  <div className="grid grid-cols-12 gap-3 p-3 bg-gray-50 rounded-lg font-medium text-sm text-gray-600">
+                    <div className="col-span-3">Funcionalidade</div>
+                    <div className="col-span-1 text-center">Qtd</div>
+                    <div className="col-span-2">Tecnologia</div>
+                    <div className="col-span-1">Complexidade</div>
+                    <div className="col-span-1">Tipo</div>
+                    <div className="col-span-1 text-center">Fator</div>
+                    <div className="col-span-1 text-center">Total Base</div>
+                    <div className="col-span-2 text-center">Com Gordura</div>
+                  </div>
+
+                  {/* Linhas das tarefas */}
                   {tarefas.map((tarefa, index) => (
-                    <Card key={tarefa.id} className="border-l-4 border-l-green-500">
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex items-center gap-2">
-                            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                              #{index + 1}
-                            </Badge>
-                            <h4 className="font-medium">{tarefa.funcionalidade}</h4>
-                          </div>
-                        </div>
+                    <div key={tarefa.id} className="grid grid-cols-12 gap-3 p-3 border rounded-lg hover:bg-gray-50">
+                      {/* Funcionalidade */}
+                      <div className="col-span-3 flex items-center">
+                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 mr-2">
+                          #{index + 1}
+                        </Badge>
+                        <span className="font-medium text-sm">{tarefa.funcionalidade}</span>
+                      </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                          <div>
-                            <Label className="text-xs text-muted-foreground">Tecnologia</Label>
-                            <p className="font-medium">{tarefa.tecnologia_nome}</p>
-                          </div>
-                          <div>
-                            <Label className="text-xs text-muted-foreground">Complexidade</Label>
-                            <p className="font-medium">{tarefa.complexidade_nome}</p>
-                          </div>
-                          <div>
-                            <Label className="text-xs text-muted-foreground">Tipo</Label>
-                            <p className="font-medium">{tarefa.tipo_tarefa_nome}</p>
-                          </div>
-                          <div>
-                            <Label className="text-xs text-muted-foreground">Quantidade</Label>
-                            <p className="font-medium">{tarefa.quantidade}</p>
-                          </div>
-                        </div>
+                      {/* Quantidade */}
+                      <div className="col-span-1 text-center flex items-center justify-center">
+                        <span className="text-sm">{tarefa.quantidade}</span>
+                      </div>
 
-                        {tarefa.nota_descricao && (
-                          <div className="mb-4">
-                            <Label className="text-xs text-muted-foreground">Descrição</Label>
-                            <p className="text-sm mt-1 p-2 bg-gray-50 rounded">{tarefa.nota_descricao}</p>
-                          </div>
-                        )}
+                      {/* Tecnologia */}
+                      <div className="col-span-2 flex items-center">
+                        <span className="text-sm">{tarefa.tecnologia_nome}</span>
+                      </div>
 
-                        <div className="grid grid-cols-3 gap-4 p-3 bg-gray-50 rounded-lg">
-                          <div className="text-center">
-                            <p className="text-xs text-muted-foreground">Fator</p>
-                            <p className="font-semibold">{tarefa.fator_aplicado.toFixed(1)}</p>
-                          </div>
-                          <div className="text-center">
-                            <p className="text-xs text-muted-foreground">Total Base</p>
-                            <p className="font-semibold text-blue-600">{tarefa.total_base.toFixed(1)}h</p>
-                          </div>
-                          <div className="text-center">
-                            <p className="text-xs text-muted-foreground">Com Gordura</p>
-                            <p className="font-semibold text-green-600">{tarefa.total_com_gordura.toFixed(1)}h</p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
+                      {/* Complexidade */}
+                      <div className="col-span-1 flex items-center">
+                        <span className="text-sm">{tarefa.complexidade_nome}</span>
+                      </div>
+
+                      {/* Tipo */}
+                      <div className="col-span-1 flex items-center">
+                        <span className="text-sm">{tarefa.tipo_tarefa_nome}</span>
+                      </div>
+
+                      {/* Fator */}
+                      <div className="col-span-1 text-center flex items-center justify-center">
+                        <span className="text-sm font-medium">{tarefa.fator_aplicado.toFixed(1)}</span>
+                      </div>
+
+                      {/* Total Base */}
+                      <div className="col-span-1 text-center flex items-center justify-center">
+                        <span className="text-sm font-medium text-blue-600">{tarefa.total_base.toFixed(1)}h</span>
+                      </div>
+
+                      {/* Com Gordura */}
+                      <div className="col-span-2 text-center flex items-center justify-center">
+                        <span className="text-sm font-medium text-green-600">{tarefa.total_com_gordura.toFixed(1)}h</span>
+                      </div>
+                    </div>
                   ))}
                 </div>
               )}
             </CardContent>
           </Card>
 
-          {/* Resumo Financeiro e Estatísticas */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calculator className="h-5 w-5" />
-                  Resumo Financeiro
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">Total Base:</span>
-                  </div>
-                  <p className="text-2xl font-bold text-blue-600">
-                    {totalBase.toFixed(1)}h
-                  </p>
+          {/* Resumo Financeiro */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calculator className="h-5 w-5" />
+                Resumo Financeiro
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Total Base:</span>
                 </div>
+                <p className="text-2xl font-bold text-blue-600">
+                  {totalBase.toFixed(1)}h
+                </p>
+              </div>
 
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">Com Gordura ({estimativa.percentual_gordura}%):</span>
-                  </div>
-                  <p className="text-2xl font-bold text-green-600">
-                    {totalComGordura.toFixed(1)}h
-                  </p>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Com Gordura ({estimativa.percentual_gordura}%):</span>
                 </div>
+                <p className="text-2xl font-bold text-green-600">
+                  {totalComGordura.toFixed(1)}h
+                </p>
+              </div>
 
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Settings className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">Valor Hora:</span>
-                  </div>
-                  <p className="text-lg font-semibold">
-                    R$ {estimativa.valor_hora.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                  </p>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Settings className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Valor Hora:</span>
                 </div>
+                <p className="text-lg font-semibold">
+                  R$ {estimativa.valor_hora.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </p>
+              </div>
 
-                <div className="border-t pt-4">
-                  <div className="space-y-2">
+              <div className="border-t pt-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">Subtotal:</span>
+                    <span className="font-medium">
+                      R$ {totalEstimado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">Impostos ({estimativa.percentual_imposto}%):</span>
+                    <span className="font-medium">
+                      R$ {impostos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                  <div className="border-t pt-2">
                     <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Subtotal:</span>
-                      <span className="font-medium">
-                        R$ {totalEstimado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      <span className="font-semibold">Total Geral:</span>
+                      <span className="text-xl font-bold text-green-600">
+                        R$ {totalComImpostos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Impostos ({estimativa.percentual_imposto}%):</span>
-                      <span className="font-medium">
-                        R$ {impostos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                      </span>
-                    </div>
-                    <div className="border-t pt-2">
-                      <div className="flex justify-between">
-                        <span className="font-semibold">Total Geral:</span>
-                        <span className="text-xl font-bold text-green-600">
-                          R$ {totalComImpostos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                        </span>
-                      </div>
-                    </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5" />
-                  Estatísticas
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-3 bg-blue-50 rounded-lg">
-                    <p className="text-2xl font-bold text-blue-600">{tarefas.length}</p>
-                    <p className="text-sm text-muted-foreground">Tarefas</p>
-                  </div>
-                  <div className="text-center p-3 bg-green-50 rounded-lg">
-                    <p className="text-2xl font-bold text-green-600">
-                      {(totalComGordura / estimativa.meses_previstos).toFixed(1)}h
-                    </p>
-                    <p className="text-sm text-muted-foreground">Horas/Mês</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Modal de Compartilhamento */}

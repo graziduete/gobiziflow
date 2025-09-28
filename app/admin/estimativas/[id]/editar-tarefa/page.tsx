@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, Suspense } from "react"
+import React, { useState, useEffect, Suspense } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -71,9 +71,9 @@ interface TarefaEstimativa {
   tipo_tarefa_nome?: string
 }
 
-function EditarEstimativaTarefaContent({ params }: { params: { id: string } }) {
+function EditarEstimativaTarefaContent({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
-  const estimativaId = params.id
+  const { id: estimativaId } = React.use(params)
   const supabase = createClient()
   const { toast } = useToast()
 
@@ -750,7 +750,7 @@ function TarefaRow({
   )
 }
 
-export default function EditarEstimativaTarefaPage({ params }: { params: { id: string } }) {
+export default function EditarEstimativaTarefaPage({ params }: { params: Promise<{ id: string }> }) {
   return (
     <Suspense fallback={<div>Carregando...</div>}>
       <EditarEstimativaTarefaContent params={params} />
