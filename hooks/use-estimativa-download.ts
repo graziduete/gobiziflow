@@ -128,10 +128,6 @@ export function useEstimativaDownload() {
     
     // Data de geração com estilo mais elegante
     const currentDate = new Date().toLocaleDateString('pt-BR')
-    pdf.setFontSize(11)
-    pdf.setTextColor(100, 116, 139) // Cinza
-    pdf.text(`Gerado em: ${currentDate}`, 150, 20)
-    
     // Linha decorativa
     pdf.setDrawColor(59, 130, 246)
     pdf.setLineWidth(0.5)
@@ -831,12 +827,12 @@ export function useEstimativaDownload() {
     pdf.setTextColor(100, 116, 139)
     pdf.text('Quantidade de Tarefas:', leftCol, currentY)
     
-    // Tag para quantidade
+    // Tag para quantidade (posicionada após o texto)
     pdf.setFillColor(16, 185, 129)
-    pdf.roundedRect(leftCol + 40, currentY - 3, 15, 6, 2, 2, 'F')
+    pdf.roundedRect(leftCol + 50, currentY - 3, 15, 6, 2, 2, 'F')
     pdf.setFontSize(10)
     pdf.setTextColor(255, 255, 255)
-    pdf.text(`${tarefas.length}`, leftCol + 43, currentY + 1)
+    pdf.text(`${tarefas.length}`, leftCol + 53, currentY + 1)
     
     currentY += 8
     
