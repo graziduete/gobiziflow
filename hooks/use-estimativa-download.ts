@@ -700,7 +700,7 @@ export function useEstimativaDownload() {
     pdf.setTextColor(15, 23, 42)
     pdf.text(formatDate(estimativa.created_at), rightCol + 20, currentY)
     
-    return currentY + 10
+    return currentY + 5
   }, [formatDate])
 
   // Função para criar card de tarefas (versão cliente)
@@ -772,7 +772,7 @@ export function useEstimativaDownload() {
       currentY += 8
     })
     
-    return currentY + 10
+    return currentY + 5
   }, [formatCurrency])
 
   // Função para criar resumo de tarefas (versão cliente)
@@ -836,7 +836,7 @@ export function useEstimativaDownload() {
     pdf.text('TOTAL GERAL:', 20, currentY + 4)
     pdf.text(formatCurrency(totalComImpostos), 200, currentY + 4)
     
-    return currentY + 10
+    return currentY + 5
   }, [formatCurrency])
 
 
@@ -857,7 +857,7 @@ export function useEstimativaDownload() {
       // Header
       await createPDFHeader(pdf)
       
-      let currentY = options.clientVersion ? 30 : 45
+      let currentY = options.clientVersion ? 25 : 45
       
       // Informações do projeto (adaptado para tarefas)
       if (options.clientVersion) {
@@ -874,7 +874,7 @@ export function useEstimativaDownload() {
       }
       
       // Verificar se precisa de nova página antes do resumo
-      const maxHeight = options.clientVersion ? 120 : 180
+      const maxHeight = options.clientVersion ? 140 : 180
       if (currentY > maxHeight) {
         pdf.addPage()
         currentY = 25
