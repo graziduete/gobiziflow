@@ -17,7 +17,8 @@ import {
   Users,
   TrendingUp,
   FileText,
-  Calendar
+  Calendar,
+  User
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useConfirmationDialog } from "@/components/ui/confirmation-dialog"
@@ -34,6 +35,10 @@ interface Estimativa {
   total_com_impostos: number
   created_at: string
   updated_at: string
+  profiles?: {
+    full_name: string
+    email: string
+  }
 }
 
 interface RecursoEstimativa {
@@ -78,7 +83,13 @@ export default function VisualizarEstimativaPage() {
       // Buscar estimativa
       const { data: estimativaData, error: estimativaError } = await supabase
         .from('estimativas')
-        .select('*')
+        .select(`
+          *,
+          profiles!estimativas_created_by_fkey (
+            full_name,
+            email
+          )
+        `)
         .eq('id', estimativaId)
         .single()
 
@@ -252,9 +263,17 @@ export default function VisualizarEstimativaPage() {
                 {statusConfig[estimativa.status as keyof typeof statusConfig]?.label || estimativa.status}
               </Badge>
             </div>
-            <p className="text-muted-foreground">
-              Criado em {formatDate(estimativa.created_at)}
-            </p>
+            <div className="flex items-center gap-4 text-muted-foreground">
+              <p>
+                Criado em {formatDate(estimativa.created_at)}
+              </p>
+              {estimativa.profiles?.full_name && (
+                <p className="flex items-center gap-1">
+                  <User className="h-4 w-4" />
+                  {estimativa.profiles.full_name}
+                </p>
+              )}
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-2">

@@ -17,7 +17,8 @@ import {
   FileText,
   TrendingUp,
   Clock,
-  DollarSign
+  DollarSign,
+  User
 } from "lucide-react"
 import { 
   DropdownMenu,
@@ -47,6 +48,10 @@ interface Estimativa {
   total_com_impostos: number
   created_at: string
   updated_at: string
+  profiles?: {
+    full_name: string
+    email: string
+  }
 }
 
 const statusConfig = {
@@ -75,7 +80,13 @@ export default function EstimativasPage() {
       setLoading(true)
       const { data, error } = await supabase
         .from('estimativas')
-        .select('*')
+        .select(`
+          *,
+          profiles!estimativas_created_by_fkey (
+            full_name,
+            email
+          )
+        `)
         .order('created_at', { ascending: false })
 
       if (error) throw error
@@ -328,6 +339,12 @@ export default function EstimativasPage() {
                       <span>
                         Criado em {formatDate(estimativa.created_at)}
                       </span>
+                      {estimativa.profiles?.full_name && (
+                        <span className="flex items-center gap-1">
+                          <User className="h-4 w-4" />
+                          {estimativa.profiles.full_name}
+                        </span>
+                      )}
                     </div>
                   </div>
                   <DropdownMenu>
