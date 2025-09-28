@@ -20,6 +20,7 @@ import {
   Calendar
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { useConfirmationDialog } from "@/components/ui/confirmation-dialog"
 import { toast } from "sonner"
 
 interface Estimativa {
@@ -58,6 +59,7 @@ export default function VisualizarEstimativaPage() {
   const params = useParams()
   const estimativaId = params.id as string
   const supabase = createClient()
+  const { showConfirmation, ConfirmationDialog } = useConfirmationDialog()
 
   const [estimativa, setEstimativa] = useState<Estimativa | null>(null)
   const [recursos, setRecursos] = useState<RecursoEstimativa[]>([])
@@ -120,22 +122,29 @@ export default function VisualizarEstimativaPage() {
   }
 
   const handleDelete = async () => {
-    if (!confirm('Tem certeza que deseja excluir esta estimativa?')) return
+    showConfirmation({
+      title: "Excluir Estimativa",
+      description: "Tem certeza que deseja excluir esta estimativa? Esta ação não pode ser desfeita.",
+      confirmText: "Excluir",
+      cancelText: "Cancelar",
+      variant: "destructive",
+      onConfirm: async () => {
+        try {
+          const { error } = await supabase
+            .from('estimativas')
+            .delete()
+            .eq('id', estimativaId)
 
-    try {
-      const { error } = await supabase
-        .from('estimativas')
-        .delete()
-        .eq('id', estimativaId)
+          if (error) throw error
 
-      if (error) throw error
-
-      toast.success('Estimativa excluída com sucesso')
-      router.push('/admin/estimativas')
-    } catch (error) {
-      console.error('Erro ao excluir estimativa:', error)
-      toast.error('Erro ao excluir estimativa')
-    }
+          toast.success('Estimativa excluída com sucesso')
+          router.push('/admin/estimativas')
+        } catch (error) {
+          console.error('Erro ao excluir estimativa:', error)
+          toast.error('Erro ao excluir estimativa')
+        }
+      }
+    })
   }
 
   const handleConvertToProject = async () => {
@@ -463,6 +472,9 @@ export default function VisualizarEstimativaPage() {
           </Card>
         </div>
       </div>
+      
+      {/* Modal de Confirmação */}
+      {ConfirmationDialog}
     </div>
   )
 }

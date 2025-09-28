@@ -25,6 +25,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useConfirmationDialog } from "@/components/ui/confirmation-dialog"
 import { 
   Dialog,
   DialogContent,
@@ -63,6 +64,7 @@ export default function EstimativasPage() {
   const [showNewEstimativaModal, setShowNewEstimativaModal] = useState(false)
   const router = useRouter()
   const supabase = createClient()
+  const { showConfirmation, ConfirmationDialog } = useConfirmationDialog()
 
   useEffect(() => {
     fetchEstimativas()
@@ -102,22 +104,29 @@ export default function EstimativasPage() {
   }
 
   const handleDeleteEstimativa = async (id: string) => {
-    if (!confirm('Tem certeza que deseja excluir esta estimativa?')) return
+    showConfirmation({
+      title: "Excluir Estimativa",
+      description: "Tem certeza que deseja excluir esta estimativa? Esta ação não pode ser desfeita.",
+      confirmText: "Excluir",
+      cancelText: "Cancelar",
+      variant: "destructive",
+      onConfirm: async () => {
+        try {
+          const { error } = await supabase
+            .from('estimativas')
+            .delete()
+            .eq('id', id)
 
-    try {
-      const { error } = await supabase
-        .from('estimativas')
-        .delete()
-        .eq('id', id)
+          if (error) throw error
 
-      if (error) throw error
-
-      toast.success('Estimativa excluída com sucesso')
-      fetchEstimativas()
-    } catch (error) {
-      console.error('Erro ao excluir estimativa:', error)
-      toast.error('Erro ao excluir estimativa')
-    }
+          toast.success('Estimativa excluída com sucesso')
+          fetchEstimativas()
+        } catch (error) {
+          console.error('Erro ao excluir estimativa:', error)
+          toast.error('Erro ao excluir estimativa')
+        }
+      }
+    })
   }
 
   const handleConvertToProject = async (estimativa: Estimativa) => {
@@ -357,6 +366,9 @@ export default function EstimativasPage() {
           ))
         )}
       </div>
+      
+      {/* Modal de Confirmação */}
+      {ConfirmationDialog}
     </div>
   )
 }

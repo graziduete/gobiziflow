@@ -223,7 +223,7 @@ export default function NovaEstimativaPage() {
             recurso_id: recursoData.id,
             semana: aloc.semana,
             horas: aloc.horas,
-            custo_semanal: aloc.horas * recurso.taxa_hora
+            custo_semanal: aloc.horas * Number(recurso.taxa_hora)
           }))
 
         if (alocacoesData.length > 0) {

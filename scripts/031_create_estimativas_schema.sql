@@ -166,15 +166,15 @@ CREATE TRIGGER trigger_calcular_totais_alocacao
 CREATE OR REPLACE FUNCTION calcular_custo_semanal()
 RETURNS TRIGGER AS $$
 DECLARE
-  taxa_hora DECIMAL(8,2);
+  taxa_hora_recurso DECIMAL(8,2);
 BEGIN
   -- Buscar taxa horária do recurso
-  SELECT taxa_hora INTO taxa_hora
+  SELECT recursos_estimativa.taxa_hora INTO taxa_hora_recurso
   FROM recursos_estimativa 
-  WHERE id = NEW.recurso_id;
+  WHERE recursos_estimativa.id = NEW.recurso_id;
 
   -- Calcular custo semanal
-  NEW.custo_semanal = NEW.horas * taxa_hora;
+  NEW.custo_semanal = NEW.horas * taxa_hora_recurso;
   
   RETURN NEW;
 END;
