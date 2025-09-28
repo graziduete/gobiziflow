@@ -365,8 +365,8 @@ function EditarEstimativaTarefaContent({ params }: { params: Promise<{ id: strin
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-3xl font-bold tracking-tight">Editar Estimativa</h1>
-              <Badge variant="default">
-                {formData.status}
+              <Badge className="bg-green-500 text-white border-green-400 text-sm px-3 py-1">
+                Por Tarefa
               </Badge>
             </div>
             <p className="text-muted-foreground">
