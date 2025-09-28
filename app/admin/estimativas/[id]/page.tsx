@@ -85,7 +85,7 @@ export default function VisualizarEstimativaPage() {
         .from('estimativas')
         .select(`
           *,
-          profiles!estimativas_created_by_fkey (
+          profiles!created_by (
             full_name,
             email
           )
