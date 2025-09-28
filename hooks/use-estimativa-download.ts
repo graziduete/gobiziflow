@@ -362,7 +362,7 @@ export function useEstimativaDownload() {
     pdf.setFillColor(255, 255, 255) // Branco
     pdf.setDrawColor(226, 232, 240) // Cinza claro
     pdf.setLineWidth(0.5)
-    pdf.roundedRect(15, currentY, 180, 40 + (tarefas.length * 12), 3, 3, 'FD')
+    pdf.roundedRect(15, currentY, 260, 40 + (tarefas.length * 12), 3, 3, 'FD') // Largura aumentada para horizontal
     
     // Título do card
     pdf.setFontSize(18)
@@ -380,16 +380,18 @@ export function useEstimativaDownload() {
     
     // Cabeçalho da tabela moderno
     pdf.setFillColor(59, 130, 246) // Azul
-    pdf.roundedRect(20, currentY, 170, 12, 2, 2, 'F')
+    pdf.roundedRect(20, currentY, 250, 12, 2, 2, 'F') // Largura aumentada para horizontal
     
     pdf.setFontSize(10)
     pdf.setTextColor(255, 255, 255) // Branco
     pdf.text('Funcionalidade', 25, currentY + 8)
-    pdf.text('Qtd', 80, currentY + 8)
-    pdf.text('Tecnologia', 95, currentY + 8)
-    pdf.text('Complex.', 130, currentY + 8)
-    pdf.text('Tipo', 150, currentY + 8)
-    pdf.text('Fator', 165, currentY + 8)
+    pdf.text('Qtd', 120, currentY + 8)
+    pdf.text('Tecnologia', 140, currentY + 8)
+    pdf.text('Complex.', 180, currentY + 8)
+    pdf.text('Tipo', 220, currentY + 8)
+    pdf.text('Fator', 250, currentY + 8)
+    pdf.text('Total Base', 280, currentY + 8)
+    pdf.text('Com Gordura', 320, currentY + 8)
     
     currentY += 15
     
@@ -398,44 +400,50 @@ export function useEstimativaDownload() {
       // Alternar cor de fundo sutil
       if (index % 2 === 0) {
         pdf.setFillColor(248, 250, 252) // Cinza muito claro
-        pdf.roundedRect(20, currentY - 2, 170, 10, 1, 1, 'F')
+        pdf.roundedRect(20, currentY - 2, 250, 10, 1, 1, 'F') // Largura aumentada
       }
       
       pdf.setFontSize(9)
       pdf.setTextColor(15, 23, 42)
       
       // Funcionalidade (truncar se muito longa)
-      const funcionalidade = tarefa.funcionalidade.length > 20 
-        ? tarefa.funcionalidade.substring(0, 20) + '...'
+      const funcionalidade = tarefa.funcionalidade.length > 30 
+        ? tarefa.funcionalidade.substring(0, 30) + '...'
         : tarefa.funcionalidade
       pdf.text(funcionalidade, 25, currentY + 6)
       
       // Quantidade
-      pdf.text(tarefa.quantidade.toString(), 80, currentY + 6)
+      pdf.text(tarefa.quantidade.toString(), 120, currentY + 6)
       
       // Tecnologia
       const tecnologia = tarefa.tecnologias?.nome || tarefa.tecnologia_id
-      const tecnologiaNome = tecnologia.length > 8 
-        ? tecnologia.substring(0, 8) + '...'
+      const tecnologiaNome = tecnologia.length > 12 
+        ? tecnologia.substring(0, 12) + '...'
         : tecnologia
-      pdf.text(tecnologiaNome, 95, currentY + 6)
+      pdf.text(tecnologiaNome, 140, currentY + 6)
       
       // Complexidade
       const complexidade = tarefa.complexidades?.nome || tarefa.complexidade_id
-      const complexidadeNome = complexidade.length > 6 
-        ? complexidade.substring(0, 6) + '...'
+      const complexidadeNome = complexidade.length > 10 
+        ? complexidade.substring(0, 10) + '...'
         : complexidade
-      pdf.text(complexidadeNome, 130, currentY + 6)
+      pdf.text(complexidadeNome, 180, currentY + 6)
       
       // Tipo
       const tipo = tarefa.tipos_tarefa?.nome || tarefa.tipo_tarefa_id
-      const tipoNome = tipo.length > 6 
-        ? tipo.substring(0, 6) + '...'
+      const tipoNome = tipo.length > 10 
+        ? tipo.substring(0, 10) + '...'
         : tipo
-      pdf.text(tipoNome, 150, currentY + 6)
+      pdf.text(tipoNome, 220, currentY + 6)
       
       // Fator
-      pdf.text(tarefa.fator_aplicado.toString(), 165, currentY + 6)
+      pdf.text(tarefa.fator_aplicado.toFixed(2), 250, currentY + 6)
+      
+      // Total Base
+      pdf.text(tarefa.total_base.toFixed(1) + 'h', 280, currentY + 6)
+      
+      // Com Gordura
+      pdf.text(tarefa.total_com_gordura.toFixed(1) + 'h', 320, currentY + 6)
       
       currentY += 12
     })
@@ -460,7 +468,7 @@ export function useEstimativaDownload() {
     pdf.setFillColor(255, 255, 255) // Branco
     pdf.setDrawColor(16, 185, 129) // Verde
     pdf.setLineWidth(1)
-    pdf.roundedRect(15, currentY, 180, 80, 3, 3, 'FD')
+    pdf.roundedRect(15, currentY, 260, 80, 3, 3, 'FD') // Largura aumentada para horizontal
     
     // Título do card
     pdf.setFontSize(18)
@@ -473,57 +481,56 @@ export function useEstimativaDownload() {
     pdf.line(25, currentY + 15, 50, currentY + 15)
     currentY += 25
     
-    // Métricas de horas
+    // Layout em 3 colunas para horizontal
+    const leftCol = 25
+    const middleCol = 120
+    const rightCol = 200
+    
+    // Coluna 1 - Métricas de horas
     pdf.setFontSize(12)
     pdf.setTextColor(100, 116, 139)
-    pdf.text('Total Base:', 25, currentY)
+    pdf.text('Total Base:', leftCol, currentY)
     pdf.setFontSize(14)
     pdf.setTextColor(59, 130, 246) // Azul
-    pdf.text(`${subtotalHoras.toFixed(1)}h`, 150, currentY)
+    pdf.text(`${subtotalHoras.toFixed(1)}h`, leftCol + 20, currentY)
     currentY += 12
     
     pdf.setFontSize(12)
     pdf.setTextColor(100, 116, 139)
-    pdf.text(`Com Gordura (${estimativa.percentual_gordura || 0}%):`, 25, currentY)
+    pdf.text(`Com Gordura (${estimativa.percentual_gordura || 0}%):`, leftCol, currentY)
     pdf.setFontSize(14)
     pdf.setTextColor(16, 185, 129) // Verde
-    pdf.text(`${totalHoras.toFixed(1)}h`, 150, currentY)
+    pdf.text(`${totalHoras.toFixed(1)}h`, leftCol + 20, currentY)
     currentY += 12
+    
+    // Coluna 2 - Valor Hora
+    pdf.setFontSize(12)
+    pdf.setTextColor(100, 116, 139)
+    pdf.text('Valor Hora:', middleCol, currentY - 24)
+    pdf.setFontSize(14)
+    pdf.setTextColor(15, 23, 42)
+    pdf.text(formatCurrency(estimativa.valor_hora || 0), middleCol + 20, currentY - 24)
+    
+    // Coluna 3 - Resumo financeiro
+    pdf.setFontSize(12)
+    pdf.setTextColor(100, 116, 139)
+    pdf.text('Subtotal:', rightCol, currentY - 24)
+    pdf.setFontSize(14)
+    pdf.setTextColor(15, 23, 42)
+    pdf.text(formatCurrency(totalEstimado), rightCol + 20, currentY - 24)
     
     pdf.setFontSize(12)
     pdf.setTextColor(100, 116, 139)
-    pdf.text('Valor Hora:', 25, currentY)
+    pdf.text(`Impostos (${estimativa.percentual_imposto}%):`, rightCol, currentY - 12)
     pdf.setFontSize(14)
     pdf.setTextColor(15, 23, 42)
-    pdf.text(formatCurrency(estimativa.valor_hora || 0), 150, currentY)
+    pdf.text(formatCurrency(impostos), rightCol + 20, currentY - 12)
+    
     currentY += 15
-    
-    // Linha separadora
-    pdf.setDrawColor(226, 232, 240)
-    pdf.setLineWidth(0.5)
-    pdf.line(25, currentY, 170, currentY)
-    currentY += 8
-    
-    // Resumo financeiro
-    pdf.setFontSize(12)
-    pdf.setTextColor(100, 116, 139)
-    pdf.text('Subtotal:', 25, currentY)
-    pdf.setFontSize(14)
-    pdf.setTextColor(15, 23, 42)
-    pdf.text(formatCurrency(totalEstimado), 150, currentY)
-    currentY += 12
-    
-    pdf.setFontSize(12)
-    pdf.setTextColor(100, 116, 139)
-    pdf.text(`Impostos (${estimativa.percentual_imposto}%):`, 25, currentY)
-    pdf.setFontSize(14)
-    pdf.setTextColor(15, 23, 42)
-    pdf.text(formatCurrency(impostos), 150, currentY)
-    currentY += 12
     
     // Total destacado
     pdf.setFillColor(16, 185, 129) // Verde
-    pdf.roundedRect(15, currentY - 2, 180, 8, 2, 2, 'F')
+    pdf.roundedRect(15, currentY - 2, 260, 8, 2, 2, 'F') // Largura aumentada
     
     pdf.setFontSize(16)
     pdf.setTextColor(255, 255, 255) // Branco
@@ -542,7 +549,7 @@ export function useEstimativaDownload() {
     pdf.setFillColor(255, 255, 255) // Branco
     pdf.setDrawColor(226, 232, 240) // Cinza claro
     pdf.setLineWidth(0.5)
-    pdf.roundedRect(15, currentY, 180, 70, 3, 3, 'FD') // Fill + Draw com cantos arredondados
+    pdf.roundedRect(15, currentY, 260, 70, 3, 3, 'FD') // Fill + Draw com cantos arredondados (largura aumentada)
     
     // Título do card
     pdf.setFontSize(18)
@@ -551,50 +558,52 @@ export function useEstimativaDownload() {
     
     currentY += 20
     
-    // Grid de informações em 2 colunas
+    // Grid de informações em 3 colunas para layout horizontal
     const leftCol = 25
-    const rightCol = 105
+    const middleCol = 120
+    const rightCol = 200
     const rowHeight = 12
     
-    // Nome do projeto (destaque)
+    // Nome do projeto (destaque) - Coluna 1
     pdf.setFontSize(16)
     pdf.setTextColor(59, 130, 246) // Azul
     pdf.text('Nome do Projeto', leftCol, currentY)
     pdf.setFontSize(14)
     pdf.setTextColor(15, 23, 42)
     pdf.text(estimativa.nome_projeto, leftCol, currentY + 6)
-    currentY += 15
     
-    // Status com badge
+    // Status com badge - Coluna 2
+    pdf.setFontSize(11)
+    pdf.setTextColor(100, 116, 139)
+    pdf.text('Status:', middleCol, currentY)
     pdf.setFillColor(59, 130, 246)
-    pdf.roundedRect(leftCol, currentY - 2, 40, 6, 2, 2, 'F')
+    pdf.roundedRect(middleCol + 15, currentY - 2, 40, 6, 2, 2, 'F')
     pdf.setFontSize(9)
     pdf.setTextColor(255, 255, 255)
-    pdf.text(estimativa.status.replace('_', ' ').toUpperCase(), leftCol + 2, currentY + 2)
+    pdf.text(estimativa.status.replace('_', ' ').toUpperCase(), middleCol + 17, currentY + 2)
     
-    // Valor Hora
+    // Valor Hora - Coluna 3
     pdf.setFontSize(11)
     pdf.setTextColor(100, 116, 139)
     pdf.text('Valor Hora:', rightCol, currentY)
     pdf.setTextColor(15, 23, 42)
     pdf.text(formatCurrency(estimativa.valor_hora || 0), rightCol + 20, currentY)
-    currentY += 10
+    currentY += 15
     
-    // Gordura
+    // Gordura - Coluna 2
     pdf.setTextColor(100, 116, 139)
-    pdf.text('Gordura:', rightCol, currentY)
+    pdf.text('Gordura:', middleCol, currentY)
     pdf.setTextColor(15, 23, 42)
-    pdf.text(`${estimativa.percentual_gordura || 0}%`, rightCol + 20, currentY)
-    currentY += 10
+    pdf.text(`${estimativa.percentual_gordura || 0}%`, middleCol + 20, currentY)
     
-    // Data de criação
+    // Data de criação - Coluna 3
     pdf.setTextColor(100, 116, 139)
     pdf.text('Criado em:', rightCol, currentY)
     pdf.setTextColor(15, 23, 42)
     pdf.text(formatDate(estimativa.created_at), rightCol + 20, currentY)
     currentY += 10
     
-    // Criado por
+    // Criado por - Coluna 3
     if (estimativa.profiles?.full_name) {
       pdf.setTextColor(100, 116, 139)
       pdf.text('Criado por:', rightCol, currentY)
@@ -827,7 +836,7 @@ export function useEstimativaDownload() {
     try {
       // Criar PDF
       const pdf = new jsPDF({
-        orientation: options.clientVersion ? 'landscape' : 'portrait',
+        orientation: 'landscape', // Sempre horizontal para melhor organização
         unit: 'mm',
         format: 'a4'
       })
@@ -835,7 +844,7 @@ export function useEstimativaDownload() {
       // Header
       await createPDFHeader(pdf)
       
-      let currentY = options.clientVersion ? 35 : 45
+      let currentY = 35 // Posição inicial para layout horizontal
       
       // Informações do projeto (adaptado para tarefas)
       if (options.clientVersion) {
