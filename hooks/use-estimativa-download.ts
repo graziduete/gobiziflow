@@ -711,7 +711,8 @@ export function useEstimativaDownload() {
     pdf.setFillColor(255, 255, 255)
     pdf.setDrawColor(226, 232, 240)
     pdf.setLineWidth(0.5)
-    pdf.roundedRect(15, currentY, 260, 20 + (tarefas.length * 8), 3, 3, 'FD')
+    const cardHeight = 20 + (tarefas.length * 7) + 8 // 20 (título) + (tarefas * 7) + 8 (margem)
+    pdf.roundedRect(15, currentY, 260, cardHeight, 3, 3, 'FD')
     
     // Título compacto
     pdf.setFontSize(14)
@@ -748,7 +749,7 @@ export function useEstimativaDownload() {
       // Alternar cor de fundo
       if (index % 2 === 0) {
         pdf.setFillColor(248, 250, 252)
-        pdf.roundedRect(20, currentY - 1, 250, 7, 1, 1, 'F')
+        pdf.roundedRect(20, currentY - 1, 250, 6, 1, 1, 'F')
       }
       
       pdf.setFontSize(9)
@@ -758,18 +759,18 @@ export function useEstimativaDownload() {
       const funcionalidade = tarefa.funcionalidade.length > 50 
         ? tarefa.funcionalidade.substring(0, 50) + '...'
         : tarefa.funcionalidade
-      pdf.text(funcionalidade, 25, currentY + 4)
+      pdf.text(funcionalidade, 25, currentY + 3)
       
       // Estimativa
       pdf.setTextColor(16, 185, 129)
-      pdf.text(`${tarefa.total_com_gordura.toFixed(1)}h`, 150, currentY + 4)
+      pdf.text(`${tarefa.total_com_gordura.toFixed(1)}h`, 150, currentY + 3)
       
       // Valor
       const valorTotal = tarefa.total_com_gordura * (estimativa.valor_hora || 0)
       pdf.setTextColor(15, 23, 42)
-      pdf.text(formatCurrency(valorTotal), 220, currentY + 4)
+      pdf.text(formatCurrency(valorTotal), 220, currentY + 3)
       
-      currentY += 8
+      currentY += 7
     })
     
     return currentY + 5
@@ -789,7 +790,7 @@ export function useEstimativaDownload() {
     pdf.setFillColor(255, 255, 255)
     pdf.setDrawColor(16, 185, 129)
     pdf.setLineWidth(1)
-    pdf.roundedRect(15, currentY, 260, 30, 3, 3, 'FD')
+    pdf.roundedRect(15, currentY, 260, 25, 3, 3, 'FD')
     
     // Título compacto
     pdf.setFontSize(14)
@@ -802,28 +803,16 @@ export function useEstimativaDownload() {
     pdf.line(20, currentY + 10, 45, currentY + 10)
     currentY += 15
     
-    // Layout horizontal compacto
+    // Layout simplificado - apenas total geral
     const leftCol = 20
-    const middleCol = 100
-    const rightCol = 180
-    const farRight = 240
+    const rightCol = 200
     
-    // Primeira linha
-    pdf.setFontSize(10)
+    // Estimativa total (horas)
+    pdf.setFontSize(12)
     pdf.setTextColor(100, 116, 139)
     pdf.text('Estimativa Total:', leftCol, currentY)
     pdf.setTextColor(16, 185, 129)
     pdf.text(`${totalHoras.toFixed(1)}h`, leftCol + 30, currentY)
-    
-    pdf.setTextColor(100, 116, 139)
-    pdf.text('Subtotal:', middleCol, currentY)
-    pdf.setTextColor(15, 23, 42)
-    pdf.text(formatCurrency(totalEstimado), middleCol + 20, currentY)
-    
-    pdf.setTextColor(100, 116, 139)
-    pdf.text(`Impostos (${estimativa.percentual_imposto}%):`, rightCol, currentY)
-    pdf.setTextColor(15, 23, 42)
-    pdf.text(formatCurrency(impostos), rightCol + 30, currentY)
     
     currentY += 8
     
@@ -831,7 +820,7 @@ export function useEstimativaDownload() {
     pdf.setFillColor(16, 185, 129)
     pdf.roundedRect(15, currentY - 2, 260, 8, 2, 2, 'F')
     
-    pdf.setFontSize(12)
+    pdf.setFontSize(14)
     pdf.setTextColor(255, 255, 255)
     pdf.text('TOTAL GERAL:', 20, currentY + 4)
     pdf.text(formatCurrency(totalComImpostos), 200, currentY + 4)
