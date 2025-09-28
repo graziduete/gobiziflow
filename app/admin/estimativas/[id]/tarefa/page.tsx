@@ -180,7 +180,8 @@ export default function VisualizarEstimativaTarefaPage({ params }: { params: Pro
     try {
       setGeneratingPDF(true)
       const result = await downloadTarefasPDF(estimativa, tarefas, {
-        filename: `estimativa-tarefa-${estimativa.nome_projeto.replace(/\s+/g, '-').toLowerCase()}`
+        filename: `proposta-comercial-${estimativa.nome_projeto.replace(/\s+/g, '-').toLowerCase()}`,
+        clientVersion: true
       })
       
       if (result.success) {
@@ -391,6 +392,7 @@ export default function VisualizarEstimativaTarefaPage({ params }: { params: Pro
                 size="sm"
                 onClick={handleDownloadPDF}
                 disabled={generatingPDF}
+                className="bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
               >
                 <Download className="h-4 w-4 mr-2" />
                 {generatingPDF ? 'Gerando...' : 'Exportar PDF'}
