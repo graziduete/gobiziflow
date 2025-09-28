@@ -83,18 +83,27 @@ export default function VisualizarEstimativaPage() {
       // Buscar estimativa
       const { data: estimativaData, error: estimativaError } = await supabase
         .from('estimativas')
-        .select(`
-          *,
-          profiles!created_by (
-            full_name,
-            email
-          )
-        `)
+        .select('*')
         .eq('id', estimativaId)
         .single()
 
       if (estimativaError) throw estimativaError
-      setEstimativa(estimativaData)
+
+      // Buscar dados do usuário criador
+      if (estimativaData?.created_by) {
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('id, full_name, email')
+          .eq('id', estimativaData.created_by)
+          .single()
+
+        setEstimativa({
+          ...estimativaData,
+          profiles: profileData
+        })
+      } else {
+        setEstimativa(estimativaData)
+      }
 
       // Buscar recursos
       const { data: recursosData, error: recursosError } = await supabase

@@ -78,19 +78,45 @@ export default function EstimativasPage() {
   const fetchEstimativas = async () => {
     try {
       setLoading(true)
-      const { data, error } = await supabase
+      console.log('Buscando estimativas...')
+      
+      // Buscar estimativas
+      const { data: estimativasData, error: estimativasError } = await supabase
         .from('estimativas')
-        .select(`
-          *,
-          profiles!created_by (
-            full_name,
-            email
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false })
 
-      if (error) throw error
-      setEstimativas(data || [])
+      if (estimativasError) {
+        console.error('Erro ao buscar estimativas:', estimativasError)
+        throw estimativasError
+      }
+
+      console.log('Estimativas encontradas:', estimativasData?.length || 0)
+
+      // Buscar dados dos usuários criadores
+      if (estimativasData && estimativasData.length > 0) {
+        const userIds = [...new Set(estimativasData.map(est => est.created_by))]
+        
+        const { data: profilesData, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, full_name, email')
+          .in('id', userIds)
+
+        if (profilesError) {
+          console.error('Erro ao buscar profiles:', profilesError)
+          // Continuar mesmo com erro nos profiles
+        }
+
+        // Combinar dados
+        const estimativasComProfiles = estimativasData.map(estimativa => ({
+          ...estimativa,
+          profiles: profilesData?.find(profile => profile.id === estimativa.created_by)
+        }))
+
+        setEstimativas(estimativasComProfiles)
+      } else {
+        setEstimativas([])
+      }
     } catch (error) {
       console.error('Erro ao buscar estimativas:', error)
       toast.error('Erro ao carregar estimativas')
