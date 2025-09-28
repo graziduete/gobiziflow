@@ -128,10 +128,6 @@ export function useEstimativaDownload() {
     
     // Data de geração com estilo mais elegante
     const currentDate = new Date().toLocaleDateString('pt-BR')
-    // Linha decorativa
-    pdf.setDrawColor(59, 130, 246)
-    pdf.setLineWidth(0.5)
-    pdf.line(15, 35, 195, 35)
   }, [loadLogo])
 
   // Função para criar card de informações do projeto
@@ -149,11 +145,7 @@ export function useEstimativaDownload() {
     pdf.setTextColor(15, 23, 42) // Cinza escuro
     pdf.text('INFORMAÇÕES DO PROJETO', 25, currentY + 12)
     
-    // Linha decorativa
-    pdf.setDrawColor(59, 130, 246)
-    pdf.setLineWidth(1)
-    pdf.line(25, currentY + 15, 50, currentY + 15)
-    currentY += 25
+    currentY += 20
     
     // Grid de informações em 2 colunas
     const leftCol = 25
@@ -305,11 +297,7 @@ export function useEstimativaDownload() {
     pdf.setTextColor(15, 23, 42)
     pdf.text('RECURSOS DA ESTIMATIVA', 25, currentY + 12)
     
-    // Linha decorativa
-    pdf.setDrawColor(59, 130, 246)
-    pdf.setLineWidth(1)
-    pdf.line(25, currentY + 15, 50, currentY + 15)
-    currentY += 25
+    currentY += 20
     
     if (recursos.length === 0) {
       pdf.setFontSize(12)
@@ -381,11 +369,7 @@ export function useEstimativaDownload() {
     pdf.setTextColor(15, 23, 42)
     pdf.text('TAREFAS DO PROJETO', 25, currentY + 12)
     
-    // Linha decorativa
-    pdf.setDrawColor(59, 130, 246)
-    pdf.setLineWidth(1)
-    pdf.line(25, currentY + 15, 50, currentY + 15)
-    currentY += 25
+    currentY += 20
     
     if (tarefas.length === 0) {
       pdf.setFontSize(12)
@@ -565,11 +549,7 @@ export function useEstimativaDownload() {
     pdf.setTextColor(15, 23, 42) // Cinza escuro
     pdf.text('INFORMAÇÕES DO PROJETO', 25, currentY + 12)
     
-    // Linha decorativa
-    pdf.setDrawColor(59, 130, 246)
-    pdf.setLineWidth(1)
-    pdf.line(25, currentY + 15, 50, currentY + 15)
-    currentY += 25
+    currentY += 20
     
     // Grid de informações em 2 colunas
     const leftCol = 25
@@ -735,10 +715,6 @@ export function useEstimativaDownload() {
     pdf.setTextColor(15, 23, 42)
     pdf.text('FUNCIONALIDADES DO PROJETO', 20, currentY + 8)
     
-    // Linha decorativa
-    pdf.setDrawColor(59, 130, 246)
-    pdf.setLineWidth(1)
-    pdf.line(20, currentY + 10, 45, currentY + 10)
     currentY += 15
     
     if (tarefas.length === 0) {
