@@ -822,6 +822,8 @@ export function useEstimativaDownload() {
     const leftCol = 20
     const rightCol = 200
     
+    currentY += 5 // Espaçamento entre título e quantidade
+    
     // Quantidade de tarefas com tag
     pdf.setFontSize(12)
     pdf.setTextColor(100, 116, 139)
@@ -829,10 +831,10 @@ export function useEstimativaDownload() {
     
     // Tag para quantidade (posicionada após o texto)
     pdf.setFillColor(16, 185, 129)
-    pdf.roundedRect(leftCol + 50, currentY - 2.5, 15, 6, 2, 2, 'F')
+    pdf.roundedRect(leftCol + 50, currentY - 2, 15, 6, 2, 2, 'F')
     pdf.setFontSize(10)
     pdf.setTextColor(255, 255, 255)
-    pdf.text(`${tarefas.length}`, leftCol + 53, currentY + 1.5)
+    pdf.text(`${tarefas.length}`, leftCol + 53, currentY + 2)
     
     currentY += 8
     
