@@ -390,6 +390,15 @@ export default function EstimativasPage() {
                   <div className="space-y-2 flex-1">
                     <div className="flex items-center gap-3">
                       <h3 className="text-lg font-semibold">{estimativa.nome_projeto}</h3>
+                      <Badge 
+                        variant="outline" 
+                        className={estimativa.tipo === 'tarefa' 
+                          ? "bg-green-50 text-green-700 border-green-200" 
+                          : "bg-blue-50 text-blue-700 border-blue-200"
+                        }
+                      >
+                        {estimativa.tipo === 'tarefa' ? 'Por Tarefa' : 'Por Recurso'}
+                      </Badge>
                       <Badge variant={statusConfig[estimativa.status as keyof typeof statusConfig]?.variant || "default"}>
                         {statusConfig[estimativa.status as keyof typeof statusConfig]?.label || estimativa.status}
                       </Badge>
