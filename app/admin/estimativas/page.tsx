@@ -140,19 +140,18 @@ export default function EstimativasPage() {
         let tarefasCount: { [key: string]: number } = {}
         
         if (estimativasTarefa.length > 0) {
-          const estimativaIds = estimativasTarefa.map(est => est.id)
-          
-          const { data: tarefasData, error: tarefasError } = await supabase
-            .from('tarefas_estimativa')
-            .select('estimativa_id')
-            .in('estimativa_id', estimativaIds)
+          // Buscar tarefas uma por uma (mesma abordagem da página de visualizar)
+          for (const estimativa of estimativasTarefa) {
+            const { data: tarefasData, error: tarefasError } = await supabase
+              .from('tarefas_estimativa')
+              .select('id')
+              .eq('estimativa_id', estimativa.id)
 
-          if (!tarefasError && tarefasData) {
-            // Contar tarefas por estimativa
-            tarefasCount = tarefasData.reduce((acc, tarefa) => {
-              acc[tarefa.estimativa_id] = (acc[tarefa.estimativa_id] || 0) + 1
-              return acc
-            }, {} as { [key: string]: number })
+            if (!tarefasError && tarefasData) {
+              tarefasCount[estimativa.id] = tarefasData.length
+            } else {
+              tarefasCount[estimativa.id] = 0
+            }
           }
         }
 
