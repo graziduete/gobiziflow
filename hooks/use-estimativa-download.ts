@@ -668,11 +668,6 @@ export function useEstimativaDownload() {
     pdf.setFontSize(12)
     pdf.setTextColor(15, 23, 42)
     pdf.text('INFORMAÇÕES DO PROJETO', 20, currentY + 8)
-    
-    // Linha decorativa
-    pdf.setDrawColor(59, 130, 246)
-    pdf.setLineWidth(1)
-    pdf.line(20, currentY + 10, 45, currentY + 10)
     currentY += 20
     
     // Layout horizontal compacto
