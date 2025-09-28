@@ -364,10 +364,10 @@ export function useEstimativaDownload() {
     pdf.setLineWidth(0.5)
     pdf.roundedRect(15, currentY, 260, 40 + (tarefas.length * 12), 3, 3, 'FD') // Largura aumentada para horizontal
     
-    // Título do card
-    pdf.setFontSize(18)
+    // Título do card compacto
+    pdf.setFontSize(12) // Reduzido de 18 para 12
     pdf.setTextColor(15, 23, 42)
-    pdf.text('TAREFAS DO PROJETO', 25, currentY + 12)
+    pdf.text('TAREFAS DO PROJETO', 20, currentY + 8) // Posição ajustada
     
     currentY += 20
     
@@ -470,16 +470,12 @@ export function useEstimativaDownload() {
     pdf.setLineWidth(1)
     pdf.roundedRect(15, currentY, 260, 80, 3, 3, 'FD') // Largura aumentada para horizontal
     
-    // Título do card
-    pdf.setFontSize(18)
+    // Título do card compacto
+    pdf.setFontSize(12) // Reduzido de 18 para 12
     pdf.setTextColor(15, 23, 42)
-    pdf.text('RESUMO DA ESTIMATIVA', 25, currentY + 12)
+    pdf.text('RESUMO DA ESTIMATIVA', 20, currentY + 8) // Posição ajustada
     
-    // Linha decorativa verde
-    pdf.setDrawColor(16, 185, 129)
-    pdf.setLineWidth(1)
-    pdf.line(25, currentY + 15, 50, currentY + 15)
-    currentY += 25
+    currentY += 15 // Espaçamento reduzido
     
     // Layout em 3 colunas para horizontal
     const leftCol = 25
@@ -545,18 +541,26 @@ export function useEstimativaDownload() {
   const createProjectInfoTarefas = useCallback((pdf: jsPDF, estimativa: EstimativaData, yPosition: number) => {
     let currentY = yPosition
     
+    // Calcular altura do card baseada no conteúdo
+    let cardHeight = 25 // Altura base
+    if (estimativa.observacoes) {
+      const lines = estimativa.observacoes.length > 0 ? Math.ceil(estimativa.observacoes.length / 80) : 0
+      cardHeight += lines * 4 + 15 // +15 para margem das observações
+    }
+    cardHeight += 60 // Altura para outras informações
+    
     // Card principal com sombra sutil
     pdf.setFillColor(255, 255, 255) // Branco
     pdf.setDrawColor(226, 232, 240) // Cinza claro
     pdf.setLineWidth(0.5)
-    pdf.roundedRect(15, currentY, 260, 70, 3, 3, 'FD') // Fill + Draw com cantos arredondados (largura aumentada)
+    pdf.roundedRect(15, currentY, 260, cardHeight, 3, 3, 'FD') // Fill + Draw com cantos arredondados (largura aumentada)
     
-    // Título do card
-    pdf.setFontSize(18)
+    // Título do card compacto
+    pdf.setFontSize(12) // Reduzido de 18 para 12
     pdf.setTextColor(15, 23, 42) // Cinza escuro
-    pdf.text('INFORMAÇÕES DO PROJETO', 25, currentY + 12)
+    pdf.text('INFORMAÇÕES DO PROJETO', 20, currentY + 8) // Posição ajustada
     
-    currentY += 20
+    currentY += 15 // Espaçamento reduzido
     
     // Grid de informações em 3 colunas para layout horizontal
     const leftCol = 25
@@ -565,30 +569,30 @@ export function useEstimativaDownload() {
     const rowHeight = 12
     
     // Nome do projeto (destaque) - Coluna 1
-    pdf.setFontSize(16)
+    pdf.setFontSize(12) // Reduzido de 16
     pdf.setTextColor(59, 130, 246) // Azul
-    pdf.text('Nome do Projeto', leftCol, currentY)
-    pdf.setFontSize(14)
+    pdf.text('Projeto:', leftCol, currentY)
+    pdf.setFontSize(11) // Reduzido de 14
     pdf.setTextColor(15, 23, 42)
-    pdf.text(estimativa.nome_projeto, leftCol, currentY + 6)
+    pdf.text(estimativa.nome_projeto, leftCol + 20, currentY)
     
     // Status com badge - Coluna 2
-    pdf.setFontSize(11)
+    pdf.setFontSize(9) // Reduzido de 11
     pdf.setTextColor(100, 116, 139)
     pdf.text('Status:', middleCol, currentY)
     pdf.setFillColor(59, 130, 246)
-    pdf.roundedRect(middleCol + 15, currentY - 2, 40, 6, 2, 2, 'F')
-    pdf.setFontSize(9)
+    pdf.roundedRect(middleCol + 15, currentY - 1.5, 40, 5, 2, 2, 'F') // Altura reduzida
+    pdf.setFontSize(8) // Reduzido de 9
     pdf.setTextColor(255, 255, 255)
-    pdf.text(estimativa.status.replace('_', ' ').toUpperCase(), middleCol + 17, currentY + 2)
+    pdf.text(estimativa.status.replace('_', ' ').toUpperCase(), middleCol + 17, currentY + 1.5)
     
     // Valor Hora - Coluna 3
-    pdf.setFontSize(11)
+    pdf.setFontSize(9) // Reduzido de 11
     pdf.setTextColor(100, 116, 139)
     pdf.text('Valor Hora:', rightCol, currentY)
     pdf.setTextColor(15, 23, 42)
     pdf.text(formatCurrency(estimativa.valor_hora || 0), rightCol + 20, currentY)
-    currentY += 15
+    currentY += 8 // Espaçamento reduzido
     
     // Gordura - Coluna 2
     pdf.setTextColor(100, 116, 139)
@@ -601,7 +605,7 @@ export function useEstimativaDownload() {
     pdf.text('Criado em:', rightCol, currentY)
     pdf.setTextColor(15, 23, 42)
     pdf.text(formatDate(estimativa.created_at), rightCol + 20, currentY)
-    currentY += 10
+    currentY += 8 // Espaçamento reduzido
     
     // Criado por - Coluna 3
     if (estimativa.profiles?.full_name) {
@@ -609,7 +613,7 @@ export function useEstimativaDownload() {
       pdf.text('Criado por:', rightCol, currentY)
       pdf.setTextColor(15, 23, 42)
       pdf.text(estimativa.profiles.full_name, rightCol + 20, currentY)
-      currentY += 10
+      currentY += 8 // Espaçamento reduzido
     }
     
     // Observações em card separado se existir
