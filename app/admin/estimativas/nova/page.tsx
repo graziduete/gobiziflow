@@ -52,6 +52,13 @@ function NovaEstimativaContent() {
   const tipo = searchParams.get('tipo') || 'recurso'
   const supabase = createClient()
 
+  // Redirecionar para página de tarefa se necessário
+  useEffect(() => {
+    if (tipo === 'tarefa') {
+      router.push('/admin/estimativas/nova-tarefa')
+    }
+  }, [tipo, router])
+
   const [loading, setLoading] = useState(false)
   const [templates, setTemplates] = useState<TemplateRecurso[]>([])
   const [recursos, setRecursos] = useState<RecursoEstimativa[]>([])

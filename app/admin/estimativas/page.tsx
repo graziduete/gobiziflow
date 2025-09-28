@@ -48,6 +48,7 @@ interface Estimativa {
   total_com_impostos: number
   created_at: string
   updated_at: string
+  tipo?: string
   profiles?: {
     full_name: string
     email: string
@@ -380,11 +381,11 @@ export default function EstimativasPage() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => router.push(`/admin/estimativas/${estimativa.id}`)}>
+                      <DropdownMenuItem onClick={() => router.push(estimativa.tipo === 'tarefa' ? `/admin/estimativas/${estimativa.id}/tarefa` : `/admin/estimativas/${estimativa.id}`)}>
                         <Eye className="h-4 w-4 mr-2" />
                         Visualizar
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => router.push(`/admin/estimativas/${estimativa.id}/editar`)}>
+                      <DropdownMenuItem onClick={() => router.push(estimativa.tipo === 'tarefa' ? `/admin/estimativas/${estimativa.id}/editar-tarefa` : `/admin/estimativas/${estimativa.id}/editar`)}>
                         <Edit className="h-4 w-4 mr-2" />
                         Editar
                       </DropdownMenuItem>
