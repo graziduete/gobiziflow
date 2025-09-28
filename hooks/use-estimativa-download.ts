@@ -660,10 +660,16 @@ export function useEstimativaDownload() {
     pdf.setFillColor(255, 255, 255)
     pdf.setDrawColor(226, 232, 240)
     pdf.setLineWidth(0.5)
-    pdf.roundedRect(15, currentY, 260, 25, 3, 3, 'FD')
+    // Calcular altura do card baseada no conteúdo
+    let cardHeight = 25
+    if (estimativa.observacoes) {
+      const lines = estimativa.observacoes.length > 0 ? Math.ceil(estimativa.observacoes.length / 60) : 0
+      cardHeight += lines * 4 + 10 // +10 para margem
+    }
+    pdf.roundedRect(15, currentY, 260, cardHeight, 3, 3, 'FD')
     
     // Título compacto
-    pdf.setFontSize(14)
+    pdf.setFontSize(12)
     pdf.setTextColor(15, 23, 42)
     pdf.text('INFORMAÇÕES DO PROJETO', 20, currentY + 8)
     
@@ -671,7 +677,7 @@ export function useEstimativaDownload() {
     pdf.setDrawColor(59, 130, 246)
     pdf.setLineWidth(1)
     pdf.line(20, currentY + 10, 45, currentY + 10)
-    currentY += 15
+    currentY += 20
     
     // Layout horizontal compacto
     const leftCol = 20
@@ -699,6 +705,25 @@ export function useEstimativaDownload() {
     pdf.text('Criado em:', rightCol, currentY)
     pdf.setTextColor(15, 23, 42)
     pdf.text(formatDate(estimativa.created_at), rightCol + 20, currentY)
+    
+    // Observações se existirem
+    if (estimativa.observacoes) {
+      currentY += 8
+      pdf.setFontSize(9)
+      pdf.setTextColor(100, 116, 139)
+      pdf.text('Observações:', leftCol, currentY)
+      currentY += 4
+      
+      // Quebrar texto em linhas
+      const maxWidth = 240
+      const lines = pdf.splitTextToSize(estimativa.observacoes, maxWidth)
+      pdf.setFontSize(8)
+      pdf.setTextColor(15, 23, 42)
+      lines.forEach((line: string, index: number) => {
+        pdf.text(line, leftCol, currentY + (index * 3))
+      })
+      currentY += lines.length * 3 + 5
+    }
     
     return currentY + 15
   }, [formatDate])
