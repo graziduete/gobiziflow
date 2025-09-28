@@ -353,15 +353,15 @@ export default function VisualizarEstimativaPage() {
             </CardContent>
           </Card>
 
-          {/* Recursos e Alocações */}
+          {/* Recursos da Estimativa */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Users className="h-5 w-5" />
-                Recursos e Alocações
+                Recursos da Estimativa
               </CardTitle>
               <CardDescription>
-                Distribuição de horas por recurso e semana
+                Equipe e custos por recurso
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -373,60 +373,55 @@ export default function VisualizarEstimativaPage() {
               ) : (
                 <div className="space-y-4">
                   {recursos.map((recurso) => (
-                    <Card key={recurso.id} className="border-l-4 border-l-primary">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between mb-4">
-                          <div>
-                            <h4 className="font-semibold">{recurso.nome_recurso}</h4>
-                            <p className="text-sm text-muted-foreground">
-                              {formatCurrency(recurso.taxa_hora)}/hora
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <p className="font-semibold">{recurso.total_horas.toFixed(1)}h</p>
-                            <p className="text-sm text-muted-foreground">
-                              {formatCurrency(recurso.total_custo)}
-                            </p>
-                          </div>
+                    <div key={recurso.id} className="border rounded-lg p-4 bg-gray-50">
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <h4 className="font-semibold text-lg">{recurso.nome_recurso}</h4>
+                          <p className="text-sm text-muted-foreground">
+                            Taxa: {formatCurrency(recurso.taxa_hora)}/hora
+                          </p>
                         </div>
-                        
-                        <div className="grid grid-cols-8 gap-1 text-xs">
-                          <div className="text-center font-medium text-muted-foreground">Semana</div>
-                          {semanas.slice(0, 7).map((semana) => (
-                            <div key={semana} className="text-center font-medium text-muted-foreground">
-                              S{semana}
-                            </div>
-                          ))}
-                          <div className="text-center font-medium text-muted-foreground">Total</div>
-                          
-                          <div className="text-center font-medium">Horas</div>
-                          {semanas.slice(0, 7).map((semana) => {
-                            const alocacao = recurso.alocacoes.find(a => a.semana === semana)
-                            return (
-                              <div key={semana} className="text-center p-1 bg-muted rounded">
-                                {alocacao?.horas || 0}
-                              </div>
-                            )
-                          })}
-                          <div className="text-center font-semibold p-1 bg-primary/10 rounded">
-                            {recurso.total_horas.toFixed(1)}
-                          </div>
-                          
-                          <div className="text-center font-medium">Custo</div>
-                          {semanas.slice(0, 7).map((semana) => {
-                            const alocacao = recurso.alocacoes.find(a => a.semana === semana)
-                            return (
-                              <div key={semana} className="text-center p-1 bg-muted rounded text-xs">
-                                {alocacao?.custo_semanal ? formatCurrency(alocacao.custo_semanal) : 'R$ 0,00'}
-                              </div>
-                            )
-                          })}
-                          <div className="text-center font-semibold p-1 bg-primary/10 rounded">
+                        <div className="text-right">
+                          <div className="text-2xl font-bold text-primary">
                             {formatCurrency(recurso.total_custo)}
                           </div>
+                          <p className="text-sm text-muted-foreground">
+                            {recurso.total_horas.toFixed(1)} horas totais
+                          </p>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                      
+                      {/* Resumo por mês */}
+                      <div className="mt-4">
+                        <h5 className="font-medium text-sm text-muted-foreground mb-2">
+                          Distribuição por Mês:
+                        </h5>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          {Array.from({ length: Math.ceil(semanas.length / 4) }, (_, mesIndex) => {
+                            const semanasDoMes = semanas.slice(mesIndex * 4, (mesIndex + 1) * 4)
+                            const horasDoMes = semanasDoMes.reduce((total, semana) => {
+                              const alocacao = recurso.alocacoes.find(a => a.semana === semana)
+                              return total + (alocacao?.horas || 0)
+                            }, 0)
+                            const custoDoMes = horasDoMes * recurso.taxa_hora
+                            
+                            return (
+                              <div key={mesIndex} className="bg-white p-3 rounded border text-center">
+                                <div className="text-sm font-medium text-muted-foreground">
+                                  Mês {mesIndex + 1}
+                                </div>
+                                <div className="text-lg font-semibold text-primary">
+                                  {formatCurrency(custoDoMes)}
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  {horasDoMes.toFixed(1)}h
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    </div>
                   ))}
                 </div>
               )}
