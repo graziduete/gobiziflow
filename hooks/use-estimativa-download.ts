@@ -700,7 +700,7 @@ export function useEstimativaDownload() {
     pdf.setTextColor(15, 23, 42)
     pdf.text(formatDate(estimativa.created_at), rightCol + 20, currentY)
     
-    return currentY + 5
+    return currentY + 10
   }, [formatDate])
 
   // Função para criar card de tarefas (versão cliente)
