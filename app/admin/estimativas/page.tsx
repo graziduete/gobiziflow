@@ -68,24 +68,49 @@ export default function EstimativasPage() {
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const [showNewEstimativaModal, setShowNewEstimativaModal] = useState(false)
+  
+  // Estados para paginação
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalCount, setTotalCount] = useState(0)
+  const itemsPerPage = 10
+  
   const router = useRouter()
   const supabase = createClient()
   const { showConfirmation, ConfirmationDialog } = useConfirmationDialog()
 
   useEffect(() => {
     fetchEstimativas()
-  }, [])
+  }, [currentPage])
 
   const fetchEstimativas = async () => {
     try {
       setLoading(true)
       console.log('Buscando estimativas...')
       
-      // Buscar estimativas
+      // Calcular offset para paginação
+      const from = (currentPage - 1) * itemsPerPage
+      const to = from + itemsPerPage - 1
+      
+      // Buscar total de estimativas para paginação
+      const { count: totalCount, error: countError } = await supabase
+        .from('estimativas')
+        .select('*', { count: 'exact', head: true })
+
+      if (countError) {
+        console.error('Erro ao contar estimativas:', countError)
+        throw countError
+      }
+
+      setTotalCount(totalCount || 0)
+      setTotalPages(Math.ceil((totalCount || 0) / itemsPerPage))
+      
+      // Buscar estimativas com paginação
       const { data: estimativasData, error: estimativasError } = await supabase
         .from('estimativas')
         .select('*')
         .order('created_at', { ascending: false })
+        .range(from, to)
 
       if (estimativasError) {
         console.error('Erro ao buscar estimativas:', estimativasError)
@@ -126,9 +151,24 @@ export default function EstimativasPage() {
     }
   }
 
-  const filteredEstimativas = estimativas.filter(estimativa =>
-    estimativa.nome_projeto.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  // Funções de navegação da paginação
+  const goToPage = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page)
+    }
+  }
+
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1)
+    }
+  }
+
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1)
+    }
+  }
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -321,7 +361,7 @@ export default function EstimativasPage() {
               </Card>
             ))}
           </div>
-        ) : filteredEstimativas.length === 0 ? (
+        ) : estimativas.length === 0 ? (
           <Card className="text-center py-12">
             <CardContent>
               <Calculator className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
@@ -343,7 +383,7 @@ export default function EstimativasPage() {
             </CardContent>
           </Card>
         ) : (
-          filteredEstimativas.map((estimativa) => (
+          estimativas.map((estimativa) => (
             <Card key={estimativa.id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-6">
                 <div className="flex items-start justify-between">
@@ -410,6 +450,62 @@ export default function EstimativasPage() {
           ))
         )}
       </div>
+      
+      {/* Paginação */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-8">
+          <div className="text-sm text-muted-foreground">
+            Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, totalCount)} de {totalCount} estimativas
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={goToPreviousPage}
+              disabled={currentPage === 1}
+            >
+              Anterior
+            </Button>
+            
+            <div className="flex items-center gap-1">
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNumber
+                if (totalPages <= 5) {
+                  pageNumber = i + 1
+                } else if (currentPage <= 3) {
+                  pageNumber = i + 1
+                } else if (currentPage >= totalPages - 2) {
+                  pageNumber = totalPages - 4 + i
+                } else {
+                  pageNumber = currentPage - 2 + i
+                }
+                
+                return (
+                  <Button
+                    key={pageNumber}
+                    variant={currentPage === pageNumber ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => goToPage(pageNumber)}
+                    className="w-8 h-8 p-0"
+                  >
+                    {pageNumber}
+                  </Button>
+                )
+              })}
+            </div>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={goToNextPage}
+              disabled={currentPage === totalPages}
+            >
+              Próxima
+            </Button>
+          </div>
+        </div>
+      )}
       
       {/* Modal de Confirmação */}
       {ConfirmationDialog}
