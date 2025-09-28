@@ -740,7 +740,7 @@ export function useEstimativaDownload() {
     pdf.roundedRect(15, currentY, 260, cardHeight, 3, 3, 'FD')
     
     // Título compacto
-    pdf.setFontSize(14)
+    pdf.setFontSize(12)
     pdf.setTextColor(15, 23, 42)
     pdf.text('FUNCIONALIDADES DO PROJETO', 20, currentY + 8)
     
@@ -812,7 +812,7 @@ export function useEstimativaDownload() {
     pdf.roundedRect(15, currentY, 260, 25, 3, 3, 'FD')
     
     // Título compacto
-    pdf.setFontSize(14)
+    pdf.setFontSize(12)
     pdf.setTextColor(15, 23, 42)
     pdf.text('RESUMO DA ESTIMATIVA', 20, currentY + 8)
     
@@ -830,7 +830,7 @@ export function useEstimativaDownload() {
     pdf.setFontSize(12)
     pdf.setTextColor(100, 116, 139)
     pdf.text('Quantidade de Tarefas:', leftCol, currentY)
-    pdf.setFontSize(14)
+    pdf.setFontSize(12)
     pdf.setTextColor(16, 185, 129)
     pdf.text(`${tarefas.length}`, leftCol + 40, currentY)
     
