@@ -455,8 +455,8 @@ export default function NovaEstimativaPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Totais Gerais */}
-              <div className="grid gap-4 md:grid-cols-3">
+              {/* Resumo Principal */}
+              <div className="grid gap-4 md:grid-cols-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4 text-muted-foreground" />
@@ -468,8 +468,8 @@ export default function NovaEstimativaPage() {
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <DollarSign className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">Total Estimado</span>
+                    <Calculator className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">Subtotal (sem impostos)</span>
                   </div>
                   <p className="text-2xl font-bold">
                     R$ {totalEstimado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
@@ -477,10 +477,19 @@ export default function NovaEstimativaPage() {
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <Calculator className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">Com Impostos</span>
+                    <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">Impostos ({formData.percentual_imposto}%)</span>
                   </div>
-                  <p className="text-2xl font-bold text-green-600">
+                  <p className="text-2xl font-bold text-orange-600">
+                    R$ {(totalComImpostos - totalEstimado).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <DollarSign className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">Total Geral do Projeto</span>
+                  </div>
+                  <p className="text-3xl font-bold text-green-600">
                     R$ {totalComImpostos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </p>
                 </div>
@@ -530,38 +539,6 @@ export default function NovaEstimativaPage() {
                 </div>
               )}
 
-              {/* Resumo de Impostos */}
-              <div className="border-t pt-4">
-                <div className="grid gap-4 md:grid-cols-3">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Calculator className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm font-medium">Subtotal (sem impostos)</span>
-                    </div>
-                    <p className="text-xl font-semibold">
-                      R$ {totalEstimado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm font-medium">Impostos ({formData.percentual_imposto}%)</span>
-                    </div>
-                    <p className="text-xl font-semibold text-orange-600">
-                      R$ {(totalComImpostos - totalEstimado).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <DollarSign className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm font-medium">Total Geral do Projeto</span>
-                    </div>
-                    <p className="text-2xl font-bold text-green-600">
-                      R$ {totalComImpostos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </p>
-                  </div>
-                </div>
-              </div>
             </CardContent>
           </Card>
         </div>
