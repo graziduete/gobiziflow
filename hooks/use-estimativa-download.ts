@@ -805,8 +805,9 @@ export function useEstimativaDownload() {
     pdf.setFontSize(12)
     pdf.setTextColor(100, 116, 139)
     pdf.text('Quantidade de Tarefas:', leftCol, currentY)
+    pdf.setFontSize(14)
     pdf.setTextColor(16, 185, 129)
-    pdf.text(`${tarefas.length}`, leftCol + 35, currentY)
+    pdf.text(`${tarefas.length}`, leftCol + 40, currentY)
     
     currentY += 8
     
