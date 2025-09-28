@@ -773,7 +773,7 @@ export function useEstimativaDownload() {
       currentY += 7
     })
     
-    return currentY + 5
+    return currentY + 15
   }, [formatCurrency])
 
   // Função para criar resumo de tarefas (versão cliente)
@@ -823,7 +823,7 @@ export function useEstimativaDownload() {
     pdf.setFontSize(14)
     pdf.setTextColor(255, 255, 255)
     pdf.text('TOTAL GERAL:', 20, currentY + 4)
-    pdf.text(formatCurrency(totalComImpostos), 200, currentY + 4)
+    pdf.text(`${totalHoras.toFixed(1)}h`, 200, currentY + 4)
     
     return currentY + 5
   }, [formatCurrency])
