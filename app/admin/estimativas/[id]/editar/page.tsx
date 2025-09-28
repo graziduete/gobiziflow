@@ -28,7 +28,7 @@ import {
   FileText
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
-import { toast } from "sonner"
+// import { toast } from "sonner"
 
 interface TemplateRecurso {
   id: string
@@ -190,7 +190,7 @@ export default function EditarEstimativaPage() {
 
     } catch (error) {
       console.error('Erro ao buscar estimativa:', error)
-      toast.error('Erro ao carregar estimativa')
+      alert('Erro ao carregar estimativa')
     } finally {
       setLoading(false)
     }
@@ -277,12 +277,12 @@ export default function EditarEstimativaPage() {
 
   const handleSave = async () => {
     if (!formData.nome_projeto.trim()) {
-      toast.error('Nome do projeto é obrigatório')
+      alert('Nome do projeto é obrigatório')
       return
     }
 
     if (recursos.length === 0) {
-      toast.error('Adicione pelo menos um recurso')
+      alert('Adicione pelo menos um recurso')
       return
     }
 
@@ -347,7 +347,7 @@ export default function EditarEstimativaPage() {
         }
       }
 
-      toast.success('Estimativa atualizada com sucesso!')
+      alert('Estimativa atualizada com sucesso!')
       router.push(`/admin/estimativas/${estimativaId}`)
     } catch (error) {
       console.error('Erro ao salvar estimativa:', error)
@@ -358,7 +358,7 @@ export default function EditarEstimativaPage() {
         errorMessage = `Erro: ${error.message}`
       }
       
-      toast.error(errorMessage)
+      alert(errorMessage)
     } finally {
       setSaving(false)
     }
@@ -389,7 +389,7 @@ export default function EditarEstimativaPage() {
         <div>
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold tracking-tight">Editar Estimativa</h1>
-            <Badge variant="secondary" className="bg-blue-500 text-white border-blue-400 text-sm px-3 py-1">
+            <Badge className="bg-blue-500 text-white border-blue-400 text-sm px-3 py-1">
               Por Recurso
             </Badge>
           </div>
@@ -478,7 +478,7 @@ export default function EditarEstimativaPage() {
                       step="0.01"
                       min="0"
                       max="100"
-                      value={formData.percentual_imposto}
+                      value={formData.percentual_imposto || ''}
                       onChange={(e) => setFormData({...formData, percentual_imposto: parseFloat(e.target.value) || 0})}
                       className="text-right text-xs"
                       placeholder="15.53"
@@ -709,10 +709,10 @@ function RecursoCard({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="secondary">
+          <Badge className="bg-gray-100 text-gray-800">
             {recurso.total_horas.toFixed(1)}h
           </Badge>
-          <Badge variant="outline">
+          <Badge className="border border-gray-300 bg-white text-gray-700">
             R$ {recurso.total_custo.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </Badge>
           <Button variant="ghost" size="icon" onClick={onRemove}>

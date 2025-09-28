@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -28,7 +28,7 @@ import {
   FileText
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
-import { toast } from "sonner"
+// import { toast } from "sonner"
 
 interface TemplateRecurso {
   id: string
@@ -46,7 +46,7 @@ interface RecursoEstimativa {
   alocacoes: { semana: number; horas: number }[]
 }
 
-export default function NovaEstimativaPage() {
+function NovaEstimativaContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const tipo = searchParams.get('tipo') || 'recurso'
@@ -163,12 +163,12 @@ export default function NovaEstimativaPage() {
 
   const handleSave = async () => {
     if (!formData.nome_projeto.trim()) {
-      toast.error('Nome do projeto é obrigatório')
+      alert('Nome do projeto é obrigatório')
       return
     }
 
     if (recursos.length === 0) {
-      toast.error('Adicione pelo menos um recurso')
+      alert('Adicione pelo menos um recurso')
       return
     }
 
@@ -235,7 +235,7 @@ export default function NovaEstimativaPage() {
         }
       }
 
-      toast.success('Estimativa criada com sucesso!')
+      alert('Estimativa criada com sucesso!')
       router.push('/admin/estimativas')
     } catch (error) {
       console.error('Erro ao salvar estimativa:', error)
@@ -246,7 +246,7 @@ export default function NovaEstimativaPage() {
         errorMessage = `Erro: ${error.message}`
       }
       
-      toast.error(errorMessage)
+      alert(errorMessage)
     } finally {
       setLoading(false)
     }
@@ -292,7 +292,7 @@ export default function NovaEstimativaPage() {
         <div>
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold tracking-tight">Nova Estimativa</h1>
-            <Badge variant="secondary" className="bg-blue-500 text-white border-blue-400 text-sm px-3 py-1">
+            <Badge className="bg-blue-500 text-white border-blue-400 text-sm px-3 py-1">
               Por Recurso
             </Badge>
           </div>
@@ -381,7 +381,7 @@ export default function NovaEstimativaPage() {
                       step="0.01"
                       min="0"
                       max="100"
-                      value={formData.percentual_imposto}
+                      value={formData.percentual_imposto || ''}
                       onChange={(e) => setFormData({...formData, percentual_imposto: parseFloat(e.target.value) || 0})}
                       className="text-right text-xs"
                       placeholder="15.53"
@@ -612,10 +612,10 @@ function RecursoCard({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="secondary">
+          <Badge className="bg-gray-100 text-gray-800">
             {recurso.total_horas.toFixed(1)}h
           </Badge>
-          <Badge variant="outline">
+          <Badge className="border border-gray-300 bg-white text-gray-700">
             R$ {recurso.total_custo.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </Badge>
           <Button variant="ghost" size="icon" onClick={onRemove}>
@@ -750,5 +750,13 @@ function RecursoCard({
         )}
       </div>
     </div>
+  )
+}
+
+export default function NovaEstimativaPage() {
+  return (
+    <Suspense fallback={<div>Carregando...</div>}>
+      <NovaEstimativaContent />
+    </Suspense>
   )
 }
