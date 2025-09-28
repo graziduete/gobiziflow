@@ -49,6 +49,7 @@ interface Estimativa {
   created_at: string
   updated_at: string
   tipo?: string
+  total_tarefas?: number
   profiles?: {
     full_name: string
     email: string
@@ -119,10 +120,11 @@ export default function EstimativasPage() {
 
       console.log('Estimativas encontradas:', estimativasData?.length || 0)
 
-      // Buscar dados dos usuários criadores
+      // Buscar dados dos usuários criadores e contagem de tarefas
       if (estimativasData && estimativasData.length > 0) {
         const userIds = [...new Set(estimativasData.map(est => est.created_by))]
         
+        // Buscar profiles
         const { data: profilesData, error: profilesError } = await supabase
           .from('profiles')
           .select('id, full_name, email')
@@ -133,10 +135,32 @@ export default function EstimativasPage() {
           // Continuar mesmo com erro nos profiles
         }
 
+        // Buscar contagem de tarefas para estimativas do tipo 'tarefa'
+        const estimativasTarefa = estimativasData.filter(est => est.tipo === 'tarefa')
+        let tarefasCount: { [key: string]: number } = {}
+        
+        if (estimativasTarefa.length > 0) {
+          const estimativaIds = estimativasTarefa.map(est => est.id)
+          
+          const { data: tarefasData, error: tarefasError } = await supabase
+            .from('tarefas_estimativa')
+            .select('estimativa_id')
+            .in('estimativa_id', estimativaIds)
+
+          if (!tarefasError && tarefasData) {
+            // Contar tarefas por estimativa
+            tarefasCount = tarefasData.reduce((acc, tarefa) => {
+              acc[tarefa.estimativa_id] = (acc[tarefa.estimativa_id] || 0) + 1
+              return acc
+            }, {} as { [key: string]: number })
+          }
+        }
+
         // Combinar dados
         const estimativasComProfiles = estimativasData.map(estimativa => ({
           ...estimativa,
-          profiles: profilesData?.find(profile => profile.id === estimativa.created_by)
+          profiles: profilesData?.find(profile => profile.id === estimativa.created_by),
+          total_tarefas: estimativa.tipo === 'tarefa' ? (tarefasCount[estimativa.id] || 0) : undefined
         }))
 
         setEstimativas(estimativasComProfiles)
@@ -404,10 +428,17 @@ export default function EstimativasPage() {
                       </Badge>
                     </div>
                     <div className="flex items-center gap-6 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Clock className="h-4 w-4" />
-                        {estimativa.meses_previstos} meses
-                      </span>
+                      {estimativa.tipo === 'tarefa' ? (
+                        <span className="flex items-center gap-1">
+                          <FileText className="h-4 w-4" />
+                          {estimativa.total_tarefas || 0} tarefas
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1">
+                          <Clock className="h-4 w-4" />
+                          {estimativa.meses_previstos} meses
+                        </span>
+                      )}
                       <span className="flex items-center gap-1">
                         <DollarSign className="h-4 w-4" />
                         {formatCurrency(estimativa.total_com_impostos)}
