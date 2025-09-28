@@ -135,20 +135,34 @@ export default function EstimativasPage() {
           // Continuar mesmo com erro nos profiles
         }
 
-        // Buscar contagem de tarefas para estimativas do tipo 'tarefa'
+        // Buscar contagem de tarefas e recalcular valores para estimativas do tipo 'tarefa'
         const estimativasTarefa = estimativasData.filter(est => est.tipo === 'tarefa')
         let tarefasCount: { [key: string]: number } = {}
+        let valoresRecalculados: { [key: string]: { total_estimado: number, total_com_impostos: number } } = {}
         
         if (estimativasTarefa.length > 0) {
-          // Buscar tarefas uma por uma (mesma abordagem da página de visualizar)
+          // Buscar tarefas e recalcular valores uma por uma
           for (const estimativa of estimativasTarefa) {
             const { data: tarefasData, error: tarefasError } = await supabase
               .from('tarefas_estimativa')
-              .select('id')
+              .select('total_base, total_com_gordura')
               .eq('estimativa_id', estimativa.id)
 
             if (!tarefasError && tarefasData) {
               tarefasCount[estimativa.id] = tarefasData.length
+              
+              // Recalcular valores em tempo real (mesma lógica da página de visualizar)
+              const totalBase = tarefasData.reduce((total, tarefa) => total + tarefa.total_base, 0)
+              const totalComGordura = tarefasData.reduce((total, tarefa) => total + tarefa.total_com_gordura, 0)
+              const totalHoras = Math.round(totalComGordura * 10) / 10
+              const totalEstimado = Math.round((totalHoras * estimativa.valor_hora) * 100) / 100
+              const impostos = Math.round((totalEstimado * estimativa.percentual_imposto / 100) * 100) / 100
+              const totalComImpostos = Math.round((totalEstimado + impostos) * 100) / 100
+              
+              valoresRecalculados[estimativa.id] = {
+                total_estimado: totalEstimado,
+                total_com_impostos: totalComImpostos
+              }
             } else {
               tarefasCount[estimativa.id] = 0
             }
@@ -156,11 +170,24 @@ export default function EstimativasPage() {
         }
 
         // Combinar dados
-        const estimativasComProfiles = estimativasData.map(estimativa => ({
-          ...estimativa,
-          profiles: profilesData?.find(profile => profile.id === estimativa.created_by),
-          total_tarefas: estimativa.tipo === 'tarefa' ? (tarefasCount[estimativa.id] || 0) : undefined
-        }))
+        const estimativasComProfiles = estimativasData.map(estimativa => {
+          const baseEstimativa = {
+            ...estimativa,
+            profiles: profilesData?.find(profile => profile.id === estimativa.created_by),
+            total_tarefas: estimativa.tipo === 'tarefa' ? (tarefasCount[estimativa.id] || 0) : undefined
+          }
+          
+          // Para estimativas por tarefa, usar valores recalculados em tempo real
+          if (estimativa.tipo === 'tarefa' && valoresRecalculados[estimativa.id]) {
+            return {
+              ...baseEstimativa,
+              total_estimado: valoresRecalculados[estimativa.id].total_estimado,
+              total_com_impostos: valoresRecalculados[estimativa.id].total_com_impostos
+            }
+          }
+          
+          return baseEstimativa
+        })
 
         setEstimativas(estimativasComProfiles)
       } else {
@@ -318,24 +345,24 @@ export default function EstimativasPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(estimativas.reduce((sum, e) => sum + e.total_estimado, 0))}
+              {formatCurrency(estimativas.reduce((sum, e) => sum + e.total_com_impostos, 0))}
             </div>
             <p className="text-xs text-muted-foreground">
-              Sem impostos
+              Com impostos
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Valor com Impostos</CardTitle>
+            <CardTitle className="text-sm font-medium">Impostos a Pagar</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(estimativas.reduce((sum, e) => sum + e.total_com_impostos, 0))}
+              {formatCurrency(estimativas.reduce((sum, e) => sum + (e.total_com_impostos - e.total_estimado), 0))}
             </div>
             <p className="text-xs text-muted-foreground">
-              Total final
+              Total de impostos
             </p>
           </CardContent>
         </Card>
