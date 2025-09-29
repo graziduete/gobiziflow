@@ -363,7 +363,7 @@ export default function EstimativasPage() {
               Com impostos
             </p>
             <div className="text-xs text-red-500 mt-1">
-              Debug: {estimativas.length} estimativas - {estimativas.map(e => `${e.nome_projeto}: R$ ${e.total_com_impostos.toFixed(2)}`).join(', ')}
+              Debug: {estimativas.length} estimativas - {estimativas.map(e => `${e.nome_projeto} (${e.tipo}): R$ ${e.total_com_impostos.toFixed(2)}`).join(', ')}
             </div>
           </CardContent>
         </Card>
