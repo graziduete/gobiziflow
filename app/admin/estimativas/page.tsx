@@ -552,10 +552,13 @@ export default function EstimativasPage() {
                           {estimativa.meses_previstos} meses
                         </span>
                       )}
-                      <span className="flex items-center gap-1">
-                        <DollarSign className="h-4 w-4" />
-                        {formatCurrency(estimativa.total_com_impostos)}
-                      </span>
+                      {/* Valor monetário apenas para admin */}
+                      {userRole !== 'admin_operacional' && (
+                        <span className="flex items-center gap-1">
+                          <DollarSign className="h-4 w-4" />
+                          {formatCurrency(estimativa.total_com_impostos)}
+                        </span>
+                      )}
                       <span>
                         Criado em {formatDate(estimativa.created_at)}
                       </span>
