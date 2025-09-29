@@ -521,7 +521,11 @@ export default function EstimativasPage() {
           </Card>
         ) : (
           filteredEstimativas.map((estimativa) => (
-            <Card key={estimativa.id} className="hover:shadow-md transition-shadow">
+            <Card key={estimativa.id} className={`hover:shadow-md transition-shadow ${
+              userRole === 'admin' && estimativa.profiles?.role === 'admin_operacional' 
+                ? 'border-l-4 border-l-orange-400 bg-orange-50/30' 
+                : ''
+            }`}>
               <CardContent className="p-6">
                 <div className="flex items-start justify-between">
                   <div className="space-y-2 flex-1">
@@ -539,6 +543,15 @@ export default function EstimativasPage() {
                       <Badge variant={statusConfig[estimativa.status as keyof typeof statusConfig]?.variant || "default"}>
                         {statusConfig[estimativa.status as keyof typeof statusConfig]?.label || estimativa.status}
                       </Badge>
+                      {/* Badge "Nova" para estimativas criadas por admin_operacional que precisam de ajustes */}
+                      {userRole === 'admin' && estimativa.profiles?.role === 'admin_operacional' && (
+                        <Badge 
+                          variant="outline" 
+                          className="bg-orange-50 text-orange-700 border-orange-200 animate-pulse"
+                        >
+                          Nova
+                        </Badge>
+                      )}
                     </div>
                     <div className="flex items-center gap-6 text-sm text-muted-foreground">
                       {estimativa.tipo === 'tarefa' ? (
