@@ -894,12 +894,12 @@ export default function AdminDashboard() {
 
       <div className="space-y-4">
         <div>
-          <h3 className="text-xl font-semibold">Visão Geral dos Cronogramas</h3>
-          <p className="text-sm text-muted-foreground">Timeline e progresso dos projetos</p>
+          <h3 className="text-xl font-semibold">Cronogramas dos 5 Últimos Projetos</h3>
+          <p className="text-sm text-muted-foreground">Timeline e progresso dos projetos mais recentes</p>
         </div>
 
         <GanttView 
-          projects={projects} 
+          projects={recentProjects} 
           allProjects={projects} 
           companies={companies} 
           selectedMonth={selectedMonth} 

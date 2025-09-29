@@ -187,8 +187,9 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
   }
 
   const getFilteredProjects = () => {
-    // Usar allProjects como base para filtros
-    let baseProjects = allProjects || projects
+    // Na visão expandida, usar allProjects (todos os projetos)
+    // Na visão normal, usar projects (apenas os 5 últimos)
+    let baseProjects = isExpanded ? (allProjects || []) : projects
     let filtered = [...baseProjects]
     
     console.log('🔍 Filtros atuais:', expandedFilters)
@@ -386,7 +387,7 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
           <div className="flex items-center justify-between p-6 border-b bg-white">
             <div className="flex items-center gap-2">
               <TrendingRight className="h-5 w-5 text-cyan-600" />
-              <h2 className="text-xl font-semibold">Visão Expandida dos Cronogramas</h2>
+              <h2 className="text-xl font-semibold">Todos os Cronogramas</h2>
             </div>
             <Button
               variant="ghost"
