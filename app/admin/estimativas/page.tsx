@@ -422,69 +422,71 @@ export default function EstimativasPage() {
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className={`grid gap-4 ${userRole === 'admin_operacional' ? 'md:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols-4'}`}>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Estimativas</CardTitle>
-            <Calculator className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{estimativas.length}</div>
-            <p className="text-xs text-muted-foreground">
-              {estimativas.filter(e => e.status === 'proposta_comercial').length} em proposta
-            </p>
-          </CardContent>
-        </Card>
-        
-        {/* Cards financeiros apenas para admin */}
-        {userRole !== 'admin_operacional' && (
-          <>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Valor Total Estimado</CardTitle>
-                <DollarSign className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {formatCurrency(estimativas.reduce((sum, e) => sum + e.total_com_impostos, 0))}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Com impostos
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Impostos a Pagar</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {formatCurrency(estimativas.reduce((sum, e) => sum + (e.total_com_impostos - e.total_estimado), 0))}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Total de impostos
-                </p>
-              </CardContent>
-            </Card>
-          </>
-        )}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Projetos Convertidos</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {estimativas.filter(e => e.status === 'convertida_projeto').length}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Estimativas aprovadas
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Stats Cards - Só renderizar quando soubermos o perfil do usuário */}
+      {userRole && (
+        <div className={`grid gap-4 ${userRole === 'admin_operacional' ? 'md:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols-4'}`}>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total de Estimativas</CardTitle>
+              <Calculator className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{estimativas.length}</div>
+              <p className="text-xs text-muted-foreground">
+                {estimativas.filter(e => e.status === 'proposta_comercial').length} em proposta
+              </p>
+            </CardContent>
+          </Card>
+          
+          {/* Cards financeiros apenas para admin */}
+          {userRole !== 'admin_operacional' && (
+            <>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Valor Total Estimado</CardTitle>
+                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {formatCurrency(estimativas.reduce((sum, e) => sum + e.total_com_impostos, 0))}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Com impostos
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Impostos a Pagar</CardTitle>
+                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {formatCurrency(estimativas.reduce((sum, e) => sum + (e.total_com_impostos - e.total_estimado), 0))}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Total de impostos
+                  </p>
+                </CardContent>
+              </Card>
+            </>
+          )}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Projetos Convertidos</CardTitle>
+              <Clock className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {estimativas.filter(e => e.status === 'convertida_projeto').length}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Estimativas aprovadas
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
 
       {/* Estimativas List */}
