@@ -81,10 +81,34 @@ export default function VisualizarEstimativaTarefaPage({ params }: { params: Pro
   const [generatingPDF, setGeneratingPDF] = useState(false)
   const [shareModalOpen, setShareModalOpen] = useState(false)
   const [shareUrl, setShareUrl] = useState('')
+  const [userRole, setUserRole] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetchUserRole()
+  }, [])
 
   useEffect(() => {
     fetchEstimativa()
   }, [estimativaId])
+
+  const fetchUserRole = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+        
+        if (profile) {
+          setUserRole(profile.role)
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao buscar perfil:', error)
+    }
+  }
 
   const fetchEstimativa = async () => {
     try {
@@ -425,17 +449,20 @@ export default function VisualizarEstimativaTarefaPage({ params }: { params: Pro
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className={`grid grid-cols-1 gap-4 ${userRole !== 'admin_operacional' ? 'md:grid-cols-2' : 'md:grid-cols-1'}`}>
                 <div>
                   <Label className="text-sm font-medium text-muted-foreground">Nome do Projeto</Label>
                   <p className="text-lg font-semibold">{estimativa.nome_projeto}</p>
                 </div>
-                <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Valor Hora</Label>
-                  <p className="text-lg font-semibold">
-                    R$ {estimativa.valor_hora.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                  </p>
-                </div>
+                {/* Valor Hora apenas para admin */}
+                {userRole !== 'admin_operacional' && (
+                  <div>
+                    <Label className="text-sm font-medium text-muted-foreground">Valor Hora</Label>
+                    <p className="text-lg font-semibold">
+                      R$ {estimativa.valor_hora.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
+                  </div>
+                )}
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -577,40 +604,46 @@ export default function VisualizarEstimativaTarefaPage({ params }: { params: Pro
                 </p>
               </div>
 
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <Settings className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">Valor Hora:</span>
+              {/* Valor Hora apenas para admin */}
+              {userRole !== 'admin_operacional' && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Settings className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">Valor Hora:</span>
+                  </div>
+                  <p className="text-lg font-semibold">
+                    R$ {estimativa.valor_hora.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </p>
                 </div>
-                <p className="text-lg font-semibold">
-                  R$ {estimativa.valor_hora.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </p>
-              </div>
+              )}
 
-              <div className="border-t pt-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Subtotal:</span>
-                    <span className="font-medium">
-                      R$ {totalEstimado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Impostos ({estimativa.percentual_imposto}%):</span>
-                    <span className="font-medium">
-                      R$ {impostos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </span>
-                  </div>
-                  <div className="border-t pt-2">
+              {/* Informações financeiras apenas para admin */}
+              {userRole !== 'admin_operacional' && (
+                <div className="border-t pt-4">
+                  <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="font-semibold">Total Geral:</span>
-                      <span className="text-xl font-bold text-green-600">
-                        R$ {totalComImpostos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      <span className="text-sm text-muted-foreground">Subtotal:</span>
+                      <span className="font-medium">
+                        R$ {totalEstimado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">Impostos ({estimativa.percentual_imposto}%):</span>
+                      <span className="font-medium">
+                        R$ {impostos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                    <div className="border-t pt-2">
+                      <div className="flex justify-between">
+                        <span className="font-semibold">Total Geral:</span>
+                        <span className="text-xl font-bold text-green-600">
+                          R$ {totalComImpostos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
             </CardContent>
           </Card>
         </div>
