@@ -189,17 +189,6 @@ export default function EstimativasPage() {
           return baseEstimativa
         })
 
-        console.log('Estimativas carregadas:', estimativasComProfiles.length)
-        console.log('Valores individuais:', estimativasComProfiles.map(e => ({ 
-          nome: e.nome_projeto, 
-          tipo: e.tipo,
-          total_com_impostos: e.total_com_impostos,
-          total_estimado: e.total_estimado,
-          valor_hora: e.valor_hora,
-          percentual_imposto: e.percentual_imposto
-        })))
-        console.log('Soma total_com_impostos:', estimativasComProfiles.reduce((sum, e) => sum + e.total_com_impostos, 0))
-        console.log('Soma total_estimado:', estimativasComProfiles.reduce((sum, e) => sum + e.total_estimado, 0))
         
         setEstimativas(estimativasComProfiles)
       } else {
@@ -362,9 +351,6 @@ export default function EstimativasPage() {
             <p className="text-xs text-muted-foreground">
               Com impostos
             </p>
-            <div className="text-xs text-red-500 mt-1">
-              Debug: {estimativas.length} estimativas - {estimativas.map(e => `${e.nome_projeto} (${e.tipo}): R$ ${e.total_com_impostos.toFixed(2)}`).join(', ')}
-            </div>
           </CardContent>
         </Card>
         <Card>
