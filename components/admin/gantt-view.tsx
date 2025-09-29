@@ -72,23 +72,23 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
   const getStatusColor = (status: string) => {
     switch (status) {
       case "planning":
-        return "bg-blue-500"
+        return "border-blue-500 text-blue-700 bg-blue-100"
       case "commercial_proposal":
-        return "bg-purple-500"
+        return "border-purple-500 text-purple-700 bg-purple-100"
       case "in_progress":
-        return "bg-yellow-500"
+        return "border-yellow-500 text-yellow-700 bg-yellow-200"
       case "homologation":
-        return "bg-orange-500"
+        return "border-orange-500 text-orange-700 bg-orange-100"
       case "on_hold":
-        return "bg-gray-500"
+        return "border-gray-500 text-gray-700 bg-gray-100"
       case "delayed":
-        return "bg-red-500"
+        return "border-red-500 text-red-700 bg-red-100"
       case "completed":
-        return "bg-green-500"
+        return "border-green-500 text-green-700 bg-green-100"
       case "cancelled":
-        return "bg-red-600"
+        return "border-red-600 text-red-700 bg-red-100"
       default:
-        return "bg-gray-500"
+        return "border-gray-500 text-gray-700 bg-gray-100"
     }
   }
 
@@ -280,23 +280,10 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <TrendingRight className="h-5 w-5 text-cyan-600" />
-            Visão Geral dos Cronogramas
-          </CardTitle>
-          {projects.length > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsExpanded(true)}
-              className="flex items-center gap-2"
-            >
-              <Maximize2 className="h-4 w-4" />
-              Expandir
-            </Button>
-          )}
-        </div>
+        <CardTitle className="flex items-center gap-2">
+          <TrendingRight className="h-5 w-5 text-cyan-600" />
+          Visão Geral dos Cronogramas
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -315,7 +302,7 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
                   <div className="flex items-center gap-2">
                     <Badge
                       variant="outline"
-                      className={`${getStatusColor(project.status || "planning")} text-white border-0`}
+                      className={`${getStatusColor(project.status || "planning")} border-2`}
                     >
                       {getStatusText(project.status || "planning")}
                     </Badge>
@@ -364,6 +351,19 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
             ))
           )}
         </div>
+        
+        {/* Botão Ver + */}
+        {projects.length > 0 && (
+          <div className="mt-4 pt-4 border-t flex justify-center">
+            <Button
+              variant="default"
+              onClick={() => setIsExpanded(true)}
+              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium"
+            >
+              Ver +
+            </Button>
+          </div>
+        )}
       </CardContent>
 
       {/* Modal Expandida - Fullscreen Custom */}
@@ -510,7 +510,7 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
                         <div className="flex items-center gap-2">
                           <Badge
                             variant="outline"
-                            className={`${getStatusColor(project.status || "planning")} text-white border-0`}
+                            className={`${getStatusColor(project.status || "planning")} border-2`}
                           >
                             {getStatusText(project.status || "planning")}
                           </Badge>
