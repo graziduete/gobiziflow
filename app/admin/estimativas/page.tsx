@@ -67,8 +67,12 @@ const statusConfig = {
 export default function EstimativasPage() {
   const [estimativas, setEstimativas] = useState<Estimativa[]>([])
   const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState("")
   const [showNewEstimativaModal, setShowNewEstimativaModal] = useState(false)
+  const [showFiltersModal, setShowFiltersModal] = useState(false)
+  const [filters, setFilters] = useState({
+    nome: "",
+    tipo: "todos" // "todos", "recurso", "tarefa"
+  })
   
   // Estados para paginação
   const [currentPage, setCurrentPage] = useState(1)
@@ -219,6 +223,26 @@ export default function EstimativasPage() {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1)
     }
+  }
+
+  // Aplicar filtros
+  const filteredEstimativas = estimativas.filter(estimativa => {
+    const matchesNome = !filters.nome || 
+      estimativa.nome_projeto.toLowerCase().includes(filters.nome.toLowerCase())
+    
+    const matchesTipo = filters.tipo === "todos" || 
+      (filters.tipo === "recurso" && (!estimativa.tipo || estimativa.tipo !== "tarefa")) ||
+      (filters.tipo === "tarefa" && estimativa.tipo === "tarefa")
+    
+    return matchesNome && matchesTipo
+  })
+
+  const handleFilterChange = (field: string, value: string) => {
+    setFilters(prev => ({ ...prev, [field]: value }))
+  }
+
+  const clearFilters = () => {
+    setFilters({ nome: "", tipo: "todos" })
   }
 
   const formatCurrency = (value: number) => {
@@ -383,20 +407,23 @@ export default function EstimativasPage() {
         </Card>
       </div>
 
-      {/* Search and Filters */}
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Buscar estimativas..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9"
-          />
+      {/* Filters */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => setShowFiltersModal(true)}
+            className="flex items-center gap-2"
+          >
+            <Filter className="h-4 w-4" />
+            Filtros
+            {(filters.nome || filters.tipo !== 'todos') && (
+              <span className="bg-blue-500 text-white text-xs rounded-full px-2 py-1">
+                {[filters.nome && 'Nome', filters.tipo !== 'todos' && 'Tipo'].filter(Boolean).length}
+              </span>
+            )}
+          </Button>
         </div>
-        <Button variant="outline" size="icon">
-          <Filter className="h-4 w-4" />
-        </Button>
       </div>
 
       {/* Estimativas List */}
@@ -412,20 +439,20 @@ export default function EstimativasPage() {
               </Card>
             ))}
           </div>
-        ) : estimativas.length === 0 ? (
+        ) : filteredEstimativas.length === 0 ? (
           <Card className="text-center py-12">
             <CardContent>
               <Calculator className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
               <h3 className="text-lg font-semibold mb-2">
-                {searchTerm ? 'Nenhuma estimativa encontrada' : 'Nenhuma estimativa criada'}
+                {(filters.nome || filters.tipo !== 'todos') ? 'Nenhuma estimativa encontrada' : 'Nenhuma estimativa criada'}
               </h3>
               <p className="text-muted-foreground mb-4">
-                {searchTerm 
+                {(filters.nome || filters.tipo !== 'todos')
                   ? 'Tente ajustar os filtros de busca'
                   : 'Comece criando sua primeira estimativa de projeto'
                 }
               </p>
-              {!searchTerm && (
+              {!(filters.nome || filters.tipo !== 'todos') && (
                 <Button onClick={() => setShowNewEstimativaModal(true)}>
                   <Plus className="h-4 w-4 mr-2" />
                   Nova Estimativa
@@ -434,7 +461,7 @@ export default function EstimativasPage() {
             </CardContent>
           </Card>
         ) : (
-          estimativas.map((estimativa) => (
+          filteredEstimativas.map((estimativa) => (
             <Card key={estimativa.id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-6">
                 <div className="flex items-start justify-between">
@@ -574,6 +601,49 @@ export default function EstimativasPage() {
         </div>
       )}
       
+      {/* Modal de Filtros */}
+      <Dialog open={showFiltersModal} onOpenChange={setShowFiltersModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Filtros de Estimativas</DialogTitle>
+            <DialogDescription>
+              Filtre as estimativas por nome e tipo
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium">Nome do Projeto</label>
+              <Input
+                placeholder="Digite o nome do projeto..."
+                value={filters.nome}
+                onChange={(e) => handleFilterChange('nome', e.target.value)}
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Tipo de Estimativa</label>
+              <select
+                value={filters.tipo}
+                onChange={(e) => handleFilterChange('tipo', e.target.value)}
+                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="todos">Todos os tipos</option>
+                <option value="recurso">Por Recurso</option>
+                <option value="tarefa">Por Tarefa</option>
+              </select>
+            </div>
+            <div className="flex justify-between">
+              <Button variant="outline" onClick={clearFilters}>
+                Limpar Filtros
+              </Button>
+              <Button onClick={() => setShowFiltersModal(false)}>
+                Aplicar Filtros
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Modal de Confirmação */}
       {ConfirmationDialog}
     </div>
