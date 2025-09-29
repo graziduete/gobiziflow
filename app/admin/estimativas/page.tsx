@@ -297,13 +297,27 @@ export default function EstimativasPage() {
             Gerencie estimativas de projetos e recursos
           </p>
         </div>
-        <Dialog open={showNewEstimativaModal} onOpenChange={setShowNewEstimativaModal}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" />
-              Nova Estimativa
-            </Button>
-          </DialogTrigger>
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => setShowFiltersModal(true)}
+            className="flex items-center gap-2"
+          >
+            <Filter className="h-4 w-4" />
+            Filtros
+            {(filters.nome || filters.tipo !== 'todos') && (
+              <span className="bg-blue-500 text-white text-xs rounded-full px-2 py-1">
+                {[filters.nome && 'Nome', filters.tipo !== 'todos' && 'Tipo'].filter(Boolean).length}
+              </span>
+            )}
+          </Button>
+          <Dialog open={showNewEstimativaModal} onOpenChange={setShowNewEstimativaModal}>
+            <DialogTrigger asChild>
+              <Button className="gap-2">
+                <Plus className="h-4 w-4" />
+                Nova Estimativa
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle>Nova Estimativa</DialogTitle>
@@ -347,6 +361,7 @@ export default function EstimativasPage() {
             </div>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -407,24 +422,6 @@ export default function EstimativasPage() {
         </Card>
       </div>
 
-      {/* Filters */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
-            onClick={() => setShowFiltersModal(true)}
-            className="flex items-center gap-2"
-          >
-            <Filter className="h-4 w-4" />
-            Filtros
-            {(filters.nome || filters.tipo !== 'todos') && (
-              <span className="bg-blue-500 text-white text-xs rounded-full px-2 py-1">
-                {[filters.nome && 'Nome', filters.tipo !== 'todos' && 'Tipo'].filter(Boolean).length}
-              </span>
-            )}
-          </Button>
-        </div>
-      </div>
 
       {/* Estimativas List */}
       <div className="grid gap-4">
