@@ -31,6 +31,8 @@ interface Estimativa {
   tipo: string
   valor_hora?: number
   percentual_gordura?: number
+  created_by?: string
+  user_role?: string
 }
 
 interface RecursoEstimativa {
@@ -123,7 +125,20 @@ export default function PublicEstimativaPage() {
         return
       }
 
-      setEstimativa(estimativaData)
+      // Buscar perfil do usuário separadamente
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', estimativaData.created_by)
+        .single()
+
+      // Adicionar role do usuário à estimativa
+      const estimativaWithRole = {
+        ...estimativaData,
+        user_role: profileData?.role || 'admin'
+      }
+
+      setEstimativa(estimativaWithRole)
 
       // Buscar dados baseado no tipo da estimativa
       if (estimativaData.tipo === 'tarefa') {
@@ -325,13 +340,16 @@ export default function PublicEstimativaPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Valor Hora</label>
-                    <p className="text-lg font-semibold">
-                      {formatCurrency(estimativa.valor_hora || 0)}
-                    </p>
-                  </div>
+                <div className={`grid gap-4 ${estimativa.user_role === 'admin_operacional' ? 'md:grid-cols-1' : 'md:grid-cols-2'}`}>
+                  {/* Valor Hora apenas para admin */}
+                  {estimativa.user_role !== 'admin_operacional' && (
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Valor Hora</label>
+                      <p className="text-lg font-semibold">
+                        {formatCurrency(estimativa.valor_hora || 0)}
+                      </p>
+                    </div>
+                  )}
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Gordura</label>
                     <p className="text-lg font-semibold">{estimativa.percentual_gordura || 0}%</p>
@@ -363,7 +381,7 @@ export default function PublicEstimativaPage() {
                 ) : (
                   <div className="space-y-2">
                     {/* Header da tabela */}
-                    <div className="grid grid-cols-12 gap-2 p-3 bg-gray-100 rounded-lg font-medium text-sm">
+                    <div className={`grid gap-2 p-3 bg-gray-100 rounded-lg font-medium text-sm ${estimativa.user_role === 'admin_operacional' ? 'grid-cols-11' : 'grid-cols-12'}`}>
                       <div className="col-span-3">Funcionalidade</div>
                       <div className="col-span-1">Qtd</div>
                       <div className="col-span-2">Tecnologia</div>
@@ -372,12 +390,15 @@ export default function PublicEstimativaPage() {
                       <div className="col-span-1">Fator</div>
                       <div className="col-span-1">Total Base</div>
                       <div className="col-span-1">Com Gordura</div>
-                      <div className="col-span-1">Custo Total</div>
+                      {/* Coluna Custo Total apenas para admin */}
+                      {estimativa.user_role !== 'admin_operacional' && (
+                        <div className="col-span-1">Custo Total</div>
+                      )}
                     </div>
                     
                     {/* Linhas das tarefas */}
                     {tarefas.map((tarefa) => (
-                      <div key={tarefa.id} className="grid grid-cols-12 gap-2 p-3 border rounded-lg bg-white">
+                      <div key={tarefa.id} className={`grid gap-2 p-3 border rounded-lg bg-white ${estimativa.user_role === 'admin_operacional' ? 'grid-cols-11' : 'grid-cols-12'}`}>
                         <div className="col-span-3 text-sm">{tarefa.funcionalidade}</div>
                         <div className="col-span-1 text-sm">{tarefa.quantidade}</div>
                         <div className="col-span-2 text-sm">{tarefa.tecnologias?.nome || tarefa.tecnologia_id}</div>
@@ -386,7 +407,10 @@ export default function PublicEstimativaPage() {
                         <div className="col-span-1 text-sm">{tarefa.fator_aplicado}</div>
                         <div className="col-span-1 text-sm">{tarefa.total_base.toFixed(1)}h</div>
                         <div className="col-span-1 text-sm">{tarefa.total_com_gordura.toFixed(1)}h</div>
-                        <div className="col-span-1 text-sm font-semibold">{formatCurrency(tarefa.total_com_gordura * (estimativa.valor_hora || 0))}</div>
+                        {/* Coluna Custo Total apenas para admin */}
+                        {estimativa.user_role !== 'admin_operacional' && (
+                          <div className="col-span-1 text-sm font-semibold">{formatCurrency(tarefa.total_com_gordura * (estimativa.valor_hora || 0))}</div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -413,29 +437,37 @@ export default function PublicEstimativaPage() {
                     <span className="text-sm text-muted-foreground">Com Gordura ({estimativa.percentual_gordura}%):</span>
                     <span className="text-lg font-bold text-green-600">{totalHoras.toFixed(1)}h</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Valor Hora:</span>
-                    <span className="text-lg font-semibold">{formatCurrency(estimativa.valor_hora || 0)}</span>
-                  </div>
+                  {/* Valor Hora apenas para admin */}
+                  {estimativa.user_role !== 'admin_operacional' && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Valor Hora:</span>
+                      <span className="text-lg font-semibold">{formatCurrency(estimativa.valor_hora || 0)}</span>
+                    </div>
+                  )}
                 </div>
 
-                <hr className="border-gray-200" />
+                {/* Informações financeiras apenas para admin */}
+                {estimativa.user_role !== 'admin_operacional' && (
+                  <>
+                    <hr className="border-gray-200" />
 
-                {/* Resumo Financeiro */}
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Subtotal:</span>
-                    <span className="font-semibold">{formatCurrency(totalEstimado)}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-sm text-muted-foreground">
-                    <span>Impostos ({estimativa.percentual_imposto}%):</span>
-                    <span>{formatCurrency(impostos)}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-lg font-bold">
-                    <span>Total Geral:</span>
-                    <span className="text-green-600">{formatCurrency(totalComImpostos)}</span>
-                  </div>
-                </div>
+                    {/* Resumo Financeiro */}
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Subtotal:</span>
+                        <span className="font-semibold">{formatCurrency(totalEstimado)}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-sm text-muted-foreground">
+                        <span>Impostos ({estimativa.percentual_imposto}%):</span>
+                        <span>{formatCurrency(impostos)}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-lg font-bold">
+                        <span>Total Geral:</span>
+                        <span className="text-green-600">{formatCurrency(totalComImpostos)}</span>
+                      </div>
+                    </div>
+                  </>
+                )}
               </CardContent>
             </Card>
           </div>
