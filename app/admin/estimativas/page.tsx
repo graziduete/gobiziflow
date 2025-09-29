@@ -377,28 +377,33 @@ export default function EstimativasPage() {
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
-              <Button 
-                className="w-full justify-start gap-3 h-16"
-                variant="outline"
-                onClick={() => {
-                  setShowNewEstimativaModal(false)
-                  router.push('/admin/estimativas/nova?tipo=recurso')
-                }}
-              >
-                <Calculator className="h-6 w-6" />
-                <div className="text-left">
-                  <div className="font-medium">Por Recurso</div>
-                  <div className="text-sm text-muted-foreground">
-                    Aloque recursos e horas por semana
+              {/* Opção Por Recurso - apenas para admin */}
+              {userRole !== 'admin_operacional' && (
+                <Button 
+                  className="w-full justify-start gap-3 h-16"
+                  variant="outline"
+                  onClick={() => {
+                    setShowNewEstimativaModal(false)
+                    router.push('/admin/estimativas/nova?tipo=recurso')
+                  }}
+                >
+                  <Calculator className="h-6 w-6" />
+                  <div className="text-left">
+                    <div className="font-medium">Por Recurso</div>
+                    <div className="text-sm text-muted-foreground">
+                      Aloque recursos e horas por semana
+                    </div>
                   </div>
-                </div>
-              </Button>
+                </Button>
+              )}
+              
+              {/* Opção Por Tarefa - sempre disponível */}
               <Button 
                 className="w-full justify-start gap-3 h-16"
                 variant="outline"
                 onClick={() => {
                   setShowNewEstimativaModal(false)
-                  router.push('/admin/estimativas/nova?tipo=tarefa')
+                  router.push('/admin/estimativas/nova-tarefa')
                 }}
               >
                 <FileText className="h-6 w-6" />
