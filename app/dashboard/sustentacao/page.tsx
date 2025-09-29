@@ -110,7 +110,7 @@ export default function ClientSustentacaoPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-4 md:px-6">
       {!selectedCompanyId ? (
         <CompanySelector 
           onCompanySelect={handleCompanySelect}
