@@ -185,6 +185,7 @@ export default function ClientDashboard() {
         <CardContent>
           <GanttView 
             projects={filteredProjects} 
+            allProjects={projects}
             companies={company ? [company] : []} 
           />
         </CardContent>
