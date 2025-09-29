@@ -130,7 +130,11 @@ function NovaEstimativaTarefaContent() {
         
       } catch (error) {
         console.error('Erro ao carregar dados:', error)
-        alert('Erro ao carregar dados')
+        toast({
+          title: "Erro",
+          description: "Erro ao carregar dados",
+          variant: "destructive"
+        })
       } finally {
         setLoading(false)
       }
@@ -254,7 +258,11 @@ function NovaEstimativaTarefaContent() {
       // Obter usuário atual
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
-        alert('Usuário não autenticado')
+        toast({
+          title: "Erro",
+          description: "Usuário não autenticado",
+          variant: "destructive"
+        })
         return
       }
 

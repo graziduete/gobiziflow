@@ -28,6 +28,7 @@ import {
   FileText
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { useToast } from "@/hooks/use-toast"
 // import { toast } from "sonner"
 
 interface TemplateRecurso {
@@ -51,6 +52,7 @@ function NovaEstimativaContent() {
   const searchParams = useSearchParams()
   const tipo = searchParams.get('tipo') || 'recurso'
   const supabase = createClient()
+  const { toast } = useToast()
 
   // Redirecionar para página de tarefa se necessário
   useEffect(() => {
@@ -170,12 +172,20 @@ function NovaEstimativaContent() {
 
   const handleSave = async () => {
     if (!formData.nome_projeto.trim()) {
-      alert('Nome do projeto é obrigatório')
+      toast({
+        title: "Erro",
+        description: "Nome do projeto é obrigatório",
+        variant: "destructive"
+      })
       return
     }
 
     if (recursos.length === 0) {
-      alert('Adicione pelo menos um recurso')
+      toast({
+        title: "Erro",
+        description: "Adicione pelo menos um recurso",
+        variant: "destructive"
+      })
       return
     }
 
@@ -242,7 +252,11 @@ function NovaEstimativaContent() {
         }
       }
 
-      alert('Estimativa criada com sucesso!')
+      toast({
+        title: "Sucesso!",
+        description: "Estimativa criada com sucesso!",
+        variant: "success"
+      })
       router.push('/admin/estimativas')
     } catch (error) {
       console.error('Erro ao salvar estimativa:', error)
@@ -253,7 +267,11 @@ function NovaEstimativaContent() {
         errorMessage = `Erro: ${error.message}`
       }
       
-      alert(errorMessage)
+      toast({
+        title: "Erro",
+        description: errorMessage,
+        variant: "destructive"
+      })
     } finally {
       setLoading(false)
     }

@@ -28,6 +28,7 @@ import {
   FileText
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { useToast } from "@/hooks/use-toast"
 // import { toast } from "sonner"
 
 interface TemplateRecurso {
@@ -51,6 +52,7 @@ export default function EditarEstimativaPage() {
   const params = useParams()
   const estimativaId = params.id as string
   const supabase = createClient()
+  const { toast } = useToast()
 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -190,7 +192,11 @@ export default function EditarEstimativaPage() {
 
     } catch (error) {
       console.error('Erro ao buscar estimativa:', error)
-      alert('Erro ao carregar estimativa')
+      toast({
+        title: "Erro",
+        description: "Erro ao carregar estimativa",
+        variant: "destructive"
+      })
     } finally {
       setLoading(false)
     }
@@ -277,12 +283,20 @@ export default function EditarEstimativaPage() {
 
   const handleSave = async () => {
     if (!formData.nome_projeto.trim()) {
-      alert('Nome do projeto é obrigatório')
+      toast({
+        title: "Erro",
+        description: "Nome do projeto é obrigatório",
+        variant: "destructive"
+      })
       return
     }
 
     if (recursos.length === 0) {
-      alert('Adicione pelo menos um recurso')
+      toast({
+        title: "Erro",
+        description: "Adicione pelo menos um recurso",
+        variant: "destructive"
+      })
       return
     }
 
@@ -347,7 +361,11 @@ export default function EditarEstimativaPage() {
         }
       }
 
-      alert('Estimativa atualizada com sucesso!')
+      toast({
+        title: "Sucesso!",
+        description: "Estimativa atualizada com sucesso!",
+        variant: "success"
+      })
       router.push(`/admin/estimativas/${estimativaId}`)
     } catch (error) {
       console.error('Erro ao salvar estimativa:', error)
@@ -358,7 +376,11 @@ export default function EditarEstimativaPage() {
         errorMessage = `Erro: ${error.message}`
       }
       
-      alert(errorMessage)
+      toast({
+        title: "Erro",
+        description: errorMessage,
+        variant: "destructive"
+      })
     } finally {
       setSaving(false)
     }
