@@ -62,6 +62,9 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
   // Debug: verificar dados recebidos
   console.log("ProjectForm received project:", project)
   
+  // Estado para controlar o perfil do usuário
+  const [userRole, setUserRole] = useState<string | null>(null)
+  
   // Função para garantir que nenhum campo seja null
   const getSafeValue = (value: any, defaultValue: string = ""): string => {
     if (value === null || value === undefined) return defaultValue
@@ -120,7 +123,28 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
       }
     }
 
+    const fetchUserRole = async () => {
+      try {
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single()
+          
+          if (profile) {
+            setUserRole(profile.role)
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao buscar perfil:', error)
+      }
+    }
+
     fetchCompanies()
+    fetchUserRole()
   }, [])
 
   // Carregar tarefas existentes quando estiver editando um projeto
@@ -312,8 +336,9 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
         return
       }
 
-      if (onSuccess) onSuccess()
-      else {
+      if (onSuccess) {
+        onSuccess()
+      } else {
         router.push("/admin/projects")
         router.refresh()
       }
@@ -514,72 +539,76 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
 
 
           {/* Orçamento, Horas e Datas - Tudo na mesma linha */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="budget">Orçamento (R$)</Label>
-              <Input
-                id="budget"
-                type="text"
-                inputMode="decimal"
-                value={formData.budget}
-                onChange={(e) => {
-                  const value = e.target.value
-                  
-                  // Permitir apenas números, vírgulas e pontos
-                  const cleanValue = value.replace(/[^\d.,]/g, '')
-                  
-                  // Verificar se já tem vírgula ou ponto
-                  const hasComma = cleanValue.includes(',')
-                  const hasDot = cleanValue.includes('.')
-                  
-                  let finalValue = cleanValue
-                  
-                  if (hasComma && hasDot) {
-                    // Se tem ambos, manter apenas o último separador
-                    const lastComma = cleanValue.lastIndexOf(',')
-                    const lastDot = cleanValue.lastIndexOf('.')
-                    if (lastComma > lastDot) {
-                      // Vírgula é o último separador, remover pontos
-                      finalValue = cleanValue.replace(/\./g, '')
-                    } else {
-                      // Ponto é o último separador, remover vírgulas
-                      finalValue = cleanValue.replace(/,/g, '')
-                    }
-                  } else if (hasComma) {
-                    // Se só tem vírgula, manter como está para formatação visual
-                    finalValue = cleanValue
-                  }
-                  
-                  handleChange("budget", finalValue)
-                }}
-                onBlur={(e) => {
-                  // Ao sair do campo, formatar o valor monetário
-                  const value = e.target.value
-                  if (value) {
-                    // Remover todos os pontos e vírgulas para obter apenas números
-                    const numericString = value.replace(/[.,]/g, '')
+          {userRole && (
+            <div className={`grid grid-cols-1 gap-4 ${userRole !== 'admin_operacional' ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
+              {/* Campo Orçamento - apenas para admin */}
+              {userRole !== 'admin_operacional' && (
+                <div className="space-y-2">
+                <Label htmlFor="budget">Orçamento (R$)</Label>
+                <Input
+                  id="budget"
+                  type="text"
+                  inputMode="decimal"
+                  value={formData.budget}
+                  onChange={(e) => {
+                    const value = e.target.value
                     
-                    if (!isNaN(Number(numericString)) && numericString.length > 0) {
-                      // Converter para número e dividir por 100 para considerar os centavos
-                      const numValue = Number(numericString) / 100
-                      
-                      // Formatar com separadores de milhares e vírgula decimal
-                      const formattedValue = numValue.toLocaleString('pt-BR', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                      })
-                      
-                      handleChange("budget", formattedValue)
+                    // Permitir apenas números, vírgulas e pontos
+                    const cleanValue = value.replace(/[^\d.,]/g, '')
+                    
+                    // Verificar se já tem vírgula ou ponto
+                    const hasComma = cleanValue.includes(',')
+                    const hasDot = cleanValue.includes('.')
+                    
+                    let finalValue = cleanValue
+                    
+                    if (hasComma && hasDot) {
+                      // Se tem ambos, manter apenas o último separador
+                      const lastComma = cleanValue.lastIndexOf(',')
+                      const lastDot = cleanValue.lastIndexOf('.')
+                      if (lastComma > lastDot) {
+                        // Vírgula é o último separador, remover pontos
+                        finalValue = cleanValue.replace(/\./g, '')
+                      } else {
+                        // Ponto é o último separador, remover vírgulas
+                        finalValue = cleanValue.replace(/,/g, '')
+                      }
+                    } else if (hasComma) {
+                      // Se só tem vírgula, manter como está para formatação visual
+                      finalValue = cleanValue
                     }
-                  }
-                }}
-                placeholder="0,00"
-                className="w-full"
-              />
-              <p className="text-xs text-muted-foreground">
-                Digite o valor (ex: 3059015 para R$ 30.590,15)
-              </p>
-            </div>
+                    
+                    handleChange("budget", finalValue)
+                  }}
+                  onBlur={(e) => {
+                    // Ao sair do campo, formatar o valor monetário
+                    const value = e.target.value
+                    if (value) {
+                      // Remover todos os pontos e vírgulas para obter apenas números
+                      const numericString = value.replace(/[.,]/g, '')
+                      
+                      if (!isNaN(Number(numericString)) && numericString.length > 0) {
+                        // Converter para número e dividir por 100 para considerar os centavos
+                        const numValue = Number(numericString) / 100
+                        
+                        // Formatar com separadores de milhares e vírgula decimal
+                        const formattedValue = numValue.toLocaleString('pt-BR', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        })
+                        
+                        handleChange("budget", formattedValue)
+                      }
+                    }
+                  }}
+                  placeholder="0,00"
+                  className="w-full"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Digite o valor (ex: 3059015 para R$ 30.590,15)
+                </p>
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="estimated_hours" className="flex items-center gap-2">
                 <Clock className="w-4 h-4" />
@@ -615,7 +644,8 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
                 className="w-full"
               />
             </div>
-          </div>
+                      </div>
+          )}
 
           {/* Responsáveis - Pessoas envolvidas no projeto */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -42,6 +42,7 @@ export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [companies, setCompanies] = useState<Company[]>([])
   const [companyNames, setCompanyNames] = useState<{ [key: string]: string }>({})
+  const [userRole, setUserRole] = useState<string | null>(null)
   const [filters, setFilters] = useState<ProjectFilters>({
     company_id: "all",
     status: "all",
@@ -79,7 +80,28 @@ export default function ProjectsPage() {
 
   useEffect(() => {
     fetchCompanies()
+    fetchUserRole()
   }, [])
+
+  const fetchUserRole = async () => {
+    try {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+        
+        if (profile) {
+          setUserRole(profile.role)
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao buscar perfil:', error)
+    }
+  }
 
   // Buscar projetos com filtros e paginação no backend (debounced para busca)
   useEffect(() => {
@@ -456,7 +478,9 @@ export default function ProjectsPage() {
                   <p className="text-sm text-muted-foreground">{project.description || "Sem descrição"}</p>
                   <div className="flex items-center gap-4 text-xs text-muted-foreground">
                     <span>Empresa: {companyNames[project.company_id] || "Desconhecida"}</span>
-                    {project.budget && <span>Orçamento: R$ {Number(project.budget).toLocaleString("pt-BR")}</span>}
+                    {userRole !== 'admin_operacional' && project.budget && (
+                      <span>Orçamento: R$ {Number(project.budget).toLocaleString("pt-BR")}</span>
+                    )}
                     {project.start_date && (
                       <span>Início: {formatDateUTC(project.start_date)}</span>
                     )}
