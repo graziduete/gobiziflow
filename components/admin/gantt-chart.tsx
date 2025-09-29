@@ -30,6 +30,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
   // Estado para controlar a expansão da tela
   const [isExpanded, setIsExpanded] = React.useState(defaultExpanded)
   
+  
   // Hook para download
   const { downloadAsImage } = useGanttDownload()
 
@@ -61,16 +62,19 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
   // Bloquear scroll da página quando expandido
   React.useEffect(() => {
     if (isExpanded) {
-      // Bloquear scroll da página
+      // Bloquear scroll da página completamente
       document.body.style.overflow = 'hidden'
+      document.documentElement.style.overflow = 'hidden'
     } else {
       // Restaurar scroll da página
       document.body.style.overflow = 'unset'
+      document.documentElement.style.overflow = 'unset'
     }
 
     // Cleanup: restaurar scroll quando componente for desmontado
     return () => {
       document.body.style.overflow = 'unset'
+      document.documentElement.style.overflow = 'unset'
     }
   }, [isExpanded])
 
@@ -454,8 +458,21 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
   // Renderizar Gantt expandido em um portal para ficar acima de tudo
   if (isExpanded) {
     return createPortal(
-      <div className="fixed inset-0 bg-white z-50" style={{ zIndex: 999999 }}>
-        <Card className="h-full border-0 shadow-none bg-white overflow-hidden">
+      <div 
+        className="fixed inset-0 bg-white" 
+        style={{ 
+          zIndex: 999999,
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: '100vw',
+          height: '100vh',
+          overflow: 'hidden'
+        }}
+      >
+        <Card className="h-full border-0 shadow-none bg-white flex flex-col">
           <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50 border-b border-slate-200">
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-3 text-slate-800">
@@ -503,7 +520,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
             </div>
           </CardHeader>
           
-          <CardContent className="p-0 h-[calc(100vh-8rem)] overflow-y-auto">
+          <CardContent className="p-0 flex-1 overflow-y-auto">
             <div className="overflow-x-auto">
               <div id="gantt-chart-content-expanded" className="min-w-[900px]">
                 {/* Cabeçalho dos meses (altura/tipografia reduzidas) */}
