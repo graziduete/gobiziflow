@@ -8,9 +8,7 @@ export default function NewProjectPage() {
         <p className="text-muted-foreground">Cadastre um novo projeto no sistema</p>
       </div>
 
-      <div className="flex justify-center">
-        <ProjectForm />
-      </div>
+      <ProjectForm />
     </div>
   )
 }

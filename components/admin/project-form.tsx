@@ -390,7 +390,7 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
   }
 
   return (
-    <Card className="w-full max-w-6xl">
+    <Card className="w-full">
       <CardHeader>
         <CardTitle>{project ? "Editar Projeto" : "Novo Projeto"}</CardTitle>
         <CardDescription>

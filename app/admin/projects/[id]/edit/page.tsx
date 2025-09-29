@@ -31,9 +31,7 @@ export default async function EditProjectPage({ params }: EditProjectPageProps) 
         <p className="text-muted-foreground">Atualize as informações do projeto</p>
       </div>
 
-      <div className="flex justify-center">
-        <ProjectForm project={project} />
-      </div>
+      <ProjectForm project={project} />
 
       {/* Documentos do Projeto */}
       <ProjectDocsCard projectId={project.id} userId={project.created_by || ""} />
