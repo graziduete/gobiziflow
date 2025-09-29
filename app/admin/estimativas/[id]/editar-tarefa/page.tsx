@@ -119,6 +119,7 @@ function EditarEstimativaTarefaContent({ params }: { params: Promise<{ id: strin
   const loadData = async () => {
     try {
       setLoading(true)
+      console.log('Carregando dados para estimativa ID:', estimativaId)
       
       // Carregar dados de referência
       const [tecnologiasRes, complexidadesRes, tiposRes, fatoresRes] = await Promise.all([
@@ -128,19 +129,32 @@ function EditarEstimativaTarefaContent({ params }: { params: Promise<{ id: strin
         supabase.from('fatores_estimativa').select('*')
       ])
       
+      console.log('Dados de referência carregados:', {
+        tecnologias: tecnologiasRes.data?.length || 0,
+        complexidades: complexidadesRes.data?.length || 0,
+        tipos: tiposRes.data?.length || 0,
+        fatores: fatoresRes.data?.length || 0
+      })
+      
       setTecnologias(tecnologiasRes.data || [])
       setComplexidades(complexidadesRes.data || [])
       setTiposTarefa(tiposRes.data || [])
       setFatoresEstimativa(fatoresRes.data || [])
       
       // Carregar estimativa existente
+      console.log('Buscando estimativa...')
       const { data: estimativaData, error: estimativaError } = await supabase
         .from('estimativas')
         .select('*')
         .eq('id', estimativaId)
         .single()
 
-      if (estimativaError) throw estimativaError
+      if (estimativaError) {
+        console.error('Erro ao buscar estimativa:', estimativaError)
+        throw estimativaError
+      }
+
+      console.log('Estimativa encontrada:', estimativaData)
 
       setFormData({
         nome_projeto: estimativaData.nome_projeto,
@@ -150,27 +164,29 @@ function EditarEstimativaTarefaContent({ params }: { params: Promise<{ id: strin
         observacoes: estimativaData.observacoes || ''
       })
 
-      // Carregar tarefas existentes
+      // Carregar tarefas existentes (sem JOIN para evitar problemas de RLS)
+      console.log('Buscando tarefas...')
       const { data: tarefasData, error: tarefasError } = await supabase
         .from('tarefas_estimativa')
-        .select(`
-          *,
-          tecnologias(nome),
-          complexidades(nome),
-          tipos_tarefa(nome)
-        `)
+        .select('*')
         .eq('estimativa_id', estimativaId)
 
-      if (tarefasError) throw tarefasError
+      if (tarefasError) {
+        console.error('Erro ao buscar tarefas:', tarefasError)
+        throw tarefasError
+      }
+
+      console.log('Tarefas encontradas:', tarefasData?.length || 0)
 
       const tarefasProcessadas = tarefasData?.map(tarefa => ({
         ...tarefa,
-        tecnologia_nome: tarefa.tecnologias?.nome,
-        complexidade_nome: tarefa.complexidades?.nome,
-        tipo_tarefa_nome: tarefa.tipos_tarefa?.nome
+        tecnologia_nome: '',
+        complexidade_nome: '',
+        tipo_tarefa_nome: ''
       })) || []
 
       setTarefas(tarefasProcessadas)
+      console.log('Dados carregados com sucesso!')
 
     } catch (error) {
       console.error('Erro ao carregar dados:', error)
