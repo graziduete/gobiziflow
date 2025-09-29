@@ -460,15 +460,15 @@ export default function AdminDashboard() {
   console.log('👥 Total de associações usuário-empresa:', userCompanies.length)
   console.log('👥 Associações da empresa selecionada:', userCompanies.filter(uc => uc.company_id === selectedCompany))
   
-  // Total de projetos - considerar se é empresa específica ou todas as empresas
+  // Total de projetos - considerar se é empresa específica ou todas as empresas (excluindo cancelados e propostas comerciais)
   const totalProjectsCount = selectedCompany !== "all" 
-    ? filteredProjects.length 
-    : projects.length
+    ? filteredProjects.filter(p => p.status !== "cancelled" && p.status !== "commercial_proposal").length 
+    : projects.filter(p => p.status !== "cancelled" && p.status !== "commercial_proposal").length
   
-  // Projetos filtrados por empresa E período (para estatísticas detalhadas)
+  // Projetos filtrados por empresa E período (para estatísticas detalhadas, excluindo cancelados e propostas comerciais)
   const projectsCount = selectedCompany !== "all" 
-    ? filteredProjects.length 
-    : projects.length
+    ? filteredProjects.filter(p => p.status !== "cancelled" && p.status !== "commercial_proposal").length 
+    : projects.filter(p => p.status !== "cancelled" && p.status !== "commercial_proposal").length
 
   // Projetos por status - considerar se é empresa específica ou todas as empresas
   const projectsDelayed = (selectedCompany !== "all" ? filteredProjects : projects).filter(
@@ -509,17 +509,21 @@ export default function AdminDashboard() {
   console.log('🔥 Horas consumidas:', totalConsumedHours)
   console.log('⏳ Horas restantes:', totalRemainingHours)
 
-  // Cálculo do faturamento total (soma de todos os orçamentos)
+  // Cálculo do faturamento total (soma de todos os orçamentos, excluindo cancelados e propostas comerciais)
   const totalRevenue = selectedCompany !== "all" 
-    ? filteredProjects.reduce((sum, p) => {
-        const budget = p.budget || 0
-        console.log(`💰 Projeto: ${p.name}, Orçamento: ${budget}, Tipo: ${typeof budget}`)
-        return sum + budget
-      }, 0)
-    : projects.reduce((sum, p) => {
-        const budget = p.budget || 0
-        return sum + budget
-      }, 0)
+    ? filteredProjects
+        .filter(p => p.status !== "cancelled" && p.status !== "commercial_proposal")
+        .reduce((sum, p) => {
+          const budget = p.budget || 0
+          console.log(`💰 Projeto: ${p.name}, Status: ${p.status}, Orçamento: ${budget}, Tipo: ${typeof budget}`)
+          return sum + budget
+        }, 0)
+    : projects
+        .filter(p => p.status !== "cancelled" && p.status !== "commercial_proposal")
+        .reduce((sum, p) => {
+          const budget = p.budget || 0
+          return sum + budget
+        }, 0)
 
   // LÓGICA ANTIGA REMOVIDA - Agora usa apenas payment_metrics
   

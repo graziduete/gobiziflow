@@ -67,7 +67,7 @@ export default function ProjectsPage() {
   
   // Paginação
   const [currentPage, setCurrentPage] = useState(1)
-  const [projectsPerPage] = useState(10)
+  const [projectsPerPage] = useState(12)
 
   const formatDateUTC = (iso: string) => {
     try {
@@ -497,7 +497,6 @@ export default function ProjectsPage() {
                     <div className="flex items-center gap-2">
                       <h3 className="font-medium">{project.name}</h3>
                       <Badge className={getStatusColor(project.status)}>{getStatusText(project.status)}</Badge>
-                      <Badge className={getPriorityColor(project.priority)}>{getPriorityText(project.priority)}</Badge>
                       <Badge className={getCategoryColor(project.category)}>{getCategoryText(project.category)}</Badge>
                       <Badge className={getProjectTypeColor(project.project_type)}>{getProjectTypeText(project.project_type)}</Badge>
                     </div>
@@ -542,7 +541,6 @@ export default function ProjectsPage() {
                     
                     <div className="flex flex-wrap gap-1">
                       <Badge className={`text-xs ${getStatusColor(project.status)}`}>{getStatusText(project.status)}</Badge>
-                      <Badge className={`text-xs ${getPriorityColor(project.priority)}`}>{getPriorityText(project.priority)}</Badge>
                       <Badge className={`text-xs ${getCategoryColor(project.category)}`}>{getCategoryText(project.category)}</Badge>
                     </div>
                     

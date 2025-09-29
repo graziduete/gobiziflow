@@ -154,7 +154,7 @@ export class HourService {
             }
           }
 
-          const projectHours = projects?.reduce((sum, p) => sum + (p.estimated_hours || 0), 0) || 0
+          const projectHours = projects?.filter(p => p.status !== "cancelled" && p.status !== "commercial_proposal").reduce((sum, p) => sum + (p.estimated_hours || 0), 0) || 0
           console.log("📊 Horas dos projetos da empresa:", projectHours)
           console.log("📊 Detalhes dos projetos:", projects?.map(p => ({ name: p.name, estimated_hours: p.estimated_hours })))
 
@@ -261,7 +261,7 @@ export class HourService {
           console.log("❌ Erro na busca de projetos sem pacote:", projectsError)
 
           if (!projectsError && projectsWithoutPackage) {
-            projectHours = projectsWithoutPackage.reduce((sum, p) => sum + (p.estimated_hours || 0), 0)
+            projectHours = projectsWithoutPackage.filter(p => p.status !== "cancelled" && p.status !== "commercial_proposal").reduce((sum, p) => sum + (p.estimated_hours || 0), 0)
             console.log("📊 Horas dos projetos sem pacote:", projectHours)
           }
         }
@@ -282,11 +282,16 @@ export class HourService {
 
         if (!allProjectsError && allProjects) {
           for (const project of allProjects) {
+            // Excluir projetos cancelados e propostas comerciais do cálculo
+            if (project.status === 'cancelled' || project.status === 'commercial_proposal') {
+              continue
+            }
+
             let consumedHours = 0
             const estimatedHours = project.estimated_hours || 0
 
-            // Nova regra: Planejamento e Cancelado = 0%, todos os outros = 100%
-            if (project.status === 'planning' || project.status === 'canceled' || project.status === 'cancelled') {
+            // Nova regra: Planejamento = 0%, todos os outros = 100%
+            if (project.status === 'planning') {
               consumedHours = 0 // 0%
             } else {
               consumedHours = estimatedHours // 100%
@@ -340,6 +345,12 @@ export class HourService {
       let totalConsumedHours = 0
 
       for (const project of projects || []) {
+        // Excluir projetos cancelados e propostas comerciais do cálculo
+        if (project.status === 'cancelled' || project.status === 'commercial_proposal') {
+          console.log(`⏭️ Projeto ${project.id} ignorado: ${project.status}`)
+          continue
+        }
+
         let consumedHours = 0
         const estimatedHours = project.estimated_hours || 0
 
@@ -349,10 +360,10 @@ export class HourService {
           projectId: project.id
         })
 
-        // Nova regra: Planejamento e Cancelado = 0%, todos os outros = 100%
+        // Nova regra: Planejamento = 0%, todos os outros = 100%
         console.log(`🔍 Status do projeto ${project.id}: "${project.status}"`)
         
-        if (project.status === 'planning' || project.status === 'canceled' || project.status === 'cancelled') {
+        if (project.status === 'planning') {
           consumedHours = 0 // 0%
           console.log(`📋 Projeto ${project.id}: ${estimatedHours}h × 0% = ${consumedHours}h (${project.status})`)
         } else {
