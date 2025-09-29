@@ -50,9 +50,11 @@ interface Estimativa {
   updated_at: string
   tipo?: string
   total_tarefas?: number
+  ajustada_por_admin?: boolean
   profiles?: {
     full_name: string
     email: string
+    role: string
   }
 }
 
@@ -182,7 +184,7 @@ export default function EstimativasPage() {
         // Buscar profiles
         const { data: profilesData, error: profilesError } = await supabase
           .from('profiles')
-          .select('id, full_name, email')
+          .select('id, full_name, email, role')
           .in('id', userIds)
 
         if (profilesError) {
@@ -523,7 +525,9 @@ export default function EstimativasPage() {
           filteredEstimativas.map((estimativa) => (
             <Card key={estimativa.id} className={`hover:shadow-md transition-shadow ${
               userRole === 'admin' && estimativa.profiles?.role === 'admin_operacional' 
-                ? 'border-l-4 border-l-orange-400 bg-orange-50/30' 
+                ? estimativa.ajustada_por_admin 
+                  ? 'border-l-4 border-l-green-400 bg-green-50/30'
+                  : 'border-l-4 border-l-orange-400 bg-orange-50/30'
                 : ''
             }`}>
               <CardContent className="p-6">
@@ -544,12 +548,21 @@ export default function EstimativasPage() {
                         {statusConfig[estimativa.status as keyof typeof statusConfig]?.label || estimativa.status}
                       </Badge>
                       {/* Badge "Nova" para estimativas criadas por admin_operacional que precisam de ajustes */}
-                      {userRole === 'admin' && estimativa.profiles?.role === 'admin_operacional' && (
+                      {userRole === 'admin' && estimativa.profiles?.role === 'admin_operacional' && !estimativa.ajustada_por_admin && (
                         <Badge 
                           variant="outline" 
                           className="bg-orange-50 text-orange-700 border-orange-200 animate-pulse"
                         >
                           Nova
+                        </Badge>
+                      )}
+                      {/* Badge "Ajustada" para estimativas que foram ajustadas pelo admin */}
+                      {userRole === 'admin' && estimativa.profiles?.role === 'admin_operacional' && estimativa.ajustada_por_admin && (
+                        <Badge 
+                          variant="outline" 
+                          className="bg-green-50 text-green-700 border-green-200"
+                        >
+                          Ajustada
                         </Badge>
                       )}
                     </div>
