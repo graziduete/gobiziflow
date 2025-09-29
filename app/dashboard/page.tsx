@@ -7,7 +7,6 @@ import { Progress } from "@/components/ui/progress"
 import { FolderKanban, Clock, TrendingUp, AlertTriangle, Calendar, CheckCircle, PlayCircle, PauseCircle } from "lucide-react"
 import Image from "next/image"
 import { HourService } from "@/lib/hour-service"
-import { ClientDashboardFilters } from "@/components/client/client-dashboard-filters"
 import { useClientData } from "@/hooks/use-client-data"
 import { useState, useEffect, useMemo } from "react"
 import { GanttView } from "@/components/admin/gantt-view"
@@ -162,14 +161,6 @@ export default function ClientDashboard() {
           icon={Clock}
         />
       </div>
-
-      {/* Filtros */}
-      <ClientDashboardFilters
-        projects={projects}
-        companies={company ? [company] : []}
-        defaultCompanyId={company?.id || ""}
-        onProjectsChange={setFilteredProjects}
-      />
 
       {/* Visão Geral dos Cronogramas */}
       <Card>
