@@ -84,6 +84,8 @@ function EditarEstimativaTarefaContent({ params }: { params: Promise<{ id: strin
   const [tiposTarefa, setTiposTarefa] = useState<TipoTarefa[]>([])
   const [fatoresEstimativa, setFatoresEstimativa] = useState<FatorEstimativa[]>([])
   const [tarefas, setTarefas] = useState<TarefaEstimativa[]>([])
+  const [userRole, setUserRole] = useState<string | null>(null)
+  const [estimativaOriginal, setEstimativaOriginal] = useState<any>(null)
   const [formData, setFormData] = useState({
     nome_projeto: '',
     percentual_imposto: 15.53,
@@ -91,6 +93,30 @@ function EditarEstimativaTarefaContent({ params }: { params: Promise<{ id: strin
     percentual_gordura: 40,
     observacoes: ''
   })
+
+  // Buscar perfil do usuário
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single()
+          
+          if (profile) {
+            setUserRole(profile.role)
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao buscar perfil:', error)
+      }
+    }
+    
+    fetchUserRole()
+  }, [])
 
   // Carregar dados iniciais
   useEffect(() => {
@@ -155,6 +181,9 @@ function EditarEstimativaTarefaContent({ params }: { params: Promise<{ id: strin
       }
 
       console.log('Estimativa encontrada:', estimativaData)
+
+      // Salvar dados originais para comparação
+      setEstimativaOriginal(estimativaData)
 
       setFormData({
         nome_projeto: estimativaData.nome_projeto,
@@ -293,18 +322,41 @@ function EditarEstimativaTarefaContent({ params }: { params: Promise<{ id: strin
     try {
       setSaving(true)
 
+      // Verificar se deve marcar como ajustada
+      const { data: { user } } = await supabase.auth.getUser()
+      const shouldMarkAsAdjusted = userRole === 'admin' && 
+        estimativaOriginal && 
+        estimativaOriginal.created_by !== user?.id
+
+      console.log('Debug ajustada:', {
+        userRole,
+        estimativaOriginalCreatedBy: estimativaOriginal?.created_by,
+        currentUserId: user?.id,
+        shouldMarkAsAdjusted
+      })
+
       // Atualizar estimativa
+      const updateData: any = {
+        nome_projeto: formData.nome_projeto,
+        percentual_imposto: formData.percentual_imposto || 0,
+        observacoes: formData.observacoes || '',
+        total_estimado: totalEstimado,
+        total_com_impostos: totalComImpostos,
+        valor_hora: formData.valor_hora,
+        percentual_gordura: formData.percentual_gordura || 0
+      }
+
+      // Marcar como ajustada se necessário
+      if (shouldMarkAsAdjusted) {
+        updateData.ajustada_por_admin = true
+        console.log('Marcando estimativa como ajustada pelo admin')
+      }
+
+      console.log('Dados para atualização:', updateData)
+
       const { error: estimativaError } = await supabase
         .from('estimativas')
-        .update({
-          nome_projeto: formData.nome_projeto,
-          percentual_imposto: formData.percentual_imposto || 0,
-          observacoes: formData.observacoes || '',
-          total_estimado: totalEstimado,
-          total_com_impostos: totalComImpostos,
-          valor_hora: formData.valor_hora,
-          percentual_gordura: formData.percentual_gordura || 0
-        })
+        .update(updateData)
         .eq('id', estimativaId)
 
       if (estimativaError) throw estimativaError
@@ -344,9 +396,10 @@ function EditarEstimativaTarefaContent({ params }: { params: Promise<{ id: strin
       router.push(`/admin/estimativas/${estimativaId}/tarefa`)
     } catch (error) {
       console.error('Erro ao salvar estimativa:', error)
+      console.error('Detalhes do erro:', JSON.stringify(error, null, 2))
       toast({
         title: "Erro!",
-        description: "Erro ao salvar estimativa",
+        description: `Erro ao salvar estimativa: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
         variant: "destructive"
       })
     } finally {
