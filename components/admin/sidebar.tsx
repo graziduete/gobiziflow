@@ -10,6 +10,7 @@ import {
   FolderKanban,
   Calculator,
   Settings,
+  Shield,
   LogOut,
   ChevronLeft,
   ChevronRight,
@@ -67,7 +68,7 @@ const navigation = [
   {
     name: "Sustentação",
     href: "/admin/sustentacao",
-    icon: Settings,
+    icon: Shield,
     roles: ["admin", "admin_operacional"]
   },
   {
