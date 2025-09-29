@@ -200,11 +200,13 @@ export default function PublicEstimativaPage() {
       let result
       if (estimativa.tipo === 'tarefa') {
         result = await downloadTarefasPDF(estimativa, tarefas, {
-          filename: `estimativa-tarefas-${estimativa.nome_projeto.replace(/\s+/g, '-').toLowerCase()}`
+          filename: `proposta-comercial-${estimativa.nome_projeto.replace(/\s+/g, '-').toLowerCase()}`,
+          clientVersion: true // Versão para cliente
         })
       } else {
         result = await downloadEstimativaPDF(estimativa, recursos, {
-          filename: `estimativa-recursos-${estimativa.nome_projeto.replace(/\s+/g, '-').toLowerCase()}`
+          filename: `proposta-comercial-${estimativa.nome_projeto.replace(/\s+/g, '-').toLowerCase()}`,
+          clientVersion: true // Versão para cliente
         })
       }
       
