@@ -532,8 +532,8 @@ export default function ProjectsPage() {
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {currentProjects.map((project) => (
-                <div key={project.id} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
-                  <div className="space-y-3">
+                <div key={project.id} className="p-4 border rounded-lg hover:shadow-md transition-shadow flex flex-col h-full">
+                  <div className="flex-1 space-y-3">
                     <div className="space-y-2">
                       <h3 className="font-medium text-sm line-clamp-2">{project.name}</h3>
                       <p className="text-xs text-muted-foreground line-clamp-2">{project.description || "Sem descrição"}</p>
@@ -554,21 +554,21 @@ export default function ProjectsPage() {
                       )}
                       {project.end_date && <div>Término: {formatDateUTC(project.end_date)}</div>}
                     </div>
-                    
-                    <div className="flex items-center gap-2 pt-2">
-                      <Button variant="outline" size="sm" asChild className="flex-1">
-                        <Link href={`/admin/projects/${project.id}`}>
-                          <Calendar className="h-3 w-3 mr-1" />
-                          Cronograma
-                        </Link>
-                      </Button>
-                      <Button variant="outline" size="sm" asChild className="flex-1">
-                        <Link href={`/admin/projects/${project.id}/edit`}>
-                          <Edit className="h-3 w-3 mr-1" />
-                          Editar
-                        </Link>
-                      </Button>
-                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 pt-4 mt-auto">
+                    <Button variant="outline" size="sm" asChild className="flex-1">
+                      <Link href={`/admin/projects/${project.id}`}>
+                        <Calendar className="h-3 w-3 mr-1" />
+                        Cronograma
+                      </Link>
+                    </Button>
+                    <Button variant="outline" size="sm" asChild className="flex-1">
+                      <Link href={`/admin/projects/${project.id}/edit`}>
+                        <Edit className="h-3 w-3 mr-1" />
+                        Editar
+                      </Link>
+                    </Button>
                   </div>
                 </div>
               ))}
