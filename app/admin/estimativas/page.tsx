@@ -73,6 +73,7 @@ export default function EstimativasPage() {
     nome: "",
     tipo: "todos" // "todos", "recurso", "tarefa"
   })
+  const [userRole, setUserRole] = useState<string | null>(null)
   
   // Estados para paginação
   const [currentPage, setCurrentPage] = useState(1)
@@ -85,22 +86,75 @@ export default function EstimativasPage() {
   const { showConfirmation, ConfirmationDialog } = useConfirmationDialog()
 
   useEffect(() => {
-    fetchEstimativas()
-  }, [currentPage])
+    fetchUserRole()
+  }, [])
+
+  useEffect(() => {
+    if (userRole) {
+      fetchEstimativas()
+    }
+  }, [currentPage, userRole])
+
+  const fetchUserRole = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+        
+        if (profile) {
+          setUserRole(profile.role)
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao buscar perfil:', error)
+    }
+  }
 
   const fetchEstimativas = async () => {
     try {
       setLoading(true)
-      console.log('Buscando estimativas...')
+      console.log('Buscando estimativas...', { userRole })
       
       // Calcular offset para paginação
       const from = (currentPage - 1) * itemsPerPage
       const to = from + itemsPerPage - 1
       
-      // Buscar total de estimativas para paginação
-      const { count: totalCount, error: countError } = await supabase
+      // Construir query baseada no perfil do usuário
+      let estimativasQuery = supabase
+        .from('estimativas')
+        .select('*')
+        .order('created_at', { ascending: false })
+      
+      let countQuery = supabase
         .from('estimativas')
         .select('*', { count: 'exact', head: true })
+      
+      // Se for admin_operacional, filtrar apenas estimativas criadas por admin_operacional
+      if (userRole === 'admin_operacional') {
+        // Buscar IDs de usuários com perfil admin_operacional
+        const { data: adminOperacionalUsers } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('role', 'admin_operacional')
+        
+        const adminOperacionalIds = adminOperacionalUsers?.map(u => u.id) || []
+        
+        if (adminOperacionalIds.length > 0) {
+          estimativasQuery = estimativasQuery.in('created_by', adminOperacionalIds)
+          countQuery = countQuery.in('created_by', adminOperacionalIds)
+        } else {
+          // Se não há usuários admin_operacional, não mostrar nenhuma estimativa
+          estimativasQuery = estimativasQuery.eq('created_by', '00000000-0000-0000-0000-000000000000')
+          countQuery = countQuery.eq('created_by', '00000000-0000-0000-0000-000000000000')
+        }
+      }
+      
+      // Buscar total de estimativas para paginação
+      const { count: totalCount, error: countError } = await countQuery
 
       if (countError) {
         console.error('Erro ao contar estimativas:', countError)
@@ -111,10 +165,7 @@ export default function EstimativasPage() {
       setTotalPages(Math.ceil((totalCount || 0) / itemsPerPage))
       
       // Buscar estimativas com paginação
-      const { data: estimativasData, error: estimativasError } = await supabase
-        .from('estimativas')
-        .select('*')
-        .order('created_at', { ascending: false })
+      const { data: estimativasData, error: estimativasError } = await estimativasQuery
         .range(from, to)
 
       if (estimativasError) {
@@ -365,7 +416,7 @@ export default function EstimativasPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className={`grid gap-4 ${userRole === 'admin_operacional' ? 'md:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols-4'}`}>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total de Estimativas</CardTitle>
@@ -378,34 +429,40 @@ export default function EstimativasPage() {
             </p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Valor Total Estimado</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formatCurrency(estimativas.reduce((sum, e) => sum + e.total_com_impostos, 0))}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Com impostos
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Impostos a Pagar</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formatCurrency(estimativas.reduce((sum, e) => sum + (e.total_com_impostos - e.total_estimado), 0))}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Total de impostos
-            </p>
-          </CardContent>
-        </Card>
+        
+        {/* Cards financeiros apenas para admin */}
+        {userRole !== 'admin_operacional' && (
+          <>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Valor Total Estimado</CardTitle>
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {formatCurrency(estimativas.reduce((sum, e) => sum + e.total_com_impostos, 0))}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Com impostos
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Impostos a Pagar</CardTitle>
+                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {formatCurrency(estimativas.reduce((sum, e) => sum + (e.total_com_impostos - e.total_estimado), 0))}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Total de impostos
+                </p>
+              </CardContent>
+            </Card>
+          </>
+        )}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Projetos Convertidos</CardTitle>
