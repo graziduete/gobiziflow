@@ -84,6 +84,7 @@ function NovaEstimativaTarefaContent() {
   const [tiposTarefa, setTiposTarefa] = useState<TipoTarefa[]>([])
   const [fatoresEstimativa, setFatoresEstimativa] = useState<FatorEstimativa[]>([])
   const [tarefas, setTarefas] = useState<TarefaEstimativa[]>([])
+  const [userRole, setUserRole] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     nome_projeto: '',
     percentual_imposto: 15.53,
@@ -91,6 +92,30 @@ function NovaEstimativaTarefaContent() {
     percentual_gordura: 40,
     observacoes: ''
   })
+
+  // Buscar perfil do usuário
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single()
+          
+          if (profile) {
+            setUserRole(profile.role)
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao buscar perfil:', error)
+      }
+    }
+    
+    fetchUserRole()
+  }, [])
 
   // Carregar dados iniciais
   useEffect(() => {
@@ -395,32 +420,37 @@ function NovaEstimativaTarefaContent() {
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="percentual_imposto">Impostos (%)</Label>
-                    <Input
-                      id="percentual_imposto"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      max="100"
-                      value={formData.percentual_imposto || ''}
-                      onChange={(e) => setFormData({...formData, percentual_imposto: parseFloat(e.target.value) || 0})}
-                      placeholder="15.53"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="valor_hora">Valor Hora (R$)</Label>
-                    <Input
-                      id="valor_hora"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={formData.valor_hora || ''}
-                      onChange={(e) => setFormData({...formData, valor_hora: parseFloat(e.target.value) || 0})}
-                      placeholder="100.00"
-                    />
-                  </div>
+                <div className={`grid grid-cols-1 gap-4 ${userRole !== 'admin_operacional' ? 'md:grid-cols-3' : 'md:grid-cols-1'}`}>
+                  {/* Campos financeiros apenas para admin */}
+                  {userRole !== 'admin_operacional' && (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="percentual_imposto">Impostos (%)</Label>
+                        <Input
+                          id="percentual_imposto"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          max="100"
+                          value={formData.percentual_imposto || ''}
+                          onChange={(e) => setFormData({...formData, percentual_imposto: parseFloat(e.target.value) || 0})}
+                          placeholder="15.53"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="valor_hora">Valor Hora (R$)</Label>
+                        <Input
+                          id="valor_hora"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={formData.valor_hora || ''}
+                          onChange={(e) => setFormData({...formData, valor_hora: parseFloat(e.target.value) || 0})}
+                          placeholder="100.00"
+                        />
+                      </div>
+                    </>
+                  )}
                   <div className="space-y-2">
                     <Label htmlFor="percentual_gordura">Percentual de Gordura (%)</Label>
                     <Input
@@ -535,40 +565,46 @@ function NovaEstimativaTarefaContent() {
                   </p>
                 </div>
 
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Settings className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">Valor Hora:</span>
+                {/* Valor Hora apenas para admin */}
+                {userRole !== 'admin_operacional' && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Settings className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm font-medium">Valor Hora:</span>
+                    </div>
+                    <p className="text-lg font-semibold">
+                      R$ {formData.valor_hora.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
                   </div>
-                  <p className="text-lg font-semibold">
-                    R$ {formData.valor_hora.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                  </p>
-                </div>
+                )}
 
-                <div className="border-t pt-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Subtotal:</span>
-                      <span className="font-medium">
-                        R$ {totalEstimado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Impostos ({formData.percentual_imposto}%):</span>
-                      <span className="font-medium">
-                        R$ {impostos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                      </span>
-                    </div>
-                    <div className="border-t pt-2">
+                {/* Informações financeiras apenas para admin */}
+                {userRole !== 'admin_operacional' && (
+                  <div className="border-t pt-4">
+                    <div className="space-y-2">
                       <div className="flex justify-between">
-                        <span className="font-semibold">Total Geral:</span>
-                        <span className="text-xl font-bold text-green-600">
-                          R$ {totalComImpostos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        <span className="text-sm text-muted-foreground">Subtotal:</span>
+                        <span className="font-medium">
+                          R$ {totalEstimado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                         </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Impostos ({formData.percentual_imposto}%):</span>
+                        <span className="font-medium">
+                          R$ {impostos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </span>
+                      </div>
+                      <div className="border-t pt-2">
+                        <div className="flex justify-between">
+                          <span className="font-semibold">Total Geral:</span>
+                          <span className="text-xl font-bold text-green-600">
+                            R$ {totalComImpostos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                )}
 
                 <Button 
                   onClick={handleSave} 
