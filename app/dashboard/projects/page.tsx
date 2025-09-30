@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useCallback } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Filter } from "lucide-react"
+import { Calendar, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Filter, List, Grid3X3 } from "lucide-react"
 import Link from "next/link"
 import { useClientData } from "@/hooks/use-client-data"
 import { ProjectsLoadingSkeleton } from "@/components/shared/loading-skeleton"
@@ -44,10 +44,11 @@ export default function ClientProjectsPage() {
     search: ""
   })
   const [showFilters, setShowFilters] = useState(false)
+  const [viewMode, setViewMode] = useState<'list' | 'cards'>('cards')
   
   // Paginação
   const [currentPage, setCurrentPage] = useState(1)
-  const [projectsPerPage] = useState(10)
+  const [projectsPerPage] = useState(12)
 
   // Contar filtros ativos
   const activeFiltersCount = useMemo(() => {
@@ -128,7 +129,7 @@ export default function ClientProjectsPage() {
       case "completed":
         return "bg-green-100 text-green-800"
       case "in_progress":
-        return "bg-blue-100 text-blue-800"
+        return "bg-yellow-100 text-yellow-800"
       case "homologation":
         return "bg-purple-100 text-purple-800"
       case "on_hold":
@@ -308,6 +309,31 @@ export default function ClientProjectsPage() {
         </div>
       </div>
 
+      {/* Controles de Visualização */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-gray-700">Visualização:</span>
+          <div className="flex items-center border rounded-lg">
+            <Button
+              variant={viewMode === 'cards' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('cards')}
+              className="rounded-r-none border-r"
+            >
+              <Grid3X3 className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === 'list' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('list')}
+              className="rounded-l-none"
+            >
+              <List className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+
       {/* Modal de Filtros */}
       <Dialog open={showFilters} onOpenChange={setShowFilters}>
         <DialogContent className="max-w-2xl">
@@ -395,7 +421,7 @@ export default function ClientProjectsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Lista de Projetos</CardTitle>
+          <CardTitle>{viewMode === 'cards' ? 'Projetos em Cards' : 'Lista de Projetos'}</CardTitle>
           <CardDescription>
             {(filters.status !== "all" || filters.priority !== "all" || filters.search) ? (
               <>
@@ -419,57 +445,118 @@ export default function ClientProjectsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {currentProjects.map((project) => (
-              <div key={project.id} className="flex items-center justify-between p-4 border rounded-lg">
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-medium">{project.name}</h3>
-                    <Badge className={getStatusColor(project.status)}>{getStatusText(project.status)}</Badge>
-                    <Badge className={getPriorityColor(project.priority)}>{getPriorityText(project.priority)}</Badge>
-                    <Badge className={getCategoryColor(project.category)}>{getCategoryText(project.category)}</Badge>
-                    <Badge className={getProjectTypeColor(project.project_type)}>{getProjectTypeText(project.project_type)}</Badge>
+          {viewMode === 'cards' ? (
+            // Visualização em Cards
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {currentProjects.map((project) => (
+                <div key={project.id} className="p-4 border rounded-lg hover:shadow-md transition-shadow flex flex-col h-full">
+                  <div className="flex-1 space-y-3">
+                    <div className="space-y-2">
+                      <h3 className="font-medium text-lg leading-tight">{project.name}</h3>
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {project.description || "Sem descrição"}
+                      </p>
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-1">
+                      <Badge className={`text-xs ${getStatusColor(project.status)}`}>{getStatusText(project.status)}</Badge>
+                      <Badge className={`text-xs ${getCategoryColor(project.category)}`}>{getCategoryText(project.category)}</Badge>
+                    </div>
+                    
+                    <div className="space-y-1 text-xs text-muted-foreground">
+                      <div className="flex items-center justify-between">
+                        <span>Tipo:</span>
+                        <span className="font-medium">{getProjectTypeText(project.project_type)}</span>
+                      </div>
+                      {project.budget && (
+                        <div className="flex items-center justify-between">
+                          <span>Orçamento:</span>
+                          <span className="font-medium">R$ {Number(project.budget).toLocaleString("pt-BR")}</span>
+                        </div>
+                      )}
+                      {project.start_date && (
+                        <div className="flex items-center justify-between">
+                          <span>Início:</span>
+                          <span>{new Date(project.start_date).toLocaleDateString("pt-BR", { timeZone: 'UTC' })}</span>
+                        </div>
+                      )}
+                      {project.end_date && (
+                        <div className="flex items-center justify-between">
+                          <span>Término:</span>
+                          <span>{new Date(project.end_date).toLocaleDateString("pt-BR", { timeZone: 'UTC' })}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <p className="text-sm text-muted-foreground">{project.description || "Sem descrição"}</p>
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                    <span>Empresa: {company?.name || "Carregando..."}</span>
-                    {project.budget && <span>Orçamento: R$ {Number(project.budget).toLocaleString("pt-BR")}</span>}
-                    {project.start_date && (
-                      <span>Início: {new Date(project.start_date).toLocaleDateString("pt-BR", { timeZone: 'UTC' })}</span>
-                    )}
-                    {project.end_date && <span>Término: {new Date(project.end_date).toLocaleDateString("pt-BR", { timeZone: 'UTC' })}</span>}
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" asChild>
-                    <Link href={`/dashboard/projects/${project.id}`}>
-                      <Calendar className="h-4 w-4 mr-1" />
-                      Cronograma
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-            ))}
-            {currentProjects.length === 0 && (
-              <div className="text-center py-12">
-                {(filters.status !== "all" || filters.priority !== "all" || filters.category !== "all" || filters.search) ? (
-                  <div>
-                    <p className="text-muted-foreground mb-2">Nenhum projeto encontrado com os filtros aplicados</p>
-                    <Button variant="outline" onClick={() => setFilters({
-                      status: "all",
-                      priority: "all",
-                      category: "all",
-                      search: ""
-                    })}>
-                      Limpar Filtros
+                  
+                  <div className="flex items-center gap-2 pt-4 mt-auto">
+                    <Button variant="outline" size="sm" asChild className="flex-1">
+                      <Link href={`/dashboard/projects/${project.id}`}>
+                        <Calendar className="h-3 w-3 mr-1" />
+                        Cronograma
+                      </Link>
                     </Button>
                   </div>
-                ) : (
-                  <p className="text-muted-foreground">Nenhum projeto cadastrado</p>
-                )}
-              </div>
-            )}
-          </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            // Visualização em Lista
+            <div className="space-y-4">
+              {currentProjects.map((project) => (
+                <div key={project.id} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="space-y-2 flex-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-medium">{project.name}</h3>
+                      <Badge className={getStatusColor(project.status)}>{getStatusText(project.status)}</Badge>
+                      <Badge className={getCategoryColor(project.category)}>{getCategoryText(project.category)}</Badge>
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      <span>Tipo: </span>
+                      <span className="font-medium">{getProjectTypeText(project.project_type)}</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{project.description || "Sem descrição"}</p>
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      <span>Empresa: {company?.name || "Carregando..."}</span>
+                      {project.budget && <span>Orçamento: R$ {Number(project.budget).toLocaleString("pt-BR")}</span>}
+                      {project.start_date && (
+                        <span>Início: {new Date(project.start_date).toLocaleDateString("pt-BR", { timeZone: 'UTC' })}</span>
+                      )}
+                      {project.end_date && <span>Término: {new Date(project.end_date).toLocaleDateString("pt-BR", { timeZone: 'UTC' })}</span>}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" asChild>
+                      <Link href={`/dashboard/projects/${project.id}`}>
+                        <Calendar className="h-4 w-4 mr-1" />
+                        Cronograma
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {currentProjects.length === 0 && (
+            <div className="text-center py-12">
+              {(filters.status !== "all" || filters.priority !== "all" || filters.category !== "all" || filters.search) ? (
+                <div>
+                  <p className="text-muted-foreground mb-2">Nenhum projeto encontrado com os filtros aplicados</p>
+                  <Button variant="outline" onClick={() => setFilters({
+                    status: "all",
+                    priority: "all",
+                    category: "all",
+                    search: ""
+                  })}>
+                    Limpar Filtros
+                  </Button>
+                </div>
+              ) : (
+                <p className="text-muted-foreground">Nenhum projeto cadastrado</p>
+              )}
+            </div>
+          )}
 
           {/* Paginação */}
           {filteredProjects.length > 0 && (
