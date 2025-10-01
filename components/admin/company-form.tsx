@@ -2092,8 +2092,8 @@ export function CompanyForm({ company, onSuccess }: CompanyFormProps) {
 
             {/* Botões de Ação - Movidos para após o histórico */}
             <div className="flex gap-4 pt-6">
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Salvando..." : company ? "Atualizar" : "Criar Empresa"}
+              <Button type="submit" disabled={isLoading} className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-200">
+                {isLoading ? "Salvando..." : company ? "Atualizar Empresa" : "Criar Empresa"}
               </Button>
               <Button
                 type="button"

@@ -543,7 +543,7 @@ function EditarEstimativaTarefaContent({ params }: { params: Promise<{ id: strin
                     <Target className="h-5 w-5" />
                     Tarefas do Projeto
                   </CardTitle>
-                  <Button onClick={addTarefa} size="sm">
+                  <Button onClick={addTarefa} size="sm" className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-200">
                     <Plus className="h-4 w-4 mr-2" />
                     Adicionar Tarefa
                   </Button>
@@ -654,7 +654,7 @@ function EditarEstimativaTarefaContent({ params }: { params: Promise<{ id: strin
 
                 <Button 
                   onClick={handleSave} 
-                  className="w-full" 
+                  className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-200" 
                   size="lg"
                   disabled={saving || tarefas.length === 0}
                 >

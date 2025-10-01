@@ -581,7 +581,7 @@ function NovaEstimativaContent() {
           <Button variant="outline" onClick={() => router.back()}>
             Cancelar
           </Button>
-          <Button onClick={handleSave} disabled={loading}>
+          <Button onClick={handleSave} disabled={loading} className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-200">
             {loading ? 'Salvando...' : 'Salvar Estimativa'}
           </Button>
         </div>

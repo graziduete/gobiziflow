@@ -946,8 +946,8 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
           {error && <p className="text-sm text-destructive">{error}</p>}
 
           <div className="flex gap-2 pt-4">
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Salvando..." : project ? "Atualizar" : "Criar Projeto"}
+            <Button type="submit" disabled={isLoading} className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-200">
+              {isLoading ? "Salvando..." : project ? "Atualizar Projeto" : "Criar Projeto"}
             </Button>
             <Button
               type="button"
