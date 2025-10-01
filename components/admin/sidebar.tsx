@@ -11,9 +11,11 @@ import {
   Calculator,
   Settings,
   Shield,
+  UserCheck,
   LogOut,
   ChevronLeft,
   ChevronRight,
+  Bell,
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -63,6 +65,18 @@ const navigation = [
     name: "Estimativas",
     href: "/admin/estimativas",
     icon: Calculator,
+    roles: ["admin", "admin_operacional"]
+  },
+  {
+    name: "Responsáveis",
+    href: "/admin/responsaveis",
+    icon: UserCheck,
+    roles: ["admin", "admin_operacional"]
+  },
+  {
+    name: "Logs de Notificações",
+    href: "/admin/notifications/logs",
+    icon: Bell,
     roles: ["admin", "admin_operacional"]
   },
   {

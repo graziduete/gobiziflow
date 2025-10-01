@@ -1,0 +1,2500 @@
+
+> my-v0-project@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.2.4
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.5.130:3000
+   - Environments: .env.local
+   - Experiments (use with caution):
+     ⨯ reactCompiler
+
+ ✓ Starting...
+[Browserslist] Could not parse /Users/macbookair/Downloads/package.json. Ignoring it.
+ ✓ Ready in 1689ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled /middleware in 479ms (173 modules)
+ ○ Compiling /api/cron/deadline-monitor ...
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled /api/cron/deadline-monitor in 1709ms (495 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+📋 Tarefas com aviso de 3 dias: 3
+📝 Processando tarefa de aviso: Elaborar Proposta Comercial (ID: 7817fb74-1406-4277-949d-e71e8ab4e782, Status: in_progress, Data fim: 2025-10-03)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+👤 Responsável encontrado: d296cdc0-411a-4e23-88c4-c2ab17970199
+📅 formatDateBrazil: Recebido: 2025-10-03
+✅ formatDateBrazil: Formatado: 02/10/2025
+🔔 [ResponsavelNotification] Iniciando notificação: {
+  responsavelId: 'd296cdc0-411a-4e23-88c4-c2ab17970199',
+  type: 'deadline_warning',
+  title: '⏰ Tarefas sob sua responsabilidade vencem em breve'
+}
+🔔 [ResponsavelNotification] Notificação duplicada evitada para responsável d296cdc0-411a-4e23-88c4-c2ab17970199 - tipo: deadline_warning
+📝 Processando tarefa de aviso: Revisar Proposta Comercial (ID: 430d7f81-1d9c-41f7-9790-6d1d76499ed6, Status: in_progress, Data fim: 2025-10-03)
+👤 Responsável encontrado: d4887ed1-a52e-4ae0-b427-46810f97fe4c
+📅 formatDateBrazil: Recebido: 2025-10-03
+✅ formatDateBrazil: Formatado: 02/10/2025
+🔔 [ResponsavelNotification] Iniciando notificação: {
+  responsavelId: 'd4887ed1-a52e-4ae0-b427-46810f97fe4c',
+  type: 'deadline_warning',
+  title: '⏰ Tarefas sob sua responsabilidade vencem em breve'
+}
+🔔 [ResponsavelNotification] Notificação duplicada evitada para responsável d4887ed1-a52e-4ae0-b427-46810f97fe4c - tipo: deadline_warning
+📝 Processando tarefa de aviso: Elaboração do Desenho Funcional (ID: 26a0a194-97e0-48dc-b9fc-a43e60dd6d85, Status: in_progress, Data fim: 2025-10-03)
+👤 Responsável encontrado: d4887ed1-a52e-4ae0-b427-46810f97fe4c
+📅 formatDateBrazil: Recebido: 2025-10-03
+✅ formatDateBrazil: Formatado: 02/10/2025
+🔔 [ResponsavelNotification] Iniciando notificação: {
+  responsavelId: 'd4887ed1-a52e-4ae0-b427-46810f97fe4c',
+  type: 'deadline_warning',
+  title: '⏰ Tarefas sob sua responsabilidade vencem em breve'
+}
+🔔 [ResponsavelNotification] Notificação duplicada evitada para responsável d4887ed1-a52e-4ae0-b427-46810f97fe4c - tipo: deadline_warning
+📋 Tarefas atrasadas: 5
+📝 Processando tarefa atrasada: Validação DF e Ajustes V3 (ID: 96e2c11d-ef90-42dc-a0f6-4557cd440898, Status: in_progress, Data fim: 2025-09-26)
+👤 Responsável encontrado: 812bd94f-2065-4687-b8e5-f0883232bee0
+🔄 Atualizando status da tarefa 96e2c11d-ef90-42dc-a0f6-4557cd440898 para 'overdue'
+❌ Erro ao atualizar status da tarefa 96e2c11d-ef90-42dc-a0f6-4557cd440898: {
+  code: '23514',
+  details: 'Failing row contains (96e2c11d-ef90-42dc-a0f6-4557cd440898, Validação DF e Ajustes V3, null, overdue, medium, null, null, null, 68156968-b0d7-4ebe-8d7a-0722a5e2cf98, null, 8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff, 2025-09-30 17:24:11.624098+00, 2025-09-30 22:35:00.427241+00, 2025-09-22, 2025-09-26, Rafael Camilo, 7).',
+  hint: null,
+  message: 'new row for relation "tasks" violates check constraint "tasks_status_check"'
+}
+📅 formatDateBrazil: Recebido: 2025-09-26
+✅ formatDateBrazil: Formatado: 25/09/2025
+🔔 [ResponsavelNotification] Iniciando notificação: {
+  responsavelId: '812bd94f-2065-4687-b8e5-f0883232bee0',
+  type: 'task_overdue',
+  title: '❌ Tarefa Atrasada'
+}
+🔔 [ResponsavelNotification] Notificação duplicada evitada para responsável 812bd94f-2065-4687-b8e5-f0883232bee0 - tipo: task_overdue
+📝 Processando tarefa atrasada: Consulting Release 01 (ID: 811ed4de-2009-4549-8a3b-486712a98da3, Status: in_progress, Data fim: 2024-12-17)
+👤 Responsável encontrado: a2981a65-4d01-4c41-a893-941842808247
+🔄 Atualizando status da tarefa 811ed4de-2009-4549-8a3b-486712a98da3 para 'overdue'
+❌ Erro ao atualizar status da tarefa 811ed4de-2009-4549-8a3b-486712a98da3: {
+  code: '23514',
+  details: 'Failing row contains (811ed4de-2009-4549-8a3b-486712a98da3, Consulting Release 01, null, overdue, medium, null, null, null, eaa4f5fa-41cc-465a-814e-5afb817b8993, null, 8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff, 2025-09-30 17:30:38.690279+00, 2025-09-30 22:35:01.229258+00, 2025-12-04, 2024-12-17, Vitor Pinheiro, 3).',
+  hint: null,
+  message: 'new row for relation "tasks" violates check constraint "tasks_status_check"'
+}
+📅 formatDateBrazil: Recebido: 2024-12-17
+✅ formatDateBrazil: Formatado: 16/12/2024
+🔔 [ResponsavelNotification] Iniciando notificação: {
+  responsavelId: 'a2981a65-4d01-4c41-a893-941842808247',
+  type: 'task_overdue',
+  title: '❌ Tarefa Atrasada'
+}
+🔔 [ResponsavelNotification] Notificação duplicada evitada para responsável a2981a65-4d01-4c41-a893-941842808247 - tipo: task_overdue
+📝 Processando tarefa atrasada: Desenvolvimento e aplicação (ID: 23b32e24-608c-4263-b717-2d2e489c2c1a, Status: in_progress, Data fim: 2025-09-26)
+👤 Responsável encontrado: ef4f6a43-08c2-4397-b06d-de99a760458c
+🔄 Atualizando status da tarefa 23b32e24-608c-4263-b717-2d2e489c2c1a para 'overdue'
+❌ Erro ao atualizar status da tarefa 23b32e24-608c-4263-b717-2d2e489c2c1a: {
+  code: '23514',
+  details: 'Failing row contains (23b32e24-608c-4263-b717-2d2e489c2c1a, Desenvolvimento e aplicação, null, overdue, medium, null, null, null, eaa4f5fa-41cc-465a-814e-5afb817b8993, null, 8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff, 2025-09-30 17:30:38.690279+00, 2025-09-30 22:35:02.007261+00, 2025-09-01, 2025-09-26, Henrique Silva, 4).',
+  hint: null,
+  message: 'new row for relation "tasks" violates check constraint "tasks_status_check"'
+}
+📅 formatDateBrazil: Recebido: 2025-09-26
+✅ formatDateBrazil: Formatado: 25/09/2025
+🔔 [ResponsavelNotification] Iniciando notificação: {
+  responsavelId: 'ef4f6a43-08c2-4397-b06d-de99a760458c',
+  type: 'task_overdue',
+  title: '❌ Tarefa Atrasada'
+}
+🔔 [ResponsavelNotification] Notificação duplicada evitada para responsável ef4f6a43-08c2-4397-b06d-de99a760458c - tipo: task_overdue
+📝 Processando tarefa atrasada: Definição e Revisão do Material (ID: a90cac30-bb6d-4661-9401-49ff675972ea, Status: in_progress, Data fim: 2025-09-12)
+👤 Responsável encontrado: a2981a65-4d01-4c41-a893-941842808247
+🔄 Atualizando status da tarefa a90cac30-bb6d-4661-9401-49ff675972ea para 'overdue'
+❌ Erro ao atualizar status da tarefa a90cac30-bb6d-4661-9401-49ff675972ea: {
+  code: '23514',
+  details: 'Failing row contains (a90cac30-bb6d-4661-9401-49ff675972ea, Definição e Revisão do Material, null, overdue, medium, null, null, null, 7489df20-356f-4af5-bf45-52cf936dd040, null, 8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff, 2025-09-30 17:31:16.629628+00, 2025-09-30 22:35:02.821057+00, 2025-09-08, 2025-09-12, Vitor Pinheiro, 0).',
+  hint: null,
+  message: 'new row for relation "tasks" violates check constraint "tasks_status_check"'
+}
+📅 formatDateBrazil: Recebido: 2025-09-12
+✅ formatDateBrazil: Formatado: 11/09/2025
+🔔 [ResponsavelNotification] Iniciando notificação: {
+  responsavelId: 'a2981a65-4d01-4c41-a893-941842808247',
+  type: 'task_overdue',
+  title: '❌ Tarefa Atrasada'
+}
+🔔 [ResponsavelNotification] Notificação duplicada evitada para responsável a2981a65-4d01-4c41-a893-941842808247 - tipo: task_overdue
+📝 Processando tarefa atrasada: Envio Checklist de Acessos (ID: 5b6f30f9-6b9c-457d-90af-73f9b88fe3a1, Status: in_progress, Data fim: 2025-09-12)
+👤 Responsável encontrado: a2981a65-4d01-4c41-a893-941842808247
+🔄 Atualizando status da tarefa 5b6f30f9-6b9c-457d-90af-73f9b88fe3a1 para 'overdue'
+❌ Erro ao atualizar status da tarefa 5b6f30f9-6b9c-457d-90af-73f9b88fe3a1: {
+  code: '23514',
+  details: 'Failing row contains (5b6f30f9-6b9c-457d-90af-73f9b88fe3a1, Envio Checklist de Acessos, null, overdue, medium, null, null, null, 7489df20-356f-4af5-bf45-52cf936dd040, null, 8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff, 2025-09-30 17:31:16.629628+00, 2025-09-30 22:35:03.616126+00, 2025-09-08, 2025-09-12, Vitor Pinheiro, 1).',
+  hint: null,
+  message: 'new row for relation "tasks" violates check constraint "tasks_status_check"'
+}
+📅 formatDateBrazil: Recebido: 2025-09-12
+✅ formatDateBrazil: Formatado: 11/09/2025
+🔔 [ResponsavelNotification] Iniciando notificação: {
+  responsavelId: 'a2981a65-4d01-4c41-a893-941842808247',
+  type: 'task_overdue',
+  title: '❌ Tarefa Atrasada'
+}
+🔔 [ResponsavelNotification] Notificação duplicada evitada para responsável a2981a65-4d01-4c41-a893-941842808247 - tipo: task_overdue
+ POST /api/cron/deadline-monitor 200 in 8804ms
+ ○ Compiling /admin/projects/[id]/edit ...
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled /admin/projects/[id]/edit in 4.6s (1757 modules)
+ ✓ Compiled in 338ms (776 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+🔍 [Header] Debug user data: {
+  user: {
+    id: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    email: 'graziely@gobi.consulting',
+    full_name: 'Graziely Duete'
+  },
+  fullName: 'Graziely Duete',
+  email: 'graziely@gobi.consulting',
+  hasUser: true
+}
+✅ [Header] Using full_name initials: GD
+ GET /admin/projects/88a0f262-899f-4eda-a50d-57ff8bda9595/edit 404 in 6068ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+🔍 [Header] Debug user data: {
+  user: {
+    id: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    email: 'graziely@gobi.consulting',
+    full_name: 'Graziely Duete'
+  },
+  fullName: 'Graziely Duete',
+  email: 'graziely@gobi.consulting',
+  hasUser: true
+}
+✅ [Header] Using full_name initials: GD
+ GET /admin/projects/88a0f262-899f-4eda-a50d-57ff8bda9595/edit 404 in 472ms
+ ✓ Compiled / in 322ms (1729 modules)
+ GET / 307 in 416ms
+ ○ Compiling /auth/login ...
+ ✓ Compiled /auth/login in 746ms (1775 modules)
+ GET /auth/login 200 in 1059ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ○ Compiling /admin ...
+ ✓ Compiled /admin in 530ms (1808 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+🔍 [Header] Debug user data: {
+  user: {
+    id: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    email: 'graziely@gobi.consulting',
+    full_name: 'Graziely Duete'
+  },
+  fullName: 'Graziely Duete',
+  email: 'graziely@gobi.consulting',
+  hasUser: true
+}
+✅ [Header] Using full_name initials: GD
+🏢 Empresas para contagem: 0
+👥 Usuários para contagem: 0
+👥 Total de usuários no sistema: 0
+👥 Total de associações usuário-empresa: 0
+👥 Associações da empresa selecionada: []
+📊 Projetos filtrados por período: 0
+📊 Total de projetos da empresa: 0
+🔍 Projetos por status: []
+🚀 Projetos em andamento (excluindo planning): 0
+⏸️ Projetos em planejamento: 0
+⚠️ Projetos atrasados: 0
+✅ Projetos concluídos: 0
+🏢 Estatísticas de horas do HourService: {
+  totalContractedHours: 0,
+  totalConsumedHours: 0,
+  totalRemainingHours: 0,
+  companiesWithPackages: 0
+}
+⏰ Total de horas contratadas: 0
+🔥 Horas consumidas: 0
+⏳ Horas restantes: 0
+💰 Total de faturamento: 0
+📁 Todos os projetos: 0
+🔍 Projetos filtrados por período: 0
+📊 Total de projetos (filtrado por empresa e período): 0
+📊 NOVA LÓGICA - Usando payment_metrics:
+📊 Total esperado: 0
+📊 Breakdown: []
+🔍 [GanttView] Projects data: []
+ GET /admin 200 in 1247ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 1933ms (1818 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin 200 in 68ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ○ Compiling /admin/projects ...
+ ✓ Compiled /admin/projects in 606ms (1833 modules)
+ GET /admin/projects 200 in 705ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 1514ms (1847 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 140ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ GET /admin 200 in 72ms
+ ✓ Compiled in 642ms (1847 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin 200 in 141ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ○ Compiling /admin/notifications/logs ...
+ ✓ Compiled /admin/notifications/logs in 733ms (1860 modules)
+ GET /admin/notifications/logs 200 in 803ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/notifications/logs 200 in 32ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+🔍 [Header] Debug user data: {
+  user: {
+    id: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    email: 'graziely@gobi.consulting',
+    full_name: 'Graziely Duete'
+  },
+  fullName: 'Graziely Duete',
+  email: 'graziely@gobi.consulting',
+  hasUser: true
+}
+✅ [Header] Using full_name initials: GD
+ GET /admin/notifications/logs 200 in 788ms
+ GET /admin/projects 200 in 23ms
+ GET /admin 200 in 24ms
+ GET /admin/projects 200 in 16ms
+Project data received: {
+  id: '7489df20-356f-4af5-bf45-52cf936dd040',
+  name: 'Transfer Price',
+  description: 'Transfer Price',
+  status: 'in_progress',
+  priority: 'high',
+  start_date: '2025-09-08',
+  end_date: '2025-11-14',
+  budget: 55385,
+  company_id: '443a6a0e-768f-48e4-a9ea-0cd972375a30',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-04T20:13:08.525012+00:00',
+  updated_at: '2025-09-30T17:31:15.916903+00:00',
+  technical_responsible: 'Vitor Pinheiro',
+  key_user: 'Isabela Brito',
+  estimated_hours: 265,
+  project_type: 'automation',
+  category: 'project'
+}
+ GET /admin/projects/7489df20-356f-4af5-bf45-52cf936dd040/edit 200 in 210ms
+ GET /admin/projects 200 in 21ms
+Project data received: {
+  id: '9b7482b6-91fe-420c-9316-6945f2481899',
+  name: 'Venda Spot',
+  description: 'RPA Venda Spot',
+  status: 'in_progress',
+  priority: 'medium',
+  start_date: '2025-09-22',
+  end_date: '2025-12-09',
+  budget: 36366,
+  company_id: '443a6a0e-768f-48e4-a9ea-0cd972375a30',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-04T20:07:09.46689+00:00',
+  updated_at: '2025-09-30T17:33:34.70103+00:00',
+  technical_responsible: 'Graziely Duete',
+  key_user: 'Patricia Arruda',
+  estimated_hours: 174,
+  project_type: 'automation',
+  category: 'project'
+}
+ GET /admin/projects/9b7482b6-91fe-420c-9316-6945f2481899/edit 200 in 224ms
+ GET /admin 200 in 25ms
+ GET /admin/projects 200 in 25ms
+Project data received: {
+  id: '39f536a2-ab42-487e-8b40-c69edb61a99c',
+  name: ' Ferramenta de Matriz de Maturidade AGP Clima',
+  description: null,
+  status: 'cancelled',
+  priority: 'medium',
+  start_date: null,
+  end_date: null,
+  budget: 222564,
+  company_id: '2bdb428a-702d-4182-a351-2cf3e31aa871',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-22T15:46:24.564144+00:00',
+  updated_at: '2025-09-29T22:48:42.800618+00:00',
+  technical_responsible: 'Guilherme Araújo',
+  key_user: 'Thamara Coelho',
+  estimated_hours: 856,
+  project_type: 'data_analytics',
+  category: 'project'
+}
+ GET /admin/projects/39f536a2-ab42-487e-8b40-c69edb61a99c/edit 200 in 187ms
+ GET /admin/projects 200 in 17ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 467ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+🔍 [Header] Debug user data: {
+  user: {
+    id: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    email: 'graziely@gobi.consulting',
+    full_name: 'Graziely Duete'
+  },
+  fullName: 'Graziely Duete',
+  email: 'graziely@gobi.consulting',
+  hasUser: true
+}
+✅ [Header] Using full_name initials: GD
+ GET /admin/projects 200 in 436ms
+Project data received: {
+  id: '39f536a2-ab42-487e-8b40-c69edb61a99c',
+  name: ' Ferramenta de Matriz de Maturidade AGP Clima',
+  description: null,
+  status: 'delayed',
+  priority: 'medium',
+  start_date: null,
+  end_date: null,
+  budget: 222564,
+  company_id: '2bdb428a-702d-4182-a351-2cf3e31aa871',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-22T15:46:24.564144+00:00',
+  updated_at: '2025-09-30T22:47:11.483848+00:00',
+  technical_responsible: 'Guilherme Araújo',
+  key_user: 'Thamara Coelho',
+  estimated_hours: 856,
+  project_type: 'data_analytics',
+  category: 'project'
+}
+ GET /admin/projects/39f536a2-ab42-487e-8b40-c69edb61a99c/edit 200 in 185ms
+ GET /admin/projects 200 in 20ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 357ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+🔍 [Header] Debug user data: {
+  user: {
+    id: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    email: 'graziely@gobi.consulting',
+    full_name: 'Graziely Duete'
+  },
+  fullName: 'Graziely Duete',
+  email: 'graziely@gobi.consulting',
+  hasUser: true
+}
+✅ [Header] Using full_name initials: GD
+ GET /admin/projects 200 in 398ms
+ ✓ Compiled in 1110ms (830 modules)
+ ✓ Compiled in 396ms (830 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 22ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 15ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 417ms (830 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 399ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 1264ms (830 modules)
+ ✓ Compiled in 245ms (830 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 25ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 17ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 1516ms (1860 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 144ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 1192ms (1862 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 143ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 698ms (831 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 26ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 1747ms (831 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 47ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 1331ms (1862 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 75ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 1292ms (1862 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 78ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 831ms (831 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 29ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 1115ms (1862 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 55ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 917ms (831 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 24ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 1189ms (831 modules)
+ ✓ Compiled in 278ms (831 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 37ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 62ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 941ms (1862 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 85ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled /admin/projects/new in 493ms (1853 modules)
+ GET /admin/projects/new 200 in 648ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ○ Compiling /api/notifications/responsaveis ...
+ ✓ Compiled /api/notifications/responsaveis in 771ms (1910 modules)
+🔔 [API] Iniciando notificação para responsável...
+🔔 [API] Dados recebidos: {
+  responsavelId: 'd4887ed1-a52e-4ae0-b427-46810f97fe4c',
+  type: 'project_assigned',
+  title: 'Nova(s) Tarefa(s) Atribuída(s)',
+  message: 'Você foi designado para 1 tarefa(s) no projeto "FTD Marista":\n' +
+    '\n' +
+    '• Elaborar (Início: 25/09/2025, Fim: 02/10/2025)',
+  projectId: '251b2812-0529-4441-9180-37315f227ab7',
+  taskDetails: [
+    {
+      name: 'Elaborar',
+      start_date: '2025-09-26',
+      end_date: '2025-10-03'
+    }
+  ]
+}
+🔔 [API] Chamando notificationService.notifyResponsavel...
+🔔 [ResponsavelNotification] Iniciando notificação: {
+  responsavelId: 'd4887ed1-a52e-4ae0-b427-46810f97fe4c',
+  type: 'project_assigned',
+  title: 'Nova(s) Tarefa(s) Atribuída(s)'
+}
+🔔 [ResponsavelNotification] Status do usuário: { isRegistered: true, userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff' }
+🔔 [ResponsavelNotification] Buscando responsável com ID: d4887ed1-a52e-4ae0-b427-46810f97fe4c
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔔 [ResponsavelNotification] Dados do responsável: {
+  id: 'd4887ed1-a52e-4ae0-b427-46810f97fe4c',
+  nome: 'Graziely Duete',
+  email: 'graziely@gobi.consulting',
+  empresa: 'Gobi'
+}
+🔔 [ResponsavelNotification] Verificando condições para notificação in-app: { isRegistered: true, userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff' }
+🔔 [ResponsavelNotification] Criando notificação in-app para usuário registrado: 8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔔 [ResponsavelNotification] Notificação in-app criada com sucesso: [
+  {
+    id: '8bd28eb7-1bd1-48d2-a665-9436cba93369',
+    user_id: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    company_id: null,
+    project_id: '251b2812-0529-4441-9180-37315f227ab7',
+    type: 'project_assigned',
+    title: 'Nova(s) Tarefa(s) Atribuída(s)',
+    message: 'Você foi designado para 1 tarefa(s) no projeto "FTD Marista":\n' +
+      '\n' +
+      '• Elaborar (Início: 25/09/2025, Fim: 02/10/2025)',
+    read: false,
+    created_at: '2025-09-30T22:54:38.290671+00:00',
+    task_id: null,
+    responsavel_id: 'd4887ed1-a52e-4ae0-b427-46810f97fe4c'
+  }
+]
+🔔 [ResponsavelNotification] Log registrado com sucesso, ID: 036db325-886e-4d35-80b5-1ac613640440
+📅 formatDateBrazil: Recebido: 2025-09-26
+✅ formatDateBrazil: Formatado: 25/09/2025
+📅 formatDateBrazil: Recebido: 2025-10-03
+✅ formatDateBrazil: Formatado: 02/10/2025
+📅 formatDateBrazil: Recebido: 2025-09-26
+✅ formatDateBrazil: Formatado: 25/09/2025
+📅 formatDateBrazil: Recebido: 2025-10-03
+✅ formatDateBrazil: Formatado: 02/10/2025
+📧 [EmailService] Enviando email para: graziely@gobi.consulting
+📧 [EmailService] Assunto: 🎯 1 Nova(s) Tarefa(s) Atribuída(s) - FTD Marista
+📧 [EmailService] SMTP_USER: Configurado
+📧 [EmailService] SMTP_PASS: Configurado
+📧 [EmailService] Transporter configurado, verificando conexão...
+✅ [EmailService] Conexão SMTP verificada
+📧 [EmailService] Enviando email...
+✅ [EmailService] Email enviado com sucesso: <3c6cd316-7057-ae94-e353-3205eede7c76@gmail.com>
+📧 Email enviado para graziely@gobi.consulting: 🎯 1 Nova(s) Tarefa(s) Atribuída(s) - FTD Marista
+🔔 [ResponsavelNotification] Tentando atualizar log com ID: 036db325-886e-4d35-80b5-1ac613640440
+🔔 [ResponsavelNotification] Status do log atualizado para "sent" com sucesso
+🔔 [API] Notificação enviada com sucesso: { success: true, isRegistered: true }
+ POST /api/notifications/responsaveis 200 in 7252ms
+ ✓ Compiled /api/notifications/project-created in 404ms (1914 modules)
+ POST /api/notifications/project-created 200 in 1214ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled /admin/projects/[id]/edit in 214ms (1105 modules)
+Project data received: {
+  id: '251b2812-0529-4441-9180-37315f227ab7',
+  name: 'FTD Marista',
+  description: null,
+  status: 'commercial_proposal',
+  priority: 'medium',
+  start_date: null,
+  end_date: null,
+  budget: null,
+  company_id: 'f4059f2c-af58-4979-bfda-2d3285dea4c2',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-30T22:54:35.970817+00:00',
+  updated_at: '2025-09-30T22:54:35.970817+00:00',
+  technical_responsible: null,
+  key_user: null,
+  estimated_hours: null,
+  project_type: 'consulting',
+  category: 'project'
+}
+ GET /admin/projects/251b2812-0529-4441-9180-37315f227ab7/edit 200 in 525ms
+Project data received: {
+  id: '251b2812-0529-4441-9180-37315f227ab7',
+  name: 'FTD Marista',
+  description: null,
+  status: 'commercial_proposal',
+  priority: 'medium',
+  start_date: null,
+  end_date: null,
+  budget: null,
+  company_id: 'f4059f2c-af58-4979-bfda-2d3285dea4c2',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-30T22:54:35.970817+00:00',
+  updated_at: '2025-09-30T22:54:35.970817+00:00',
+  technical_responsible: null,
+  key_user: null,
+  estimated_hours: null,
+  project_type: 'consulting',
+  category: 'project'
+}
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/251b2812-0529-4441-9180-37315f227ab7/edit 200 in 419ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+Project data received: {
+  id: '251b2812-0529-4441-9180-37315f227ab7',
+  name: 'FTD Marista',
+  description: null,
+  status: 'commercial_proposal',
+  priority: 'medium',
+  start_date: null,
+  end_date: null,
+  budget: null,
+  company_id: 'f4059f2c-af58-4979-bfda-2d3285dea4c2',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-30T22:54:35.970817+00:00',
+  updated_at: '2025-09-30T22:54:35.970817+00:00',
+  technical_responsible: null,
+  key_user: null,
+  estimated_hours: null,
+  project_type: 'consulting',
+  category: 'project'
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+🔍 [Header] Debug user data: {
+  user: {
+    id: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    email: 'graziely@gobi.consulting',
+    full_name: 'Graziely Duete'
+  },
+  fullName: 'Graziely Duete',
+  email: 'graziely@gobi.consulting',
+  hasUser: true
+}
+✅ [Header] Using full_name initials: GD
+ProjectForm received project: {
+  id: '251b2812-0529-4441-9180-37315f227ab7',
+  name: 'FTD Marista',
+  description: null,
+  status: 'commercial_proposal',
+  priority: 'medium',
+  start_date: null,
+  end_date: null,
+  budget: null,
+  company_id: 'f4059f2c-af58-4979-bfda-2d3285dea4c2',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-30T22:54:35.970817+00:00',
+  updated_at: '2025-09-30T22:54:35.970817+00:00',
+  technical_responsible: null,
+  key_user: null,
+  estimated_hours: null,
+  project_type: 'consulting',
+  category: 'project'
+}
+Initial formData: {
+  name: 'FTD Marista',
+  description: '',
+  status: 'commercial_proposal',
+  priority: 'medium',
+  project_type: 'consulting',
+  category: 'project',
+  start_date: '',
+  end_date: '',
+  budget: '',
+  company_id: 'f4059f2c-af58-4979-bfda-2d3285dea4c2',
+  technical_responsible: '',
+  key_user: '',
+  estimated_hours: ''
+}
+ GET /admin/projects/251b2812-0529-4441-9180-37315f227ab7/edit 200 in 997ms
+ GET /admin/projects 200 in 62ms
+Project data received: {
+  id: '251b2812-0529-4441-9180-37315f227ab7',
+  name: 'FTD Marista',
+  description: null,
+  status: 'commercial_proposal',
+  priority: 'medium',
+  start_date: null,
+  end_date: null,
+  budget: null,
+  company_id: 'f4059f2c-af58-4979-bfda-2d3285dea4c2',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-30T22:54:35.970817+00:00',
+  updated_at: '2025-09-30T22:54:35.970817+00:00',
+  technical_responsible: null,
+  key_user: null,
+  estimated_hours: null,
+  project_type: 'consulting',
+  category: 'project'
+}
+ GET /admin/projects/251b2812-0529-4441-9180-37315f227ab7/edit 200 in 371ms
+ ✓ Compiled in 3s (1844 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+Project data received: {
+  id: '251b2812-0529-4441-9180-37315f227ab7',
+  name: 'FTD Marista',
+  description: null,
+  status: 'commercial_proposal',
+  priority: 'medium',
+  start_date: null,
+  end_date: null,
+  budget: null,
+  company_id: 'f4059f2c-af58-4979-bfda-2d3285dea4c2',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-30T22:54:35.970817+00:00',
+  updated_at: '2025-09-30T22:54:35.970817+00:00',
+  technical_responsible: null,
+  key_user: null,
+  estimated_hours: null,
+  project_type: 'consulting',
+  category: 'project'
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ GET /admin/projects/251b2812-0529-4441-9180-37315f227ab7/edit 200 in 198ms
+ ✓ Compiled in 1029ms (832 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+Project data received: {
+  id: '251b2812-0529-4441-9180-37315f227ab7',
+  name: 'FTD Marista',
+  description: null,
+  status: 'commercial_proposal',
+  priority: 'medium',
+  start_date: null,
+  end_date: null,
+  budget: null,
+  company_id: 'f4059f2c-af58-4979-bfda-2d3285dea4c2',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-30T22:54:35.970817+00:00',
+  updated_at: '2025-09-30T22:54:35.970817+00:00',
+  technical_responsible: null,
+  key_user: null,
+  estimated_hours: null,
+  project_type: 'consulting',
+  category: 'project'
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/251b2812-0529-4441-9180-37315f227ab7/edit 200 in 31ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 1102ms (1844 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+Project data received: {
+  id: '251b2812-0529-4441-9180-37315f227ab7',
+  name: 'FTD Marista',
+  description: null,
+  status: 'commercial_proposal',
+  priority: 'medium',
+  start_date: null,
+  end_date: null,
+  budget: null,
+  company_id: 'f4059f2c-af58-4979-bfda-2d3285dea4c2',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-30T22:54:35.970817+00:00',
+  updated_at: '2025-09-30T22:54:35.970817+00:00',
+  technical_responsible: null,
+  key_user: null,
+  estimated_hours: null,
+  project_type: 'consulting',
+  category: 'project'
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/251b2812-0529-4441-9180-37315f227ab7/edit 200 in 120ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 1699ms (1844 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+Project data received: {
+  id: '251b2812-0529-4441-9180-37315f227ab7',
+  name: 'FTD Marista',
+  description: null,
+  status: 'commercial_proposal',
+  priority: 'medium',
+  start_date: null,
+  end_date: null,
+  budget: null,
+  company_id: 'f4059f2c-af58-4979-bfda-2d3285dea4c2',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-30T22:54:35.970817+00:00',
+  updated_at: '2025-09-30T22:54:35.970817+00:00',
+  technical_responsible: null,
+  key_user: null,
+  estimated_hours: null,
+  project_type: 'consulting',
+  category: 'project'
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/251b2812-0529-4441-9180-37315f227ab7/edit 200 in 215ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ GET /admin/projects 200 in 26ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 1549ms (1844 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 99ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 902ms (832 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 23ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 1098ms (832 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 28ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ GET /admin 200 in 55ms
+ GET /admin/projects 200 in 26ms
+ ○ Compiling /admin/estimativas ...
+ ✓ Compiled /admin/estimativas in 663ms (1849 modules)
+ GET /admin/estimativas 200 in 719ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled /admin/responsaveis in 459ms (1864 modules)
+ GET /admin/responsaveis 200 in 554ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ GET /admin/notifications/logs 200 in 52ms
+ ✓ Compiled in 712ms (1878 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/notifications/logs 200 in 77ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ GET /admin/projects 200 in 38ms
+Project data received: {
+  id: '251b2812-0529-4441-9180-37315f227ab7',
+  name: 'FTD Marista',
+  description: null,
+  status: 'commercial_proposal',
+  priority: 'medium',
+  start_date: null,
+  end_date: null,
+  budget: null,
+  company_id: 'f4059f2c-af58-4979-bfda-2d3285dea4c2',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-30T22:54:35.970817+00:00',
+  updated_at: '2025-09-30T22:54:35.970817+00:00',
+  technical_responsible: null,
+  key_user: null,
+  estimated_hours: null,
+  project_type: 'consulting',
+  category: 'project'
+}
+ GET /admin/projects/251b2812-0529-4441-9180-37315f227ab7/edit 200 in 282ms
+ ○ Compiling /api/notifications/responsaveis ...
+ ✓ Compiled /api/notifications/responsaveis in 605ms (1082 modules)
+🔔 [API] Iniciando notificação para responsável...
+🔔 [API] Dados recebidos: {
+  responsavelId: 'd4887ed1-a52e-4ae0-b427-46810f97fe4c',
+  type: 'project_assigned',
+  title: 'Nova(s) Tarefa(s) Atribuída(s)',
+  message: 'Você foi designado para 1 tarefa(s) no projeto "FTD Marista":\n' +
+    '\n' +
+    '• Revisar (Início: 25/09/2025, Fim: 02/10/2025)',
+  projectId: '251b2812-0529-4441-9180-37315f227ab7',
+  taskDetails: [
+    {
+      name: 'Revisar',
+      start_date: '2025-09-26',
+      end_date: '2025-10-03'
+    }
+  ]
+}
+🔔 [API] Chamando notificationService.notifyResponsavel...
+🔔 [ResponsavelNotification] Iniciando notificação: {
+  responsavelId: 'd4887ed1-a52e-4ae0-b427-46810f97fe4c',
+  type: 'project_assigned',
+  title: 'Nova(s) Tarefa(s) Atribuída(s)'
+}
+🔔 [ResponsavelNotification] Status do usuário: { isRegistered: true, userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff' }
+🔔 [ResponsavelNotification] Buscando responsável com ID: d4887ed1-a52e-4ae0-b427-46810f97fe4c
+🔔 [ResponsavelNotification] Dados do responsável: {
+  id: 'd4887ed1-a52e-4ae0-b427-46810f97fe4c',
+  nome: 'Graziely Duete',
+  email: 'graziely@gobi.consulting',
+  empresa: 'Gobi'
+}
+🔔 [ResponsavelNotification] Verificando condições para notificação in-app: { isRegistered: true, userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff' }
+🔔 [ResponsavelNotification] Criando notificação in-app para usuário registrado: 8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔔 [ResponsavelNotification] Notificação in-app criada com sucesso: [
+  {
+    id: '323226de-e161-4b3b-a0d8-352d6c9e8d96',
+    user_id: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    company_id: null,
+    project_id: '251b2812-0529-4441-9180-37315f227ab7',
+    type: 'project_assigned',
+    title: 'Nova(s) Tarefa(s) Atribuída(s)',
+    message: 'Você foi designado para 1 tarefa(s) no projeto "FTD Marista":\n' +
+      '\n' +
+      '• Revisar (Início: 25/09/2025, Fim: 02/10/2025)',
+    read: false,
+    created_at: '2025-09-30T22:59:19.51706+00:00',
+    task_id: null,
+    responsavel_id: 'd4887ed1-a52e-4ae0-b427-46810f97fe4c'
+  }
+]
+🔔 [ResponsavelNotification] Log registrado com sucesso, ID: 28813dfe-0b68-46cb-8eed-43451d25120e
+📅 formatDateBrazil: Recebido: 2025-09-26
+✅ formatDateBrazil: Formatado: 25/09/2025
+📅 formatDateBrazil: Recebido: 2025-10-03
+✅ formatDateBrazil: Formatado: 02/10/2025
+📅 formatDateBrazil: Recebido: 2025-09-26
+✅ formatDateBrazil: Formatado: 25/09/2025
+📅 formatDateBrazil: Recebido: 2025-10-03
+✅ formatDateBrazil: Formatado: 02/10/2025
+📧 [EmailService] Enviando email para: graziely@gobi.consulting
+📧 [EmailService] Assunto: 🎯 1 Nova(s) Tarefa(s) Atribuída(s) - FTD Marista
+📧 [EmailService] SMTP_USER: Configurado
+📧 [EmailService] SMTP_PASS: Configurado
+📧 [EmailService] Transporter configurado, verificando conexão...
+✅ [EmailService] Conexão SMTP verificada
+📧 [EmailService] Enviando email...
+✅ [EmailService] Email enviado com sucesso: <aace9735-87c9-39f4-fd42-6475a42eba8c@gmail.com>
+📧 Email enviado para graziely@gobi.consulting: 🎯 1 Nova(s) Tarefa(s) Atribuída(s) - FTD Marista
+🔔 [ResponsavelNotification] Tentando atualizar log com ID: 28813dfe-0b68-46cb-8eed-43451d25120e
+🔔 [ResponsavelNotification] Status do log atualizado para "sent" com sucesso
+🔔 [API] Notificação enviada com sucesso: { success: true, isRegistered: true }
+ POST /api/notifications/responsaveis 200 in 6379ms
+ GET /admin/projects 200 in 57ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 341ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+🔍 [Header] Debug user data: {
+  user: {
+    id: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    email: 'graziely@gobi.consulting',
+    full_name: 'Graziely Duete'
+  },
+  fullName: 'Graziely Duete',
+  email: 'graziely@gobi.consulting',
+  hasUser: true
+}
+✅ [Header] Using full_name initials: GD
+ GET /admin/projects 200 in 691ms
+ ✓ Compiled in 2.1s (1853 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 202ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 1625ms (1853 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 94ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 1165ms (1853 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 74ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 802ms (1853 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 72ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+Project data received: {
+  id: '251b2812-0529-4441-9180-37315f227ab7',
+  name: 'FTD Marista',
+  description: null,
+  status: 'commercial_proposal',
+  priority: 'medium',
+  start_date: null,
+  end_date: null,
+  budget: null,
+  company_id: 'f4059f2c-af58-4979-bfda-2d3285dea4c2',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-30T22:54:35.970817+00:00',
+  updated_at: '2025-09-30T22:59:17.259377+00:00',
+  technical_responsible: null,
+  key_user: null,
+  estimated_hours: null,
+  project_type: 'consulting',
+  category: 'project'
+}
+ GET /admin/projects/251b2812-0529-4441-9180-37315f227ab7/edit 200 in 973ms
+ ○ Compiling /api/notifications/responsaveis ...
+ ✓ Compiled /api/notifications/responsaveis in 2.8s (1074 modules)
+🔔 [API] Iniciando notificação para responsável...
+🔔 [API] Dados recebidos: {
+  responsavelId: 'd4887ed1-a52e-4ae0-b427-46810f97fe4c',
+  type: 'project_assigned',
+  title: 'Nova(s) Tarefa(s) Atribuída(s)',
+  message: 'Você foi designado para 1 tarefa(s) no projeto "FTD Marista":\n' +
+    '\n' +
+    '• Enviar (Início: 02/10/2025, Fim: 04/10/2025)',
+  projectId: '251b2812-0529-4441-9180-37315f227ab7',
+  taskDetails: [
+    {
+      name: 'Enviar',
+      start_date: '2025-10-03',
+      end_date: '2025-10-05'
+    }
+  ]
+}
+🔔 [API] Chamando notificationService.notifyResponsavel...
+🔔 [ResponsavelNotification] Iniciando notificação: {
+  responsavelId: 'd4887ed1-a52e-4ae0-b427-46810f97fe4c',
+  type: 'project_assigned',
+  title: 'Nova(s) Tarefa(s) Atribuída(s)'
+}
+🔔 [ResponsavelNotification] Status do usuário: { isRegistered: true, userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff' }
+🔔 [ResponsavelNotification] Buscando responsável com ID: d4887ed1-a52e-4ae0-b427-46810f97fe4c
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔔 [ResponsavelNotification] Dados do responsável: {
+  id: 'd4887ed1-a52e-4ae0-b427-46810f97fe4c',
+  nome: 'Graziely Duete',
+  email: 'graziely@gobi.consulting',
+  empresa: 'Gobi'
+}
+🔔 [ResponsavelNotification] Verificando condições para notificação in-app: { isRegistered: true, userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff' }
+🔔 [ResponsavelNotification] Criando notificação in-app para usuário registrado: 8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff
+🔔 [ResponsavelNotification] Notificação in-app criada com sucesso: [
+  {
+    id: 'c842b1ad-0afb-4fda-8ce0-768f143799aa',
+    user_id: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    company_id: null,
+    project_id: '251b2812-0529-4441-9180-37315f227ab7',
+    type: 'project_assigned',
+    title: 'Nova(s) Tarefa(s) Atribuída(s)',
+    message: 'Você foi designado para 1 tarefa(s) no projeto "FTD Marista":\n' +
+      '\n' +
+      '• Enviar (Início: 02/10/2025, Fim: 04/10/2025)',
+    read: false,
+    created_at: '2025-09-30T23:50:07.711835+00:00',
+    task_id: null,
+    responsavel_id: 'd4887ed1-a52e-4ae0-b427-46810f97fe4c'
+  }
+]
+🔔 [ResponsavelNotification] Log registrado com sucesso, ID: ba5765ee-c4ed-4f1b-9c77-48ec0e629f88
+📅 formatDateBrazil: Recebido: 2025-10-03
+✅ formatDateBrazil: Formatado: 02/10/2025
+📅 formatDateBrazil: Recebido: 2025-10-05
+✅ formatDateBrazil: Formatado: 04/10/2025
+📅 formatDateBrazil: Recebido: 2025-10-03
+✅ formatDateBrazil: Formatado: 02/10/2025
+📅 formatDateBrazil: Recebido: 2025-10-05
+✅ formatDateBrazil: Formatado: 04/10/2025
+📧 [EmailService] Enviando email para: graziely@gobi.consulting
+📧 [EmailService] Assunto: 🎯 1 Nova(s) Tarefa(s) Atribuída(s) - FTD Marista
+📧 [EmailService] SMTP_USER: Configurado
+📧 [EmailService] SMTP_PASS: Configurado
+📧 [EmailService] Transporter configurado, verificando conexão...
+✅ [EmailService] Conexão SMTP verificada
+📧 [EmailService] Enviando email...
+✅ [EmailService] Email enviado com sucesso: <5287e2fa-b727-3c39-81c7-305190f2a912@gmail.com>
+📧 Email enviado para graziely@gobi.consulting: 🎯 1 Nova(s) Tarefa(s) Atribuída(s) - FTD Marista
+🔔 [ResponsavelNotification] Tentando atualizar log com ID: ba5765ee-c4ed-4f1b-9c77-48ec0e629f88
+🔔 [ResponsavelNotification] Status do log atualizado para "sent" com sucesso
+🔔 [API] Notificação enviada com sucesso: { success: true, isRegistered: true }
+ POST /api/notifications/responsaveis 200 in 8509ms
+ GET /admin/projects 200 in 84ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 485ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+🔍 [Header] Debug user data: {
+  user: {
+    id: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    email: 'graziely@gobi.consulting',
+    full_name: 'Graziely Duete'
+  },
+  fullName: 'Graziely Duete',
+  email: 'graziely@gobi.consulting',
+  hasUser: true
+}
+✅ [Header] Using full_name initials: GD
+ GET /admin/projects 200 in 692ms
+ ✓ Compiled in 1540ms (1853 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 220ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ○ Compiling /auth/login ...
+ ✓ Compiled /auth/login in 619ms (1031 modules)
+ GET /auth/login 200 in 797ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 1987ms (1873 modules)
+ GET /auth/login 200 in 150ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 608ms (1900 modules)
+🔍 [ClientLayout] User role check: {
+  userId: 'dd360ee3-d34c-4e94-b56c-b06ee048b9f8',
+  userEmail: 'gsouzaduete@gmail.com',
+  profileRole: 'client',
+  shouldRedirect: false
+}
+ GET /dashboard 200 in 1234ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ GET /auth/login 200 in 79ms
+ ✓ Compiled /admin in 377ms (835 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+🔍 [Header] Debug user data: {
+  user: {
+    id: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    email: 'graziely@gobi.consulting',
+    full_name: 'Graziely Duete'
+  },
+  fullName: 'Graziely Duete',
+  email: 'graziely@gobi.consulting',
+  hasUser: true
+}
+✅ [Header] Using full_name initials: GD
+🏢 Empresas para contagem: 0
+👥 Usuários para contagem: 0
+👥 Total de usuários no sistema: 0
+👥 Total de associações usuário-empresa: 0
+👥 Associações da empresa selecionada: []
+📊 Projetos filtrados por período: 0
+📊 Total de projetos da empresa: 0
+🔍 Projetos por status: []
+🚀 Projetos em andamento (excluindo planning): 0
+⏸️ Projetos em planejamento: 0
+⚠️ Projetos atrasados: 0
+✅ Projetos concluídos: 0
+🏢 Estatísticas de horas do HourService: {
+  totalContractedHours: 0,
+  totalConsumedHours: 0,
+  totalRemainingHours: 0,
+  companiesWithPackages: 0
+}
+⏰ Total de horas contratadas: 0
+🔥 Horas consumidas: 0
+⏳ Horas restantes: 0
+💰 Total de faturamento: 0
+📁 Todos os projetos: 0
+🔍 Projetos filtrados por período: 0
+📊 Total de projetos (filtrado por empresa e período): 0
+📊 NOVA LÓGICA - Usando payment_metrics:
+📊 Total esperado: 0
+📊 Breakdown: []
+🔍 [GanttView] Projects data: []
+ GET /admin 200 in 1077ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ GET /admin/projects 200 in 46ms
+ ✓ Compiled /admin/projects/[id]/edit in 273ms (1055 modules)
+Project data received: {
+  id: '251b2812-0529-4441-9180-37315f227ab7',
+  name: 'FTD Marista',
+  description: null,
+  status: 'commercial_proposal',
+  priority: 'medium',
+  start_date: null,
+  end_date: null,
+  budget: null,
+  company_id: 'f4059f2c-af58-4979-bfda-2d3285dea4c2',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-30T22:54:35.970817+00:00',
+  updated_at: '2025-09-30T23:50:02.876922+00:00',
+  technical_responsible: null,
+  key_user: null,
+  estimated_hours: null,
+  project_type: 'consulting',
+  category: 'project'
+}
+ GET /admin/projects/251b2812-0529-4441-9180-37315f227ab7/edit 200 in 536ms
+ ○ Compiling /api/notifications/responsaveis ...
+ ✓ Compiled /api/notifications/responsaveis in 514ms (1111 modules)
+🔔 [API] Iniciando notificação para responsável...
+🔔 [API] Dados recebidos: {
+  responsavelId: 'd4887ed1-a52e-4ae0-b427-46810f97fe4c',
+  type: 'project_assigned',
+  title: 'Nova(s) Tarefa(s) Atribuída(s)',
+  message: 'Você foi designado para 1 tarefa(s) no projeto "FTD Marista":\n' +
+    '\n' +
+    '• Aguardar (Início: 05/10/2025, Fim: 15/10/2025)',
+  projectId: '251b2812-0529-4441-9180-37315f227ab7',
+  taskDetails: [
+    {
+      name: 'Aguardar',
+      start_date: '2025-10-05',
+      end_date: '2025-10-15'
+    }
+  ]
+}
+🔔 [API] Chamando notificationService.notifyResponsavel...
+🔔 [ResponsavelNotification] Iniciando notificação: {
+  responsavelId: 'd4887ed1-a52e-4ae0-b427-46810f97fe4c',
+  type: 'project_assigned',
+  title: 'Nova(s) Tarefa(s) Atribuída(s)'
+}
+🔔 [ResponsavelNotification] Status do usuário: { isRegistered: true, userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff' }
+🔔 [ResponsavelNotification] Buscando responsável com ID: d4887ed1-a52e-4ae0-b427-46810f97fe4c
+🔔 [ResponsavelNotification] Dados do responsável: {
+  id: 'd4887ed1-a52e-4ae0-b427-46810f97fe4c',
+  nome: 'Graziely Duete',
+  email: 'graziely@gobi.consulting',
+  empresa: 'Gobi'
+}
+🔔 [ResponsavelNotification] Verificando condições para notificação in-app: { isRegistered: true, userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff' }
+🔔 [ResponsavelNotification] Criando notificação in-app para usuário registrado: 8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔔 [ResponsavelNotification] Notificação in-app criada com sucesso: [
+  {
+    id: '3d82f0e8-e0c6-4c58-819c-348bb9f3ac74',
+    user_id: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    company_id: null,
+    project_id: '251b2812-0529-4441-9180-37315f227ab7',
+    type: 'project_assigned',
+    title: 'Nova(s) Tarefa(s) Atribuída(s)',
+    message: 'Você foi designado para 1 tarefa(s) no projeto "FTD Marista":\n' +
+      '\n' +
+      '• Aguardar (Início: 05/10/2025, Fim: 15/10/2025)',
+    read: false,
+    created_at: '2025-09-30T23:53:18.273071+00:00',
+    task_id: null,
+    responsavel_id: 'd4887ed1-a52e-4ae0-b427-46810f97fe4c'
+  }
+]
+🔔 [ResponsavelNotification] Log registrado com sucesso, ID: 871796ca-5b7c-49ac-a7d5-63c1f8b0e549
+📅 formatDateBrazil: Recebido: 2025-10-05
+✅ formatDateBrazil: Formatado: 04/10/2025
+📅 formatDateBrazil: Recebido: 2025-10-15
+✅ formatDateBrazil: Formatado: 14/10/2025
+📅 formatDateBrazil: Recebido: 2025-10-05
+✅ formatDateBrazil: Formatado: 04/10/2025
+📅 formatDateBrazil: Recebido: 2025-10-15
+✅ formatDateBrazil: Formatado: 14/10/2025
+📧 [EmailService] Enviando email para: graziely@gobi.consulting
+📧 [EmailService] Assunto: 🎯 1 Nova(s) Tarefa(s) Atribuída(s) - FTD Marista
+📧 [EmailService] SMTP_USER: Configurado
+📧 [EmailService] SMTP_PASS: Configurado
+📧 [EmailService] Transporter configurado, verificando conexão...
+✅ [EmailService] Conexão SMTP verificada
+📧 [EmailService] Enviando email...
+✅ [EmailService] Email enviado com sucesso: <9d9c9a7d-e318-c9e4-aef9-d2fbe9443bb4@gmail.com>
+📧 Email enviado para graziely@gobi.consulting: 🎯 1 Nova(s) Tarefa(s) Atribuída(s) - FTD Marista
+🔔 [ResponsavelNotification] Tentando atualizar log com ID: 871796ca-5b7c-49ac-a7d5-63c1f8b0e549
+🔔 [ResponsavelNotification] Status do log atualizado para "sent" com sucesso
+🔔 [API] Notificação enviada com sucesso: { success: true, isRegistered: true }
+ POST /api/notifications/responsaveis 200 in 6693ms
+ GET /admin/projects 200 in 122ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 384ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+🔍 [Header] Debug user data: {
+  user: {
+    id: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    email: 'graziely@gobi.consulting',
+    full_name: 'Graziely Duete'
+  },
+  fullName: 'Graziely Duete',
+  email: 'graziely@gobi.consulting',
+  hasUser: true
+}
+✅ [Header] Using full_name initials: GD
+ GET /admin/projects 200 in 571ms
+ ✓ Compiled in 1500ms (1903 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 175ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 3.4s (859 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 34ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 534ms (859 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 138ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+Project data received: {
+  id: '251b2812-0529-4441-9180-37315f227ab7',
+  name: 'FTD Marista',
+  description: null,
+  status: 'commercial_proposal',
+  priority: 'medium',
+  start_date: null,
+  end_date: null,
+  budget: null,
+  company_id: 'f4059f2c-af58-4979-bfda-2d3285dea4c2',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-30T22:54:35.970817+00:00',
+  updated_at: '2025-09-30T23:53:16.015665+00:00',
+  technical_responsible: null,
+  key_user: null,
+  estimated_hours: null,
+  project_type: 'consulting',
+  category: 'project'
+}
+ GET /admin/projects/251b2812-0529-4441-9180-37315f227ab7/edit 200 in 408ms
+ ✓ Compiled /api/notifications/responsaveis in 452ms (1112 modules)
+🔔 [API] Iniciando notificação para responsável...
+🔔 [API] Dados recebidos: {
+  responsavelId: 'd4887ed1-a52e-4ae0-b427-46810f97fe4c',
+  type: 'project_assigned',
+  title: 'Nova(s) Tarefa(s) Atribuída(s)',
+  message: 'Você foi designado para 1 tarefa(s) no projeto "FTD Marista":\n' +
+    '\n' +
+    '• Cobrar (Início: 15/10/2025, Fim: 25/10/2025)',
+  projectId: '251b2812-0529-4441-9180-37315f227ab7',
+  taskDetails: [
+    {
+      name: 'Cobrar',
+      start_date: '2025-10-15',
+      end_date: '2025-10-25'
+    }
+  ]
+}
+🔔 [API] Chamando notificationService.notifyResponsavel...
+🔔 [ResponsavelNotification] Iniciando notificação: {
+  responsavelId: 'd4887ed1-a52e-4ae0-b427-46810f97fe4c',
+  type: 'project_assigned',
+  title: 'Nova(s) Tarefa(s) Atribuída(s)'
+}
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+Project data received: {
+  id: '251b2812-0529-4441-9180-37315f227ab7',
+  name: 'FTD Marista',
+  description: null,
+  status: 'commercial_proposal',
+  priority: 'medium',
+  start_date: null,
+  end_date: null,
+  budget: null,
+  company_id: 'f4059f2c-af58-4979-bfda-2d3285dea4c2',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-30T22:54:35.970817+00:00',
+  updated_at: '2025-09-30T23:53:16.015665+00:00',
+  technical_responsible: null,
+  key_user: null,
+  estimated_hours: null,
+  project_type: 'consulting',
+  category: 'project'
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/251b2812-0529-4441-9180-37315f227ab7/edit 200 in 315ms
+🔔 [ResponsavelNotification] Status do usuário: { isRegistered: true, userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff' }
+🔔 [ResponsavelNotification] Buscando responsável com ID: d4887ed1-a52e-4ae0-b427-46810f97fe4c
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔔 [ResponsavelNotification] Dados do responsável: {
+  id: 'd4887ed1-a52e-4ae0-b427-46810f97fe4c',
+  nome: 'Graziely Duete',
+  email: 'graziely@gobi.consulting',
+  empresa: 'Gobi'
+}
+🔔 [ResponsavelNotification] Verificando condições para notificação in-app: { isRegistered: true, userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff' }
+🔔 [ResponsavelNotification] Criando notificação in-app para usuário registrado: 8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff
+🔔 [ResponsavelNotification] Notificação in-app criada com sucesso: [
+  {
+    id: '1a26b9f8-8fbe-485b-a307-98d17550d3bf',
+    user_id: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    company_id: null,
+    project_id: '251b2812-0529-4441-9180-37315f227ab7',
+    type: 'project_assigned',
+    title: 'Nova(s) Tarefa(s) Atribuída(s)',
+    message: 'Você foi designado para 1 tarefa(s) no projeto "FTD Marista":\n' +
+      '\n' +
+      '• Cobrar (Início: 15/10/2025, Fim: 25/10/2025)',
+    read: false,
+    created_at: '2025-09-30T23:55:41.467114+00:00',
+    task_id: null,
+    responsavel_id: 'd4887ed1-a52e-4ae0-b427-46810f97fe4c'
+  }
+]
+🔔 [ResponsavelNotification] Log registrado com sucesso, ID: 9cb82fd5-68a1-42aa-8986-0b1c66fbabe5
+📅 formatDateBrazil: Recebido: 2025-10-15
+✅ formatDateBrazil: Formatado: 15/10/2025
+📅 formatDateBrazil: Recebido: 2025-10-25
+✅ formatDateBrazil: Formatado: 25/10/2025
+📅 formatDateBrazil: Recebido: 2025-10-15
+✅ formatDateBrazil: Formatado: 15/10/2025
+📅 formatDateBrazil: Recebido: 2025-10-25
+✅ formatDateBrazil: Formatado: 25/10/2025
+📧 [EmailService] Enviando email para: graziely@gobi.consulting
+📧 [EmailService] Assunto: 🎯 1 Nova(s) Tarefa(s) Atribuída(s) - FTD Marista
+📧 [EmailService] SMTP_USER: Configurado
+📧 [EmailService] SMTP_PASS: Configurado
+📧 [EmailService] Transporter configurado, verificando conexão...
+✅ [EmailService] Conexão SMTP verificada
+📧 [EmailService] Enviando email...
+✅ [EmailService] Email enviado com sucesso: <fa65e31b-1ed1-400a-8337-d3e6ec464988@gmail.com>
+📧 Email enviado para graziely@gobi.consulting: 🎯 1 Nova(s) Tarefa(s) Atribuída(s) - FTD Marista
+🔔 [ResponsavelNotification] Tentando atualizar log com ID: 9cb82fd5-68a1-42aa-8986-0b1c66fbabe5
+🔔 [ResponsavelNotification] Status do log atualizado para "sent" com sucesso
+🔔 [API] Notificação enviada com sucesso: { success: true, isRegistered: true }
+ POST /api/notifications/responsaveis 200 in 5959ms
+ GET /admin/projects 200 in 59ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 512ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+🔍 [Header] Debug user data: {
+  user: {
+    id: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    email: 'graziely@gobi.consulting',
+    full_name: 'Graziely Duete'
+  },
+  fullName: 'Graziely Duete',
+  email: 'graziely@gobi.consulting',
+  hasUser: true
+}
+✅ [Header] Using full_name initials: GD
+ GET /admin/projects 200 in 566ms
+ ✓ Compiled /admin/notifications/logs in 486ms (1120 modules)
+ GET /admin/notifications/logs 200 in 560ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies

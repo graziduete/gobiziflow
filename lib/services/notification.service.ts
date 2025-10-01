@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/client'
 import { Notification } from '@/lib/types'
+import { responsavelNotificationService } from './responsavel-notification.service'
 
 export class NotificationService {
   private supabase = createClient()
@@ -220,6 +221,112 @@ export class NotificationService {
       console.error('Erro ao deletar notificações antigas:', error)
       throw error
     }
+  }
+
+  // ===== MÉTODOS PARA RESPONSÁVEIS =====
+
+  /**
+   * Notifica responsável sobre novo projeto com tarefas
+   */
+  async notifyResponsavelNewProject(
+    responsavelId: string,
+    projectName: string,
+    tasks: Array<{ name: string; start_date: string; end_date: string; status: string }>,
+    projectId: string
+  ) {
+    return await responsavelNotificationService.notifyNewProjectWithTasks(
+      responsavelId,
+      projectName,
+      tasks,
+      projectId
+    )
+  }
+
+  /**
+   * Notifica responsável sobre tarefa atribuída
+   */
+  async notifyResponsavel(
+    responsavelId: string,
+    type: 'project_assigned' | 'deadline_warning' | 'deadline_urgent' | 'task_overdue',
+    title: string,
+    message: string,
+    projectId?: string,
+    taskId?: string,
+    taskDetails?: Array<{ name: string; start_date?: string; end_date?: string }>
+  ) {
+    return await responsavelNotificationService.notifyResponsavel(
+      responsavelId,
+      type,
+      title,
+      message,
+      projectId,
+      taskId,
+      taskDetails
+    )
+  }
+
+  /**
+   * Notifica responsável sobre prazo próximo
+   */
+  async notifyResponsavelDeadlineWarning(
+    responsavelId: string,
+    taskName: string,
+    endDate: string,
+    projectId: string,
+    taskId?: string
+  ) {
+    return await responsavelNotificationService.notifyDeadlineWarning(
+      responsavelId,
+      taskName,
+      endDate,
+      projectId,
+      taskId
+    )
+  }
+
+  /**
+   * Notifica responsável sobre prazo urgente
+   */
+  async notifyResponsavelDeadlineUrgent(
+    responsavelId: string,
+    taskName: string,
+    endDate: string,
+    projectId: string,
+    taskId?: string
+  ) {
+    return await responsavelNotificationService.notifyDeadlineUrgent(
+      responsavelId,
+      taskName,
+      endDate,
+      projectId,
+      taskId
+    )
+  }
+
+  /**
+   * Notifica responsável sobre tarefa atrasada
+   */
+  async notifyResponsavelTaskOverdue(
+    responsavelId: string,
+    taskName: string,
+    endDate: string,
+    projectId: string,
+    taskId?: string
+  ) {
+    return await responsavelNotificationService.notifyTaskOverdue(
+      responsavelId,
+      taskName,
+      endDate,
+      projectId,
+      taskId
+    )
+  }
+
+  /**
+   * Verifica se responsável é usuário registrado
+   */
+  async isResponsavelRegistered(responsavelId: string) {
+    return await responsavelNotificationService.isResponsavelRegisteredUser(responsavelId)
   }
 }
 

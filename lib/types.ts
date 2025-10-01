@@ -131,9 +131,35 @@ export interface Notification {
   user_id: string
   title: string
   message: string
-  type: 'info' | 'warning' | 'error' | 'success'
+  type: 'info' | 'warning' | 'error' | 'success' | 'project_assigned' | 'deadline_warning' | 'deadline_urgent' | 'task_overdue'
   read: boolean
   created_at: string
+  project_id?: string
+  task_id?: string
+  responsavel_id?: string
+}
+
+export interface Responsavel {
+  id: string
+  nome: string
+  email: string
+  empresa: string | null
+  ativo: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface NotificationLog {
+  id: string
+  responsavel_id: string
+  email: string
+  type: 'project_assigned' | 'deadline_warning' | 'deadline_urgent' | 'task_overdue'
+  subject: string
+  message: string
+  project_id?: string
+  task_id?: string
+  sent_at: string
+  status: 'sent' | 'failed' | 'pending'
 }
 
 // Novas interfaces para o sistema de pacotes de horas

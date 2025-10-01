@@ -57,7 +57,8 @@ export default async function AdminLayout({
     console.log("🔍 [AdminLayout] Profile check:", {
       hasProfile: !!profile,
       profileRole: profile?.role,
-      profileError: profileError?.message
+      profileError: profileError?.message,
+      profileData: profile
     })
 
     if (profileError || !profile) {

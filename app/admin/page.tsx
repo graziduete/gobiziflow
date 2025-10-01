@@ -480,7 +480,7 @@ export default function AdminDashboard() {
   ).length
 
   const projectsInProgress = (selectedCompany !== "all" ? filteredProjects : projects).filter(
-    (p) => p.status && !["completed", "cancelled", "planning"].includes(p.status),
+    (p) => p.status === "in_progress",
   ).length
 
   // Debug: verificar projetos por status
@@ -750,10 +750,7 @@ export default function AdminDashboard() {
         />
         <StatsCard
           title="Projetos em Andamento"
-          value={selectedCompany !== "all" 
-            ? filteredProjects.filter(p => p.status === "in_progress").length
-            : projectsInProgress
-          }
+          value={projectsInProgress}
           description="Em desenvolvimento"
           icon={FolderKanban}
         />

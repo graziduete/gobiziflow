@@ -14,6 +14,7 @@ import { Bell, Settings, User, LogOut } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
+import { translateNotificationMessage, formatDateBrazil } from "@/lib/utils/status-translation"
 
 interface HeaderProps {
   title?: string
@@ -109,7 +110,9 @@ export function Header({ title, userData }: HeaderProps) {
                 notifications.map((n) => (
                   <div
                     key={n.id}
-                    className={`px-4 py-3 border-b last:border-0 ${!n.read ? 'bg-slate-50' : ''}`}
+                    className={`px-4 py-3 border-b last:border-0 cursor-pointer transition-colors hover:bg-slate-100 ${
+                      !n.read ? 'bg-blue-50 border-l-4 border-l-blue-500 font-medium' : ''
+                    }`}
                     onClick={async () => {
                       if (!n.read) {
                         await supabase.from('notifications').update({ read: true }).eq('id', n.id)
@@ -119,9 +122,16 @@ export function Header({ title, userData }: HeaderProps) {
                     }}
                     role="button"
                   >
-                    <div className="text-sm font-medium">{n.title}</div>
-                    <div className="text-xs text-muted-foreground mt-1">{n.message}</div>
-                    <div className="text-[11px] text-muted-foreground mt-1">{new Date(n.created_at).toLocaleDateString('pt-BR')}</div>
+                    <div className="flex items-start gap-2">
+                      {!n.read && (
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-1.5 flex-shrink-0" />
+                      )}
+                      <div className="flex-1">
+                        <div className="text-sm font-medium">{n.title}</div>
+                        <div className="text-xs text-muted-foreground mt-1">{translateNotificationMessage(n.message)}</div>
+                        <div className="text-[11px] text-muted-foreground mt-1">{formatDateBrazil(n.created_at)}</div>
+                      </div>
+                    </div>
                   </div>
                 ))
               )}

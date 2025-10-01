@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { userService } from '@/lib/services/user.service'
 import { createClient } from '@/lib/supabase/client'
-import { sendEmail, emailTemplates } from '@/lib/email'
+import { sendEmail, emailTemplates } from '@/lib/email-server'
 
 export async function POST(request: NextRequest) {
   try {

@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
-import { sendEmail, emailTemplates } from "@/lib/email"
+import { emailTemplates } from "@/lib/email-templates"
 
 interface UserFormProps {
   user?: {
@@ -145,18 +145,27 @@ export function UserForm({ user, onSuccess }: UserFormProps) {
         const result = await response.json()
         console.log("✅ [UserForm] User created via API:", result.user)
 
-        // Send email with credentials
+        // Send email with credentials via API
         const companyName = companies.find(c => c.id === selectedCompany)?.name
-        const emailSent = await sendEmail({
-          to: formData.email,
-          ...emailTemplates.newUserCredentials({
-            fullName: formData.full_name,
-            email: formData.email,
-            password: result.user.password,
-            appUrl: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-            companyName: companyName,
+        const emailTemplate = emailTemplates.newUserCredentials({
+          fullName: formData.full_name,
+          email: formData.email,
+          password: result.user.password,
+          appUrl: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+          companyName: companyName,
+        })
+        
+        const emailResponse = await fetch('/api/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: formData.email,
+            ...emailTemplate
           })
         })
+        
+        const emailResult = await emailResponse.json()
+        const emailSent = emailResult.success
 
         if (emailSent) {
           setSuccess(`Usuário criado com sucesso! E-mail com credenciais enviado para ${formData.email}`)

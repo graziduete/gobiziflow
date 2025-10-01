@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation"
 import { Plus, Trash2, Calendar, Clock, User, Users } from "lucide-react"
 import { GanttChart } from "./gantt-chart"
 import { DraggableTaskList } from "./draggable-task-list"
+import { formatDateBrazil } from "@/lib/utils/status-translation"
 
 const mockCompanies = [
   { id: "1", name: "TechCorp Solutions" },
@@ -272,6 +273,72 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
 
             console.log("[v0] Tasks data prepared:", tasksData)
 
+            // ===== NOTIFICAÇÕES ANTES DE SALVAR =====
+            // Se for um projeto novo (não tem ID), notificar todas as tarefas
+            const isNewProject = !project?.id
+            
+            if (isNewProject) {
+              console.log(`[v0] Projeto novo - notificando todas as tarefas`)
+              await notifyTasksByResponsible(tasks, formData.name, projectId, supabase)
+            } else {
+              // Projeto existente - verificar apenas tarefas novas ou alteradas
+              console.log(`[v0] Projeto existente - verificando tarefas alteradas`)
+              console.log(`[v0] Tarefas atuais:`, tasks.map(t => ({ id: t.id, name: t.name, responsible: t.responsible })))
+              
+              // Buscar tarefas existentes no banco ANTES de salvar
+              const { data: existingTasks, error: existingTasksError } = await supabase
+                .from('tasks')
+                .select('id, name, responsible')
+                .eq('project_id', projectId)
+
+              if (existingTasksError) {
+                console.error(`[v0] Erro ao buscar tarefas existentes:`, existingTasksError)
+              } else {
+                console.log(`[v0] Tarefas existentes no banco:`, existingTasks?.map(t => ({ id: t.id, name: t.name, responsible: t.responsible })))
+                
+                // Coletar tarefas que precisam de notificação
+                const tasksToNotify = []
+                for (const task of tasks) {
+                  if (task.responsible) {
+                    const existingTask = existingTasks?.find(et => et.id === task.id)
+                    
+                    // Notificar se:
+                    // 1. É uma tarefa nova (não existe no banco)
+                    // 2. É uma tarefa existente mas o responsável mudou
+                    const isNewTask = !existingTask
+                    const responsibleChanged = existingTask && existingTask.responsible !== task.responsible
+                    const shouldNotify = isNewTask || responsibleChanged
+                    
+                    console.log(`[v0] Análise da tarefa ${task.name}:`, {
+                      taskId: task.id,
+                      existingTask: existingTask ? { id: existingTask.id, responsible: existingTask.responsible } : null,
+                      currentResponsible: task.responsible,
+                      isNew: isNewTask,
+                      responsibleChanged: responsibleChanged,
+                      shouldNotify
+                    })
+                    
+                    if (shouldNotify) {
+                      console.log(`[v0] ✅ Tarefa ${task.name} precisa de notificação:`, {
+                        isNew: isNewTask,
+                        responsibleChanged: responsibleChanged,
+                        oldResponsible: existingTask?.responsible,
+                        newResponsible: task.responsible
+                      })
+                      tasksToNotify.push(task)
+                    } else {
+                      console.log(`[v0] ❌ Tarefa ${task.name} não precisa de notificação (sem alterações)`)
+                    }
+                  }
+                }
+
+                // Notificar tarefas agrupadas por responsável
+                if (tasksToNotify.length > 0) {
+                  await notifyTasksByResponsible(tasksToNotify, formData.name, projectId, supabase)
+                }
+              }
+            }
+
             // Se for edição, deletar tarefas antigas primeiro
             if (project?.id) {
               const { error: deleteError } = await supabase
@@ -368,10 +435,158 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
     setTasks([...tasks, newTask])
   }
 
-  const updateTask = (taskId: string, field: keyof Task, value: string) => {
-    setTasks(tasks.map(task => 
+  // Usar a função formatDateBrazil do utilitário (importada no topo do arquivo)
+  const formatDate = (dateString: string): string => {
+    if (!dateString) return 'Não definida'
+    return formatDateBrazil(dateString) || 'Não definida'
+  }
+
+  // Função auxiliar para notificar tarefas agrupadas por responsável
+  const notifyTasksByResponsible = async (tasks: any[], projectName: string, projectId: string, supabaseClient: any) => {
+    try {
+      console.log(`[v0] 🔔 NOTIFICAÇÃO AGRUPADA INICIADA para ${tasks.length} tarefas`)
+      
+      // Agrupar tarefas por responsável
+      const tasksByResponsible = new Map<string, any[]>()
+      
+      for (const task of tasks) {
+        if (task.responsible) {
+          if (!tasksByResponsible.has(task.responsible)) {
+            tasksByResponsible.set(task.responsible, [])
+          }
+          tasksByResponsible.get(task.responsible)!.push(task)
+        }
+      }
+
+      console.log(`[v0] Tarefas agrupadas por responsável:`, Array.from(tasksByResponsible.entries()).map(([responsible, tasks]) => ({
+        responsible,
+        taskCount: tasks.length,
+        tasks: tasks.map(t => ({ name: t.name, start_date: t.start_date, end_date: t.end_date }))
+      })))
+
+      // Notificar cada responsável com suas tarefas
+      for (const [responsibleName, responsibleTasks] of tasksByResponsible) {
+        await notifyResponsibleWithTasks(responsibleName, responsibleTasks, projectName, projectId, supabaseClient)
+      }
+    } catch (error) {
+      console.error(`[v0] Erro na notificação agrupada:`, error)
+    }
+  }
+
+  // Função auxiliar para notificar um responsável com múltiplas tarefas
+  const notifyResponsibleWithTasks = async (responsibleName: string, tasks: any[], projectName: string, projectId: string, supabaseClient: any) => {
+    try {
+      console.log(`[v0] 🔔 NOTIFICANDO RESPONSÁVEL: ${responsibleName} com ${tasks.length} tarefas`)
+      
+      // Buscar ID do responsável pelo nome
+      const { data: responsavel, error: responsavelError } = await supabaseClient
+        .from('responsaveis')
+        .select('id, nome, email')
+        .eq('nome', responsibleName)
+        .single()
+
+      if (responsavelError) {
+        console.error(`[v0] Erro ao buscar responsável ${responsibleName}:`, responsavelError)
+        return
+      }
+
+      if (responsavel) {
+        console.log(`[v0] Responsável encontrado:`, responsavel)
+        
+        // Criar mensagem com todas as tarefas
+        const taskDetails = tasks.map(task => ({
+          name: task.name,
+          start_date: task.start_date,
+          end_date: task.end_date
+        }))
+
+        const taskList = tasks.map(task => {
+          const startDate = task.start_date ? formatDate(task.start_date) : 'Não definida'
+          const endDate = task.end_date ? formatDate(task.end_date) : 'Não definida'
+          return `• ${task.name} (Início: ${startDate}, Fim: ${endDate})`
+        }).join('\n')
+
+        const message = `Você foi designado para ${tasks.length} tarefa(s) no projeto "${projectName}":\n\n${taskList}`
+
+        // Notificar responsável sobre as tarefas atribuídas
+        const response = await fetch('/api/notifications/responsaveis', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            responsavelId: responsavel.id,
+            type: 'project_assigned',
+            title: `Nova(s) Tarefa(s) Atribuída(s)`,
+            message: message,
+            projectId: projectId,
+            taskId: undefined, // Não passar taskId para tarefas novas
+            taskDetails: taskDetails // Enviar detalhes das tarefas
+          })
+        })
+
+        if (response.ok) {
+          console.log(`[v0] ✅ Notificação enviada com sucesso para ${responsibleName}`)
+        } else {
+          const errorData = await response.json()
+          console.error(`[v0] ❌ Erro ao enviar notificação para ${responsibleName}:`, errorData)
+        }
+      }
+    } catch (error) {
+      console.error(`[v0] Erro ao notificar responsável ${responsibleName}:`, error)
+    }
+  }
+
+  // Função auxiliar para notificar responsável de uma tarefa (mantida para compatibilidade)
+  const notifyTaskResponsible = async (task: any, projectName: string, projectId: string, supabaseClient: any) => {
+    try {
+      console.log(`[v0] 🔔 NOTIFICAÇÃO INICIADA para tarefa: ${task.name} (${task.id}) - Responsável: ${task.responsible}`)
+      
+      // Buscar ID do responsável pelo nome
+      const { data: responsavel, error: responsavelError } = await supabaseClient
+        .from('responsaveis')
+        .select('id, nome, email')
+        .eq('nome', task.responsible)
+        .single()
+
+      if (responsavelError) {
+        console.error(`[v0] Erro ao buscar responsável ${task.responsible}:`, responsavelError)
+        return
+      }
+
+      if (responsavel) {
+        console.log(`[v0] Responsável encontrado:`, responsavel)
+        
+            // Notificar responsável sobre nova tarefa atribuída
+            const response = await fetch('/api/notifications/responsaveis', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                responsavelId: responsavel.id,
+                type: 'project_assigned',
+                title: `Nova Tarefa Atribuída`,
+                message: `Você foi designado para a tarefa "${task.name}" no projeto "${projectName}".`,
+                projectId: projectId,
+                taskId: undefined // Não passar taskId para tarefas novas (ainda não salvas no banco)
+              })
+            })
+        
+        const result = await response.json()
+        console.log(`[v0] Resultado da notificação para ${task.responsible}:`, result)
+      } else {
+        console.log(`[v0] Responsável não encontrado: ${task.responsible}`)
+      }
+    } catch (notificationError) {
+      console.error(`[v0] Erro ao notificar responsável ${task.responsible}:`, notificationError)
+    }
+  }
+
+  const updateTask = async (taskId: string, field: keyof Task, value: string) => {
+    const updatedTasks = tasks.map((task: Task) => 
       task.id === taskId ? { ...task, [field]: value } : task
-    ))
+    )
+    setTasks(updatedTasks)
+    
+    // Notificação será enviada apenas no salvamento do projeto
+    // para evitar duplicação
   }
 
   const removeTask = (taskId: string) => {

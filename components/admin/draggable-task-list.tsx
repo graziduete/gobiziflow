@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react"
+import React, { useState, useEffect } from "react"
 import {
   DndContext,
   closestCenter,
@@ -24,6 +24,7 @@ import { GripVertical, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { createClient } from "@/lib/supabase/client"
 
 interface Task {
   id: string
@@ -36,6 +37,13 @@ interface Task {
   order?: number
 }
 
+interface Responsavel {
+  id: string
+  nome: string
+  email: string
+  ativo: boolean
+}
+
 interface DraggableTaskListProps {
   tasks: Task[]
   onUpdateTask: (taskId: string, field: keyof Task, value: string) => void
@@ -46,11 +54,12 @@ interface DraggableTaskListProps {
 interface SortableTaskItemProps {
   task: Task
   index: number
+  responsaveis: Responsavel[]
   onUpdateTask: (taskId: string, field: keyof Task, value: string) => void
   onRemoveTask: (taskId: string) => void
 }
 
-function SortableTaskItem({ task, index, onUpdateTask, onRemoveTask }: SortableTaskItemProps) {
+function SortableTaskItem({ task, index, responsaveis, onUpdateTask, onRemoveTask }: SortableTaskItemProps) {
   const {
     attributes,
     listeners,
@@ -127,12 +136,21 @@ function SortableTaskItem({ task, index, onUpdateTask, onRemoveTask }: SortableT
 
       {/* Responsável */}
       <td className="p-4">
-        <Input
-          value={task.responsible || ''}
-          onChange={(e) => onUpdateTask(task.id, "responsible", e.target.value)}
-          placeholder="Responsável"
-          className="border-0 bg-transparent p-0 text-sm focus:ring-0 w-full"
-        />
+        <Select
+          value={task.responsible || undefined}
+          onValueChange={(value) => onUpdateTask(task.id, "responsible", value)}
+        >
+          <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-full">
+            <SelectValue placeholder="Selecione o responsável" />
+          </SelectTrigger>
+          <SelectContent>
+            {responsaveis.map((responsavel) => (
+              <SelectItem key={responsavel.id} value={responsavel.nome}>
+                {responsavel.nome}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </td>
 
       {/* Status */}
@@ -171,12 +189,41 @@ function SortableTaskItem({ task, index, onUpdateTask, onRemoveTask }: SortableT
 }
 
 export function DraggableTaskList({ tasks, onUpdateTask, onRemoveTask, onReorderTasks }: DraggableTaskListProps) {
+  const [responsaveis, setResponsaveis] = useState<Responsavel[]>([])
+  
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   )
+
+  useEffect(() => {
+    fetchResponsaveis()
+  }, [])
+
+  const fetchResponsaveis = async () => {
+    try {
+      const supabase = createClient()
+      console.log("🔍 [DraggableTaskList] Buscando responsáveis...")
+      
+      const { data, error } = await supabase
+        .from("responsaveis")
+        .select("id, nome, email, ativo")
+        .eq("ativo", true)
+        .order("nome")
+
+      if (error) {
+        console.error("🔍 [DraggableTaskList] Erro ao buscar responsáveis:", error)
+        throw error
+      }
+      
+      console.log("🔍 [DraggableTaskList] Responsáveis encontrados:", data)
+      setResponsaveis(data || [])
+    } catch (error) {
+      console.error("Erro ao buscar responsáveis:", error)
+    }
+  }
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
@@ -218,6 +265,7 @@ export function DraggableTaskList({ tasks, onUpdateTask, onRemoveTask, onReorder
                   key={task.id}
                   task={task}
                   index={index}
+                  responsaveis={responsaveis}
                   onUpdateTask={onUpdateTask}
                   onRemoveTask={onRemoveTask}
                 />

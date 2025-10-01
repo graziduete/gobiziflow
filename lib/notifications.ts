@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
-import { emailTemplates, sendEmail } from "@/lib/email"
+import { emailTemplates, sendEmail } from "@/lib/email-server"
 
 export async function sendTaskAssignedNotification(taskId: string, assignedToId: string, assignedById: string) {
   const supabase = await createClient()
