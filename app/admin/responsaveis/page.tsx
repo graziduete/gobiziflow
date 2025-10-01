@@ -166,7 +166,7 @@ export default function ResponsaveisPage() {
           <h2 className="text-3xl font-bold tracking-tight">Responsáveis</h2>
           <p className="text-muted-foreground">
             Gerencie os responsáveis por tarefas e projetos
-            <span className="ml-2 text-blue-600">• {responsaveis.length} responsável{responsaveis.length !== 1 ? 'is' : ''}</span>
+            <span className="ml-2 text-blue-600">• {responsaveis.length} responsáve{responsaveis.length !== 1 ? 'is' : 'l'}</span>
           </p>
         </div>
         <Button asChild className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-200">
