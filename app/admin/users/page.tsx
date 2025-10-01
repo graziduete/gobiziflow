@@ -346,9 +346,12 @@ export default function UsersPage() {
                   </div>
                   <p className="text-sm text-muted-foreground">{user.email}</p>
                   {user.company_name && (
-                    <p className="text-xs text-blue-600 font-medium">
-                      🏢 {user.company_name}
-                    </p>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                      <p className="text-xs text-blue-600 font-medium">
+                        {user.company_name}
+                      </p>
+                    </div>
                   )}
                   <p className="text-xs text-muted-foreground">
                     Cadastrado em: {new Date(user.created_at).toLocaleDateString("pt-BR")}
