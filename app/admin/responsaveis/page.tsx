@@ -289,7 +289,10 @@ export default function ResponsaveisPage() {
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <h3 className="font-medium text-sm line-clamp-2">{responsavel.nome}</h3>
-                        <Badge variant={responsavel.ativo ? "default" : "secondary"}>
+                        <Badge className={responsavel.ativo 
+                          ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold shadow-sm" 
+                          : "bg-gradient-to-r from-gray-500 to-slate-600 text-white font-semibold shadow-sm"
+                        }>
                           {responsavel.ativo ? "Ativo" : "Inativo"}
                         </Badge>
                       </div>

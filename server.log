@@ -86,3 +86,52 @@
  GET /api/sustentacao/config-empresa/all 200 in 641ms
  GET /api/companies 200 in 713ms
 <w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 771ms (1369 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/sustentacao 200 in 1133ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 913ms (582 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/sustentacao 200 in 54ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
