@@ -1,6 +1,7 @@
 {
   "buildCommand": "npm run build",
-  "installCommand": "npm install",
+  "installCommand": "npm ci",
+  "framework": "nextjs",
   "crons": [
     {
       "path": "/api/cron/deadline-monitor",

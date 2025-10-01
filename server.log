@@ -2498,3 +2498,212 @@ Project data received: {
  ✓ Compiled /admin/notifications/logs in 486ms (1120 modules)
  GET /admin/notifications/logs 200 in 560ms
 <w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 1318ms (859 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/notifications/logs 200 in 59ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 1574ms (859 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/notifications/logs 200 in 29ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 393ms (859 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/notifications/logs 200 in 18ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 1916ms (859 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/notifications/logs 200 in 30ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 793ms (1887 modules)
+ GET /_next/static/css/app/layout.css?v=1759277208406 404 in 1023ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 621ms (859 modules)
+ ⨯ Error: Cannot find module './4447.js'
+Require stack:
+- /Users/macbookair/Downloads/client-dashboard/.next/server/webpack-runtime.js
+- /Users/macbookair/Downloads/client-dashboard/.next/server/app/_not-found/page.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/require.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/load-components.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/utils.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/swc/options.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/swc/index.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/lib/router-server.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/lib/start-server.js
+    at __webpack_require__.f.require (.next/server/webpack-runtime.js:203:28)
+    at <unknown> (.next/server/webpack-runtime.js:111:40)
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (.next/server/webpack-runtime.js:110:67)
+    at Array.map (<anonymous>)
+    at __webpack_require__.X (.next/server/webpack-runtime.js:162:22)
+    at <unknown> (.next/server/app/admin/notifications/logs/page.js:5:17692)
+    at Object.<anonymous> (.next/server/app/admin/notifications/logs/page.js:5:17795) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/admin/notifications/logs'
+}
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 2.3s (2212 modules)
+ GET /admin/notifications/logs 500 in 2781ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/notifications/logs 200 in 96ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/notifications/logs 200 in 17ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+🔍 [Header] Debug user data: {
+  user: {
+    id: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    email: 'graziely@gobi.consulting',
+    full_name: 'Graziely Duete'
+  },
+  fullName: 'Graziely Duete',
+  email: 'graziely@gobi.consulting',
+  hasUser: true
+}
+✅ [Header] Using full_name initials: GD
+ GET /admin/notifications/logs 200 in 1462ms
+ ○ Compiling /_not-found ...
