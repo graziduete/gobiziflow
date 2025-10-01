@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Calendar } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Calendar, Filter } from 'lucide-react';
 
 interface FiltersProps {
   onFiltersChange: (filters: any) => void;
@@ -33,14 +34,6 @@ export function SustentacaoFilters({ onFiltersChange, initialFilters = {} }: Fil
     onFiltersChange(newFilters);
   };
 
-  const clearFilters = () => {
-    const clearedFilters = {
-      mes: new Date().getMonth() + 1, // Mês atual
-      ano: new Date().getFullYear()
-    };
-    setFilters(clearedFilters);
-    onFiltersChange(clearedFilters);
-  };
 
   const meses = [
     { value: '1', label: 'Janeiro' },
@@ -59,50 +52,70 @@ export function SustentacaoFilters({ onFiltersChange, initialFilters = {} }: Fil
 
 
   return (
-    <div className="flex justify-end items-center gap-6 mb-4">
-      {/* Filtro por Mês */}
-      <div className="flex items-center gap-2">
-        <Label className="text-sm font-bold text-gray-800 uppercase tracking-wide">
-          Mês
-        </Label>
-        <Select
-          value={filters.mes.toString()}
-          onValueChange={(value) => handleFilterChange('mes', value)}
-        >
-          <SelectTrigger className="w-40 h-9 border-gray-300">
-            <SelectValue placeholder="Todos" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos</SelectItem>
-            {meses.map((mes) => (
-              <SelectItem key={mes.value} value={mes.value}>
-                {mes.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+    <Card className="bg-white/80 backdrop-blur-sm border border-white/20 shadow-xl">
+      <CardHeader className="pb-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-lg">
+            <Filter className="h-5 w-5 text-white" />
+          </div>
+          <CardTitle className="text-xl font-bold bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent">
+            Filtros de Período
+          </CardTitle>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="flex items-center justify-end gap-6">
+          {/* Filtro por Mês */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-blue-500" />
+              <Label className="text-base font-semibold text-slate-700">
+                Mês
+              </Label>
+            </div>
+            <Select
+              value={filters.mes.toString()}
+              onValueChange={(value) => handleFilterChange('mes', value)}
+            >
+              <SelectTrigger className="w-40 h-10 bg-white border-slate-300 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200">
+                <SelectValue placeholder="Selecione o mês" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os meses</SelectItem>
+                {meses.map((mes) => (
+                  <SelectItem key={mes.value} value={mes.value}>
+                    {mes.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-      {/* Filtro por Ano */}
-      <div className="flex items-center gap-2">
-        <Label className="text-sm font-bold text-gray-800 uppercase tracking-wide">
-          Ano
-        </Label>
-        <Select
-          value={filters.ano.toString()}
-          onValueChange={(value) => handleFilterChange('ano', value)}
-        >
-          <SelectTrigger className="w-24 h-9 border-gray-300">
-            <SelectValue placeholder="2025" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="2023">2023</SelectItem>
-            <SelectItem value="2024">2024</SelectItem>
-            <SelectItem value="2025">2025</SelectItem>
-            <SelectItem value="2026">2026</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-    </div>
+          {/* Filtro por Ano */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-indigo-500" />
+              <Label className="text-base font-semibold text-slate-700">
+                Ano
+              </Label>
+            </div>
+            <Select
+              value={filters.ano.toString()}
+              onValueChange={(value) => handleFilterChange('ano', value)}
+            >
+              <SelectTrigger className="w-24 h-10 bg-white border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 transition-all duration-200">
+                <SelectValue placeholder="2025" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="2023">2023</SelectItem>
+                <SelectItem value="2024">2024</SelectItem>
+                <SelectItem value="2025">2025</SelectItem>
+                <SelectItem value="2026">2026</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

@@ -2,11 +2,12 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Calendar, Search, Clock, TrendingUp, AlertTriangle, CheckCircle, FileText, RefreshCw, Wifi, WifiOff, Info } from "lucide-react";
+import { Calendar, Search, Clock, TrendingUp, AlertTriangle, CheckCircle, FileText, RefreshCw, Wifi, WifiOff, Info, Filter } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { getMockSustentacaoData } from "@/lib/data/mock-sustentacao";
 import { SustentacaoFilters } from "./filters";
@@ -180,6 +181,20 @@ export function SustentacaoDashboard({
     setFilters(newFilters);
   };
 
+  const handleFilterChange = (key: string, value: string) => {
+    let processedValue = value === 'all' ? '' : value;
+    
+    // Converter para número se for mês ou ano
+    if (key === 'mes' && processedValue !== '') {
+      processedValue = parseInt(processedValue);
+    } else if (key === 'ano' && processedValue !== '') {
+      processedValue = parseInt(processedValue);
+    }
+    
+    const newFilters = { ...filters, [key]: processedValue };
+    setFilters(newFilters);
+  };
+
   // Calcular categorias baseado nos chamados filtrados
   const calcularCategorias = (chamadosList: any[]) => {
     const categoriaCount: { [key: string]: number } = {};
@@ -295,120 +310,217 @@ export function SustentacaoDashboard({
 
   return (
     <div className="space-y-6">
-      {/* Controles de atualização */}
-      <div className="flex items-center justify-end space-x-4">
-        {/* Status da última atualização */}
-        {lastUpdate && (
-          <div className="text-sm text-gray-500">
-            Última atualização: {lastUpdate.toLocaleTimeString('pt-BR')}
+      {/* Card unificado com filtros e controles */}
+      <Card className="bg-white/80 backdrop-blur-sm border border-white/20 shadow-xl">
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            {/* Lado esquerdo - Título */}
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-lg">
+                <Filter className="h-5 w-5 text-white" />
+              </div>
+              <CardTitle className="text-xl font-bold bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent">
+                Filtros e Controles
+              </CardTitle>
+            </div>
+            
+            {/* Lado direito - Controles Auto e Atualizar */}
+            <div className="flex items-center gap-4">
+              {/* Status da última atualização */}
+              {lastUpdate && (
+                <div className="text-sm text-slate-500">
+                  Última atualização: {lastUpdate.toLocaleTimeString('pt-BR')}
+                </div>
+              )}
+              
+              {/* Indicador de atualização */}
+              {isRefreshing && (
+                <div className="flex items-center space-x-2 text-sm text-blue-600">
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                  <span>Atualizando...</span>
+                </div>
+              )}
+              
+              {/* Controle de atualização automática */}
+              <button
+                onClick={() => setAutoRefresh(!autoRefresh)}
+                className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  autoRefresh 
+                    ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-sm hover:shadow-md' 
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-300'
+                }`}
+              >
+                {autoRefresh ? <Wifi className="h-4 w-4" /> : <WifiOff className="h-4 w-4" />}
+                <span>{autoRefresh ? 'Auto' : 'Manual'}</span>
+              </button>
+              
+              {/* Botão de atualização manual */}
+              <button
+                onClick={() => loadSustentacaoData(false)}
+                disabled={loading}
+                className="flex items-center space-x-2 px-3 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg text-sm font-medium hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50"
+              >
+                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                <span>Atualizar</span>
+              </button>
+            </div>
           </div>
-        )}
-        
-        {/* Indicador de atualização */}
-        {isRefreshing && (
-          <div className="flex items-center space-x-2 text-sm text-blue-600">
-            <RefreshCw className="h-4 w-4 animate-spin" />
-            <span>Atualizando...</span>
+        </CardHeader>
+        <CardContent>
+          {/* Filtros de Período - linha separada */}
+          <div className="flex items-center justify-end gap-6">
+            {/* Filtro por Mês */}
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-blue-500" />
+              <Label className="text-sm font-semibold text-slate-700">
+                Mês
+              </Label>
+              <Select
+                value={filters.mes.toString()}
+                onValueChange={(value) => handleFilterChange('mes', value)}
+              >
+                <SelectTrigger className="w-32 h-8 bg-white border-slate-300 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200">
+                  <SelectValue placeholder="Selecione o mês" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os meses</SelectItem>
+                  <SelectItem value="1">Janeiro</SelectItem>
+                  <SelectItem value="2">Fevereiro</SelectItem>
+                  <SelectItem value="3">Março</SelectItem>
+                  <SelectItem value="4">Abril</SelectItem>
+                  <SelectItem value="5">Maio</SelectItem>
+                  <SelectItem value="6">Junho</SelectItem>
+                  <SelectItem value="7">Julho</SelectItem>
+                  <SelectItem value="8">Agosto</SelectItem>
+                  <SelectItem value="9">Setembro</SelectItem>
+                  <SelectItem value="10">Outubro</SelectItem>
+                  <SelectItem value="11">Novembro</SelectItem>
+                  <SelectItem value="12">Dezembro</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Filtro por Ano */}
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-indigo-500" />
+              <Label className="text-sm font-semibold text-slate-700">
+                Ano
+              </Label>
+              <Select
+                value={filters.ano.toString()}
+                onValueChange={(value) => handleFilterChange('ano', value)}
+              >
+                <SelectTrigger className="w-20 h-8 bg-white border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 transition-all duration-200">
+                  <SelectValue placeholder="2025" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="2023">2023</SelectItem>
+                  <SelectItem value="2024">2024</SelectItem>
+                  <SelectItem value="2025">2025</SelectItem>
+                  <SelectItem value="2026">2026</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-        )}
-        
-        {/* Controle de atualização automática */}
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={() => setAutoRefresh(!autoRefresh)}
-            className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-              autoRefresh 
-                ? 'bg-green-100 text-green-700 hover:bg-green-200' 
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            {autoRefresh ? <Wifi className="h-4 w-4" /> : <WifiOff className="h-4 w-4" />}
-            <span>{autoRefresh ? 'Auto' : 'Manual'}</span>
-          </button>
-          
-          {/* Botão de atualização manual */}
-          <button
-            onClick={() => loadSustentacaoData(false)}
-            disabled={loading}
-            className="flex items-center space-x-2 px-3 py-2 bg-blue-100 text-blue-700 rounded-md text-sm font-medium hover:bg-blue-200 transition-colors disabled:opacity-50"
-          >
-            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-            <span>Atualizar</span>
-          </button>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
-      {/* Filtros de Sustentação */}
-      <SustentacaoFilters 
-        onFiltersChange={handleFiltersChange}
-        initialFilters={filters}
-      />
-
-      {/* Linha separadora */}
-      <div className="border-t border-gray-200"></div>
-
-      {/* Cards de métricas principais - seguindo identidade visual do sistema */}
-      <div className="grid grid-cols-4 gap-4">
-        <Card className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+      {/* Cards de métricas principais - design modernizado */}
+      <div className="grid grid-cols-4 gap-6">
+        {/* Horas Contratadas */}
+        <Card className="bg-white/80 backdrop-blur-sm border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 mb-1">Horas Contratadas</p>
-                <p className="text-2xl font-bold text-gray-900">{metricas?.horasContratadas || '00:00'}</p>
-                <p className="text-xs text-gray-500">Horas</p>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-blue-500" />
+                  <p className="text-sm font-semibold text-slate-700">Horas Contratadas</p>
+                </div>
+                <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 bg-clip-text text-transparent">
+                  {metricas?.horasContratadas || '00:00'}
+                </p>
+                <p className="text-xs text-slate-500 font-medium">Horas totais</p>
               </div>
-              <div className="p-3 bg-blue-50 rounded-lg">
-                <Clock className="h-6 w-6 text-blue-600" />
+              <div className="p-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
+                <Clock className="h-7 w-7 text-white" />
               </div>
+            </div>
+            {/* Barra de progresso sutil */}
+            <div className="mt-4 h-1 bg-slate-100 rounded-full overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full w-full"></div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+        {/* Horas Consumidas */}
+        <Card className="bg-white/80 backdrop-blur-sm border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 mb-1">Horas Consumidas</p>
-                <p className="text-2xl font-bold text-gray-900">{metricas?.horasConsumidas || 0}</p>
-                <p className="text-xs text-gray-500">Horas utilizadas</p>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4 text-emerald-500" />
+                  <p className="text-sm font-semibold text-slate-700">Horas Consumidas</p>
+                </div>
+                <p className="text-3xl font-bold bg-gradient-to-r from-emerald-600 via-green-700 to-teal-800 bg-clip-text text-transparent">
+                  {metricas?.horasConsumidas || 0}
+                </p>
+                <p className="text-xs text-slate-500 font-medium">Horas utilizadas</p>
               </div>
-              <div className="p-3 bg-green-50 rounded-lg">
-                <TrendingUp className="h-6 w-6 text-green-600" />
+              <div className="p-4 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl shadow-lg">
+                <TrendingUp className="h-7 w-7 text-white" />
               </div>
+            </div>
+            {/* Barra de progresso sutil */}
+            <div className="mt-4 h-1 bg-slate-100 rounded-full overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-emerald-500 to-green-600 rounded-full w-full"></div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+        {/* Horas Restantes */}
+        <Card className="bg-white/80 backdrop-blur-sm border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 mb-1">Horas Restantes</p>
-                <p className="text-2xl font-bold text-gray-900">{metricas?.horasRestantes || 0}</p>
-                <p className="text-xs text-gray-500">Horas disponíveis</p>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-amber-500" />
+                  <p className="text-sm font-semibold text-slate-700">Horas Restantes</p>
+                </div>
+                <p className="text-3xl font-bold bg-gradient-to-r from-amber-600 via-orange-700 to-red-800 bg-clip-text text-transparent">
+                  {metricas?.horasRestantes || 0}
+                </p>
+                <p className="text-xs text-slate-500 font-medium">Horas disponíveis</p>
               </div>
-              <div className="p-3 bg-yellow-50 rounded-lg">
-                <Clock className="h-6 w-6 text-yellow-600" />
+              <div className="p-4 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl shadow-lg">
+                <Clock className="h-7 w-7 text-white" />
               </div>
+            </div>
+            {/* Barra de progresso sutil */}
+            <div className="mt-4 h-1 bg-slate-100 rounded-full overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-amber-500 to-orange-600 rounded-full w-full"></div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+        {/* Saldo Acumulado */}
+        <Card className="bg-white/80 backdrop-blur-sm border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <p className="text-sm font-medium text-gray-600">Saldo Acumulado</p>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="p-1 bg-gradient-to-br from-purple-500 to-violet-600 rounded-lg">
+                    <Clock className="h-3 w-3 text-white" />
+                  </div>
+                  <p className="text-sm font-semibold text-slate-700">Saldo Acumulado</p>
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Info className="h-4 w-4 text-gray-400 hover:text-gray-600 cursor-help" />
+                        <Info className="h-4 w-4 text-slate-400 hover:text-slate-600 cursor-help transition-colors" />
                       </TooltipTrigger>
-                      <TooltipContent className="max-w-sm p-4">
+                      <TooltipContent className="max-w-sm p-4 bg-white/95 backdrop-blur-sm border border-white/20 shadow-xl">
                         <div className="space-y-2">
-                          <p className="font-semibold text-sm">Como funciona o Saldo Acumulado:</p>
-                          <div className="text-xs space-y-1">
+                          <p className="font-semibold text-sm text-slate-800">Como funciona o Saldo Acumulado:</p>
+                          <div className="text-xs space-y-1 text-slate-600">
                             <p><strong>Regra:</strong> Saldo do mês atual + saldos de todos os meses anteriores dentro do período de vigência.</p>
                             <div className="mt-2 space-y-1">
                               <p><strong>Exemplo 1 (Saldo Positivo):</strong></p>
@@ -420,62 +532,84 @@ export function SustentacaoDashboard({
                               <p>• Setembro: 25:30 contratadas - 30:30 consumidas = -5:00</p>
                               <p>• Outubro: 25:30 - 5:00 = 20:30 disponíveis</p>
                             </div>
-                            <p className="mt-2 text-gray-500"><strong>Nota:</strong> Considera apenas meses dentro do período de vigência do contrato.</p>
+                            <p className="mt-2 text-slate-500"><strong>Nota:</strong> Considera apenas meses dentro do período de vigência do contrato.</p>
                           </div>
                         </div>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
                 </div>
-                <p className="text-2xl font-bold text-gray-900">{metricas?.saldoAcumulado || '00:00'}</p>
-                <p className="text-xs text-gray-500">Horas disponíveis</p>
+                <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 via-violet-700 to-fuchsia-800 bg-clip-text text-transparent">
+                  {metricas?.saldoAcumulado || '00:00'}
+                </p>
+                <p className="text-xs text-slate-500 font-medium">Horas disponíveis</p>
               </div>
-              <div className="p-3 bg-purple-50 rounded-lg">
-                <Clock className="h-6 w-6 text-purple-600" />
+              <div className="p-4 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl shadow-lg">
+                <Clock className="h-7 w-7 text-white" />
               </div>
+            </div>
+            {/* Barra de progresso sutil */}
+            <div className="mt-4 h-1 bg-slate-100 rounded-full overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-purple-500 to-violet-600 rounded-full w-full"></div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Chamados por categoria - seguindo identidade visual */}
-      <Card className="border border-gray-200 shadow-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-semibold text-gray-900">Chamados por Categoria</CardTitle>
+      {/* Chamados por categoria - design modernizado */}
+      <Card className="bg-white/80 backdrop-blur-sm border border-white/20 shadow-xl">
+        <CardHeader className="pb-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg shadow-lg">
+              <FileText className="h-5 w-5 text-white" />
+            </div>
+            <CardTitle className="text-xl font-bold bg-gradient-to-r from-slate-900 via-indigo-900 to-purple-900 bg-clip-text text-transparent">
+              Chamados por Categoria
+            </CardTitle>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-5 gap-4">
+          <div className="grid grid-cols-5 gap-6">
             {calcularCategorias(filteredChamados).map((categoria, index) => (
-              <div key={index} className="text-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                <div className={`w-4 h-4 rounded-full mx-auto mb-2 ${categoria.cor}`}></div>
-                <p className="text-sm font-medium text-gray-900">{categoria.nome}</p>
-                <p className="text-lg font-bold text-gray-900">{categoria.quantidade}</p>
+              <div key={index} className="text-center p-6 bg-gradient-to-br from-slate-50/80 to-blue-50/50 rounded-xl border border-slate-200/60 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer">
+                <div className={`w-6 h-6 rounded-full mx-auto mb-3 shadow-sm ring-2 ring-white ${categoria.cor}`}></div>
+                <p className="text-sm font-semibold text-slate-700 mb-2">{categoria.nome}</p>
+                <p className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                  {categoria.quantidade}
+                </p>
               </div>
             ))}
           </div>
         </CardContent>
       </Card>
 
-      {/* Lista de chamados - seguindo identidade visual */}
-      <Card className="border border-gray-200 shadow-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-semibold text-gray-900">Lista de Chamados</CardTitle>
-          <div className="flex space-x-4 pt-4">
+      {/* Lista de chamados - design modernizado */}
+      <Card className="bg-white/80 backdrop-blur-sm border border-white/20 shadow-xl">
+        <CardHeader className="pb-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg shadow-lg">
+              <FileText className="h-5 w-5 text-white" />
+            </div>
+            <CardTitle className="text-xl font-bold bg-gradient-to-r from-slate-900 via-indigo-900 to-purple-900 bg-clip-text text-transparent">
+              Lista de Chamados
+            </CardTitle>
+          </div>
+          <div className="flex space-x-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input 
-                placeholder="Buscar por assunto ou id" 
-                className="pl-10"
+                placeholder="Buscar por assunto ou ID" 
+                className="pl-10 h-10 bg-white border-slate-300 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
             <Select value={filterCategoria} onValueChange={setFilterCategoria}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Todos os categoria" />
+              <SelectTrigger className="w-48 h-10 bg-white border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 transition-all duration-200">
+                <SelectValue placeholder="Todas as categorias" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos os categoria</SelectItem>
+                <SelectItem value="all">Todas as categorias</SelectItem>
                 <SelectItem value="Bugs">Bug</SelectItem>
                 <SelectItem value="Processo">Processo</SelectItem>
                 <SelectItem value="Solicitação">Solicitação</SelectItem>
@@ -484,7 +618,7 @@ export function SustentacaoDashboard({
               </SelectContent>
             </Select>
             <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger className="w-48">
+              <SelectTrigger className="w-48 h-10 bg-white border-slate-300 focus:border-purple-500 focus:ring-purple-500 transition-all duration-200">
                 <SelectValue placeholder="Todos os status" />
               </SelectTrigger>
               <SelectContent>
@@ -498,77 +632,156 @@ export function SustentacaoDashboard({
           </div>
         </CardHeader>
         <CardContent>
-          <Table className="w-full">
-            <TableHeader>
-              <TableRow className="border-gray-200">
-                <TableHead className="font-semibold text-gray-900 w-20">Id Ellevo</TableHead>
-                <TableHead className="font-semibold text-gray-900 w-24">Qual automação</TableHead>
-                <TableHead className="font-semibold text-gray-900 min-w-48">Assunto</TableHead>
-                <TableHead className="font-semibold text-gray-900 w-28">Categoria</TableHead>
-                <TableHead className="font-semibold text-gray-900 w-24">Status</TableHead>
-                <TableHead className="font-semibold text-gray-900 w-40">Solicitante</TableHead>
-                <TableHead className="font-semibold text-gray-900 w-32">Data da Abertura</TableHead>
-                <TableHead className="font-semibold text-gray-900 w-32">Data da resolução</TableHead>
-                <TableHead className="font-semibold text-gray-900 w-28 text-center">Tempo de Atendimento</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredChamados.map((chamado, index) => (
-                <TableRow key={index} className="border-gray-200 hover:bg-gray-50 transition-colors">
-                  <TableCell className="font-medium text-gray-900 w-20">{chamado.idEllevo}</TableCell>
-                  <TableCell className="text-gray-700 w-24">{chamado.automacao}</TableCell>
-                  <TableCell className="text-gray-700 min-w-48">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="cursor-help">
-                            {truncateText(chamado.assunto)}
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="max-w-xs">{chamado.assunto}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </TableCell>
-                  <TableCell className="w-28">
-                    <Badge 
-                      variant="outline" 
-                      className={`${
-                        chamado.categoria === 'Bug' || chamado.categoria === 'Bugs' ? 'border-red-200 text-red-700 bg-red-50' :
-                        chamado.categoria === 'Processo' ? 'border-blue-200 text-blue-700 bg-blue-50' :
-                        chamado.categoria === 'Solicitação' ? 'border-green-200 text-green-700 bg-green-50' :
-                        chamado.categoria === 'Ajuste' ? 'border-yellow-200 text-yellow-700 bg-yellow-50' :
-                        chamado.categoria === 'Falha Sistêmica' || chamado.categoria === 'Falha Sistema' ? 'border-purple-200 text-purple-700 bg-purple-50' :
-                        'border-gray-200 text-gray-700 bg-gray-50'
-                      }`}
-                    >
-                      {chamado.categoria}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="w-24">
-                    <Badge 
-                      variant="outline"
-                      className={`${
-                        chamado.status === 'Resolvido' ? 'border-green-200 text-green-700 bg-green-50' :
-                        chamado.status === 'Resolvido' || chamado.status === 'RESOLVED' ? 'border-green-200 text-green-700 bg-green-50' :
-                        chamado.status === 'Não iniciado' ? 'border-gray-200 text-gray-700 bg-gray-50' :
-                        'border-yellow-200 text-yellow-700 bg-yellow-50'
-                      }`}
-                    >
-                      {chamado.status === 'RESOLVED' ? 'Resolvido' : chamado.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-gray-700 w-40">{chamado.solicitante}</TableCell>
-                  <TableCell className="text-gray-700 w-32">{chamado.dataAbertura}</TableCell>
-                  <TableCell className="text-gray-700 w-32">{chamado.dataResolucao}</TableCell>
-                  <TableCell className="text-gray-700 text-center w-28">
-                    {chamado.tempoAtendimento || '00:00:00'}
-                  </TableCell>
+          <div className="rounded-xl border border-slate-200/60 overflow-hidden">
+            <Table className="w-full">
+              <TableHeader>
+                <TableRow className="bg-gradient-to-r from-slate-50 to-blue-50/50 border-b border-slate-200">
+                  <TableHead className="font-semibold text-slate-700 w-20 py-4 px-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      ID Ellevo
+                    </div>
+                  </TableHead>
+                  <TableHead className="font-semibold text-slate-700 w-24 py-4 px-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                      Automação
+                    </div>
+                  </TableHead>
+                  <TableHead className="font-semibold text-slate-700 min-w-48 py-4 px-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                      Assunto
+                    </div>
+                  </TableHead>
+                  <TableHead className="font-semibold text-slate-700 w-28 py-4 px-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                      Categoria
+                    </div>
+                  </TableHead>
+                  <TableHead className="font-semibold text-slate-700 w-24 py-4 px-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                      Status
+                    </div>
+                  </TableHead>
+                  <TableHead className="font-semibold text-slate-700 w-40 py-4 px-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-cyan-500 rounded-full"></div>
+                      Solicitante
+                    </div>
+                  </TableHead>
+                  <TableHead className="font-semibold text-slate-700 w-32 py-4 px-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-rose-500 rounded-full"></div>
+                      Data Abertura
+                    </div>
+                  </TableHead>
+                  <TableHead className="font-semibold text-slate-700 w-32 py-4 px-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-violet-500 rounded-full"></div>
+                      Data Resolução
+                    </div>
+                  </TableHead>
+                  <TableHead className="font-semibold text-slate-700 w-28 text-center py-4 px-4">
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                      Tempo Atendimento
+                    </div>
+                  </TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredChamados.map((chamado, index) => (
+                  <TableRow key={index} className="border-b border-slate-100 hover:bg-slate-50/50 transition-all duration-200 group">
+                    <TableCell className="font-medium text-slate-900 w-20 py-4 px-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                        <span className="font-mono text-sm">{chamado.idEllevo}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-slate-700 w-24 py-4 px-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full"></div>
+                        <span className="text-sm">{chamado.automacao}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-slate-700 min-w-48 py-4 px-4">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="flex items-center gap-2 cursor-help group">
+                              <div className="w-1.5 h-1.5 bg-purple-500 rounded-full"></div>
+                              <span className="text-sm truncate">
+                                {truncateText(chamado.assunto)}
+                              </span>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs bg-white/95 backdrop-blur-sm border border-white/20 shadow-xl">
+                            <p className="text-sm text-slate-800">{chamado.assunto}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </TableCell>
+                    <TableCell className="w-28 py-4 px-4">
+                      <Badge 
+                        variant="outline" 
+                        className={`${
+                          chamado.categoria === 'Bug' || chamado.categoria === 'Bugs' ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white shadow-sm border-0' :
+                          chamado.categoria === 'Processo' ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-sm border-0' :
+                          chamado.categoria === 'Solicitação' ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-sm border-0' :
+                          chamado.categoria === 'Ajuste' ? 'bg-gradient-to-r from-yellow-500 to-orange-600 text-white shadow-sm border-0' :
+                          chamado.categoria === 'Falha Sistêmica' || chamado.categoria === 'Falha Sistema' ? 'bg-gradient-to-r from-purple-500 to-violet-600 text-white shadow-sm border-0' :
+                          'bg-gradient-to-r from-slate-500 to-slate-600 text-white shadow-sm border-0'
+                        }`}
+                      >
+                        {chamado.categoria}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="w-24 py-4 px-4">
+                      <Badge 
+                        variant="outline"
+                        className={`${
+                          chamado.status === 'Resolvido' || chamado.status === 'RESOLVED' ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-sm border-0' :
+                          chamado.status === 'Não iniciado' ? 'bg-gradient-to-r from-slate-500 to-slate-600 text-white shadow-sm border-0' :
+                          chamado.status === 'Em andamento' ? 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white shadow-sm border-0' :
+                          chamado.status === 'Aguardando' ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-sm border-0' :
+                          'bg-gradient-to-r from-yellow-500 to-orange-600 text-white shadow-sm border-0'
+                        }`}
+                      >
+                        {chamado.status === 'RESOLVED' ? 'Resolvido' : chamado.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-slate-700 w-40 py-4 px-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 bg-cyan-500 rounded-full"></div>
+                        <span className="text-sm truncate">{chamado.solicitante}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-slate-700 w-32 py-4 px-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 bg-rose-500 rounded-full"></div>
+                        <span className="text-sm">{chamado.dataAbertura}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-slate-700 w-32 py-4 px-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 bg-violet-500 rounded-full"></div>
+                        <span className="text-sm">{chamado.dataResolucao}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-slate-700 text-center w-28 py-4 px-4">
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="w-1.5 h-1.5 bg-orange-500 rounded-full"></div>
+                        <span className="text-sm font-mono">{chamado.tempoAtendimento || '00:00:00'}</span>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>

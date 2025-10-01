@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Building2, CheckCircle, Clock, AlertCircle, Settings, Edit } from "lucide-react";
+import { Building2, CheckCircle, Clock, AlertCircle, Settings, Edit, Sparkles, BarChart3, Calendar, Zap } from "lucide-react";
 import { EmpresaConfigForm } from "./empresa-config-form";
 
 interface Company {
@@ -200,20 +200,15 @@ export function CompanySelector({ onCompanySelect, selectedCompanyId, showConfig
   }
 
   return (
-    <div className="space-y-4">
-      <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Selecionar Empresa</h2>
-        <p className="text-gray-600">Escolha a empresa para visualizar os dados de sustentação</p>
-      </div>
-
+    <div className="space-y-6">
       <div className="grid grid-cols-1 gap-6 max-w-6xl mx-auto">
         {companies.map((company) => (
           <Card 
             key={company.id} 
-            className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${
+            className={`cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.02] bg-white/80 backdrop-blur-sm border border-white/20 shadow-lg ${
               selectedCompanyId === company.id 
-                ? 'ring-2 ring-blue-500 bg-blue-50' 
-                : 'hover:shadow-md'
+                ? 'ring-2 ring-blue-500 bg-gradient-to-br from-blue-50/80 to-indigo-50/50' 
+                : 'hover:bg-gradient-to-br hover:from-slate-50/50 hover:to-blue-50/30'
             }`}
             onClick={() => {
               // Clique no card vai para o dashboard da empresa específica
@@ -222,46 +217,58 @@ export function CompanySelector({ onCompanySelect, selectedCompanyId, showConfig
           >
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Building2 className="h-5 w-5 text-gray-600" />
-                  <CardTitle className="text-lg">{company.name}</CardTitle>
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg">
+                    <Building2 className="h-5 w-5 text-slate-600" />
+                  </div>
+                  <CardTitle className="text-lg font-semibold text-slate-800">{company.name}</CardTitle>
                 </div>
-                       {company.sustentacaoConfig ? (
-                         isConfigExpired(company.sustentacaoConfig.dataFim || '') ? (
-                           <Badge variant="outline" className="border-red-200 text-red-700 bg-red-50">
-                             <AlertCircle className="h-3 w-3 mr-1" />
-                             Expirado
-                           </Badge>
-                         ) : company.sustentacaoConfig.status === 'inativo' ? (
-                           <Badge variant="outline" className="border-gray-200 text-gray-700 bg-gray-50">
-                             <AlertCircle className="h-3 w-3 mr-1" />
-                             Inativo
-                           </Badge>
-                         ) : (
-                           <Badge variant="outline" className="border-green-200 text-green-700 bg-green-50">
-                             <CheckCircle className="h-3 w-3 mr-1" />
-                             Configurado
-                           </Badge>
-                         )
-                       ) : (
-                         <Badge variant="outline" className="border-orange-200 text-orange-700 bg-orange-50">
-                           <AlertCircle className="h-3 w-3 mr-1" />
-                           Não Configurado
-                         </Badge>
-                       )}
+                {company.sustentacaoConfig ? (
+                  isConfigExpired(company.sustentacaoConfig.dataFim || '') ? (
+                    <Badge className="bg-gradient-to-r from-red-500 to-pink-600 text-white shadow-sm font-medium">
+                      <AlertCircle className="h-3 w-3 mr-1" />
+                      Expirado
+                    </Badge>
+                  ) : company.sustentacaoConfig.status === 'inativo' ? (
+                    <Badge className="bg-gradient-to-r from-gray-500 to-slate-600 text-white shadow-sm font-medium">
+                      <AlertCircle className="h-3 w-3 mr-1" />
+                      Inativo
+                    </Badge>
+                  ) : (
+                    <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-sm font-medium">
+                      <CheckCircle className="h-3 w-3 mr-1" />
+                      Configurado
+                    </Badge>
+                  )
+                ) : (
+                  <Badge className="bg-gradient-to-r from-orange-500 to-amber-600 text-white shadow-sm font-medium">
+                    <AlertCircle className="h-3 w-3 mr-1" />
+                    Não Configurado
+                  </Badge>
+                )}
               </div>
             </CardHeader>
             
             <CardContent className="pt-4">
               {company.sustentacaoConfig ? (
-                <div className="space-y-2">
-                         <div className="flex items-center justify-between text-sm">
-                           <span className="text-gray-600">Horas Contratadas:</span>
-                           <span className="font-medium">{converterDecimalParaRelogio(company.sustentacaoConfig.horasContratadas)}</span>
-                         </div>
+                <div className="space-y-3">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Período:</span>
-                    <span className="text-xs text-gray-500">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1 bg-gradient-to-br from-blue-100 to-blue-200 rounded-md">
+                        <Clock className="h-3 w-3 text-blue-600" />
+                      </div>
+                      <span className="text-slate-600 font-medium">Horas Contratadas:</span>
+                    </div>
+                    <span className="font-semibold text-slate-800">{converterDecimalParaRelogio(company.sustentacaoConfig.horasContratadas)}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1 bg-gradient-to-br from-indigo-100 to-indigo-200 rounded-md">
+                        <Calendar className="h-3 w-3 text-indigo-600" />
+                      </div>
+                      <span className="text-slate-600 font-medium">Período:</span>
+                    </div>
+                    <span className="text-xs text-slate-500">
                       {company.sustentacaoConfig.dataInicio && company.sustentacaoConfig.dataFim
                         ? `${new Date(company.sustentacaoConfig.dataInicio + 'T00:00:00').toLocaleDateString('pt-BR')} - ${new Date(company.sustentacaoConfig.dataFim + 'T00:00:00').toLocaleDateString('pt-BR')}`
                         : 'Não definido'
@@ -269,41 +276,49 @@ export function CompanySelector({ onCompanySelect, selectedCompanyId, showConfig
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Última Atualização:</span>
+                    <div className="flex items-center gap-2">
+                      <div className="p-1 bg-gradient-to-br from-green-100 to-green-200 rounded-md">
+                        <Zap className="h-3 w-3 text-green-600" />
+                      </div>
+                      <span className="text-slate-600 font-medium">Última Atualização:</span>
+                    </div>
                     <div className="flex items-center space-x-1">
-                      <Clock className="h-3 w-3 text-gray-400" />
-                      <span className="text-xs text-gray-500">
+                      <Clock className="h-3 w-3 text-slate-400" />
+                      <span className="text-xs text-slate-500">
                         {formatLastSync(company.sustentacaoConfig.lastSync)}
                       </span>
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-4">
-                  <p className="text-sm text-gray-500">
+                <div className="text-center py-6">
+                  <div className="p-3 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full w-12 h-12 mx-auto mb-3 flex items-center justify-center">
+                    <Settings className="h-6 w-6 text-slate-500" />
+                  </div>
+                  <p className="text-sm text-slate-600 font-medium">
                     Nenhuma configuração
                   </p>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-slate-400 mt-1">
                     Configure para usar
                   </p>
                 </div>
               )}
               
               {/* Botões de ação */}
-              <div className="mt-6 pt-4 border-t space-y-3">
+              <div className="mt-6 pt-4 border-t border-slate-200/60 space-y-3">
                 {company.sustentacaoConfig ? (
                   <>
                     {company.sustentacaoConfig.status === 'inativo' ? (
                       <Button
                         variant="outline"
                         size="default"
-                        className="w-full h-10"
+                        className="w-full h-10 border-slate-300 hover:border-green-500 hover:bg-green-50 hover:text-green-600 transition-all duration-200"
                         onClick={(e) => {
                           e.stopPropagation(); // Para a propagação do evento
                           window.location.href = `/admin/sustentacao/configuracao/${company.id}`;
                         }}
                       >
-                        <CheckCircle className="h-3 w-3 mr-2" />
+                        <CheckCircle className="h-4 w-4 mr-2" />
                         Reativar Configuração
                       </Button>
                     ) : (
@@ -312,7 +327,7 @@ export function CompanySelector({ onCompanySelect, selectedCompanyId, showConfig
                         <Button
                           variant="outline"
                           size="default"
-                          className="h-10"
+                          className="h-10 border-slate-300 hover:border-blue-500 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200"
                           onClick={(e) => {
                             e.stopPropagation(); // Para a propagação do evento
                             window.location.href = `/admin/sustentacao/configuracao/${company.id}`;
@@ -325,13 +340,13 @@ export function CompanySelector({ onCompanySelect, selectedCompanyId, showConfig
                         <Button
                           variant="secondary"
                           size="default"
-                          className="h-10 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-200"
+                          className="h-10 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
                           onClick={(e) => {
                             e.stopPropagation(); // Para a propagação do evento
                             onCompanySelect(company.id);
                           }}
                         >
-                          <CheckCircle className="h-4 w-4 mr-2" />
+                          <BarChart3 className="h-4 w-4 mr-2" />
                           Visualizar Dashboard
                         </Button>
                       </div>
@@ -341,7 +356,7 @@ export function CompanySelector({ onCompanySelect, selectedCompanyId, showConfig
                   <Button
                     variant="outline"
                     size="default"
-                    className="w-full h-10"
+                    className="w-full h-10 border-slate-300 hover:border-orange-500 hover:bg-orange-50 hover:text-orange-600 transition-all duration-200"
                     onClick={(e) => {
                       e.stopPropagation(); // Para a propagação do evento
                       setConfiguringCompany(company.id);
