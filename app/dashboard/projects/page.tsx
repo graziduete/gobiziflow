@@ -313,12 +313,12 @@ export default function ClientProjectsPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-gray-700">Visualização:</span>
-          <div className="flex items-center border rounded-lg">
+          <div className="flex items-center border-2 border-slate-200 rounded-lg overflow-hidden">
             <Button
               variant={viewMode === 'cards' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('cards')}
-              className="rounded-r-none border-r"
+              className={`rounded-none border-r-2 border-slate-200 ${viewMode === 'cards' ? 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white' : ''}`}
             >
               <Grid3X3 className="h-4 w-4" />
             </Button>
@@ -326,7 +326,7 @@ export default function ClientProjectsPage() {
               variant={viewMode === 'list' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('list')}
-              className="rounded-l-none"
+              className={`rounded-none ${viewMode === 'list' ? 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white' : ''}`}
             >
               <List className="h-4 w-4" />
             </Button>

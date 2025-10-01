@@ -435,12 +435,12 @@ export default function ProjectsPage() {
       {/* Botões de visualização */}
       <div className="flex items-center gap-2">
         <span className="text-sm text-muted-foreground">Visualização:</span>
-        <div className="flex items-center border rounded-lg">
+        <div className="flex items-center border-2 border-slate-200 rounded-lg overflow-hidden">
           <Button
             variant={viewMode === 'list' ? 'default' : 'ghost'}
             size="sm"
             onClick={() => setViewMode('list')}
-            className="rounded-r-none border-r"
+            className={`rounded-none border-r-2 border-slate-200 ${viewMode === 'list' ? 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white' : ''}`}
           >
             <List className="h-4 w-4" />
           </Button>
@@ -448,7 +448,7 @@ export default function ProjectsPage() {
             variant={viewMode === 'cards' ? 'default' : 'ghost'}
             size="sm"
             onClick={() => setViewMode('cards')}
-            className="rounded-l-none"
+            className={`rounded-none ${viewMode === 'cards' ? 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white' : ''}`}
           >
             <Grid3X3 className="h-4 w-4" />
           </Button>

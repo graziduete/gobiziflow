@@ -498,3 +498,962 @@
   digest: '3175524228'
 }
  GET /admin/projects/dd13f521-e0d1-458b-aae3-2d2dff19e52f 500 in 1268ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+🔍 [Header] Debug user data: {
+  user: {
+    id: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    email: 'graziely@gobi.consulting',
+    full_name: 'Graziely Duete'
+  },
+  fullName: 'Graziely Duete',
+  email: 'graziely@gobi.consulting',
+  hasUser: true
+}
+✅ [Header] Using full_name initials: GD
+ ⨯ ReferenceError: document is not defined
+    at GanttChart (components/admin/gantt-chart.tsx:669:6)
+  667 |         </Card>
+  668 |       </div>,
+> 669 |       document.body
+      |      ^
+  670 |     )
+  671 |   }
+  672 | {
+  digest: '3175524228'
+}
+ GET /admin/projects/dd13f521-e0d1-458b-aae3-2d2dff19e52f 500 in 641ms
+ ✓ Compiled in 1209ms (1863 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/dd13f521-e0d1-458b-aae3-2d2dff19e52f 200 in 60ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ GET /admin/projects 200 in 60ms
+ ○ Compiling /auth/login ...
+ ✓ Compiled /auth/login in 1098ms (1891 modules)
+ GET /auth/login 200 in 1270ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 726ms (1925 modules)
+🔍 [ClientLayout] User role check: {
+  userId: 'b88f958e-11da-462e-ae36-c30d6158d3ca',
+  userEmail: 'appbemmarcado@gmail.com',
+  profileRole: 'admin_operacional',
+  shouldRedirect: true
+}
+🔄 [ClientLayout] Redirecting admin/admin_operacional to /admin
+ GET /dashboard 200 in 1275ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: 'b88f958e-11da-462e-ae36-c30d6158d3ca',
+  userEmail: 'appbemmarcado@gmail.com',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin_operacional',
+  profileError: undefined,
+  profileData: {
+    role: 'admin_operacional',
+    full_name: 'GTA',
+    email: 'appbemmarcado@gmail.com'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: 'b88f958e-11da-462e-ae36-c30d6158d3ca',
+  userEmail: 'appbemmarcado@gmail.com',
+  userRole: 'admin_operacional'
+}
+ GET /admin 200 in 404ms
+ ✓ Compiled in 2.2s (1939 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: 'b88f958e-11da-462e-ae36-c30d6158d3ca',
+  userEmail: 'appbemmarcado@gmail.com',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin_operacional',
+  profileError: undefined,
+  profileData: {
+    role: 'admin_operacional',
+    full_name: 'GTA',
+    email: 'appbemmarcado@gmail.com'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: 'b88f958e-11da-462e-ae36-c30d6158d3ca',
+  userEmail: 'appbemmarcado@gmail.com',
+  userRole: 'admin_operacional'
+}
+ GET /admin 200 in 109ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 2.5s (1939 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: 'b88f958e-11da-462e-ae36-c30d6158d3ca',
+  userEmail: 'appbemmarcado@gmail.com',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin_operacional',
+  profileError: undefined,
+  profileData: {
+    role: 'admin_operacional',
+    full_name: 'GTA',
+    email: 'appbemmarcado@gmail.com'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: 'b88f958e-11da-462e-ae36-c30d6158d3ca',
+  userEmail: 'appbemmarcado@gmail.com',
+  userRole: 'admin_operacional'
+}
+ GET /admin 200 in 71ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 1922ms (1939 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: 'b88f958e-11da-462e-ae36-c30d6158d3ca',
+  userEmail: 'appbemmarcado@gmail.com',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin_operacional',
+  profileError: undefined,
+  profileData: {
+    role: 'admin_operacional',
+    full_name: 'GTA',
+    email: 'appbemmarcado@gmail.com'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: 'b88f958e-11da-462e-ae36-c30d6158d3ca',
+  userEmail: 'appbemmarcado@gmail.com',
+  userRole: 'admin_operacional'
+}
+ GET /admin 200 in 83ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 1973ms (1939 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: 'b88f958e-11da-462e-ae36-c30d6158d3ca',
+  userEmail: 'appbemmarcado@gmail.com',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin_operacional',
+  profileError: undefined,
+  profileData: {
+    role: 'admin_operacional',
+    full_name: 'GTA',
+    email: 'appbemmarcado@gmail.com'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: 'b88f958e-11da-462e-ae36-c30d6158d3ca',
+  userEmail: 'appbemmarcado@gmail.com',
+  userRole: 'admin_operacional'
+}
+ GET /admin 200 in 102ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 2.6s (1927 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: 'b88f958e-11da-462e-ae36-c30d6158d3ca',
+  userEmail: 'appbemmarcado@gmail.com',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin_operacional',
+  profileError: undefined,
+  profileData: {
+    role: 'admin_operacional',
+    full_name: 'GTA',
+    email: 'appbemmarcado@gmail.com'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: 'b88f958e-11da-462e-ae36-c30d6158d3ca',
+  userEmail: 'appbemmarcado@gmail.com',
+  userRole: 'admin_operacional'
+}
+ GET /admin 200 in 98ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 9.1s (1906 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: 'b88f958e-11da-462e-ae36-c30d6158d3ca',
+  userEmail: 'appbemmarcado@gmail.com',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin_operacional',
+  profileError: undefined,
+  profileData: {
+    role: 'admin_operacional',
+    full_name: 'GTA',
+    email: 'appbemmarcado@gmail.com'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: 'b88f958e-11da-462e-ae36-c30d6158d3ca',
+  userEmail: 'appbemmarcado@gmail.com',
+  userRole: 'admin_operacional'
+}
+ GET /admin 200 in 5583ms
+ ✓ Compiled in 2.9s (1906 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: 'b88f958e-11da-462e-ae36-c30d6158d3ca',
+  userEmail: 'appbemmarcado@gmail.com',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin_operacional',
+  profileError: undefined,
+  profileData: {
+    role: 'admin_operacional',
+    full_name: 'GTA',
+    email: 'appbemmarcado@gmail.com'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: 'b88f958e-11da-462e-ae36-c30d6158d3ca',
+  userEmail: 'appbemmarcado@gmail.com',
+  userRole: 'admin_operacional'
+}
+ GET /admin 200 in 214ms
+ ○ Compiling /admin/projects ...
+ ✓ Compiled /admin/projects in 6.9s (1906 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled (1918 modules)
+ GET /admin/projects 200 in 2764ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: 'b88f958e-11da-462e-ae36-c30d6158d3ca',
+  userEmail: 'appbemmarcado@gmail.com',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin_operacional',
+  profileError: undefined,
+  profileData: {
+    role: 'admin_operacional',
+    full_name: 'GTA',
+    email: 'appbemmarcado@gmail.com'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: 'b88f958e-11da-462e-ae36-c30d6158d3ca',
+  userEmail: 'appbemmarcado@gmail.com',
+  userRole: 'admin_operacional'
+}
+ GET /admin/projects 200 in 128ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ○ Compiling /admin/projects/[id]/edit ...
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled /admin/projects/[id]/edit in 9s (1927 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+Project data received: {
+  id: '68156968-b0d7-4ebe-8d7a-0722a5e2cf98',
+  name: 'Pedido de Compra',
+  description: 'RPA para lançamento de pedido de compra',
+  status: 'in_progress',
+  priority: 'high',
+  start_date: '2025-09-01',
+  end_date: '2025-11-05',
+  budget: 44099,
+  company_id: '443a6a0e-768f-48e4-a9ea-0cd972375a30',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-04T13:39:43.745427+00:00',
+  updated_at: '2025-09-30T17:24:11.129319+00:00',
+  technical_responsible: 'Vitor Pinheiro',
+  key_user: 'Rafael Camilo',
+  estimated_hours: 211,
+  project_type: 'automation',
+  category: 'project'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98/edit 200 in 10866ms
+Project data received: {
+  id: '68156968-b0d7-4ebe-8d7a-0722a5e2cf98',
+  name: 'Pedido de Compra',
+  description: 'RPA para lançamento de pedido de compra',
+  status: 'in_progress',
+  priority: 'high',
+  start_date: '2025-09-01',
+  end_date: '2025-11-05',
+  budget: 44099,
+  company_id: '443a6a0e-768f-48e4-a9ea-0cd972375a30',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-04T13:39:43.745427+00:00',
+  updated_at: '2025-09-30T17:24:11.129319+00:00',
+  technical_responsible: 'Vitor Pinheiro',
+  key_user: 'Rafael Camilo',
+  estimated_hours: 211,
+  project_type: 'automation',
+  category: 'project'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98/edit 200 in 191ms
+ GET /auth/login 200 in 112ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+🔍 [Header] Debug user data: {
+  user: {
+    id: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    email: 'graziely@gobi.consulting',
+    full_name: 'Graziely Duete'
+  },
+  fullName: 'Graziely Duete',
+  email: 'graziely@gobi.consulting',
+  hasUser: true
+}
+✅ [Header] Using full_name initials: GD
+🏢 Empresas para contagem: 0
+👥 Usuários para contagem: 0
+👥 Total de usuários no sistema: 0
+👥 Total de associações usuário-empresa: 0
+👥 Associações da empresa selecionada: []
+📊 Projetos filtrados por período: 0
+📊 Total de projetos da empresa: 0
+🔍 Projetos por status: []
+🚀 Projetos em andamento (excluindo planning): 0
+⏸️ Projetos em planejamento: 0
+⚠️ Projetos atrasados: 0
+✅ Projetos concluídos: 0
+🏢 Estatísticas de horas do HourService: {
+  totalContractedHours: 0,
+  totalConsumedHours: 0,
+  totalRemainingHours: 0,
+  companiesWithPackages: 0
+}
+⏰ Total de horas contratadas: 0
+🔥 Horas consumidas: 0
+⏳ Horas restantes: 0
+💰 Total de faturamento: 0
+📁 Todos os projetos: 0
+🔍 Projetos filtrados por período: 0
+📊 Total de projetos (filtrado por empresa e período): 0
+📊 NOVA LÓGICA - Usando payment_metrics:
+📊 Total esperado: 0
+📊 Breakdown: []
+🔍 [GanttView] Projects data: []
+ GET /admin 200 in 1004ms
+ ✓ Compiled in 5.9s (1922 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin 200 in 2487ms
+ GET /admin/projects 200 in 64ms
+ ✓ Compiled /admin/projects/[id]/edit in 415ms (1051 modules)
+Project data received: {
+  id: '68156968-b0d7-4ebe-8d7a-0722a5e2cf98',
+  name: 'Pedido de Compra',
+  description: 'RPA para lançamento de pedido de compra',
+  status: 'in_progress',
+  priority: 'high',
+  start_date: '2025-09-01',
+  end_date: '2025-11-05',
+  budget: 44099,
+  company_id: '443a6a0e-768f-48e4-a9ea-0cd972375a30',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-04T13:39:43.745427+00:00',
+  updated_at: '2025-09-30T17:24:11.129319+00:00',
+  technical_responsible: 'Vitor Pinheiro',
+  key_user: 'Rafael Camilo',
+  estimated_hours: 211,
+  project_type: 'automation',
+  category: 'project'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98/edit 200 in 713ms
+ ✓ Compiled in 2.4s (890 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+Project data received: {
+  id: '68156968-b0d7-4ebe-8d7a-0722a5e2cf98',
+  name: 'Pedido de Compra',
+  description: 'RPA para lançamento de pedido de compra',
+  status: 'in_progress',
+  priority: 'high',
+  start_date: '2025-09-01',
+  end_date: '2025-11-05',
+  budget: 44099,
+  company_id: '443a6a0e-768f-48e4-a9ea-0cd972375a30',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-04T13:39:43.745427+00:00',
+  updated_at: '2025-09-30T17:24:11.129319+00:00',
+  technical_responsible: 'Vitor Pinheiro',
+  key_user: 'Rafael Camilo',
+  estimated_hours: 211,
+  project_type: 'automation',
+  category: 'project'
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98/edit 200 in 58ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ GET /auth/login 200 in 66ms
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 14.1s (1934 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 1ms (1065 modules)
+ GET /auth/login 200 in 2981ms
+🔍 [ClientLayout] User role check: {
+  userId: 'dd360ee3-d34c-4e94-b56c-b06ee048b9f8',
+  userEmail: 'gsouzaduete@gmail.com',
+  profileRole: 'client',
+  shouldRedirect: false
+}
+ GET /dashboard 200 in 5237ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ○ Compiling /dashboard/projects ...
+ ✓ Compiled /dashboard/projects in 914ms (1966 modules)
+ GET /dashboard/projects 200 in 1059ms
+🔍 [ClientLayout] User role check: {
+  userId: 'dd360ee3-d34c-4e94-b56c-b06ee048b9f8',
+  userEmail: 'gsouzaduete@gmail.com',
+  profileRole: 'client',
+  shouldRedirect: false
+}
+ GET /dashboard/projects 200 in 86ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ○ Compiling /dashboard/tasks ...
+ ✓ Compiled /dashboard/tasks in 558ms (1935 modules)
+ GET /dashboard/tasks 200 in 760ms
+ ○ Compiling /dashboard/sustentacao ...
+ ✓ Compiled /dashboard/sustentacao in 606ms (1962 modules)
+ GET /dashboard/sustentacao 200 in 713ms
+ ○ Compiling /api/sustentacao/chamados ...
+ ✓ Compiled /api/sustentacao/chamados in 550ms (1979 modules)
+🔧 Configuração Google Sheets: {
+  hasApiKey: true,
+  hasSpreadsheetId: true,
+  spreadsheetId: '1lJjoUifFO...'
+}
+🔧 Configuração Google Sheets: {
+  hasApiKey: true,
+  hasSpreadsheetId: true,
+  spreadsheetId: '1lJjoUifFO...'
+}
+📊 Buscando chamados do Google Sheets... { mes: 10, ano: 2025 }
+📋 Usando planilha: { spreadsheetId: '1lJjoUifFO...', range: 'Página1!A:L' }
+📊 Buscando métricas do Google Sheets... {
+  mes: 10,
+  ano: 2025,
+  companyId: '443a6a0e-768f-48e4-a9ea-0cd972375a30'
+}
+🔍 Buscando configuração para companyId: 443a6a0e-768f-48e4-a9ea-0cd972375a30
+📊 Buscando chamados do Google Sheets... { mes: 10, ano: 2025 }
+📋 Usando planilha: { spreadsheetId: '1lJjoUifFO...', range: 'Página1!A:L' }
+🔧 Configuração Google Sheets: {
+  hasApiKey: true,
+  hasSpreadsheetId: true,
+  spreadsheetId: '1lJjoUifFO...'
+}
+🔧 Configuração Google Sheets: {
+  hasApiKey: true,
+  hasSpreadsheetId: true,
+  spreadsheetId: '1lJjoUifFO...'
+}
+📊 Buscando chamados do Google Sheets... { mes: 10, ano: 2025 }
+📋 Usando planilha: { spreadsheetId: '1lJjoUifFO...', range: 'Página1!A:L' }
+📊 Buscando métricas do Google Sheets... {
+  mes: 10,
+  ano: 2025,
+  companyId: '443a6a0e-768f-48e4-a9ea-0cd972375a30'
+}
+🔍 Buscando configuração para companyId: 443a6a0e-768f-48e4-a9ea-0cd972375a30
+📊 Buscando chamados do Google Sheets... { mes: 10, ano: 2025 }
+📋 Usando planilha: { spreadsheetId: '1lJjoUifFO...', range: 'Página1!A:L' }
+ ○ Compiling /api/sustentacao/config-empresa ...
+ ✓ Compiled /api/sustentacao/config-empresa in 591ms (1981 modules)
+📋 Buscando configurações de empresas...
+📋 Buscando configurações de empresas...
+✅ 72 linhas encontradas na planilha
+✅ 71 chamados processados
+🔍 Filtrado por mês 10: 0 chamados
+✅ 72 linhas encontradas na planilha
+✅ 71 chamados processados
+🔍 Filtrado por mês 10: 0 chamados
+✅ 72 linhas encontradas na planilha
+✅ 71 chamados processados
+🔍 Filtrado por mês 10: 0 chamados
+✅ 72 linhas encontradas na planilha
+✅ 71 chamados processados
+🔍 Filtrado por mês 10: 0 chamados
+ GET /api/sustentacao/config-empresa?companyId=443a6a0e-768f-48e4-a9ea-0cd972375a30 200 in 864ms
+ GET /api/sustentacao/config-empresa?companyId=443a6a0e-768f-48e4-a9ea-0cd972375a30 200 in 916ms
+✅ Usando configuração da empresa: {
+  horasContratadas: 25.5,
+  permiteSaldoNegativo: true,
+  dataInicio: '31/07/2025',
+  dataFim: '30/03/2026'
+}
+📊 Buscando chamados do Google Sheets... {
+  mes: 10,
+  ano: 2025,
+  companyId: '443a6a0e-768f-48e4-a9ea-0cd972375a30'
+}
+📋 Usando planilha: { spreadsheetId: '1lJjoUifFO...', range: 'Página1!A:L' }
+✅ Usando configuração da empresa: {
+  horasContratadas: 25.5,
+  permiteSaldoNegativo: true,
+  dataInicio: '31/07/2025',
+  dataFim: '30/03/2026'
+}
+📊 Buscando chamados do Google Sheets... {
+  mes: 10,
+  ano: 2025,
+  companyId: '443a6a0e-768f-48e4-a9ea-0cd972375a30'
+}
+📋 Usando planilha: { spreadsheetId: '1lJjoUifFO...', range: 'Página1!A:L' }
+✅ 72 linhas encontradas na planilha
+✅ 71 chamados processados
+🔍 Filtrado por mês 10: 0 chamados
+📅 Período de vigência do contrato: {
+  dataInicio: '31/07/2025',
+  dataFim: '30/03/2026',
+  mesInicioContrato: 6,
+  anoInicioContrato: 2025,
+  mesAtual: 10,
+  anoAtual: 2025
+}
+⏭️ Mês 7 fora do período de vigência, pulando...
+📊 Buscando chamados do Google Sheets... { mes: 8, ano: 2025 }
+📋 Usando planilha: { spreadsheetId: '1lJjoUifFO...', range: 'Página1!A:L' }
+✅ 72 linhas encontradas na planilha
+✅ 71 chamados processados
+🔍 Filtrado por mês 10: 0 chamados
+📅 Período de vigência do contrato: {
+  dataInicio: '31/07/2025',
+  dataFim: '30/03/2026',
+  mesInicioContrato: 6,
+  anoInicioContrato: 2025,
+  mesAtual: 10,
+  anoAtual: 2025
+}
+⏭️ Mês 7 fora do período de vigência, pulando...
+📊 Buscando chamados do Google Sheets... { mes: 8, ano: 2025 }
+📋 Usando planilha: { spreadsheetId: '1lJjoUifFO...', range: 'Página1!A:L' }
+✅ 72 linhas encontradas na planilha
+✅ 71 chamados processados
+🔍 Filtrado por mês 8: 25 chamados
+📊 Buscando chamados do Google Sheets... { mes: 9, ano: 2025 }
+📋 Usando planilha: { spreadsheetId: '1lJjoUifFO...', range: 'Página1!A:L' }
+✅ 72 linhas encontradas na planilha
+✅ 71 chamados processados
+🔍 Filtrado por mês 8: 25 chamados
+📊 Buscando chamados do Google Sheets... { mes: 9, ano: 2025 }
+📋 Usando planilha: { spreadsheetId: '1lJjoUifFO...', range: 'Página1!A:L' }
+✅ 72 linhas encontradas na planilha
+✅ 71 chamados processados
+🔍 Filtrado por mês 9: 26 chamados
+✅ Saldo negativo permitido - cálculo final: {
+  horasContratadasProximoMes: 25.5,
+  saldoAcumuladoMesesAnteriores: 2.5,
+  saldoMesAtual: 25.5,
+  saldoFinalProximoMes: 28
+}
+ POST /api/sustentacao/chamados 200 in 1836ms
+✅ 72 linhas encontradas na planilha
+✅ 71 chamados processados
+🔍 Filtrado por mês 9: 26 chamados
+✅ Saldo negativo permitido - cálculo final: {
+  horasContratadasProximoMes: 25.5,
+  saldoAcumuladoMesesAnteriores: 2.5,
+  saldoMesAtual: 25.5,
+  saldoFinalProximoMes: 28
+}
+ POST /api/sustentacao/chamados 200 in 2210ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ GET /dashboard 200 in 49ms
+ ○ Compiling /dashboard/profile ...
+ ✓ Compiled /dashboard/profile in 749ms (2015 modules)
+ GET /dashboard/profile 200 in 1446ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 3.5s (1989 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔍 [ClientLayout] User role check: {
+  userId: 'dd360ee3-d34c-4e94-b56c-b06ee048b9f8',
+  userEmail: 'gsouzaduete@gmail.com',
+  profileRole: 'client',
+  shouldRedirect: false
+}
+ GET /dashboard/profile 200 in 509ms
+ ○ Compiling / ...
+ ✓ Compiled / in 3.5s (1084 modules)
+ GET / 307 in 4444ms
+ ○ Compiling /auth/login ...
+ ✓ Compiled /auth/login in 632ms (1092 modules)
+ GET /auth/login 200 in 1296ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 9.3s (1756 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 2ms (847 modules)
+🔍 [ClientLayout] User role check: {
+  userId: 'dd360ee3-d34c-4e94-b56c-b06ee048b9f8',
+  userEmail: 'gsouzaduete@gmail.com',
+  profileRole: 'client',
+  shouldRedirect: false
+}
+ ✓ Compiled in 1ms (847 modules)
+ GET /dashboard/profile 200 in 2122ms
+ GET /dashboard/profile 200 in 5207ms
+ ✓ Compiled in 16ms (847 modules)
+🔍 [ClientLayout] User role check: {
+  userId: 'dd360ee3-d34c-4e94-b56c-b06ee048b9f8',
+  userEmail: 'gsouzaduete@gmail.com',
+  profileRole: 'client',
+  shouldRedirect: false
+}
+ GET /auth/login 200 in 10385ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 21.8s (1752 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔍 [ClientLayout] User role check: {
+  userId: 'dd360ee3-d34c-4e94-b56c-b06ee048b9f8',
+  userEmail: 'gsouzaduete@gmail.com',
+  profileRole: 'client',
+  shouldRedirect: false
+}
+ GET /auth/login 200 in 2100ms
+ GET /dashboard/profile 200 in 2367ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 47.3s (1752 modules)
+🔍 [ClientLayout] User role check: {
+  userId: 'dd360ee3-d34c-4e94-b56c-b06ee048b9f8',
+  userEmail: 'gsouzaduete@gmail.com',
+  profileRole: 'client',
+  shouldRedirect: false
+}
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ GET /dashboard/profile 200 in 880ms
+ GET /auth/login 200 in 259ms
+ ✓ Compiled in 6.3s (1752 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔍 [ClientLayout] User role check: {
+  userId: 'dd360ee3-d34c-4e94-b56c-b06ee048b9f8',
+  userEmail: 'gsouzaduete@gmail.com',
+  profileRole: 'client',
+  shouldRedirect: false
+}
+ GET /dashboard/profile 200 in 484ms
+ GET /auth/login 200 in 204ms
+ GET /dashboard 200 in 103ms
+ GET /dashboard/projects 200 in 164ms
+ GET /dashboard 200 in 106ms
+ GET /dashboard 200 in 55ms
+ GET /dashboard/projects 200 in 51ms
+ ○ Compiling /dashboard/tasks ...
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled /dashboard/tasks in 30.8s (1756 modules)
+ ✓ Compiled in 5ms (847 modules)
+ ✓ Compiled in 9ms (847 modules)
+ ✓ Compiled in 1ms (847 modules)
+ GET /dashboard/sustentacao 200 in 8365ms
+ GET /dashboard/tasks 200 in 37028ms
+ GET /dashboard/tasks 200 in 7575ms
+ ✓ Compiled in 2ms (847 modules)
+ GET /auth/login 200 in 9091ms
+ GET /dashboard/sustentacao 200 in 8458ms
+ ✓ Compiled in 6.7s (1752 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔍 [ClientLayout] User role check: {
+  userId: 'dd360ee3-d34c-4e94-b56c-b06ee048b9f8',
+  userEmail: 'gsouzaduete@gmail.com',
+  profileRole: 'client',
+  shouldRedirect: false
+}
+ GET /dashboard/sustentacao 200 in 349ms
+ GET /auth/login 200 in 130ms
+ ○ Compiling /api/sustentacao/chamados ...
+ ✓ Compiled /api/sustentacao/chamados in 2.8s (862 modules)
+🔧 Configuração Google Sheets: {
+  hasApiKey: true,
+  hasSpreadsheetId: true,
+  spreadsheetId: '1lJjoUifFO...'
+}
+🔧 Configuração Google Sheets: {
+  hasApiKey: true,
+  hasSpreadsheetId: true,
+  spreadsheetId: '1lJjoUifFO...'
+}
+📊 Buscando chamados do Google Sheets... { mes: 10, ano: 2025 }
+📋 Usando planilha: { spreadsheetId: '1lJjoUifFO...', range: 'Página1!A:L' }
+📊 Buscando métricas do Google Sheets... {
+  mes: 10,
+  ano: 2025,
+  companyId: '443a6a0e-768f-48e4-a9ea-0cd972375a30'
+}
+🔍 Buscando configuração para companyId: 443a6a0e-768f-48e4-a9ea-0cd972375a30
+📊 Buscando chamados do Google Sheets... { mes: 10, ano: 2025 }
+📋 Usando planilha: { spreadsheetId: '1lJjoUifFO...', range: 'Página1!A:L' }
+🔧 Configuração Google Sheets: {
+  hasApiKey: true,
+  hasSpreadsheetId: true,
+  spreadsheetId: '1lJjoUifFO...'
+}
+🔧 Configuração Google Sheets: {
+  hasApiKey: true,
+  hasSpreadsheetId: true,
+  spreadsheetId: '1lJjoUifFO...'
+}
+📊 Buscando chamados do Google Sheets... { mes: 10, ano: 2025 }
+📋 Usando planilha: { spreadsheetId: '1lJjoUifFO...', range: 'Página1!A:L' }
+📊 Buscando métricas do Google Sheets... {
+  mes: 10,
+  ano: 2025,
+  companyId: '443a6a0e-768f-48e4-a9ea-0cd972375a30'
+}
+🔍 Buscando configuração para companyId: 443a6a0e-768f-48e4-a9ea-0cd972375a30
+📊 Buscando chamados do Google Sheets... { mes: 10, ano: 2025 }
+📋 Usando planilha: { spreadsheetId: '1lJjoUifFO...', range: 'Página1!A:L' }
+ ○ Compiling /api/sustentacao/config-empresa ...
+✅ 72 linhas encontradas na planilha
+✅ 71 chamados processados
+🔍 Filtrado por mês 10: 0 chamados
+✅ 72 linhas encontradas na planilha
+✅ 71 chamados processados
+🔍 Filtrado por mês 10: 0 chamados
+✅ 72 linhas encontradas na planilha
+✅ 71 chamados processados
+🔍 Filtrado por mês 10: 0 chamados
+✅ 72 linhas encontradas na planilha
+✅ 71 chamados processados
+🔍 Filtrado por mês 10: 0 chamados
+ ✓ Compiled /api/sustentacao/config-empresa in 2s (864 modules)
+📋 Buscando configurações de empresas...
+📋 Buscando configurações de empresas...
+ GET /api/sustentacao/config-empresa?companyId=443a6a0e-768f-48e4-a9ea-0cd972375a30 200 in 3198ms
+ GET /api/sustentacao/config-empresa?companyId=443a6a0e-768f-48e4-a9ea-0cd972375a30 200 in 3210ms
+✅ Usando configuração da empresa: {
+  horasContratadas: 25.5,
+  permiteSaldoNegativo: true,
+  dataInicio: '31/07/2025',
+  dataFim: '30/03/2026'
+}
+📊 Buscando chamados do Google Sheets... {
+  mes: 10,
+  ano: 2025,
+  companyId: '443a6a0e-768f-48e4-a9ea-0cd972375a30'
+}
+📋 Usando planilha: { spreadsheetId: '1lJjoUifFO...', range: 'Página1!A:L' }
+✅ Usando configuração da empresa: {
+  horasContratadas: 25.5,
+  permiteSaldoNegativo: true,
+  dataInicio: '31/07/2025',
+  dataFim: '30/03/2026'
+}
+📊 Buscando chamados do Google Sheets... {
+  mes: 10,
+  ano: 2025,
+  companyId: '443a6a0e-768f-48e4-a9ea-0cd972375a30'
+}
+📋 Usando planilha: { spreadsheetId: '1lJjoUifFO...', range: 'Página1!A:L' }
+✅ 72 linhas encontradas na planilha
+✅ 71 chamados processados
+🔍 Filtrado por mês 10: 0 chamados
+📅 Período de vigência do contrato: {
+  dataInicio: '31/07/2025',
+  dataFim: '30/03/2026',
+  mesInicioContrato: 6,
+  anoInicioContrato: 2025,
+  mesAtual: 10,
+  anoAtual: 2025
+}
+⏭️ Mês 7 fora do período de vigência, pulando...
+📊 Buscando chamados do Google Sheets... { mes: 8, ano: 2025 }
+📋 Usando planilha: { spreadsheetId: '1lJjoUifFO...', range: 'Página1!A:L' }
+✅ 72 linhas encontradas na planilha
+✅ 71 chamados processados
+🔍 Filtrado por mês 10: 0 chamados
+📅 Período de vigência do contrato: {
+  dataInicio: '31/07/2025',
+  dataFim: '30/03/2026',
+  mesInicioContrato: 6,
+  anoInicioContrato: 2025,
+  mesAtual: 10,
+  anoAtual: 2025
+}
+⏭️ Mês 7 fora do período de vigência, pulando...
+📊 Buscando chamados do Google Sheets... { mes: 8, ano: 2025 }
+📋 Usando planilha: { spreadsheetId: '1lJjoUifFO...', range: 'Página1!A:L' }
+✅ 72 linhas encontradas na planilha
+✅ 71 chamados processados
+🔍 Filtrado por mês 8: 25 chamados
+📊 Buscando chamados do Google Sheets... { mes: 9, ano: 2025 }
+📋 Usando planilha: { spreadsheetId: '1lJjoUifFO...', range: 'Página1!A:L' }
+✅ 72 linhas encontradas na planilha
+✅ 71 chamados processados
+🔍 Filtrado por mês 8: 25 chamados
+📊 Buscando chamados do Google Sheets... { mes: 9, ano: 2025 }
+📋 Usando planilha: { spreadsheetId: '1lJjoUifFO...', range: 'Página1!A:L' }
+✅ 72 linhas encontradas na planilha
+✅ 71 chamados processados
+🔍 Filtrado por mês 9: 26 chamados
+✅ Saldo negativo permitido - cálculo final: {
+  horasContratadasProximoMes: 25.5,
+  saldoAcumuladoMesesAnteriores: 2.5,
+  saldoMesAtual: 25.5,
+  saldoFinalProximoMes: 28
+}
+ POST /api/sustentacao/chamados 200 in 7557ms
+✅ 72 linhas encontradas na planilha
+✅ 71 chamados processados
+🔍 Filtrado por mês 9: 26 chamados
+✅ Saldo negativo permitido - cálculo final: {
+  horasContratadasProximoMes: 25.5,
+  saldoAcumuladoMesesAnteriores: 2.5,
+  saldoMesAtual: 25.5,
+  saldoFinalProximoMes: 28
+}
+ POST /api/sustentacao/chamados 200 in 7600ms
+ ✓ Compiled in 28.3s (1773 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 0ms (864 modules)
+🔍 [ClientLayout] User role check: {
+  userId: 'b88f958e-11da-462e-ae36-c30d6158d3ca',
+  userEmail: 'appbemmarcado@gmail.com',
+  profileRole: 'admin_operacional',
+  shouldRedirect: true
+}
+🔄 [ClientLayout] Redirecting admin/admin_operacional to /admin
+ GET /dashboard 200 in 4486ms
+ ○ Compiling /admin ...
+ ✓ Compiled /admin in 850ms (886 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: 'b88f958e-11da-462e-ae36-c30d6158d3ca',
+  userEmail: 'appbemmarcado@gmail.com',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin_operacional',
+  profileError: undefined,
+  profileData: {
+    role: 'admin_operacional',
+    full_name: 'GTA',
+    email: 'appbemmarcado@gmail.com'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: 'b88f958e-11da-462e-ae36-c30d6158d3ca',
+  userEmail: 'appbemmarcado@gmail.com',
+  userRole: 'admin_operacional'
+}
+ GET /admin 200 in 1383ms

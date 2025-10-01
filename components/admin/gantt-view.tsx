@@ -16,6 +16,7 @@ interface GanttViewProps {
   companies?: any[]
   selectedMonth?: number | null
   selectedYear?: number
+  userRole?: string | null
 }
 
 interface ExpandedFilters {
@@ -25,7 +26,7 @@ interface ExpandedFilters {
   status: string
 }
 
-export function GanttView({ projects, allProjects, companies = [], selectedMonth, selectedYear }: GanttViewProps) {
+export function GanttView({ projects, allProjects, companies = [], selectedMonth, selectedYear, userRole }: GanttViewProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [expandedFilters, setExpandedFilters] = useState<ExpandedFilters>({
     search: "",
@@ -376,17 +377,19 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
                       <div className="text-sm font-semibold text-slate-700">{formatDate(project.end_date)}</div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2.5 px-3 py-2 bg-white/60 backdrop-blur-sm rounded-lg border border-slate-100">
-                    <div className="p-1.5 bg-green-50 rounded-md">
-                      <Clock className="h-3.5 w-3.5 text-green-600" />
-                    </div>
-                    <div>
-                      <div className="text-[10px] text-slate-500 font-medium uppercase tracking-wide">Orçamento</div>
-                      <div className="text-sm font-semibold text-slate-700">
-                        {project.budget ? `R$ ${project.budget.toLocaleString("pt-BR")}` : "N/A"}
+                  {userRole !== 'admin_operacional' && (
+                    <div className="flex items-center gap-2.5 px-3 py-2 bg-white/60 backdrop-blur-sm rounded-lg border border-slate-100">
+                      <div className="p-1.5 bg-green-50 rounded-md">
+                        <Clock className="h-3.5 w-3.5 text-green-600" />
+                      </div>
+                      <div>
+                        <div className="text-[10px] text-slate-500 font-medium uppercase tracking-wide">Orçamento</div>
+                        <div className="text-sm font-semibold text-slate-700">
+                          {project.budget ? `R$ ${project.budget.toLocaleString("pt-BR")}` : "N/A"}
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 <div className="space-y-3 relative z-10">
@@ -672,17 +675,19 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
                             <div className="text-sm font-semibold text-slate-700">{formatDate(project.end_date)}</div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2.5 px-3 py-2 bg-white/60 backdrop-blur-sm rounded-lg border border-slate-100">
-                          <div className="p-1.5 bg-green-50 rounded-md">
-                            <Clock className="h-3.5 w-3.5 text-green-600" />
-                          </div>
-                          <div>
-                            <div className="text-[10px] text-slate-500 font-medium uppercase tracking-wide">Orçamento</div>
-                            <div className="text-sm font-semibold text-slate-700">
-                              {project.budget ? `R$ ${project.budget.toLocaleString("pt-BR")}` : "N/A"}
+                        {userRole !== 'admin_operacional' && (
+                          <div className="flex items-center gap-2.5 px-3 py-2 bg-white/60 backdrop-blur-sm rounded-lg border border-slate-100">
+                            <div className="p-1.5 bg-green-50 rounded-md">
+                              <Clock className="h-3.5 w-3.5 text-green-600" />
+                            </div>
+                            <div>
+                              <div className="text-[10px] text-slate-500 font-medium uppercase tracking-wide">Orçamento</div>
+                              <div className="text-sm font-semibold text-slate-700">
+                                {project.budget ? `R$ ${project.budget.toLocaleString("pt-BR")}` : "N/A"}
+                              </div>
                             </div>
                           </div>
-                        </div>
+                        )}
                       </div>
 
                       <div className="space-y-3 relative z-10">

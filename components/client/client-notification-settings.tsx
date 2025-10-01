@@ -68,7 +68,7 @@ export function ClientNotificationSettings() {
             <Label htmlFor="project_created">Projeto Criado</Label>
             <p className="text-sm text-muted-foreground">Quando um novo projeto for criado para sua empresa</p>
           </div>
-          <Switch id="project_created" checked={prefs.project_created} onCheckedChange={(v) => setPrefs({ ...prefs, project_created: v })} />
+          <Switch id="project_created" checked={prefs.project_created} onCheckedChange={(v) => setPrefs({ ...prefs, project_created: v })} className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-cyan-500 data-[state=checked]:to-blue-600" />
         </div>
 
         <div className="flex items-center justify-between">
@@ -76,7 +76,7 @@ export function ClientNotificationSettings() {
             <Label htmlFor="status_changed">Mudança de Status</Label>
             <p className="text-sm text-muted-foreground">Quando o status de projetos for alterado</p>
           </div>
-          <Switch id="status_changed" checked={prefs.status_changed} onCheckedChange={(v) => setPrefs({ ...prefs, status_changed: v })} />
+          <Switch id="status_changed" checked={prefs.status_changed} onCheckedChange={(v) => setPrefs({ ...prefs, status_changed: v })} className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-cyan-500 data-[state=checked]:to-blue-600" />
         </div>
 
         <div className="flex items-center justify-between">
@@ -84,10 +84,10 @@ export function ClientNotificationSettings() {
             <Label htmlFor="due_reminder">Lembrete de Prazo</Label>
             <p className="text-sm text-muted-foreground">Lembretes de tarefas próximas do vencimento</p>
           </div>
-          <Switch id="due_reminder" checked={prefs.due_reminder} onCheckedChange={(v) => setPrefs({ ...prefs, due_reminder: v })} />
+          <Switch id="due_reminder" checked={prefs.due_reminder} onCheckedChange={(v) => setPrefs({ ...prefs, due_reminder: v })} className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-cyan-500 data-[state=checked]:to-blue-600" />
         </div>
 
-        <Button onClick={save} disabled={saving}>{saving ? 'Salvando...' : 'Salvar Configurações'}</Button>
+        <Button onClick={save} disabled={saving} className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white shadow-md hover:shadow-lg transition-all duration-200">{saving ? 'Salvando...' : 'Salvar Configurações'}</Button>
       </CardContent>
     </Card>
   )

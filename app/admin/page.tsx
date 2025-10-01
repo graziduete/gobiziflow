@@ -941,6 +941,7 @@ export default function AdminDashboard() {
           companies={companies} 
           selectedMonth={selectedMonth} 
           selectedYear={selectedYear}
+          userRole={userRole}
         />
       </div>
 

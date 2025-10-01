@@ -14,7 +14,7 @@ export default async function ClientProfilePage() {
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-4 md:px-6">
       <div>
         <h2 className="text-3xl font-bold tracking-tight">Meu Perfil</h2>
         <p className="text-muted-foreground">Gerencie suas informações e configurações</p>
