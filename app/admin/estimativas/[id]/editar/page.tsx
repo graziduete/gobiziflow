@@ -675,7 +675,7 @@ export default function EditarEstimativaPage() {
           <Button variant="outline" onClick={() => router.back()}>
             Cancelar
           </Button>
-          <Button onClick={handleSave} disabled={saving}>
+          <Button onClick={handleSave} disabled={saving} className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-200">
             {saving ? 'Salvando...' : 'Salvar Alterações'}
           </Button>
         </div>

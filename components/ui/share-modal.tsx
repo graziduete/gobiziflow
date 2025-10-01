@@ -97,7 +97,7 @@ export function ShareModal({ isOpen, onClose, shareUrl, projectName }: ShareModa
           </div>
 
           <div className="flex gap-2 pt-2">
-            <Button onClick={handleOpenLink} className="flex-1">
+            <Button onClick={handleOpenLink} className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-200">
               <ExternalLink className="h-4 w-4 mr-2" />
               Abrir Link
             </Button>

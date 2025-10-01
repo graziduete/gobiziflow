@@ -1506,3 +1506,314 @@ AuthApiError: Invalid Refresh Token: Refresh Token Not Found {
   userEmail: 'graziely@gobi.consulting',
   userRole: 'admin'
 }
+🔍 [Header] Debug user data: {
+  user: {
+    id: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    email: 'graziely@gobi.consulting',
+    full_name: 'Graziely Duete'
+  },
+  fullName: 'Graziely Duete',
+  email: 'graziely@gobi.consulting',
+  hasUser: true
+}
+✅ [Header] Using full_name initials: GD
+🏢 Empresas para contagem: 0
+👥 Usuários para contagem: 0
+👥 Total de usuários no sistema: 0
+👥 Total de associações usuário-empresa: 0
+👥 Associações da empresa selecionada: []
+📊 Projetos filtrados por período: 0
+📊 Total de projetos da empresa: 0
+🔍 Projetos por status: []
+🚀 Projetos em andamento (excluindo planning): 0
+⏸️ Projetos em planejamento: 0
+⚠️ Projetos atrasados: 0
+✅ Projetos concluídos: 0
+🏢 Estatísticas de horas do HourService: {
+  totalContractedHours: 0,
+  totalConsumedHours: 0,
+  totalRemainingHours: 0,
+  companiesWithPackages: 0
+}
+⏰ Total de horas contratadas: 0
+🔥 Horas consumidas: 0
+⏳ Horas restantes: 0
+💰 Total de faturamento: 0
+📁 Todos os projetos: 0
+🔍 Projetos filtrados por período: 0
+📊 Total de projetos (filtrado por empresa e período): 0
+📊 NOVA LÓGICA - Usando payment_metrics:
+📊 Total esperado: 0
+📊 Breakdown: []
+🔍 [GanttView] Projects data: []
+ GET /admin 200 in 4384ms
+ ✓ Compiled in 1216ms (909 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin 200 in 710ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ○ Compiling /admin/companies ...
+ ✓ Compiled /admin/companies in 1499ms (1764 modules)
+ GET /admin/companies 200 in 1657ms
+ GET /admin/companies 200 in 38ms
+ ○ Compiling /admin/users ...
+ ✓ Compiled /admin/users in 708ms (1781 modules)
+ GET /admin/users 200 in 863ms
+ ○ Compiling /admin/projects ...
+ ✓ Compiled /admin/projects in 1076ms (885 modules)
+ GET /admin/projects 200 in 1221ms
+ ○ Compiling /admin/estimativas ...
+ ✓ Compiled /admin/estimativas in 2.5s (897 modules)
+ GET /admin/estimativas 200 in 2721ms
+ ○ Compiling /admin/responsaveis ...
+ ✓ Compiled /admin/responsaveis in 678ms (906 modules)
+ GET /admin/responsaveis 200 in 865ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ GET /auth/login 200 in 36ms
+ ✓ Compiled in 1811ms (917 modules)
+ ✓ Compiled in 1031ms (917 modules)
+ ✓ Compiled in 1782ms (917 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 639ms (917 modules)
+ ✓ Compiled in 2s (917 modules)
+ ✓ Compiled in 467ms (917 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ○ Compiling / ...
+ ✓ Compiled / in 523ms (863 modules)
+ GET / 307 in 728ms
+ GET /auth/login 200 in 299ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+🔍 [Header] Debug user data: {
+  user: {
+    id: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    email: 'graziely@gobi.consulting',
+    full_name: 'Graziely Duete'
+  },
+  fullName: 'Graziely Duete',
+  email: 'graziely@gobi.consulting',
+  hasUser: true
+}
+✅ [Header] Using full_name initials: GD
+🏢 Empresas para contagem: 0
+👥 Usuários para contagem: 0
+👥 Total de usuários no sistema: 0
+👥 Total de associações usuário-empresa: 0
+👥 Associações da empresa selecionada: []
+📊 Projetos filtrados por período: 0
+📊 Total de projetos da empresa: 0
+🔍 Projetos por status: []
+🚀 Projetos em andamento (excluindo planning): 0
+⏸️ Projetos em planejamento: 0
+⚠️ Projetos atrasados: 0
+✅ Projetos concluídos: 0
+🏢 Estatísticas de horas do HourService: {
+  totalContractedHours: 0,
+  totalConsumedHours: 0,
+  totalRemainingHours: 0,
+  companiesWithPackages: 0
+}
+⏰ Total de horas contratadas: 0
+🔥 Horas consumidas: 0
+⏳ Horas restantes: 0
+💰 Total de faturamento: 0
+📁 Todos os projetos: 0
+🔍 Projetos filtrados por período: 0
+📊 Total de projetos (filtrado por empresa e período): 0
+📊 NOVA LÓGICA - Usando payment_metrics:
+📊 Total esperado: 0
+📊 Breakdown: []
+🔍 [GanttView] Projects data: []
+ GET /admin 200 in 1025ms
+ ○ Compiling /admin/estimativas ...
+ ✓ Compiled /admin/estimativas in 590ms (874 modules)
+ GET /admin/estimativas 200 in 687ms
+ ○ Compiling /admin/estimativas/[id]/editar ...
+ ✓ Compiled /admin/estimativas/[id]/editar in 1272ms (1787 modules)
+ GET /admin/estimativas/376e7f2e-25a7-4fac-87c1-a77ee5a31a34/editar 200 in 2960ms
+ ○ Compiling /admin/estimativas/[id] ...
+ ✓ Compiled /admin/estimativas/[id] in 2.9s (1951 modules)
+ GET /admin/estimativas/376e7f2e-25a7-4fac-87c1-a77ee5a31a34 200 in 3485ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 2.3s (1938 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/estimativas/376e7f2e-25a7-4fac-87c1-a77ee5a31a34 200 in 141ms
+ ✓ Compiled in 755ms (1938 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/estimativas/376e7f2e-25a7-4fac-87c1-a77ee5a31a34 200 in 203ms
+ ✓ Compiled in 2s (1938 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/estimativas/376e7f2e-25a7-4fac-87c1-a77ee5a31a34 200 in 85ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 1691ms (1938 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/estimativas/376e7f2e-25a7-4fac-87c1-a77ee5a31a34 200 in 146ms
+ ✓ Compiled in 1460ms (1938 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/estimativas/376e7f2e-25a7-4fac-87c1-a77ee5a31a34 200 in 125ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ GET /admin/estimativas/376e7f2e-25a7-4fac-87c1-a77ee5a31a34/editar 200 in 39ms
+ ✓ Compiled in 5.5s (1938 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/estimativas 200 in 274ms

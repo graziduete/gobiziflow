@@ -62,6 +62,7 @@ export function NotificationSettings() {
               id="notify_project_created"
               checked={!!settings.notify_project_created}
               onCheckedChange={(checked) => setSettings((prev) => prev ? { ...prev, notify_project_created: checked } : prev)}
+              className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-blue-500 data-[state=checked]:to-indigo-600"
             />
           </div>
 
@@ -74,11 +75,12 @@ export function NotificationSettings() {
               id="notify_status_changed"
               checked={!!settings.notify_status_changed}
               onCheckedChange={(checked) => setSettings((prev) => prev ? { ...prev, notify_status_changed: checked } : prev)}
+              className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-blue-500 data-[state=checked]:to-indigo-600"
             />
           </div>
         </div>
 
-        <Button onClick={save} disabled={saving}>
+        <Button onClick={save} disabled={saving} className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-200">
           {saving ? 'Salvando...' : 'Salvar Configurações'}
         </Button>
       </CardContent>

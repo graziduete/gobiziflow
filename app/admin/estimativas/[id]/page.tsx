@@ -54,11 +54,31 @@ interface RecursoEstimativa {
 }
 
 const statusConfig = {
-  proposta_comercial: { label: "Proposta Comercial", variant: "default" as const },
-  em_aprovacao: { label: "Em Aprovação", variant: "secondary" as const },
-  aprovada: { label: "Aprovada", variant: "default" as const },
-  rejeitada: { label: "Rejeitada", variant: "destructive" as const },
-  convertida_projeto: { label: "Convertida em Projeto", variant: "outline" as const },
+  proposta_comercial: { 
+    label: "Proposta Comercial", 
+    variant: "default" as const,
+    className: "bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold shadow-sm"
+  },
+  em_aprovacao: { 
+    label: "Em Aprovação", 
+    variant: "secondary" as const,
+    className: "bg-gradient-to-r from-orange-500 to-amber-600 text-white font-semibold shadow-sm"
+  },
+  aprovada: { 
+    label: "Aprovada", 
+    variant: "default" as const,
+    className: "bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold shadow-sm"
+  },
+  rejeitada: { 
+    label: "Rejeitada", 
+    variant: "destructive" as const,
+    className: "bg-gradient-to-r from-red-500 to-rose-600 text-white font-semibold shadow-sm"
+  },
+  convertida_projeto: { 
+    label: "Convertida em Projeto", 
+    variant: "outline" as const,
+    className: "bg-gradient-to-r from-blue-500 to-cyan-600 text-white font-semibold shadow-sm"
+  },
 }
 
 export default function VisualizarEstimativaPage() {
@@ -352,7 +372,7 @@ export default function VisualizarEstimativaPage() {
           <div>
             <div className="flex items-center gap-3 mb-2">
               <h1 className="text-3xl font-bold tracking-tight">{estimativa.nome_projeto}</h1>
-              <Badge variant={statusConfig[estimativa.status as keyof typeof statusConfig]?.variant || "default"}>
+              <Badge className={statusConfig[estimativa.status as keyof typeof statusConfig]?.className || "bg-gradient-to-r from-slate-500 to-gray-600 text-white font-semibold shadow-sm"}>
                 {statusConfig[estimativa.status as keyof typeof statusConfig]?.label || estimativa.status}
               </Badge>
             </div>
