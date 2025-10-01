@@ -17,7 +17,7 @@ export function StatusBadge({ status, type = "project", className }: StatusBadge
         },
         in_progress: {
           label: "Em Andamento",
-          className: "bg-info/10 text-info border-info/20 hover:bg-info/20",
+          className: "bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200",
         },
         on_hold: {
           label: "Pausado",
@@ -43,7 +43,7 @@ export function StatusBadge({ status, type = "project", className }: StatusBadge
         },
         in_progress: {
           label: "Em Andamento",
-          className: "bg-info/10 text-info border-info/20 hover:bg-info/20",
+          className: "bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200",
         },
         review: {
           label: "Em Revisão",

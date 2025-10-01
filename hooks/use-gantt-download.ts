@@ -122,8 +122,8 @@ export function useGanttDownload() {
       // Aguardar um pouco para garantir que todos os estilos sejam aplicados
       await new Promise(resolve => setTimeout(resolve, 100))
 
-      // Forçar re-renderização dos elementos com bolinhas
-      const statusDots = element.querySelectorAll('[class*="rounded-full"]')
+      // Forçar re-renderização dos elementos com bolinhas (apenas status dots, não a linha)
+      const statusDots = element.querySelectorAll('[title*="status"], [title*="Status"]')
       statusDots.forEach(dot => {
         const computedStyle = window.getComputedStyle(dot)
         console.log('Status dot styles:', {

@@ -4,6 +4,8 @@ import { notFound } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
+import { StatusBadge } from "@/components/shared/status-badge"
+import { PriorityBadge } from "@/components/shared/priority-badge"
 
 interface ProjectPageProps {
   params: Promise<{
@@ -15,23 +17,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   const { id } = await params
   const supabase = await createClient()
 
-  // Helpers de tradução para exibição
-  const statusToPt: Record<string, string> = {
-    planning: "Planejamento",
-    in_progress: "Em Andamento",
-    homologation: "Homologação",
-    on_hold: "Pausado",
-    delayed: "Atrasado",
-    completed: "Concluído",
-    cancelled: "Cancelado"
-  }
 
-  const priorityToPt: Record<string, string> = {
-    low: "Baixa",
-    medium: "Média",
-    high: "Alta",
-    urgent: "Urgente"
-  }
 
   // Buscar dados do projeto
   const { data: project } = await supabase
@@ -102,15 +88,11 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-2">
               <p className="text-xs font-semibold tracking-wide text-slate-500 uppercase">Status</p>
-              <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium bg-blue-100 text-blue-800">
-                {statusToPt[project.status] ?? project.status}
-              </span>
+              <StatusBadge status={project.status} type="project" />
             </div>
             <div className="space-y-2">
               <p className="text-xs font-semibold tracking-wide text-slate-500 uppercase">Prioridade</p>
-              <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium bg-emerald-100 text-emerald-800">
-                {priorityToPt[project.priority] ?? project.priority}
-              </span>
+              <PriorityBadge priority={project.priority} />
             </div>
             <div className="space-y-2">
               <p className="text-xs font-semibold tracking-wide text-slate-500 uppercase">Horas Estimadas</p>
