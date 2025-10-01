@@ -232,6 +232,7 @@ export default function ResponsaveisPage() {
                 variant={filterAtivo === "all" ? "default" : "outline"}
                 onClick={() => setFilterAtivo("all")}
                 size="sm"
+                className={filterAtivo === "all" ? "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md" : ""}
               >
                 Todos
               </Button>
@@ -239,6 +240,7 @@ export default function ResponsaveisPage() {
                 variant={filterAtivo === "ativo" ? "default" : "outline"}
                 onClick={() => setFilterAtivo("ativo")}
                 size="sm"
+                className={filterAtivo === "ativo" ? "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-md" : ""}
               >
                 Ativos
               </Button>
@@ -246,6 +248,7 @@ export default function ResponsaveisPage() {
                 variant={filterAtivo === "inativo" ? "default" : "outline"}
                 onClick={() => setFilterAtivo("inativo")}
                 size="sm"
+                className={filterAtivo === "inativo" ? "bg-gradient-to-r from-gray-500 to-slate-600 hover:from-gray-600 hover:to-slate-700 text-white shadow-md" : ""}
               >
                 Inativos
               </Button>
