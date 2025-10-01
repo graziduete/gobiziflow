@@ -993,9 +993,11 @@ export default function AdminDashboard() {
                       >
                         {translateStatus(project.status || "planning")}
                       </Badge>
-                      <span className="text-sm font-semibold text-green-700">
-                        {project.budget ? `R$ ${Number(project.budget).toLocaleString("pt-BR")}` : "Sem orçamento"}
-                      </span>
+                      {userRole !== 'admin_operacional' && (
+                        <span className="text-sm font-semibold text-green-700">
+                          {project.budget ? `R$ ${Number(project.budget).toLocaleString("pt-BR")}` : "Sem orçamento"}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>

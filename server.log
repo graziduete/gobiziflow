@@ -2231,3 +2231,234 @@ AuthApiError: Invalid Refresh Token: Refresh Token Not Found {
  GET /admin/responsaveis 200 in 527ms
 <w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
  GET /admin/users 200 in 475ms
+ ○ Compiling /auth/login ...
+ ✓ Compiled /auth/login in 5.7s (1621 modules)
+ GET /auth/login 200 in 6173ms
+ ✓ Compiled in 5.8s (2323 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled /dashboard in 343ms (844 modules)
+ GET /auth/login 200 in 5006ms
+🔍 [ClientLayout] User role check: {
+  userId: 'b88f958e-11da-462e-ae36-c30d6158d3ca',
+  userEmail: 'appbemmarcado@gmail.com',
+  profileRole: 'admin_operacional',
+  shouldRedirect: true
+}
+🔄 [ClientLayout] Redirecting admin/admin_operacional to /admin
+ GET /dashboard 200 in 6007ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: 'b88f958e-11da-462e-ae36-c30d6158d3ca',
+  userEmail: 'appbemmarcado@gmail.com',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin_operacional',
+  profileError: undefined,
+  profileData: {
+    role: 'admin_operacional',
+    full_name: 'GTA',
+    email: 'appbemmarcado@gmail.com'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: 'b88f958e-11da-462e-ae36-c30d6158d3ca',
+  userEmail: 'appbemmarcado@gmail.com',
+  userRole: 'admin_operacional'
+}
+ GET /admin 200 in 935ms
+ ✓ Compiled in 3.6s (2345 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: 'b88f958e-11da-462e-ae36-c30d6158d3ca',
+  userEmail: 'appbemmarcado@gmail.com',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin_operacional',
+  profileError: undefined,
+  profileData: {
+    role: 'admin_operacional',
+    full_name: 'GTA',
+    email: 'appbemmarcado@gmail.com'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: 'b88f958e-11da-462e-ae36-c30d6158d3ca',
+  userEmail: 'appbemmarcado@gmail.com',
+  userRole: 'admin_operacional'
+}
+ GET /admin 200 in 208ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ GET /auth/login 200 in 231ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+🔍 [Header] Debug user data: {
+  user: {
+    id: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    email: 'graziely@gobi.consulting',
+    full_name: 'Graziely Duete'
+  },
+  fullName: 'Graziely Duete',
+  email: 'graziely@gobi.consulting',
+  hasUser: true
+}
+✅ [Header] Using full_name initials: GD
+🏢 Empresas para contagem: 0
+👥 Usuários para contagem: 0
+👥 Total de usuários no sistema: 0
+👥 Total de associações usuário-empresa: 0
+👥 Associações da empresa selecionada: []
+📊 Projetos filtrados por período: 0
+📊 Total de projetos da empresa: 0
+🔍 Projetos por status: []
+🚀 Projetos em andamento (excluindo planning): 0
+⏸️ Projetos em planejamento: 0
+⚠️ Projetos atrasados: 0
+✅ Projetos concluídos: 0
+🏢 Estatísticas de horas do HourService: {
+  totalContractedHours: 0,
+  totalConsumedHours: 0,
+  totalRemainingHours: 0,
+  companiesWithPackages: 0
+}
+⏰ Total de horas contratadas: 0
+🔥 Horas consumidas: 0
+⏳ Horas restantes: 0
+💰 Total de faturamento: 0
+📁 Todos os projetos: 0
+🔍 Projetos filtrados por período: 0
+📊 Total de projetos (filtrado por empresa e período): 0
+📊 NOVA LÓGICA - Usando payment_metrics:
+📊 Total esperado: 0
+📊 Breakdown: []
+🔍 [GanttView] Projects data: []
+ GET /admin 200 in 667ms
+ GET /auth/login 200 in 63ms
+🔍 [ClientLayout] User role check: {
+  userId: 'dd360ee3-d34c-4e94-b56c-b06ee048b9f8',
+  userEmail: 'gsouzaduete@gmail.com',
+  profileRole: 'client',
+  shouldRedirect: false
+}
+ GET /dashboard 200 in 481ms
+ ✓ Compiled /dashboard/projects in 481ms (851 modules)
+ GET /dashboard/projects 200 in 605ms
+ GET /dashboard 200 in 24ms
+ GET /auth/login 200 in 93ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+🔍 [Header] Debug user data: {
+  user: {
+    id: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    email: 'graziely@gobi.consulting',
+    full_name: 'Graziely Duete'
+  },
+  fullName: 'Graziely Duete',
+  email: 'graziely@gobi.consulting',
+  hasUser: true
+}
+✅ [Header] Using full_name initials: GD
+🏢 Empresas para contagem: 0
+👥 Usuários para contagem: 0
+👥 Total de usuários no sistema: 0
+👥 Total de associações usuário-empresa: 0
+👥 Associações da empresa selecionada: []
+📊 Projetos filtrados por período: 0
+📊 Total de projetos da empresa: 0
+🔍 Projetos por status: []
+🚀 Projetos em andamento (excluindo planning): 0
+⏸️ Projetos em planejamento: 0
+⚠️ Projetos atrasados: 0
+✅ Projetos concluídos: 0
+🏢 Estatísticas de horas do HourService: {
+  totalContractedHours: 0,
+  totalConsumedHours: 0,
+  totalRemainingHours: 0,
+  companiesWithPackages: 0
+}
+⏰ Total de horas contratadas: 0
+🔥 Horas consumidas: 0
+⏳ Horas restantes: 0
+💰 Total de faturamento: 0
+📁 Todos os projetos: 0
+🔍 Projetos filtrados por período: 0
+📊 Total de projetos (filtrado por empresa e período): 0
+📊 NOVA LÓGICA - Usando payment_metrics:
+📊 Total esperado: 0
+📊 Breakdown: []
+🔍 [GanttView] Projects data: []
+ GET /admin 200 in 798ms
+ GET /auth/login 200 in 92ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔍 [ClientLayout] User role check: {
+  userId: 'b88f958e-11da-462e-ae36-c30d6158d3ca',
+  userEmail: 'appbemmarcado@gmail.com',
+  profileRole: 'admin_operacional',
+  shouldRedirect: true
+}
+🔄 [ClientLayout] Redirecting admin/admin_operacional to /admin
+ GET /dashboard 200 in 936ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: 'b88f958e-11da-462e-ae36-c30d6158d3ca',
+  userEmail: 'appbemmarcado@gmail.com',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin_operacional',
+  profileError: undefined,
+  profileData: {
+    role: 'admin_operacional',
+    full_name: 'GTA',
+    email: 'appbemmarcado@gmail.com'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: 'b88f958e-11da-462e-ae36-c30d6158d3ca',
+  userEmail: 'appbemmarcado@gmail.com',
+  userRole: 'admin_operacional'
+}
+ GET /admin 200 in 394ms
