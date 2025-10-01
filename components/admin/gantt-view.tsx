@@ -278,12 +278,22 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
 
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <TrendingRight className="h-5 w-5 text-cyan-600" />
-          Visão Geral dos Cronogramas
-        </CardTitle>
+    <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-white to-slate-50/50 shadow-md">
+      {/* Círculo decorativo */}
+      <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-cyan-500/5 to-blue-500/5 rounded-full blur-2xl" />
+      
+      <CardHeader className="relative z-10">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg shadow-md">
+            <TrendingRight className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <CardTitle className="text-2xl font-bold text-slate-900 tracking-tight">
+              Visão Geral dos Cronogramas
+            </CardTitle>
+            <p className="text-sm text-slate-600 mt-1">Acompanhe o progresso de cada projeto</p>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -291,60 +301,131 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
             <p className="text-center text-muted-foreground py-8">Nenhum projeto encontrado</p>
           ) : (
             sortedMainProjects.map((project) => (
-              <div key={project.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900">{project.name}</h4>
-                    <p className="text-sm text-gray-600">
-                      {project.companies?.name} • {getProjectTypeText(project.project_type)}
-                    </p>
+              <div key={project.id} className="relative overflow-hidden border-0 bg-gradient-to-br from-white to-slate-50/50 rounded-xl p-5 hover:shadow-lg transition-all duration-300 group shadow-sm">
+                {/* Barra colorida lateral baseada no status com gradiente */}
+                <div 
+                  className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-xl"
+                  style={{
+                    background: project.status === 'completed' ? 'linear-gradient(180deg, #10b981 0%, #059669 100%)' :
+                               project.status === 'in_progress' ? 'linear-gradient(180deg, #3b82f6 0%, #06b6d4 100%)' :
+                               project.status === 'delayed' ? 'linear-gradient(180deg, #ef4444 0%, #f97316 100%)' :
+                               project.status === 'planning' ? 'linear-gradient(180deg, #60a5fa 0%, #93c5fd 100%)' :
+                               project.status === 'cancelled' ? 'linear-gradient(180deg, #6b7280 0%, #9ca3af 100%)' :
+                               project.status === 'commercial_proposal' ? 'linear-gradient(180deg, #8b5cf6 0%, #a78bfa 100%)' :
+                               project.status === 'on_hold' ? 'linear-gradient(180deg, #eab308 0%, #f59e0b 100%)' :
+                               project.status === 'homologation' ? 'linear-gradient(180deg, #f97316 0%, #eab308 100%)' :
+                               'linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%)'
+                  }}
+                />
+                
+                {/* Círculo decorativo sutil */}
+                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500/5 to-indigo-500/5 rounded-full blur-xl group-hover:from-blue-500/10 group-hover:to-indigo-500/10 transition-all duration-500" />
+                
+                <div className="flex items-center justify-between mb-4 relative z-10">
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-bold text-slate-900 text-lg mb-1 group-hover:text-blue-700 transition-colors truncate">{project.name}</h4>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 text-xs font-medium border border-blue-100">
+                        {project.companies?.name}
+                      </span>
+                      <span className="text-sm text-slate-500">
+                        {getProjectTypeText(project.project_type)}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge
-                      variant="outline"
-                      className={`${getStatusColor(project.status || "planning")} border-2`}
+                  <div className="flex items-center gap-2 flex-shrink-0 ml-4">
+                    <Badge 
+                      className={`border-0 shadow-lg font-bold px-4 py-1.5 text-xs hover:shadow-xl transition-all ${
+                        project.status === 'completed' ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white' :
+                        project.status === 'in_progress' ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white' :
+                        project.status === 'delayed' ? 'bg-gradient-to-r from-red-500 to-orange-500 text-white' :
+                        project.status === 'planning' ? 'bg-gradient-to-r from-blue-400 to-sky-400 text-white' :
+                        project.status === 'cancelled' ? 'bg-gradient-to-r from-gray-500 to-slate-500 text-white' :
+                        project.status === 'commercial_proposal' ? 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white' :
+                        project.status === 'on_hold' ? 'bg-gradient-to-r from-yellow-500 to-amber-500 text-white' :
+                        project.status === 'homologation' ? 'bg-gradient-to-r from-orange-500 to-yellow-500 text-white' :
+                        'bg-gradient-to-r from-slate-400 to-slate-500 text-white'
+                      }`}
                     >
                       {getStatusText(project.status || "planning")}
                     </Badge>
                     {isProjectDelayed(project.end_date, project.status) && (
-                      <Badge variant="destructive">Atrasado</Badge>
+                      <Badge className="bg-gradient-to-r from-red-600 to-orange-600 text-white border-0 shadow-lg font-bold px-3 py-1 animate-pulse">
+                        ⚠️ Atrasado
+                      </Badge>
                     )}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Calendar className="h-4 w-4" />
-                    <span>Início: {formatDate(project.start_date)}</span>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4 relative z-10">
+                  <div className="flex items-center gap-2.5 px-3 py-2 bg-white/60 backdrop-blur-sm rounded-lg border border-slate-100">
+                    <div className="p-1.5 bg-blue-50 rounded-md">
+                      <Calendar className="h-3.5 w-3.5 text-blue-600" />
+                    </div>
+                    <div>
+                      <div className="text-[10px] text-slate-500 font-medium uppercase tracking-wide">Início</div>
+                      <div className="text-sm font-semibold text-slate-700">{formatDate(project.start_date)}</div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Calendar className="h-4 w-4" />
-                    <span>Fim: {formatDate(project.end_date)}</span>
+                  <div className="flex items-center gap-2.5 px-3 py-2 bg-white/60 backdrop-blur-sm rounded-lg border border-slate-100">
+                    <div className="p-1.5 bg-indigo-50 rounded-md">
+                      <Calendar className="h-3.5 w-3.5 text-indigo-600" />
+                    </div>
+                    <div>
+                      <div className="text-[10px] text-slate-500 font-medium uppercase tracking-wide">Término</div>
+                      <div className="text-sm font-semibold text-slate-700">{formatDate(project.end_date)}</div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Clock className="h-4 w-4" />
-                    <span>
-                      {project.estimated_hours ? `${project.estimated_hours}h` : ""}
-                    </span>
+                  <div className="flex items-center gap-2.5 px-3 py-2 bg-white/60 backdrop-blur-sm rounded-lg border border-slate-100">
+                    <div className="p-1.5 bg-green-50 rounded-md">
+                      <Clock className="h-3.5 w-3.5 text-green-600" />
+                    </div>
+                    <div>
+                      <div className="text-[10px] text-slate-500 font-medium uppercase tracking-wide">Orçamento</div>
+                      <div className="text-sm font-semibold text-slate-700">
+                        {project.budget ? `R$ ${project.budget.toLocaleString("pt-BR")}` : "N/A"}
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-3 relative z-10">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Progresso</span>
-                    <span className="font-medium">{getProgressWidth(project.completion_percentage, project.status || "planning")}%</span>
+                    <span className="text-slate-600 font-medium">Progresso do Projeto</span>
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">
+                      {getProgressWidth(project.completion_percentage, project.status || "planning")}%
+                    </span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden shadow-inner">
                     <div
-                      className={`h-2 rounded-full transition-all duration-300 ${getStatusColor(project.status || "planning")}`}
-                      style={{ width: `${getProgressWidth(project.completion_percentage, project.status || "planning")}%` }}
+                      className="h-3 rounded-full transition-all duration-500"
+                      style={{ 
+                        width: `${getProgressWidth(project.completion_percentage, project.status || "planning")}%`,
+                        background: project.status === 'completed' ? 'linear-gradient(90deg, #10b981 0%, #059669 100%)' :
+                                   project.status === 'delayed' ? 'linear-gradient(90deg, #ef4444 0%, #f97316 100%)' :
+                                   project.status === 'in_progress' ? 'linear-gradient(90deg, #3b82f6 0%, #06b6d4 100%)' :
+                                   project.status === 'planning' ? 'linear-gradient(90deg, #60a5fa 0%, #93c5fd 100%)' :
+                                   project.status === 'cancelled' ? 'linear-gradient(90deg, #6b7280 0%, #9ca3af 100%)' :
+                                   project.status === 'commercial_proposal' ? 'linear-gradient(90deg, #8b5cf6 0%, #a78bfa 100%)' :
+                                   'linear-gradient(90deg, #cbd5e1 0%, #94a3b8 100%)'
+                      }}
                     />
                   </div>
                 </div>
 
                 {project.profiles?.full_name && (
-                  <div className="mt-3 text-sm text-gray-600">
-                    <span className="font-medium">Responsável:</span> {project.profiles.full_name}
+                  <div className="mt-4 pt-3 border-t border-slate-100 relative z-10">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 bg-purple-50 rounded-md">
+                        <svg className="w-3.5 h-3.5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <div className="text-[10px] text-slate-500 font-medium uppercase tracking-wide">Responsável</div>
+                        <div className="text-sm font-semibold text-slate-700">{project.profiles.full_name}</div>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -369,7 +450,7 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
       {/* Modal Expandida - Fullscreen Custom */}
       {isExpanded && (
         <div 
-          className="fixed inset-0 bg-white z-[9999] overflow-hidden"
+          className="fixed inset-0 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 z-[9999] overflow-hidden"
           style={{
             position: 'fixed',
             top: 0,
@@ -378,49 +459,62 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
             bottom: 0,
             width: '100vw',
             height: '100vh',
-            backgroundColor: 'white',
             zIndex: 9999,
             overflow: 'hidden'
           }}
         >
+          {/* Círculos animados de fundo */}
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-br from-blue-400/5 to-indigo-400/5 rounded-full blur-3xl animate-blob" />
+          <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-gradient-to-br from-indigo-400/5 to-purple-400/5 rounded-full blur-3xl animate-blob animation-delay-2000" />
+          
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b bg-white">
-            <div className="flex items-center gap-2">
-              <TrendingRight className="h-5 w-5 text-cyan-600" />
-              <h2 className="text-xl font-semibold">Todos os Cronogramas</h2>
+          <div className="relative z-10 flex items-center justify-between p-6 border-b border-slate-200/60 bg-white/80 backdrop-blur-md shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg shadow-md">
+                <TrendingRight className="h-5 w-5 text-white" />
+              </div>
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-blue-900 bg-clip-text text-transparent">
+                Todos os Cronogramas
+              </h2>
             </div>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setIsExpanded(false)}
-              className="h-8 w-8 p-0"
+              className="h-9 w-9 p-0 hover:bg-red-50 hover:text-red-600 transition-all"
             >
               <span className="sr-only">Fechar</span>
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </Button>
           </div>
           
-          <div className="flex h-[calc(100vh-80px)]">
+          <div className="flex h-[calc(100vh-80px)] relative z-10">
             {/* Painel lateral de filtros */}
-            <aside className="w-[320px] border-r bg-gray-50 p-4 overflow-y-auto">
-              <div className="space-y-4">
+            <aside className="w-[320px] border-r border-slate-200/60 bg-white/60 backdrop-blur-md p-6 overflow-y-auto shadow-sm">
+              <div className="space-y-5">
+                <div>
+                  <h3 className="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wide">Filtros</h3>
+                </div>
+                
                 {/* Busca */}
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
                   <Input
                     placeholder="Buscar projeto..."
                     value={expandedFilters.search}
                     onChange={(e) => updateExpandedFilter("search", e.target.value)}
-                    className="pl-12 h-12 text-base bg-white border-gray-300 hover:border-gray-400 focus:border-blue-500"
+                    className="pl-10 h-11 text-sm bg-white border-slate-200 hover:border-blue-300 focus:border-blue-500 rounded-lg shadow-sm"
                   />
                 </div>
 
                 {/* Empresa */}
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block flex items-center gap-2">
-                    <Building2 className="h-4 w-4" />
+                  <label className="text-xs font-bold text-slate-600 mb-2 block flex items-center gap-2 uppercase tracking-wide">
+                    <div className="p-1 bg-blue-50 rounded">
+                      <Building2 className="h-3.5 w-3.5 text-blue-600" />
+                    </div>
                     Empresa
                   </label>
                   <Select value={expandedFilters.company} onValueChange={(value) => updateExpandedFilter("company", value)}>
@@ -440,8 +534,10 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
 
                 {/* Tipo */}
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block flex items-center gap-2">
-                    <Tag className="h-4 w-4" />
+                  <label className="text-xs font-bold text-slate-600 mb-2 block flex items-center gap-2 uppercase tracking-wide">
+                    <div className="p-1 bg-indigo-50 rounded">
+                      <Tag className="h-3.5 w-3.5 text-indigo-600" />
+                    </div>
                     Tipo
                   </label>
                   <Select value={expandedFilters.type} onValueChange={(value) => updateExpandedFilter("type", value)}>
@@ -461,8 +557,10 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
 
                 {/* Status */}
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block flex items-center gap-2">
-                    <Activity className="h-4 w-4" />
+                  <label className="text-xs font-bold text-slate-600 mb-2 block flex items-center gap-2 uppercase tracking-wide">
+                    <div className="p-1 bg-purple-50 rounded">
+                      <Activity className="h-3.5 w-3.5 text-purple-600" />
+                    </div>
                     Status
                   </label>
                   <Select value={expandedFilters.status} onValueChange={(value) => updateExpandedFilter("status", value)}>
@@ -499,66 +597,133 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
                   <p className="text-center text-muted-foreground py-8">Nenhum projeto encontrado</p>
                 ) : (
                   getFilteredProjects().map((project) => (
-                    <div key={project.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-gray-900">{project.name}</h4>
-                          <p className="text-sm text-gray-600">
-                            {project.companies?.name} • {getProjectTypeText(project.project_type)}
-                          </p>
+                    <div key={project.id} className="relative overflow-hidden border-0 bg-gradient-to-br from-white to-slate-50/50 rounded-xl p-5 hover:shadow-lg transition-all duration-300 group shadow-sm">
+                      {/* Barra colorida lateral baseada no status com gradiente */}
+                      <div 
+                        className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-xl"
+                        style={{
+                          background: project.status === 'completed' ? 'linear-gradient(180deg, #10b981 0%, #059669 100%)' :
+                                     project.status === 'in_progress' ? 'linear-gradient(180deg, #3b82f6 0%, #06b6d4 100%)' :
+                                     project.status === 'delayed' ? 'linear-gradient(180deg, #ef4444 0%, #f97316 100%)' :
+                                     project.status === 'planning' ? 'linear-gradient(180deg, #60a5fa 0%, #93c5fd 100%)' :
+                                     project.status === 'cancelled' ? 'linear-gradient(180deg, #6b7280 0%, #9ca3af 100%)' :
+                                     project.status === 'commercial_proposal' ? 'linear-gradient(180deg, #8b5cf6 0%, #a78bfa 100%)' :
+                                     project.status === 'on_hold' ? 'linear-gradient(180deg, #eab308 0%, #f59e0b 100%)' :
+                                     project.status === 'homologation' ? 'linear-gradient(180deg, #f97316 0%, #eab308 100%)' :
+                                     'linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%)'
+                        }}
+                      />
+                      
+                      {/* Círculo decorativo sutil */}
+                      <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500/5 to-indigo-500/5 rounded-full blur-xl group-hover:from-blue-500/10 group-hover:to-indigo-500/10 transition-all duration-500" />
+                      
+                      <div className="flex items-center justify-between mb-4 relative z-10">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-bold text-slate-900 text-lg mb-1 group-hover:text-blue-700 transition-colors truncate">{project.name}</h4>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 text-xs font-medium border border-blue-100">
+                              {project.companies?.name}
+                            </span>
+                            <span className="text-sm text-slate-500">
+                              {getProjectTypeText(project.project_type)}
+                            </span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Badge
-                            variant="outline"
-                            className={`${getStatusColor(project.status || "planning")} border-2`}
+                        <div className="flex items-center gap-2 flex-shrink-0 ml-4">
+                          <Badge 
+                            className={`border-0 shadow-lg font-bold px-4 py-1.5 text-xs hover:shadow-xl transition-all ${
+                              project.status === 'completed' ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white' :
+                              project.status === 'in_progress' ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white' :
+                              project.status === 'delayed' ? 'bg-gradient-to-r from-red-500 to-orange-500 text-white' :
+                              project.status === 'planning' ? 'bg-gradient-to-r from-blue-400 to-sky-400 text-white' :
+                              project.status === 'cancelled' ? 'bg-gradient-to-r from-gray-500 to-slate-500 text-white' :
+                              project.status === 'commercial_proposal' ? 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white' :
+                              project.status === 'on_hold' ? 'bg-gradient-to-r from-yellow-500 to-amber-500 text-white' :
+                              project.status === 'homologation' ? 'bg-gradient-to-r from-orange-500 to-yellow-500 text-white' :
+                              'bg-gradient-to-r from-slate-400 to-slate-500 text-white'
+                            }`}
                           >
                             {getStatusText(project.status || "planning")}
                           </Badge>
                           {isProjectDelayed(project.end_date, project.status) && (
-                            <Badge variant="destructive">Atrasado</Badge>
+                            <Badge className="bg-gradient-to-r from-red-600 to-orange-600 text-white border-0 shadow-lg font-bold px-3 py-1 animate-pulse">
+                              ⚠️ Atrasado
+                            </Badge>
                           )}
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <Calendar className="h-4 w-4" />
-                          <span>Início: {formatDate(project.start_date)}</span>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4 relative z-10">
+                        <div className="flex items-center gap-2.5 px-3 py-2 bg-white/60 backdrop-blur-sm rounded-lg border border-slate-100">
+                          <div className="p-1.5 bg-blue-50 rounded-md">
+                            <Calendar className="h-3.5 w-3.5 text-blue-600" />
+                          </div>
+                          <div>
+                            <div className="text-[10px] text-slate-500 font-medium uppercase tracking-wide">Início</div>
+                            <div className="text-sm font-semibold text-slate-700">{formatDate(project.start_date)}</div>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <Calendar className="h-4 w-4" />
-                          <span>Fim: {formatDate(project.end_date)}</span>
+                        <div className="flex items-center gap-2.5 px-3 py-2 bg-white/60 backdrop-blur-sm rounded-lg border border-slate-100">
+                          <div className="p-1.5 bg-indigo-50 rounded-md">
+                            <Calendar className="h-3.5 w-3.5 text-indigo-600" />
+                          </div>
+                          <div>
+                            <div className="text-[10px] text-slate-500 font-medium uppercase tracking-wide">Término</div>
+                            <div className="text-sm font-semibold text-slate-700">{formatDate(project.end_date)}</div>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <Clock className="h-4 w-4" />
-                          <span>
-                            {project.estimated_hours ? `${project.estimated_hours}h` : ""}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <Clock className="h-4 w-4" />
-                          <span>
-                            {project.estimated_hours ? `${project.estimated_hours}h` : ""}
-                          </span>
+                        <div className="flex items-center gap-2.5 px-3 py-2 bg-white/60 backdrop-blur-sm rounded-lg border border-slate-100">
+                          <div className="p-1.5 bg-green-50 rounded-md">
+                            <Clock className="h-3.5 w-3.5 text-green-600" />
+                          </div>
+                          <div>
+                            <div className="text-[10px] text-slate-500 font-medium uppercase tracking-wide">Orçamento</div>
+                            <div className="text-sm font-semibold text-slate-700">
+                              {project.budget ? `R$ ${project.budget.toLocaleString("pt-BR")}` : "N/A"}
+                            </div>
+                          </div>
                         </div>
                       </div>
 
-                      <div className="space-y-2">
+                      <div className="space-y-3 relative z-10">
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-600">Progresso</span>
-                          <span className="font-medium">{getProgressWidth(project.completion_percentage, project.status || "planning")}%</span>
+                          <span className="text-slate-600 font-medium">Progresso do Projeto</span>
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">
+                            {getProgressWidth(project.completion_percentage, project.status || "planning")}%
+                          </span>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden shadow-inner">
                           <div
-                            className={`h-2 rounded-full transition-all duration-300 ${getStatusColor(project.status || "planning")}`}
-                            style={{ width: `${getProgressWidth(project.completion_percentage, project.status || "planning")}%` }}
+                            className="h-3 rounded-full transition-all duration-500"
+                            style={{ 
+                              width: `${getProgressWidth(project.completion_percentage, project.status || "planning")}%`,
+                              background: project.status === 'completed' ? 'linear-gradient(90deg, #10b981 0%, #059669 100%)' :
+                                         project.status === 'delayed' ? 'linear-gradient(90deg, #ef4444 0%, #f97316 100%)' :
+                                         project.status === 'in_progress' ? 'linear-gradient(90deg, #3b82f6 0%, #06b6d4 100%)' :
+                                         project.status === 'planning' ? 'linear-gradient(90deg, #60a5fa 0%, #93c5fd 100%)' :
+                                         project.status === 'cancelled' ? 'linear-gradient(90deg, #6b7280 0%, #9ca3af 100%)' :
+                                         project.status === 'commercial_proposal' ? 'linear-gradient(90deg, #8b5cf6 0%, #a78bfa 100%)' :
+                                         project.status === 'on_hold' ? 'linear-gradient(90deg, #eab308 0%, #f59e0b 100%)' :
+                                         project.status === 'homologation' ? 'linear-gradient(90deg, #f97316 0%, #eab308 100%)' :
+                                         'linear-gradient(90deg, #cbd5e1 0%, #94a3b8 100%)'
+                            }}
                           />
                         </div>
                       </div>
 
                       {project.profiles?.full_name && (
-                        <div className="mt-3 text-sm text-gray-600">
-                          <span className="font-medium">Responsável:</span> {project.profiles.full_name}
+                        <div className="mt-4 pt-3 border-t border-slate-100 relative z-10">
+                          <div className="flex items-center gap-2">
+                            <div className="p-1.5 bg-purple-50 rounded-md">
+                              <svg className="w-3.5 h-3.5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                              </svg>
+                            </div>
+                            <div>
+                              <div className="text-[10px] text-slate-500 font-medium uppercase tracking-wide">Responsável</div>
+                              <div className="text-sm font-semibold text-slate-700">{project.profiles.full_name}</div>
+                            </div>
+                          </div>
                         </div>
                       )}
                     </div>

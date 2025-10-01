@@ -329,7 +329,7 @@ export default function UsersPage() {
         <CardContent>
           <div className="space-y-4">
             {currentUsers.map((user) => (
-              <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
+              <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-blue-50/50 hover:border-blue-200 hover:shadow-sm transition-all duration-200 cursor-pointer group">
                 <div className="space-y-1 flex-1">
                   <div className="flex items-center gap-2">
                     <h3 className="font-medium">{user.full_name || "Nome não informado"}</h3>
@@ -348,8 +348,8 @@ export default function UsersPage() {
                     Cadastrado em: {new Date(user.created_at).toLocaleDateString("pt-BR")}
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" asChild>
+                <div className="flex items-center gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
+                  <Button variant="outline" size="sm" asChild className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-all">
                     <Link href={`/admin/users/${user.id}/edit`}>
                       <Edit className="h-4 w-4 mr-1" />
                       Editar
@@ -359,7 +359,7 @@ export default function UsersPage() {
                     variant="outline" 
                     size="sm"
                     onClick={() => handleDeleteUser(user)}
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50 hover:border-red-300 border-red-200 transition-all"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>

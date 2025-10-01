@@ -2707,3 +2707,406 @@ Require stack:
 ✅ [Header] Using full_name initials: GD
  GET /admin/notifications/logs 200 in 1462ms
  ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 1044ms (2216 modules)
+ GET /_next/static/css/app/layout.css?v=1759277367540 404 in 1264ms
+ GET /_next/static/chunks/main-app.js?v=1759277367540 404 in 1186ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 67ms
+ GET /_next/static/chunks/app/admin/notifications/logs/page.js 404 in 38ms
+ GET /_next/static/chunks/app/admin/layout.js 404 in 27ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 498ms (1104 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ○ Compiling / ...
+ ✓ Compiled / in 950ms (1087 modules)
+ GET / 307 in 1297ms
+ GET /auth/login 200 in 240ms
+ ○ Compiling /_not-found ...
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled /_not-found in 832ms (2177 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ GET / 307 in 363ms
+ GET /auth/login 200 in 192ms
+ GET /_next/static/css/app/layout.css?v=1759278125990 404 in 31ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 79ms
+ GET /_next/static/chunks/main-app.js?v=1759278125990 404 in 80ms
+ GET /_next/static/chunks/app/auth/login/page.js 404 in 32ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 5.5s (2202 modules)
+ ○ Compiling / ...
+ ✓ Compiled / in 897ms (1105 modules)
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '1502478550'
+}
+ GET / 307 in 1641ms
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '1502478550'
+}
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ GET /auth/login 200 in 463ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 717ms (2193 modules)
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '1502478550'
+}
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '2532021202'
+}
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '1502478550'
+}
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '2532021202'
+}
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '1502478550'
+}
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '2532021202'
+}
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ GET /_next/static/chunks/app/auth/login/page.js 500 in 3853ms
+ GET /_next/static/chunks/app-pages-internals.js 500 in 3859ms
+ GET /_next/static/chunks/main-app.js?v=1759278268220 500 in 3880ms
+ ✓ Compiled in 808ms (2207 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '1502478550'
+}
+ GET /auth/login? 200 in 422ms
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '1502478550'
+}
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '2532021202'
+}
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '1502478550'
+}
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '2532021202'
+}
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '1502478550'
+}
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '2532021202'
+}
+ GET /_next/static/chunks/main-app.js?v=1759278293498 500 in 1198ms
+ GET /_next/static/chunks/app-pages-internals.js 500 in 1189ms
+ GET /_next/static/chunks/app/auth/login/page.js 500 in 1185ms
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '1502478550'
+}
+ GET /auth/login? 200 in 276ms
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '1502478550'
+}
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '2532021202'
+}
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '1502478550'
+}
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '2532021202'
+}
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '1502478550'
+}
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '2532021202'
+}
+ GET /_next/static/chunks/main-app.js?v=1759278301934 500 in 1093ms
+ GET /_next/static/chunks/app-pages-internals.js 500 in 1086ms
+ GET /_next/static/chunks/app/auth/login/page.js 500 in 1078ms
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '1502478550'
+}
+ GET /auth/login? 200 in 279ms
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '1502478550'
+}
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '2532021202'
+}
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '1502478550'
+}
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '2532021202'
+}
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '1502478550'
+}
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '2532021202'
+}
+ GET /_next/static/chunks/main-app.js?v=1759278311122 500 in 1656ms
+ GET /_next/static/chunks/app-pages-internals.js 500 in 1655ms
+ GET /_next/static/chunks/app/auth/login/page.js 500 in 1654ms
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '1502478550'
+}
+ GET /auth/login? 200 in 295ms
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '1502478550'
+}
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '2532021202'
+}
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '1502478550'
+}
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '2532021202'
+}
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '1502478550'
+}
+ ⨯ Error: Event handlers cannot be passed to Client Component props.
+  <button data-slot="button" className=... onClick={function onClick} children=...>
+                                                   ^^^^^^^^^^^^^^^^^^
+If you need interactivity, consider converting part of this to a Client Component.
+    at stringify (<anonymous>)
+    at stringify (<anonymous>)
+    at stringify (<anonymous>) {
+  digest: '2532021202'
+}
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ GET /_next/static/chunks/app-pages-internals.js 500 in 3602ms
+ GET /_next/static/chunks/main-app.js?v=1759278338345 500 in 3604ms
+ GET /_next/static/chunks/app/auth/login/page.js 500 in 3601ms
+[?25h

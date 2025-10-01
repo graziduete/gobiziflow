@@ -127,21 +127,21 @@ export default function ClientProjectsPage() {
   const getStatusColor = useCallback((status: string) => {
     switch (status) {
       case "completed":
-        return "bg-green-100 text-green-800"
+        return "bg-gradient-to-r from-green-500 to-emerald-600 text-white"
       case "in_progress":
-        return "bg-yellow-100 text-yellow-800"
+        return "bg-gradient-to-r from-blue-500 to-cyan-600 text-white"
       case "homologation":
-        return "bg-purple-100 text-purple-800"
+        return "bg-gradient-to-r from-purple-500 to-pink-600 text-white"
       case "on_hold":
-        return "bg-yellow-100 text-yellow-800"
+        return "bg-gradient-to-r from-orange-500 to-amber-600 text-white"
       case "delayed":
-        return "bg-red-100 text-red-800"
+        return "bg-gradient-to-r from-red-500 to-rose-600 text-white"
       case "cancelled":
-        return "bg-red-100 text-red-800"
+        return "bg-gradient-to-r from-gray-500 to-slate-600 text-white"
       case "commercial_proposal":
-        return "bg-purple-50 text-purple-700 border-purple-200"
+        return "bg-gradient-to-r from-indigo-500 to-purple-600 text-white"
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gradient-to-r from-slate-500 to-gray-600 text-white"
     }
   }, [])
 
@@ -195,11 +195,11 @@ export default function ClientProjectsPage() {
   const getCategoryColor = useCallback((category: string) => {
     switch (category) {
       case "project":
-        return "bg-blue-100 text-blue-800"
+        return "bg-gradient-to-r from-blue-500 to-indigo-600 text-white"
       case "improvement":
-        return "bg-orange-100 text-orange-800"
+        return "bg-gradient-to-r from-orange-500 to-amber-600 text-white"
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gradient-to-r from-slate-500 to-gray-600 text-white"
     }
   }, [])
 
@@ -449,50 +449,61 @@ export default function ClientProjectsPage() {
             // Visualização em Cards
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {currentProjects.map((project) => (
-                <div key={project.id} className="p-4 border rounded-lg hover:shadow-md transition-shadow flex flex-col h-full">
-                  <div className="flex-1 space-y-3">
+                <div key={project.id} className="relative overflow-hidden rounded-xl border border-slate-200/60 bg-gradient-to-br from-white via-cyan-50/20 to-blue-50/30 p-5 shadow-sm hover:shadow-lg hover:border-cyan-300 transition-all duration-300 flex flex-col h-full group">
+                  {/* Efeito de brilho no hover */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/0 via-blue-400/0 to-indigo-400/0 opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
+                  
+                  <div className="relative flex-1 space-y-4">
+                    {/* Header do Card */}
                     <div className="space-y-2">
-                      <h3 className="font-medium text-lg leading-tight">{project.name}</h3>
-                      <p className="text-sm text-muted-foreground line-clamp-2">
+                      <h3 className="font-bold text-base leading-tight text-slate-900 line-clamp-2 group-hover:text-cyan-700 transition-colors">{project.name}</h3>
+                      <p className="text-sm text-slate-600 line-clamp-2">
                         {project.description || "Sem descrição"}
                       </p>
                     </div>
                     
-                    <div className="flex flex-wrap gap-1">
-                      <Badge className={`text-xs ${getStatusColor(project.status)}`}>{getStatusText(project.status)}</Badge>
-                      <Badge className={`text-xs ${getCategoryColor(project.category)}`}>{getCategoryText(project.category)}</Badge>
+                    {/* Badges com gradiente */}
+                    <div className="flex flex-wrap gap-2">
+                      <Badge className={`text-xs font-semibold shadow-sm ${getStatusColor(project.status)}`}>{getStatusText(project.status)}</Badge>
+                      <Badge className={`text-xs font-semibold shadow-sm ${getCategoryColor(project.category)}`}>{getCategoryText(project.category)}</Badge>
                     </div>
                     
-                    <div className="space-y-1 text-xs text-muted-foreground">
-                      <div className="flex items-center justify-between">
-                        <span>Tipo:</span>
-                        <span className="font-medium">{getProjectTypeText(project.project_type)}</span>
+                    {/* Informações com bullets coloridos */}
+                    <div className="space-y-2 text-sm text-slate-700">
+                      <div className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
+                        <span className="font-medium">Tipo:</span>
+                        <span className="text-slate-600">{getProjectTypeText(project.project_type)}</span>
                       </div>
                       {project.budget && (
-                        <div className="flex items-center justify-between">
-                          <span>Orçamento:</span>
-                          <span className="font-medium">R$ {Number(project.budget).toLocaleString("pt-BR")}</span>
+                        <div className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                          <span className="font-medium">Orçamento:</span>
+                          <span className="text-green-700 font-semibold">R$ {Number(project.budget).toLocaleString("pt-BR")}</span>
                         </div>
                       )}
                       {project.start_date && (
-                        <div className="flex items-center justify-between">
-                          <span>Início:</span>
-                          <span>{new Date(project.start_date).toLocaleDateString("pt-BR", { timeZone: 'UTC' })}</span>
+                        <div className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+                          <span className="font-medium">Início:</span>
+                          <span className="text-slate-600">{new Date(project.start_date).toLocaleDateString("pt-BR", { timeZone: 'UTC' })}</span>
                         </div>
                       )}
                       {project.end_date && (
-                        <div className="flex items-center justify-between">
-                          <span>Término:</span>
-                          <span>{new Date(project.end_date).toLocaleDateString("pt-BR", { timeZone: 'UTC' })}</span>
+                        <div className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                          <span className="font-medium">Término:</span>
+                          <span className="text-slate-600">{new Date(project.end_date).toLocaleDateString("pt-BR", { timeZone: 'UTC' })}</span>
                         </div>
                       )}
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-2 pt-4 mt-auto">
-                    <Button variant="outline" size="sm" asChild className="flex-1">
+                  {/* Botão moderno com gradiente */}
+                  <div className="relative flex items-center gap-2 pt-4 mt-auto">
+                    <Button variant="outline" size="sm" asChild className="flex-1 bg-gradient-to-r from-cyan-50 to-blue-50 hover:from-cyan-100 hover:to-blue-100 text-cyan-700 border-cyan-200 hover:border-cyan-300 hover:shadow-md transition-all duration-200 font-medium">
                       <Link href={`/dashboard/projects/${project.id}`}>
-                        <Calendar className="h-3 w-3 mr-1" />
+                        <Calendar className="h-3.5 w-3.5 mr-1.5" />
                         Cronograma
                       </Link>
                     </Button>
@@ -504,7 +515,7 @@ export default function ClientProjectsPage() {
             // Visualização em Lista
             <div className="space-y-4">
               {currentProjects.map((project) => (
-                <div key={project.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div key={project.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-cyan-50/50 hover:border-cyan-200 hover:shadow-sm transition-all duration-200 cursor-pointer group">
                   <div className="space-y-2 flex-1">
                     <div className="flex items-center gap-2">
                       <h3 className="font-medium">{project.name}</h3>
@@ -525,8 +536,8 @@ export default function ClientProjectsPage() {
                       {project.end_date && <span>Término: {new Date(project.end_date).toLocaleDateString("pt-BR", { timeZone: 'UTC' })}</span>}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" asChild>
+                  <div className="flex items-center gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
+                    <Button variant="outline" size="sm" asChild className="hover:bg-cyan-50 hover:text-cyan-600 hover:border-cyan-300 transition-all">
                       <Link href={`/dashboard/projects/${project.id}`}>
                         <Calendar className="h-4 w-4 mr-1" />
                         Cronograma

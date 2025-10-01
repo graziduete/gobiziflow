@@ -177,7 +177,7 @@ export default function CompaniesPage() {
         <CardContent>
           <div className="space-y-4">
             {currentCompanies.map((company) => (
-              <div key={company.id} className="flex items-center justify-between p-4 border rounded-lg">
+              <div key={company.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-blue-50/50 hover:border-blue-200 hover:shadow-sm transition-all duration-200 cursor-pointer group">
                 <div className="flex items-center gap-4 flex-1">
                   {/* Logo da empresa */}
                   <div className="w-16 h-16 rounded-lg border bg-gray-50 flex items-center justify-center overflow-hidden">
@@ -223,14 +223,14 @@ export default function CompaniesPage() {
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" asChild>
+                <div className="flex items-center gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
+                  <Button variant="outline" size="sm" asChild className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-all">
                     <Link href={`/admin/companies/${company.id}/edit`}>
                       <Edit className="h-4 w-4 mr-1" />
                       Editar
                     </Link>
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-300 transition-all">
                     Ver Projetos
                   </Button>
                 </div>

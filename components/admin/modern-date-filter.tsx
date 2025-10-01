@@ -51,24 +51,32 @@ export function ModernDateFilter({ onDateChange, onCompanyChange, companies, sel
   }
 
   return (
-    <div className="border-b border-gray-200 dark:border-gray-800 pb-6">
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+    <div className="relative overflow-hidden border-0 bg-gradient-to-br from-white to-slate-50/50 rounded-xl p-6 shadow-md mb-6">
+      {/* Círculo decorativo */}
+      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-full blur-2xl" />
+      
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 relative z-10">
         <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
-            <Calendar className="w-4 h-4" />
+          <div className="p-2.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg shadow-md">
+            <Calendar className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Filtros do Dashboard</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Filtre por empresa, período e visualize dados específicos</p>
+            <h3 className="text-xl font-bold bg-gradient-to-r from-slate-900 to-indigo-900 bg-clip-text text-transparent">
+              Filtros do Dashboard
+            </h3>
+            <p className="text-sm text-slate-600">Filtre por empresa, período e visualize dados específicos</p>
           </div>
         </div>
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
           <div className="flex items-center gap-3">
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wide">Empresa</label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
+                <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                Empresa
+              </label>
               <Select value={selectedCompany} onValueChange={onCompanyChange}>
-                <SelectTrigger className="w-44 h-9 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-colors">
+                <SelectTrigger className="w-48 h-10 bg-white/80 backdrop-blur-sm border-slate-200 hover:border-blue-300 focus:border-blue-500 transition-all shadow-sm">
                   <SelectValue placeholder="Todas as empresas" />
                 </SelectTrigger>
                 <SelectContent>
@@ -82,10 +90,13 @@ export function ModernDateFilter({ onDateChange, onCompanyChange, companies, sel
               </Select>
             </div>
 
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wide">Mês</label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
+                <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full"></div>
+                Mês
+              </label>
               <Select value={selectedMonth?.toString() || "null"} onValueChange={handleMonthChange}>
-                <SelectTrigger className="w-36 h-9 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-colors">
+                <SelectTrigger className="w-40 h-10 bg-white/80 backdrop-blur-sm border-slate-200 hover:border-indigo-300 focus:border-indigo-500 transition-all shadow-sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -98,10 +109,13 @@ export function ModernDateFilter({ onDateChange, onCompanyChange, companies, sel
               </Select>
             </div>
 
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wide">Ano</label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
+                <div className="w-1.5 h-1.5 bg-purple-500 rounded-full"></div>
+                Ano
+              </label>
               <Select value={selectedYear.toString()} onValueChange={handleYearChange}>
-                <SelectTrigger className="w-28 h-9 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-colors">
+                <SelectTrigger className="w-32 h-10 bg-white/80 backdrop-blur-sm border-slate-200 hover:border-purple-300 focus:border-purple-500 transition-all shadow-sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

@@ -204,21 +204,21 @@ export default function ProjectsPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
-        return "bg-green-100 text-green-800"
+        return "bg-gradient-to-r from-green-500 to-emerald-600 text-white"
       case "in_progress":
-        return "bg-yellow-100 text-yellow-800"
+        return "bg-gradient-to-r from-blue-500 to-cyan-600 text-white"
       case "homologation":
-        return "bg-purple-100 text-purple-800"
+        return "bg-gradient-to-r from-purple-500 to-pink-600 text-white"
       case "on_hold":
-        return "bg-yellow-100 text-yellow-800"
+        return "bg-gradient-to-r from-orange-500 to-amber-600 text-white"
       case "delayed":
-        return "bg-red-100 text-red-800"
+        return "bg-gradient-to-r from-red-500 to-rose-600 text-white"
       case "cancelled":
-        return "bg-red-100 text-red-800"
+        return "bg-gradient-to-r from-gray-500 to-slate-600 text-white"
       case "commercial_proposal":
-        return "bg-purple-50 text-purple-700 border-purple-200"
+        return "bg-gradient-to-r from-indigo-500 to-purple-600 text-white"
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gradient-to-r from-slate-500 to-gray-600 text-white"
     }
   }
 
@@ -272,11 +272,11 @@ export default function ProjectsPage() {
   const getCategoryColor = (category: string) => {
     switch (category) {
       case "project":
-        return "bg-blue-100 text-blue-800"
+        return "bg-gradient-to-r from-blue-500 to-indigo-600 text-white"
       case "improvement":
-        return "bg-orange-100 text-orange-800"
+        return "bg-gradient-to-r from-orange-500 to-amber-600 text-white"
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gradient-to-r from-slate-500 to-gray-600 text-white"
     }
   }
 
@@ -321,31 +321,31 @@ export default function ProjectsPage() {
   }
 
   const getProjectTypeColor = (projectType: string | null) => {
-    if (!projectType) return "bg-gray-100 text-gray-800"
+    if (!projectType) return "bg-gradient-to-r from-gray-500 to-slate-600 text-white"
     
     switch (projectType) {
       case "automation":
-        return "bg-purple-100 text-purple-800"
+        return "bg-gradient-to-r from-purple-500 to-violet-600 text-white"
       case "data_analytics":
-        return "bg-blue-100 text-blue-800"
+        return "bg-gradient-to-r from-blue-500 to-indigo-600 text-white"
       case "digital_development":
-        return "bg-green-100 text-green-800"
+        return "bg-gradient-to-r from-green-500 to-emerald-600 text-white"
       case "design":
-        return "bg-pink-100 text-pink-800"
+        return "bg-gradient-to-r from-pink-500 to-rose-600 text-white"
       case "consulting":
-        return "bg-indigo-100 text-indigo-800"
+        return "bg-gradient-to-r from-indigo-500 to-purple-600 text-white"
       case "project_management":
-        return "bg-orange-100 text-orange-800"
+        return "bg-gradient-to-r from-orange-500 to-amber-600 text-white"
       case "system_integration":
-        return "bg-teal-100 text-teal-800"
+        return "bg-gradient-to-r from-teal-500 to-cyan-600 text-white"
       case "infrastructure":
-        return "bg-cyan-100 text-cyan-800"
+        return "bg-gradient-to-r from-cyan-500 to-blue-600 text-white"
       case "support":
-        return "bg-yellow-100 text-yellow-800"
+        return "bg-gradient-to-r from-yellow-500 to-orange-600 text-white"
       case "training":
-        return "bg-emerald-100 text-emerald-800"
+        return "bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gradient-to-r from-gray-500 to-slate-600 text-white"
     }
   }
 
@@ -492,7 +492,7 @@ export default function ProjectsPage() {
           {viewMode === 'list' ? (
             <div className="space-y-4">
               {currentProjects.map((project) => (
-                <div key={project.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div key={project.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-blue-50/50 hover:border-blue-200 hover:shadow-sm transition-all duration-200 cursor-pointer group">
                   <div className="space-y-2 flex-1">
                     <div className="flex items-center gap-2">
                       <h3 className="font-medium">{project.name}</h3>
@@ -512,14 +512,14 @@ export default function ProjectsPage() {
                       {project.end_date && <span>Término: {formatDateUTC(project.end_date)}</span>}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" asChild>
+                  <div className="flex items-center gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
+                    <Button variant="outline" size="sm" asChild className="hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-300 transition-all">
                       <Link href={`/admin/projects/${project.id}`}>
                         <Calendar className="h-4 w-4 mr-1" />
                         Cronograma
                       </Link>
                     </Button>
-                    <Button variant="outline" size="sm" asChild>
+                    <Button variant="outline" size="sm" asChild className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-all">
                       <Link href={`/admin/projects/${project.id}/edit`}>
                         <Edit className="h-4 w-4 mr-1" />
                         Editar
@@ -532,40 +532,65 @@ export default function ProjectsPage() {
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {currentProjects.map((project) => (
-                <div key={project.id} className="p-4 border rounded-lg hover:shadow-md transition-shadow flex flex-col h-full">
-                  <div className="flex-1 space-y-3">
+                <div key={project.id} className="relative overflow-hidden rounded-xl border border-slate-200/60 bg-gradient-to-br from-white via-blue-50/20 to-indigo-50/30 p-5 shadow-sm hover:shadow-lg hover:border-blue-300 transition-all duration-300 flex flex-col h-full group">
+                  {/* Efeito de brilho no hover */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-400/0 via-indigo-400/0 to-purple-400/0 opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
+                  
+                  <div className="relative flex-1 space-y-4">
+                    {/* Header do Card */}
                     <div className="space-y-2">
-                      <h3 className="font-medium text-sm line-clamp-2">{project.name}</h3>
-                      <p className="text-xs text-muted-foreground line-clamp-2">{project.description || "Sem descrição"}</p>
+                      <h3 className="font-bold text-base leading-tight text-slate-900 line-clamp-2 group-hover:text-blue-700 transition-colors">{project.name}</h3>
+                      <p className="text-sm text-slate-600 line-clamp-2">{project.description || "Sem descrição"}</p>
                     </div>
                     
-                    <div className="flex flex-wrap gap-1">
-                      <Badge className={`text-xs ${getStatusColor(project.status)}`}>{getStatusText(project.status)}</Badge>
-                      <Badge className={`text-xs ${getCategoryColor(project.category)}`}>{getCategoryText(project.category)}</Badge>
+                    {/* Badges com gradiente */}
+                    <div className="flex flex-wrap gap-2">
+                      <Badge className={`text-xs font-semibold shadow-sm ${getStatusColor(project.status)}`}>{getStatusText(project.status)}</Badge>
+                      <Badge className={`text-xs font-semibold shadow-sm ${getCategoryColor(project.category)}`}>{getCategoryText(project.category)}</Badge>
                     </div>
                     
-                    <div className="space-y-1 text-xs text-muted-foreground">
-                      <div>Empresa: {companyNames[project.company_id] || "Desconhecida"}</div>
+                    {/* Informações com ícones */}
+                    <div className="space-y-2 text-sm text-slate-700">
+                      <div className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                        <span className="font-medium">Empresa:</span>
+                        <span className="text-slate-600">{companyNames[project.company_id] || "Desconhecida"}</span>
+                      </div>
                       {userRole !== 'admin_operacional' && project.budget && (
-                        <div>Orçamento: R$ {Number(project.budget).toLocaleString("pt-BR")}</div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                          <span className="font-medium">Orçamento:</span>
+                          <span className="text-green-700 font-semibold">R$ {Number(project.budget).toLocaleString("pt-BR")}</span>
+                        </div>
                       )}
                       {project.start_date && (
-                        <div>Início: {formatDateUTC(project.start_date)}</div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+                          <span className="font-medium">Início:</span>
+                          <span className="text-slate-600">{formatDateUTC(project.start_date)}</span>
+                        </div>
                       )}
-                      {project.end_date && <div>Término: {formatDateUTC(project.end_date)}</div>}
+                      {project.end_date && (
+                        <div className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                          <span className="font-medium">Término:</span>
+                          <span className="text-slate-600">{formatDateUTC(project.end_date)}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-2 pt-4 mt-auto">
-                    <Button variant="outline" size="sm" asChild className="flex-1">
+                  {/* Botões modernos com gradiente sutil */}
+                  <div className="relative flex items-center gap-2 pt-4 mt-auto">
+                    <Button variant="outline" size="sm" asChild className="flex-1 bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 text-indigo-700 border-indigo-200 hover:border-indigo-300 hover:shadow-md transition-all duration-200 font-medium">
                       <Link href={`/admin/projects/${project.id}`}>
-                        <Calendar className="h-3 w-3 mr-1" />
+                        <Calendar className="h-3.5 w-3.5 mr-1.5" />
                         Cronograma
                       </Link>
                     </Button>
-                    <Button variant="outline" size="sm" asChild className="flex-1">
+                    <Button variant="outline" size="sm" asChild className="flex-1 bg-gradient-to-r from-blue-50 to-cyan-50 hover:from-blue-100 hover:to-cyan-100 text-blue-700 border-blue-200 hover:border-blue-300 hover:shadow-md transition-all duration-200 font-medium">
                       <Link href={`/admin/projects/${project.id}/edit`}>
-                        <Edit className="h-3 w-3 mr-1" />
+                        <Edit className="h-3.5 w-3.5 mr-1.5" />
                         Editar
                       </Link>
                     </Button>

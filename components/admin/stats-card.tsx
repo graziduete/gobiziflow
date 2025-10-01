@@ -1,3 +1,5 @@
+"use client"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { LucideIcon } from "lucide-react"
 
@@ -14,21 +16,36 @@ interface StatsCardProps {
 
 export function StatsCard({ title, value, description, icon: Icon, trend }: StatsCardProps) {
   return (
-    <Card className="transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 hover:border-primary/30">
-      <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2 h-12">
-        <CardTitle className="text-sm font-medium leading-tight">{title}</CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground mt-0.5 transition-colors duration-200 group-hover:text-primary" />
+    <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-0 bg-gradient-to-br from-white to-slate-50/50 group">
+      {/* Fundo decorativo com gradiente */}
+      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/5 to-indigo-500/5 rounded-full blur-2xl transition-all duration-500 group-hover:from-blue-500/10 group-hover:to-indigo-500/10" />
+      
+      <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2 relative z-10">
+        <CardTitle className="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">
+          {title}
+        </CardTitle>
+        <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-indigo-500/10 group-hover:from-blue-500/20 group-hover:to-indigo-500/20 transition-all duration-300 group-hover:scale-110">
+          <Icon className="h-4 w-4 text-blue-600" />
+        </div>
       </CardHeader>
-      <CardContent className="flex flex-col items-center">
-        <div className="text-2xl font-bold">{value}</div>
-        {description && <p className="text-xs text-muted-foreground">{description}</p>}
+      
+      <CardContent className="relative z-10">
+        <div className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-1 transition-all duration-300 group-hover:scale-105">
+          {value}
+        </div>
+        {description && (
+          <p className="text-xs text-slate-500 font-medium">{description}</p>
+        )}
         {trend && (
-          <div className="flex items-center pt-1">
-            <span className={`text-xs ${trend.isPositive ? "text-green-600" : "text-red-600"}`}>
-              {trend.isPositive ? "+" : ""}
-              {trend.value}%
+          <div className="flex items-center pt-2 mt-2 border-t border-slate-100">
+            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+              trend.isPositive 
+                ? "bg-green-100 text-green-700" 
+                : "bg-red-100 text-red-700"
+            }`}>
+              {trend.isPositive ? "↗" : "↘"} {Math.abs(trend.value)}%
             </span>
-            <span className="text-xs text-muted-foreground ml-1">vs mês anterior</span>
+            <span className="text-xs text-slate-400 ml-2">vs mês anterior</span>
           </div>
         )}
       </CardContent>

@@ -66,6 +66,56 @@ export function ClientHeader({ title }: ClientHeaderProps) {
     fetchNotifications()
   }, [user?.id])
 
+  // 🔥 Realtime: Atualiza notificações em tempo real
+  useEffect(() => {
+    if (!user?.id) return
+
+    const channel = supabase
+      .channel('client-notifications-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          console.log('🔔 [Client Realtime] Nova notificação:', payload)
+
+          if (payload.eventType === 'INSERT') {
+            // Nova notificação
+            setNotifications((prev) => [payload.new as any, ...prev].slice(0, 20))
+            setUnreadCount((prev) => prev + 1)
+          } else if (payload.eventType === 'UPDATE') {
+            // Notificação atualizada (ex: marcada como lida)
+            setNotifications((prev) =>
+              prev.map((n) => (n.id === payload.new.id ? (payload.new as any) : n))
+            )
+            setUnreadCount((prev) => {
+              const wasUnread = !payload.old?.read
+              const isUnread = !payload.new?.read
+              if (wasUnread && !isUnread) return Math.max(0, prev - 1)
+              if (!wasUnread && isUnread) return prev + 1
+              return prev
+            })
+          } else if (payload.eventType === 'DELETE') {
+            // Notificação deletada
+            setNotifications((prev) => prev.filter((n) => n.id !== payload.old.id))
+            if (!payload.old?.read) {
+              setUnreadCount((prev) => Math.max(0, prev - 1))
+            }
+          }
+        }
+      )
+      .subscribe()
+
+    // Cleanup ao desmontar
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [user?.id, supabase])
+
   const handleLogout = async () => {
     const supabase = createClient()
     await supabase.auth.signOut()
@@ -96,17 +146,21 @@ export function ClientHeader({ title }: ClientHeaderProps) {
   }, [user, isLoading])
 
   return (
-    <header className="flex h-16 items-center justify-between border-b bg-background px-6">
+    <header className="flex h-16 items-center justify-between border-b border-slate-200/60 bg-gradient-to-r from-white via-cyan-50/20 to-blue-50/30 px-6 shadow-sm backdrop-blur-sm">
       <div>
-        <h1 className="text-base font-semibold">Portal do Cliente</h1>
+        <h1 className="text-lg font-bold text-slate-900">Portal do Cliente</h1>
       </div>
 
       <div className="flex items-center gap-3">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="relative">
+            <Button variant="ghost" size="icon" className="relative hover:bg-cyan-100 hover:text-cyan-600 transition-all">
               <Bell className="h-4 w-4" />
-              {unreadCount > 0 && <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-red-500" />}
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-gradient-to-r from-red-500 to-orange-500 flex items-center justify-center text-[10px] font-bold text-white shadow-md animate-pulse">
+                  {unreadCount}
+                </span>
+              )}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-[380px]" align="end" forceMount>
@@ -177,8 +231,8 @@ export function ClientHeader({ title }: ClientHeaderProps) {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-8 w-8 rounded-full p-0">
-              <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-xs">
+            <Button variant="ghost" className="relative h-9 w-9 rounded-full p-0 hover:scale-110 transition-transform">
+              <div className="h-9 w-9 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center text-white font-bold text-xs shadow-md ring-2 ring-cyan-100">
                 {isLoading ? "..." : userInitials}
               </div>
             </Button>

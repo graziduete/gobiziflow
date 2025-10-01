@@ -284,7 +284,7 @@ export default function ResponsaveisPage() {
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {filteredResponsaveis.map((responsavel) => (
-                <div key={responsavel.id} className="p-4 border rounded-lg hover:shadow-md transition-shadow flex flex-col h-full">
+                <div key={responsavel.id} className="p-4 border rounded-lg hover:bg-blue-50/50 hover:border-blue-200 hover:shadow-md transition-all duration-200 flex flex-col h-full group">
                   <div className="flex-1 space-y-3">
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
@@ -318,12 +318,12 @@ export default function ResponsaveisPage() {
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-2 pt-4 mt-auto">
+                  <div className="flex items-center gap-2 pt-4 mt-auto opacity-80 group-hover:opacity-100 transition-opacity">
                     <Button 
                       variant="outline" 
                       size="sm" 
                       asChild 
-                      className="flex-1"
+                      className="flex-1 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-all"
                     >
                       <Link href={`/admin/responsaveis/${responsavel.id}/editar`}>
                         <Edit className="h-3 w-3 mr-1" />
@@ -334,7 +334,7 @@ export default function ResponsaveisPage() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleToggleAtivo(responsavel.id, responsavel.ativo)}
-                      className="flex-1"
+                      className="flex-1 hover:bg-green-50 hover:text-green-600 hover:border-green-300 transition-all"
                     >
                       {responsavel.ativo ? "Desativar" : "Ativar"}
                     </Button>
@@ -342,7 +342,7 @@ export default function ResponsaveisPage() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleDelete(responsavel.id, responsavel.nome)}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 hover:border-red-300 transition-all"
                     >
                       <Trash2 className="h-3 w-3" />
                     </Button>

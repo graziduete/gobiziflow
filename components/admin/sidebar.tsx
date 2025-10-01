@@ -117,17 +117,27 @@ export function Sidebar({ className, collapsed, onCollapsedChange, userRole }: S
 
   return (
     <div
-      className={cn("flex h-full flex-col bg-sidebar/50 backdrop-blur-sm border-r border-sidebar-border transition-all duration-300 ease-in-out", className)}
+      className={cn("flex h-full flex-col bg-gradient-to-b from-slate-50 via-blue-50/20 to-indigo-50/30 border-r border-slate-200/60 transition-all duration-300 ease-in-out shadow-lg relative", className)}
     >
-      <div className="flex h-16 items-center justify-between px-4 border-b border-sidebar-border">
-        <div className="flex-1 flex justify-center">
+      {/* Padrão decorativo sutil de fundo */}
+      <div className="absolute inset-0 opacity-[0.02]" style={{
+        backgroundImage: `radial-gradient(circle at 1px 1px, rgb(59 130 246) 1px, transparent 0)`,
+        backgroundSize: '32px 32px'
+      }} />
+      
+      {/* Header da sidebar com logo */}
+      <div className="relative flex h-16 items-center justify-between px-4 border-b border-slate-200 bg-gradient-to-r from-blue-50/30 to-indigo-50/30">
+        {/* Círculo decorativo no header */}
+        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500/5 to-indigo-500/5 rounded-full blur-xl" />
+        
+        <div className="flex-1 flex justify-center relative z-10">
           <GobiZiLogo collapsed={collapsed} />
         </div>
         <Button
           variant="ghost"
           size="icon"
           onClick={() => onCollapsedChange(!collapsed)}
-          className="h-9 w-9 hover:bg-sidebar-accent/50"
+          className="h-9 w-9 hover:bg-blue-100 hover:text-blue-600 transition-all relative z-10"
         >
           {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
         </Button>
@@ -139,34 +149,49 @@ export function Sidebar({ className, collapsed, onCollapsedChange, userRole }: S
             const isActive = pathname === item.href
             return (
               <Link key={item.name} href={item.href}>
-                <Button
-                  variant={isActive ? "secondary" : "ghost"}
-                  className={cn(
-                    "w-full justify-start gap-3 h-11 font-medium transition-all duration-300 ease-in-out",
-                    collapsed && "justify-center px-2",
-                    isActive && "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm",
-                    !isActive && "hover:bg-sidebar-accent/50 text-sidebar-foreground/80 hover:text-sidebar-foreground",
+                <div className="relative group">
+                  {/* Barra lateral azul para item ativo */}
+                  {isActive && (
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-cyan-500 rounded-r-full" />
                   )}
-                >
-                  <item.icon className="h-5 w-5 shrink-0" />
-                  {!collapsed && <span>{item.name}</span>}
-                </Button>
+                  
+                  <Button
+                    variant="ghost"
+                    className={cn(
+                      "w-full justify-start gap-3 h-11 font-semibold transition-all duration-300 ease-in-out relative",
+                      collapsed && "justify-center px-2",
+                      isActive && "bg-white/90 backdrop-blur-sm text-blue-700 shadow-md hover:shadow-lg border border-blue-100",
+                      !isActive && "text-slate-700 hover:bg-white/70 hover:backdrop-blur-sm hover:text-slate-900 hover:shadow-sm",
+                    )}
+                  >
+                    <div className={cn(
+                      "p-1.5 rounded-lg transition-all duration-300",
+                      isActive && "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-md",
+                      !isActive && "bg-slate-100 text-slate-600 group-hover:bg-blue-100 group-hover:text-blue-600"
+                    )}>
+                      <item.icon className="h-4 w-4 shrink-0" />
+                    </div>
+                    {!collapsed && <span className="flex-1 text-left">{item.name}</span>}
+                  </Button>
+                </div>
               </Link>
             )
           })}
         </nav>
       </ScrollArea>
 
-      <div className="border-t border-sidebar-border p-3">
+      <div className="border-t border-slate-200 p-3 bg-gradient-to-r from-red-50/30 to-orange-50/30">
         <Button
           variant="ghost"
           onClick={handleLogout}
           className={cn(
-            "w-full justify-start gap-3 h-11 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all duration-300 ease-in-out",
+            "w-full justify-start gap-3 h-11 font-semibold text-slate-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-orange-50 hover:text-red-600 transition-all duration-300 ease-in-out group",
             collapsed && "justify-center px-2",
           )}
         >
-          <LogOut className="h-5 w-5 shrink-0" />
+          <div className="p-1.5 rounded-lg bg-slate-100 text-slate-600 group-hover:bg-gradient-to-r group-hover:from-red-500 group-hover:to-orange-500 group-hover:text-white transition-all duration-300">
+            <LogOut className="h-4 w-4 shrink-0" />
+          </div>
           {!collapsed && <span>Sair</span>}
         </Button>
       </div>

@@ -30,7 +30,7 @@ export function SidebarWrapper({ className }: SidebarWrapperProps) {
 
   return (
     <Sidebar 
-      className={`${className} transition-all duration-300 ease-in-out ${collapsed ? 'w-16' : 'w-56'}`}
+      className={`${className} transition-all duration-300 ease-in-out ${collapsed ? 'w-16' : 'w-64'}`}
       collapsed={collapsed} 
       onCollapsedChange={setCollapsed}
       userRole={userRole}

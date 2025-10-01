@@ -33,17 +33,32 @@ const NavigationItem = memo(function NavigationItem({
 }) {
   return (
     <Link href={item.href}>
-      <Button
-        variant={item.isActive ? "secondary" : "ghost"}
-        className={cn(
-          "w-full justify-start gap-3 h-10",
-          collapsed && "justify-center px-2 w-12 h-12"
+      <div className="relative group">
+        {/* Barra lateral azul para item ativo */}
+        {item.isActive && (
+          <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-cyan-500 rounded-r-full" />
         )}
-        title={collapsed ? item.name : undefined}
-      >
-        <item.icon className="h-4 w-4 shrink-0" />
-        {!collapsed && <span>{item.name}</span>}
-      </Button>
+        
+        <Button
+          variant="ghost"
+          className={cn(
+            "w-full justify-start gap-3 h-11 font-semibold transition-all duration-300 ease-in-out relative",
+            collapsed && "justify-center px-2",
+            item.isActive && "bg-white/90 backdrop-blur-sm text-blue-700 shadow-md hover:shadow-lg border border-blue-100",
+            !item.isActive && "text-slate-700 hover:bg-white/70 hover:backdrop-blur-sm hover:text-slate-900 hover:shadow-sm",
+          )}
+          title={collapsed ? item.name : undefined}
+        >
+          <div className={cn(
+            "p-1.5 rounded-lg transition-all duration-300",
+            item.isActive && "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-md",
+            !item.isActive && "bg-slate-100 text-slate-600 group-hover:bg-blue-100 group-hover:text-blue-600"
+          )}>
+            <item.icon className="h-4 w-4 shrink-0" />
+          </div>
+          {!collapsed && <span className="flex-1 text-left">{item.name}</span>}
+        </Button>
+      </div>
     </Link>
   )
 })
@@ -124,20 +139,30 @@ export function ClientSidebar({ className }: ClientSidebarProps) {
   return (
     <div
       className={cn(
-        "flex h-full flex-col border-r border-sidebar-border transition-all duration-300 bg-gradient-to-b from-emerald-500/15 via-cyan-500/10 to-sky-500/5",
-        collapsed ? "w-16" : "w-64",
+        "flex h-full flex-col bg-gradient-to-b from-cyan-50/60 via-blue-50/40 to-indigo-50/50 border-r border-slate-200/60 transition-all duration-300 ease-in-out shadow-lg relative",
+        collapsed ? "w-16" : "w-72",
         className
       )}
     >
-      <div className="flex h-16 items-center justify-between px-4 border-b border-sidebar-border">
-        <div className="flex-1 flex justify-center">
+      {/* Padrão decorativo sutil de fundo */}
+      <div className="absolute inset-0 opacity-[0.02]" style={{
+        backgroundImage: `radial-gradient(circle at 1px 1px, rgb(6 182 212) 1px, transparent 0)`,
+        backgroundSize: '32px 32px'
+      }} />
+      
+      {/* Header da sidebar com logo */}
+      <div className="relative flex h-16 items-center justify-between px-4 border-b border-slate-200 bg-gradient-to-r from-cyan-100/40 to-blue-100/40">
+        {/* Círculo decorativo no header */}
+        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-cyan-500/5 to-blue-500/5 rounded-full blur-xl" />
+        
+        <div className="flex-1 flex justify-center relative z-10">
           <GobiZiLogo collapsed={collapsed} />
         </div>
         <Button
           variant="ghost"
           size="icon"
           onClick={toggleCollapsed}
-          className="h-9 w-9 hover:bg-sidebar-accent/50"
+          className="h-9 w-9 hover:bg-cyan-100 hover:text-cyan-600 transition-all relative z-10"
         >
           {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
         </Button>
@@ -151,17 +176,19 @@ export function ClientSidebar({ className }: ClientSidebarProps) {
         </nav>
       </ScrollArea>
 
-      <div className="border-t border-sidebar-border p-3">
+      <div className="border-t border-slate-200 p-3 bg-gradient-to-r from-red-50/30 to-orange-50/30 relative z-10">
         <Button
           variant="ghost"
           onClick={handleLogout}
           className={cn(
-            "w-full justify-start gap-3 h-10 text-muted-foreground hover:text-foreground",
-            collapsed && "justify-center px-2 w-12 h-12"
+            "w-full justify-start gap-3 h-11 font-semibold text-slate-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-orange-50 hover:text-red-600 transition-all duration-300 ease-in-out group",
+            collapsed && "justify-center px-2",
           )}
           title={collapsed ? "Sair" : undefined}
         >
-          <LogOut className="h-4 w-4 shrink-0" />
+          <div className="p-1.5 rounded-lg bg-slate-100 text-slate-600 group-hover:bg-gradient-to-r group-hover:from-red-500 group-hover:to-orange-500 group-hover:text-white transition-all duration-300">
+            <LogOut className="h-4 w-4 shrink-0" />
+          </div>
           {!collapsed && <span>Sair</span>}
         </Button>
       </div>

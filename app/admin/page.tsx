@@ -6,7 +6,7 @@ import { StatsCard } from "@/components/admin/stats-card"
 import { ModernDateFilter } from "@/components/admin/modern-date-filter"
 import { GanttView } from "@/components/admin/gantt-view"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Building2, FolderKanban, TrendingUp, Clock, CheckCircle, AlertTriangle, Package, Eye, EyeOff } from "lucide-react"
+import { Building2, FolderKanban, TrendingUp, Clock, CheckCircle, AlertTriangle, Package, Eye, EyeOff, Activity } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { HourService } from "@/lib/hour-service"
 // ForecastService REMOVIDO - Agora usa apenas payment_metrics
@@ -49,8 +49,8 @@ export default function AdminDashboard() {
   const [userRole, setUserRole] = useState<string | null>(null)
   
   // Estados para controle de privacidade dos cards
-  const [isRevenueVisible, setIsRevenueVisible] = useState(true)
-  const [isForecastVisible, setIsForecastVisible] = useState(true)
+  const [isRevenueVisible, setIsRevenueVisible] = useState(false)
+  const [isForecastVisible, setIsForecastVisible] = useState(false)
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -546,11 +546,19 @@ export default function AdminDashboard() {
     .slice(0, 5)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {/* Fundo decorativo com gradiente animado */}
+      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-br from-blue-400/5 to-indigo-400/5 rounded-full blur-3xl animate-blob" />
+        <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-gradient-to-br from-indigo-400/5 to-purple-400/5 rounded-full blur-3xl animate-blob animation-delay-2000" />
+        <div className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-gradient-to-br from-purple-400/5 to-blue-400/5 rounded-full blur-3xl animate-blob animation-delay-4000" />
+      </div>
       <div className="space-y-4">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">Dashboard Administrativo</h2>
-        <p className="text-muted-foreground">Visão geral completa do sistema de gerenciamento de projetos</p>
+      <div className="mb-8">
+        <h2 className="text-3xl font-bold text-slate-900 mb-2 tracking-tight">
+          Dashboard Administrativo
+        </h2>
+        <p className="text-slate-600 text-base">Visão geral completa do sistema de gerenciamento de projetos</p>
       </div>
 
         {/* Filtros - Acima dos cards para filtrar os dados */}
@@ -564,150 +572,179 @@ export default function AdminDashboard() {
         {/* Cards de Resumo do Sistema - Dados filtrados */}
         {/* Esconder cards financeiros para admin_operacional */}
         <div className={`grid gap-4 md:grid-cols-3 ${userRole === null ? 'opacity-0' : userRole === "admin_operacional" ? 'hidden' : 'opacity-100'}`}>
-          <Card className="border-0 bg-gradient-to-r from-green-50 to-emerald-50">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium text-green-600">
-                      {selectedCompany !== "all" ? "Faturamento da Empresa" : "Faturamento Total"}
-                    </p>
-                    <button
-                      onClick={() => setIsRevenueVisible(!isRevenueVisible)}
-                      className="text-green-500 hover:text-green-700 transition-colors"
-                      title={isRevenueVisible ? "Esconder dados" : "Mostrar dados"}
-                    >
-                      {isRevenueVisible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                    </button>
-                  </div>
-                  <p className="text-2xl font-bold text-green-700">
-                    {isRevenueVisible 
-                      ? `R$ ${totalRevenue.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                      : "••••••••"
-                    }
-                  </p>
-                  {selectedCompany !== "all" && (
-                    <p className="text-xs text-green-500 mt-1">
-                      {companies.find(c => c.id === selectedCompany)?.name}
-                    </p>
-                  )}
+          <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-white to-green-50/30 shadow-md hover:shadow-xl transition-all duration-300 group">
+            {/* Fundo decorativo */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-full blur-2xl group-hover:from-green-500/20 group-hover:to-emerald-500/20 transition-all duration-500" />
+            
+            <CardContent className="p-6 relative z-10">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-semibold text-slate-600 group-hover:text-slate-900 transition-colors">
+                    {selectedCompany !== "all" ? "Faturamento da Empresa" : "Faturamento Total"}
+                  </h3>
+                  <button
+                    onClick={() => setIsRevenueVisible(!isRevenueVisible)}
+                    className="p-1.5 rounded-lg bg-green-100/50 hover:bg-green-100 text-green-600 hover:text-green-700 transition-all hover:scale-110"
+                    title={isRevenueVisible ? "Esconder dados" : "Mostrar dados"}
+                  >
+                    {isRevenueVisible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                  </button>
                 </div>
-                <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
-                  <TrendingUp className="w-8 h-8 text-green-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-0 bg-gradient-to-r from-blue-50 to-cyan-50">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium text-blue-600">
-                      {selectedCompany !== "all" ? "Projetos da Empresa" : "Previsto para este mês"}
-                    </p>
-                    <button
-                      onClick={() => setIsForecastVisible(!isForecastVisible)}
-                      className="text-blue-500 hover:text-blue-700 transition-colors"
-                      title={isForecastVisible ? "Esconder dados" : "Mostrar dados"}
-                    >
-                      {isForecastVisible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                    </button>
-                    {selectedCompany === "all" && expectedValueData.breakdown.length > 0 && (
-                      <button
-                        onClick={() => setShowForecastDetails(!showForecastDetails)}
-                        className="text-blue-500 hover:text-blue-700 transition-colors"
-                        title="Ver detalhes da previsão"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      </button>
-                    )}
-                  </div>
-                  <p className="text-2xl font-bold text-blue-700">
-                    {selectedCompany !== "all" 
-                      ? (isForecastVisible ? totalProjectsCount : "••••")
-                      : (isForecastVisible 
-                          ? `R$ ${((expectedValueData.breakdown || []).reduce((sum, item) => sum + (item.expectedValue || 0), 0) / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                          : "••••••••"
-                        )
-                    }
-                  </p>
-                  {selectedCompany !== "all" && (
-                    <p className="text-xs text-blue-500 mt-1">
-                      {companies.find(c => c.id === selectedCompany)?.name}
-                    </p>
-                  )}
-                </div>
-                <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
-                  <Building2 className="w-8 h-8 text-blue-600" />
+                <div className="p-3 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 group-hover:from-green-500/20 group-hover:to-emerald-500/20 transition-all duration-300 group-hover:scale-110">
+                  <TrendingUp className="w-6 h-6 text-green-600" />
                 </div>
               </div>
               
+              <p className="text-3xl font-bold bg-gradient-to-r from-green-700 to-emerald-700 bg-clip-text text-transparent mb-2 group-hover:scale-105 transition-transform">
+                {isRevenueVisible 
+                  ? `R$ ${totalRevenue.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                  : "••••••••"
+                }
+              </p>
+              {selectedCompany !== "all" && (
+                <p className="text-xs text-green-600/70 font-medium">
+                  {companies.find(c => c.id === selectedCompany)?.name}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-white to-blue-50/30 shadow-md hover:shadow-xl transition-all duration-300 group">
+            {/* Fundo decorativo */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-full blur-2xl group-hover:from-blue-500/20 group-hover:to-cyan-500/20 transition-all duration-500" />
+            
+            <CardContent className="p-6 relative z-10">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-semibold text-slate-600 group-hover:text-slate-900 transition-colors">
+                    {selectedCompany !== "all" ? "Projetos da Empresa" : "Previsto para este mês"}
+                  </h3>
+                  <button
+                    onClick={() => setIsForecastVisible(!isForecastVisible)}
+                    className="p-1.5 rounded-lg bg-blue-100/50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 transition-all hover:scale-110"
+                    title={isForecastVisible ? "Esconder dados" : "Mostrar dados"}
+                  >
+                    {isForecastVisible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                  </button>
+                  {selectedCompany === "all" && expectedValueData.breakdown.length > 0 && (
+                    <button
+                      onClick={() => setShowForecastDetails(!showForecastDetails)}
+                      className="p-1.5 rounded-lg bg-blue-100/50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 transition-all hover:scale-110"
+                      title="Ver detalhes da previsão"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+                <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 group-hover:from-blue-500/20 group-hover:to-cyan-500/20 transition-all duration-300 group-hover:scale-110">
+                  <Building2 className="w-6 h-6 text-blue-600" />
+                </div>
+              </div>
+              
+              <p className="text-3xl font-bold bg-gradient-to-r from-blue-700 to-cyan-700 bg-clip-text text-transparent mb-2 group-hover:scale-105 transition-transform">
+                {selectedCompany !== "all" 
+                  ? (isForecastVisible ? totalProjectsCount : "••••")
+                  : (isForecastVisible 
+                      ? `R$ ${((expectedValueData.breakdown || []).reduce((sum, item) => sum + (item.expectedValue || 0), 0) / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                      : "••••••••"
+                    )
+                }
+              </p>
+              {selectedCompany !== "all" && (
+                <p className="text-xs text-blue-600/70 font-medium">
+                  {companies.find(c => c.id === selectedCompany)?.name}
+                </p>
+              )}
+              
               {/* Detalhes da Previsão (expandível) */}
               {selectedCompany === "all" && showForecastDetails && isForecastVisible && (
-                <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                  <h4 className="text-sm font-medium text-blue-800 mb-2">
-                    📊 Detalhamento da Previsão - {selectedYear}-{String(selectedMonth).padStart(2, '0')}
-                  </h4>
+                <div className="mt-4 p-4 bg-gradient-to-br from-blue-50 to-cyan-50/50 rounded-xl border border-blue-200/50 shadow-sm">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="p-1.5 bg-blue-600 rounded-lg">
+                      <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                    </div>
+                    <h4 className="text-sm font-semibold text-blue-900">
+                      Detalhamento da Previsão - {selectedYear}-{String(selectedMonth).padStart(2, '0')}
+                    </h4>
+                  </div>
                   
                   {expectedValueData.breakdown.length > 0 ? (
-                    <div className="space-y-2">
+                    <div className="space-y-2.5">
                       {expectedValueData.breakdown.map((item, index) => {
                         const itemWithOptional = item as typeof item & { projectName?: string; projectStatus?: string; percentage?: number }
                         return (
-                          <div key={index} className="flex items-center justify-between text-xs">
-                            <div className="flex-1">
+                          <div key={index} className="p-3 bg-white/80 backdrop-blur-sm rounded-lg border border-blue-100 hover:border-blue-300 hover:shadow-md transition-all duration-200 group/item">
+                            <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1 min-w-0">
                               {itemWithOptional.projectName ? (
-                                <>
-                                  <span className="font-medium text-blue-700">{itemWithOptional.projectName}</span>
-                                  <span className="text-blue-600 ml-2">• {item.companyName}</span>
-                                  <div className="text-xs text-blue-500 mt-1">
-                                    Status: {itemWithOptional.projectStatus === 'planning' ? 'Planejamento' : 
-                                            itemWithOptional.projectStatus === 'homologation' ? 'Homologação' : 
-                                            itemWithOptional.projectStatus === 'completed' ? 'Concluído' : 
-                                            itemWithOptional.projectStatus}
+                                <div className="space-y-1">
+                                  <div className="font-semibold text-slate-800 text-sm group-hover/item:text-blue-700 transition-colors truncate">
+                                    {itemWithOptional.projectName}
                                   </div>
-                                </>
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-blue-100 text-blue-700 text-xs font-medium">
+                                      {item.companyName}
+                                    </span>
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-xs">
+                                      {itemWithOptional.projectStatus === 'planning' ? 'Planejamento' : 
+                                       itemWithOptional.projectStatus === 'homologation' ? 'Homologação' : 
+                                       itemWithOptional.projectStatus === 'completed' ? 'Concluído' : 
+                                       itemWithOptional.projectStatus === 'in_progress' ? 'Em Andamento' :
+                                       itemWithOptional.projectStatus}
+                                    </span>
+                                    {itemWithOptional.percentage && (
+                                      <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-green-100 text-green-700 text-xs font-medium">
+                                        {itemWithOptional.percentage}% concluído
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
                               ) : (
-                                <div>
-                                  <div>
-                                    <span className="font-medium text-blue-700">{item.companyName}</span>
-                                    <span className="text-blue-600 ml-2">• {item.metricType}</span>
+                                <div className="space-y-1">
+                                  <div className="font-semibold text-slate-800 text-sm group-hover/item:text-blue-700 transition-colors">
+                                    {item.companyName}
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-blue-100 text-blue-700 text-xs font-medium">
+                                      {item.metricType}
+                                    </span>
                                   </div>
                                   {item.details && (
-                                    <div className="text-xs text-blue-600 mt-1">{item.details}</div>
+                                    <div className="text-xs text-slate-500 mt-1">{item.details}</div>
                                   )}
                                 </div>
                               )}
                             </div>
-                            <div className="text-right">
-                              {itemWithOptional.percentage && (
-                                <div className="text-xs text-blue-600 mb-1">
-                                  {itemWithOptional.percentage}% da fase
-                                </div>
-                              )}
-                              <span className="text-blue-700 font-medium">
+                            <div className="text-right flex-shrink-0">
+                              <div className="text-lg font-bold bg-gradient-to-r from-blue-700 to-cyan-700 bg-clip-text text-transparent">
                                 R$ {(item.expectedValue / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                              </span>
+                              </div>
+                            </div>
                             </div>
                           </div>
                         )
                       })}
-                      <div className="border-t border-blue-300 pt-2 mt-2">
-                        <div className="flex items-center justify-between text-sm font-medium text-blue-800">
-                          <span>Total Previsto:</span>
-                          <span>
-                            {`R$ ${((expectedValueData.breakdown || []).reduce((sum, item) => sum + (item.expectedValue || 0), 0) / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                      <div className="mt-3 pt-3 border-t-2 border-blue-200">
+                        <div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg shadow-md">
+                          <span className="text-sm font-bold text-white">Total Previsto:</span>
+                          <span className="text-lg font-bold text-white">
+                            R$ {((expectedValueData.breakdown || []).reduce((sum, item) => sum + (item.expectedValue || 0), 0) / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </span>
                         </div>
                       </div>
                     </div>
                   ) : (
-                    <div className="text-sm text-blue-600">
-                      Nenhuma métrica configurada para este período
+                    <div className="p-4 text-center">
+                      <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-600">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Nenhuma métrica configurada para este período
+                      </div>
                     </div>
                   )}
                 </div>
@@ -715,24 +752,28 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="border-0 bg-gradient-to-r from-purple-50 to-indigo-50">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-purple-600">
-                    {selectedCompany !== "all" ? "Usuários da Empresa" : "Total de Usuários"}
-                  </p>
-                  <p className="text-2xl font-bold text-purple-700">{usersCount}</p>
-                  {selectedCompany !== "all" && (
-                    <p className="text-xs text-purple-500 mt-1">
-                      {companies.find(c => c.id === selectedCompany)?.name}
-                    </p>
-                  )}
-                </div>
-                <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center">
-                  <FolderKanban className="w-8 h-8 text-purple-600" />
+          <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-white to-purple-50/30 shadow-md hover:shadow-xl transition-all duration-300 group">
+            {/* Fundo decorativo */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-500/10 to-indigo-500/10 rounded-full blur-2xl group-hover:from-purple-500/20 group-hover:to-indigo-500/20 transition-all duration-500" />
+            
+            <CardContent className="p-6 relative z-10">
+              <div className="flex items-start justify-between mb-4">
+                <h3 className="text-sm font-semibold text-slate-600 group-hover:text-slate-900 transition-colors">
+                  {selectedCompany !== "all" ? "Usuários da Empresa" : "Total de Usuários"}
+                </h3>
+                <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500/10 to-indigo-500/10 group-hover:from-purple-500/20 group-hover:to-indigo-500/20 transition-all duration-300 group-hover:scale-110">
+                  <FolderKanban className="w-6 h-6 text-purple-600" />
                 </div>
               </div>
+              
+              <p className="text-3xl font-bold bg-gradient-to-r from-purple-700 to-indigo-700 bg-clip-text text-transparent mb-2 group-hover:scale-105 transition-transform">
+                {usersCount}
+              </p>
+              {selectedCompany !== "all" && (
+                <p className="text-xs text-purple-600/70 font-medium">
+                  {companies.find(c => c.id === selectedCompany)?.name}
+                </p>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -894,11 +935,6 @@ export default function AdminDashboard() {
       )}
 
       <div className="space-y-4">
-        <div>
-          <h3 className="text-xl font-semibold">Cronogramas dos 5 Últimos Projetos</h3>
-          <p className="text-sm text-muted-foreground">Timeline e progresso dos projetos mais recentes</p>
-        </div>
-
         <GanttView 
           projects={recentProjects} 
           allProjects={projects} 
@@ -909,55 +945,121 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Projetos Recentes</CardTitle>
-            <CardDescription>Últimos projetos do período selecionado</CardDescription>
+        <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-white to-slate-50/50 shadow-md hover:shadow-lg transition-all duration-300">
+          {/* Círculo decorativo */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/5 to-indigo-500/5 rounded-full blur-2xl" />
+          
+          <CardHeader className="relative z-10">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg shadow-md">
+                <Activity className="h-4 w-4 text-white" />
+              </div>
+              <CardTitle className="text-xl font-bold bg-gradient-to-r from-slate-900 to-blue-900 bg-clip-text text-transparent">
+                Projetos Recentes
+              </CardTitle>
+            </div>
+            <CardDescription className="text-slate-600">Últimos projetos do período selecionado</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+          <CardContent className="relative z-10">
+            <div className="space-y-3">
               {recentProjects.map((project) => (
-                <div key={project.id} className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium leading-none">{project.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {project.companies?.name} • {translateProjectType(project.project_type || "Não definido")}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline">{translateStatus(project.status || "planning")}</Badge>
-                    <span className="text-sm text-muted-foreground">
-                      {project.budget ? `R$ ${Number(project.budget).toLocaleString("pt-BR")}` : "Sem orçamento"}
-                    </span>
+                <div key={project.id} className="p-4 bg-white/60 backdrop-blur-sm rounded-lg border border-slate-100 hover:border-blue-200 hover:shadow-md transition-all duration-200 group">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-slate-900 mb-1.5 group-hover:text-blue-700 transition-colors truncate">
+                        {project.name}
+                      </p>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 text-xs font-medium">
+                          {project.companies?.name}
+                        </span>
+                        <span className="text-xs text-slate-500">
+                          {translateProjectType(project.project_type || "Não definido")}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                      <Badge 
+                        className={`border-0 shadow-md font-bold px-3 py-1 text-xs ${
+                          project.status === 'completed' ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white' :
+                          project.status === 'in_progress' ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white' :
+                          project.status === 'delayed' ? 'bg-gradient-to-r from-red-500 to-orange-500 text-white' :
+                          project.status === 'planning' ? 'bg-gradient-to-r from-blue-400 to-sky-400 text-white' :
+                          project.status === 'cancelled' ? 'bg-gradient-to-r from-gray-500 to-slate-500 text-white' :
+                          project.status === 'commercial_proposal' ? 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white' :
+                          'bg-gradient-to-r from-slate-400 to-slate-500 text-white'
+                        }`}
+                      >
+                        {translateStatus(project.status || "planning")}
+                      </Badge>
+                      <span className="text-sm font-semibold text-green-700">
+                        {project.budget ? `R$ ${Number(project.budget).toLocaleString("pt-BR")}` : "Sem orçamento"}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}
               {(!recentProjects || recentProjects.length === 0) && (
-                <p className="text-sm text-muted-foreground text-center py-4">Nenhum projeto encontrado no período</p>
+                <div className="p-6 text-center">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-600">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Nenhum projeto encontrado no período
+                  </div>
+                </div>
               )}
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Visão Geral do Sistema</CardTitle>
-            <CardDescription>Estatísticas do período selecionado</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Total de Usuários</span>
-                <span className="text-sm text-muted-foreground">{usersCount}</span>
+        <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-white to-purple-50/30 shadow-md hover:shadow-lg transition-all duration-300">
+          {/* Círculo decorativo */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-500/5 to-indigo-500/5 rounded-full blur-2xl" />
+          
+          <CardHeader className="relative z-10">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-lg shadow-md">
+                <TrendingUp className="h-4 w-4 text-white" />
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Empresas Ativas</span>
-                <span className="text-sm text-muted-foreground">{companiesCount}</span>
+              <CardTitle className="text-xl font-bold bg-gradient-to-r from-slate-900 to-purple-900 bg-clip-text text-transparent">
+                Visão Geral do Sistema
+              </CardTitle>
+            </div>
+            <CardDescription className="text-slate-600">Estatísticas do período selecionado</CardDescription>
+          </CardHeader>
+          <CardContent className="relative z-10">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm rounded-lg border border-slate-100 hover:border-purple-200 transition-all group">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-1.5 bg-purple-50 rounded-md">
+                    <svg className="w-3.5 h-3.5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                  </div>
+                  <span className="text-sm font-semibold text-slate-700">Total de Usuários</span>
+                </div>
+                <span className="text-lg font-bold bg-gradient-to-r from-purple-700 to-indigo-700 bg-clip-text text-transparent">{usersCount}</span>
+              </div>
+              
+              <div className="flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm rounded-lg border border-slate-100 hover:border-blue-200 transition-all group">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-1.5 bg-blue-50 rounded-md">
+                    <Building2 className="w-3.5 h-3.5 text-blue-600" />
+                  </div>
+                  <span className="text-sm font-semibold text-slate-700">Empresas Ativas</span>
+                </div>
+                <span className="text-lg font-bold bg-gradient-to-r from-blue-700 to-cyan-700 bg-clip-text text-transparent">{companiesCount}</span>
               </div>
 
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Horas Restantes</span>
-                <span className="text-sm text-muted-foreground">{totalContractedHours - totalConsumedHours}h</span>
+              <div className="flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm rounded-lg border border-slate-100 hover:border-green-200 transition-all group">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-1.5 bg-green-50 rounded-md">
+                    <Clock className="w-3.5 h-3.5 text-green-600" />
+                  </div>
+                  <span className="text-sm font-semibold text-slate-700">Horas Restantes</span>
+                </div>
+                <span className="text-lg font-bold bg-gradient-to-r from-green-700 to-emerald-700 bg-clip-text text-transparent">{totalContractedHours - totalConsumedHours}h</span>
               </div>
             </div>
           </CardContent>
