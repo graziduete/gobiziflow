@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Calendar, Clock, TrendingUp, Users, Maximize2, Minimize2, Download, FileImage, FileText } from "lucide-react"
+import { Calendar, Clock, TrendingUp, Users, Maximize2, Minimize2, Download, FileImage, FileText, Circle, PlayCircle, PauseCircle, CheckCircle, AlertTriangle } from "lucide-react"
 import { useGanttDownload } from "@/hooks/use-gantt-download"
 
 interface Task {
@@ -29,6 +29,8 @@ interface GanttChartProps {
 export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExpanded = false, projectName }: GanttChartProps) {
   // Estado para controlar a expansão da tela
   const [isExpanded, setIsExpanded] = React.useState(defaultExpanded)
+  // Evitar hydration mismatch ao destacar mês atual
+  const [currentYM, setCurrentYM] = React.useState<{ y: number; m: number } | null>(null)
   
   
   // Hook para download
@@ -77,6 +79,12 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
       document.documentElement.style.overflow = 'unset'
     }
   }, [isExpanded])
+
+  // Definir mês/ano atual apenas no cliente
+  React.useEffect(() => {
+    const now = new Date()
+    setCurrentYM({ y: now.getFullYear(), m: now.getMonth() })
+  }, [])
 
   // Função para calcular semanas corretamente por mês/ano
   const weeks = React.useMemo(() => {
@@ -301,21 +309,21 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
     switch (status.toLowerCase()) {
       case 'não iniciado':
       case 'not_started':
-        return 'from-amber-400 to-amber-500'
+        return 'from-slate-400 via-slate-300 to-slate-500'
       case 'em andamento':
       case 'in_progress':
-        return 'from-blue-500 to-blue-600'
+        return 'from-blue-500 via-cyan-400 to-blue-600'
       case 'concluído':
       case 'completed':
-        return 'from-emerald-500 to-emerald-600'
+        return 'from-emerald-500 via-green-400 to-emerald-600'
       case 'atrasado':
       case 'delayed':
-        return 'from-red-500 to-red-600'
+        return 'from-red-500 via-orange-400 to-red-600'
       case 'pausado':
       case 'on_hold':
-        return 'from-slate-500 to-slate-600'
+        return 'from-violet-500 via-violet-400 to-fuchsia-600'
       default:
-        return 'from-blue-500 to-blue-600'
+        return 'from-blue-500 via-cyan-400 to-blue-600'
     }
   }
 
@@ -372,7 +380,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
     switch (status.toLowerCase()) {
       case 'não iniciado':
       case 'not_started':
-        return 'bg-amber-100 text-amber-800 border-amber-200'
+        return 'bg-slate-100 text-slate-800 border-slate-200'
       case 'em andamento':
       case 'in_progress':
         return 'bg-blue-100 text-blue-800 border-blue-200'
@@ -384,11 +392,34 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
         return 'bg-red-100 text-red-800 border-red-200'
       case 'pausado':
       case 'on_hold':
-        return 'bg-slate-100 text-slate-800 border-slate-200'
+        return 'bg-violet-100 text-violet-800 border-violet-200'
       case 'commercial_proposal':
         return 'bg-purple-50 text-purple-700 border-purple-200'
       default:
         return 'bg-blue-100 text-blue-800 border-blue-200'
+    }
+  }
+
+  // Cor do farol (ponto) de status
+  const getStatusDotColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'não iniciado':
+      case 'not_started':
+        return 'bg-slate-500'
+      case 'em andamento':
+      case 'in_progress':
+        return 'bg-blue-500'
+      case 'concluído':
+      case 'completed':
+        return 'bg-emerald-500'
+      case 'atrasado':
+      case 'delayed':
+        return 'bg-red-500'
+      case 'pausado':
+      case 'on_hold':
+        return 'bg-violet-500'
+      default:
+        return 'bg-slate-400'
     }
   }
 
@@ -456,7 +487,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
   }
 
   // Renderizar Gantt expandido em um portal para ficar acima de tudo
-  if (isExpanded) {
+  if (isExpanded && typeof document !== 'undefined') {
     return createPortal(
       <div 
         className="fixed inset-0 bg-white" 
@@ -473,37 +504,48 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
         }}
       >
         <Card className="h-full border-0 shadow-none bg-white flex flex-col">
-          <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50 border-b border-slate-200">
+          <CardHeader className="sticky top-0 z-[1] bg-gradient-to-r from-slate-50/80 to-blue-50/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-slate-200">
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-3 text-slate-800">
-                <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg">
+                <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl shadow-lg ring-1 ring-white/50">
                   <Calendar className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <div className="text-xl font-bold">Visualização Gantt</div>
-                  <div className="text-sm font-normal text-slate-600 mt-1">
-                    Cronograma do projeto • {validTasks.length} tarefa{validTasks.length !== 1 ? 's' : ''} • {weeks.length} semanas
+                  <div className="text-xl font-bold tracking-tight">Visualização Gantt</div>
+                  <div className="text-sm font-normal text-slate-600 mt-1 flex items-center gap-2">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/60 border border-slate-200 text-slate-700">
+                      <Clock className="w-3.5 h-3.5" /> {validTasks.length} tarefa{validTasks.length !== 1 ? 's' : ''}
+                    </span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/60 border border-slate-200 text-slate-700">
+                      <Calendar className="w-3.5 h-3.5" /> {weeks.length} semanas
+                    </span>
                   </div>
                 </div>
               </CardTitle>
               
               {/* Botões de ação */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 bg-white/60 border border-slate-200 rounded-lg p-1.5 shadow-sm">
                 {/* Botão de download */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="p-2">
+                    <Button variant="outline" size="sm" className="p-2 hover:scale-105 transition-transform">
                       <Download className="w-4 h-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="z-[999999]">
-                    <DropdownMenuItem onClick={handleDownloadPNG} className="gap-2">
-                      <FileImage className="w-4 h-4" />
-                      Baixar como PNG
+                  <DropdownMenuContent align="end" className="z-[999999] w-56">
+                    <DropdownMenuItem onClick={handleDownloadPNG} className="gap-3 p-3">
+                      <FileImage className="w-4 h-4 text-blue-600" />
+                      <div className="flex flex-col">
+                        <span className="font-medium">Baixar como PNG</span>
+                        <span className="text-xs text-slate-500">Imagem de alta qualidade</span>
+                      </div>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleDownloadPDF} className="gap-2">
-                      <FileText className="w-4 h-4" />
-                      Baixar como PDF
+                    <DropdownMenuItem onClick={handleDownloadPDF} className="gap-3 p-3">
+                      <FileText className="w-4 h-4 text-red-600" />
+                      <div className="flex flex-col">
+                        <span className="font-medium">Baixar como PDF</span>
+                        <span className="text-xs text-slate-500">Documento para impressão</span>
+                      </div>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -511,8 +553,8 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                 {/* Botão para colapsar */}
                 <button
                   onClick={() => setIsExpanded(false)}
-                  className="p-1.5 bg-gray-100 hover:bg-gray-200 rounded-md text-gray-600 hover:text-gray-700 transition-all duration-200"
-                  title="Colapsar visualização"
+                  className="p-2 bg-gradient-to-r from-slate-100 to-slate-200 hover:from-slate-200 hover:to-slate-300 rounded-lg text-slate-700 hover:text-slate-900 transition-all duration-200 shadow-sm hover:shadow-md"
+                  title="Colapsar visualização (Esc)"
                 >
                   <Minimize2 className="w-4 h-4" />
                 </button>
@@ -523,38 +565,58 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
           <CardContent className="p-0 flex-1 overflow-y-auto">
             <div className="overflow-x-auto">
               <div id="gantt-chart-content-expanded" className="min-w-[900px]">
-                {/* Cabeçalho dos meses (altura/tipografia reduzidas) */}
+                {/* Cabeçalho dos meses (gradiente, separadores e realce do mês atual) */}
                 <div className="grid sticky top-0 z-10" style={{ gridTemplateColumns: `280px repeat(${weeks.length}, 120px)` }}>
-                  <div className="h-12 bg-gradient-to-r from-slate-100 to-slate-200 border-r border-slate-300"></div>
-                  {Object.values(monthsWithWeeks).map((month, monthIndex) => (
-                    <div
-                      key={monthIndex}
-                      className="h-12 bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center font-semibold text-white text-xs shadow-lg"
-                      style={{
-                        gridColumn: `${month.startIndex + 2} / span ${month.weekCount}`,
-                        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), 0 2px 4px rgba(0,0,0,0.1)'
-                      }}
-                    >
-                      {month.name.toUpperCase()}
-                    </div>
-                  ))}
+                  <div className="h-12 bg-gradient-to-r from-slate-100 to-slate-200 border-r border-slate-300" />
+                  {Object.values(monthsWithWeeks).map((month, monthIndex) => {
+                    const isCurrentMonth = (() => {
+                      try {
+                        if (!currentYM) return false
+                        const [monthName, yearStr] = month.name.split(' de ')
+                        const date = new Date(`${monthName} 1, ${yearStr}`)
+                        return date.getMonth() === currentYM.m && date.getFullYear() === currentYM.y
+                      } catch { return false }
+                    })()
+                    return (
+                      <div
+                        key={monthIndex}
+                        className={`relative h-12 flex items-center justify-center text-white text-[11px] tracking-wide uppercase font-semibold shadow-md transition-colors duration-200 ${isCurrentMonth ? 'ring-2 ring-white/50' : ''}`}
+                        style={{
+                          gridColumn: `${month.startIndex + 2} / span ${month.weekCount}`,
+                          background: 'linear-gradient(180deg, #1d4ed8 0%, #2563eb 60%, #1e40af 100%)',
+                          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.25), 0 4px 10px rgba(0,0,0,0.06)'
+                        }}
+                        aria-label={`Mês ${month.name}`}
+                        title={month.name}
+                      >
+                        {/* Overlay de brilho sutil */}
+                        <div className="absolute inset-0 bg-white/5" />
+                        {/* Separador à direita de cada mês */}
+                        <div className="absolute right-0 top-0 bottom-0 w-px bg-white/20" />
+                        {/* Texto com leve sombra para contraste */}
+                        <span className="relative drop-shadow-sm text-center leading-tight">
+                          {month.name.toUpperCase()}
+                        </span>
+                      </div>
+                    )
+                  })}
                 </div>
 
                 {/* Cabeçalho das semanas */}
                 <div className="grid" style={{ gridTemplateColumns: `280px repeat(${weeks.length}, 120px)` }}>
-                  <div className="h-18 bg-gradient-to-br from-slate-50 to-slate-100 border-r border-slate-200 flex items-center justify-center">
+                  <div className="h-18 bg-gradient-to-br from-slate-100 via-slate-50 to-slate-100 border-r border-slate-300 flex items-center justify-center shadow-sm">
                     <div className="text-center">
-                      <div className="font-semibold text-slate-700 text-xs">TAREFAS</div>
-                      <div className="text-[10px] text-slate-500 mt-1">{projectName || 'Projeto'}</div>
+                      <div className="font-bold text-slate-800 text-xs tracking-wide uppercase">TAREFAS</div>
+                      <div className="text-[10px] text-slate-600 mt-1 font-medium">{projectName || 'Projeto'}</div>
                     </div>
                   </div>
                   {weeks.map((week, weekIndex) => (
                     <div
                       key={weekIndex}
-                      className="h-18 bg-gradient-to-br from-slate-50 to-slate-100 border-r border-slate-200 flex flex-col items-center justify-center p-1.5"
+                      className="h-18 bg-gradient-to-br from-slate-100 via-slate-50 to-slate-100 border-r border-slate-300 flex flex-col items-center justify-center p-2 shadow-sm hover:from-slate-200 hover:to-slate-100 transition-all duration-200 group"
                     >
-                      <div className="font-semibold text-slate-700 text-[11px]">Semana {week.weekNumber}</div>
-                      <div className="text-[10px] text-slate-500 mt-0.5 font-mono">
+                      <div className="font-bold text-slate-800 text-[11px] group-hover:text-blue-700 transition-colors">Semana {week.weekNumber}</div>
+                      <div className="text-[10px] text-slate-600 mt-1 font-mono group-hover:text-blue-600 transition-colors">
                         {week.start.getDate().toString().padStart(2, '0')}/{week.start.getMonth() + 1}
                       </div>
                     </div>
@@ -566,16 +628,16 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                   {/* Linha da data atual */}
                   {currentDateLinePosition !== null && (
                     <div 
-                      className="absolute w-0.5 bg-green-500 z-10 pointer-events-none"
+                      className="absolute w-1 bg-gradient-to-b from-emerald-400 via-emerald-500 to-emerald-600 z-10 pointer-events-none rounded-full"
                       style={{
                         left: `calc(280px + ${currentDateLinePosition * 120}px)`,
                         top: '0px',
                         height: `${validTasks.length * 80}px`, // Altura baseada no número de tarefas
-                        boxShadow: '0 0 4px rgba(34, 197, 94, 0.5)'
+                        boxShadow: '0 0 8px rgba(16, 185, 129, 0.4), 0 0 16px rgba(16, 185, 129, 0.2)'
                       }}
                     >
-                      <div className="absolute -top-2 -left-1 w-2 h-2 bg-green-500 rounded-full"></div>
-                      <div className="absolute -bottom-2 -left-1 w-2 h-2 bg-green-500 rounded-full"></div>
+                      <div className="absolute -top-3 -left-2 w-4 h-4 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full shadow-lg"></div>
+                      <div className="absolute -bottom-3 -left-2 w-4 h-4 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full shadow-lg"></div>
                     </div>
                   )}
 
@@ -588,16 +650,17 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                     style={{ gridTemplateColumns: `280px repeat(${weeks.length}, 120px)` }}
                   >
                     {/* Informações da tarefa */}
-                    <div className="h-20 border-r border-slate-200 bg-white p-3 flex flex-col justify-center">
-                      <div className="font-semibold text-slate-800 text-sm leading-tight mb-2" data-task-title={task.name}>
-                        {task.name}
+                    <div className="h-20 border-r border-slate-200 bg-white px-3 py-2.5 flex flex-col justify-center">
+                      <div className="flex items-start gap-2">
+                        {/* Farol de status */}
+                        <div className={`w-2.5 h-2.5 rounded-full ${getStatusDotColor(task.status)} ring-2 ring-white flex-shrink-0 mt-1.5`} title={getStatusText(task.status)} />
+                        <div className="font-semibold text-slate-900 text-[13px] leading-snug tracking-tight" data-task-title={task.name}>
+                          {task.name}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Users className="w-3 h-3 text-slate-500" />
-                        <span className="text-xs text-slate-600" data-task-assignee={task.responsible}>{task.responsible}</span>
-                        <Badge className={`text-xs px-1.5 py-0.5 border ${getStatusBadgeColor(task.status)}`} data-task-status={getStatusText(task.status)}>
-                          {getStatusText(task.status)}
-                        </Badge>
+                      <div className="mt-1.5 flex items-center gap-2 text-xs text-slate-600">
+                        <Users className="w-3.5 h-3.5 text-slate-500" />
+                        <span className="truncate" data-task-assignee={task.responsible}>{task.responsible}</span>
                       </div>
                     </div>
 
@@ -605,24 +668,41 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                     {weeks.map((week, weekIndex) => (
                       <div
                         key={weekIndex}
-                        className="h-20 border-r border-slate-200 relative bg-white"
+                        className="h-20 border-r border-slate-200 relative bg-white hover:bg-slate-50/50 transition-colors duration-200"
                       />
                     ))}
 
                     {/* SOLUÇÃO DEFINITIVA: Barra contínua posicionada absolutamente */}
                     {task.start_date && task.end_date && (
                       <div
-                        className={`absolute top-7 bottom-7 bg-gradient-to-r ${getTaskColor(task.status)} shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer group rounded-md`}
+                        className={`absolute top-6 bottom-6 bg-gradient-to-r ${getTaskColor(task.status)} shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group rounded-xl border border-white/20 hover:border-white/40 hover:scale-[1.02] backdrop-blur-sm`}
                         style={getTaskBarStyle(task)}
-                        title={`${task.name}: ${task.start_date} a ${task.end_date}`}
                         data-progress-bar="true"
                         data-start-date={task.start_date}
                         data-end-date={task.end_date}
                         data-progress={getTaskProgress(task)}
                       >
-                        <div className="px-2 py-1 text-white font-medium text-xs leading-tight opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                          <div className="font-bold">{task.name}</div>
-                          <div className="text-xs opacity-90">{task.responsible}</div>
+                        {/* Efeito de brilho interno */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-white/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                        {/* Tooltip moderno */}
+                        <div className="pointer-events-none absolute -top-3 left-1/2 -translate-x-1/2 -translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                          <div className="min-w-[220px] max-w-[280px] px-3 py-2 rounded-xl border border-white/30 bg-white/70 backdrop-blur-md shadow-lg">
+                            <div className="text-[11px] font-semibold text-slate-900 line-clamp-1">{task.name}</div>
+                            <div className="mt-1 grid grid-cols-2 gap-2 text-[11px] text-slate-700">
+                              <div className="flex items-center gap-1"><Users className="w-3 h-3" /> {task.responsible}</div>
+                              <div className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {new Date(task.start_date).toLocaleDateString('pt-BR')} - {new Date(task.end_date).toLocaleDateString('pt-BR')}</div>
+                            </div>
+                            <div className="mt-1 text-[11px] text-slate-600">{getStatusText(task.status)}</div>
+                          </div>
+                        </div>
+
+                        {/* Indicador de progresso sutil */}
+                        <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20 rounded-b-xl overflow-hidden">
+                          <div 
+                            className="h-full bg-white/40 transition-all duration-500 ease-out"
+                            style={{ width: `${getTaskProgress(task)}%` }}
+                          />
                         </div>
                       </div>
                     )}
@@ -641,25 +721,47 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
             </div>
 
             {/* Legenda */}
-            <div className="mt-3 mx-3 mb-3 p-3 bg-gradient-to-r from-slate-50 to-blue-50 rounded-xl border border-slate-200">
-              <h4 className="font-medium text-slate-800 mb-2.5 flex items-center gap-2 text-xs">
-                <div className="p-0.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded">
-                  <TrendingUp className="w-3 h-3 text-white" />
+            <div className="mt-4 mx-3 mb-3 p-4 bg-gradient-to-r from-slate-50/80 to-blue-50/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 rounded-2xl border border-slate-200/50 shadow-sm">
+              <h4 className="font-semibold text-slate-800 mb-4 flex items-center gap-3 text-sm">
+                <div className="p-1.5 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl shadow-md">
+                  <TrendingUp className="w-4 h-4 text-white" />
                 </div>
                 Legenda de Status
               </h4>
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-2.5">
-                {[
-                  { status: 'Não Iniciado', color: 'from-amber-400 to-amber-500' },
-                  { status: 'Em Andamento', color: 'from-blue-500 to-blue-600' },
-                  { status: 'Concluído', color: 'from-emerald-500 to-emerald-600' },
-                  { status: 'Atrasado', color: 'from-red-500 to-red-600' },
-                  { status: 'Pausado', color: 'from-slate-500 to-slate-600' }
-                ].map((item, index) => (
-                <div key={index} className="flex items-center gap-1.5">
-                  <div className={`w-3 h-3 bg-gradient-to-r ${item.color} rounded-full`}></div>
-                  <span className="text-[12px] font-medium text-slate-700">{item.status}</span>
-                </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                {[{
+                  status: 'Não Iniciado',
+                  color: 'from-slate-400 to-slate-500',
+                  bgColor: 'bg-slate-100',
+                  Icon: Circle
+                },{
+                  status: 'Em Andamento',
+                  color: 'from-blue-500 to-blue-600',
+                  bgColor: 'bg-blue-100',
+                  Icon: PlayCircle
+                },{
+                  status: 'Concluído',
+                  color: 'from-emerald-500 to-emerald-600',
+                  bgColor: 'bg-emerald-100',
+                  Icon: CheckCircle
+                },{
+                  status: 'Atrasado',
+                  color: 'from-red-500 to-red-600',
+                  bgColor: 'bg-red-100',
+                  Icon: AlertTriangle
+                },{
+                  status: 'Pausado',
+                  color: 'from-violet-500 to-fuchsia-600',
+                  bgColor: 'bg-violet-100',
+                  Icon: PauseCircle
+                }].map((item, index) => (
+                  <div key={index} className={`flex items-center gap-3 p-3 ${item.bgColor} rounded-xl border border-white/50 hover:shadow-md transition-all duration-200 group`}>
+                    <div className={`w-4 h-4 bg-gradient-to-r ${item.color} rounded-full shadow-sm group-hover:scale-110 transition-transform duration-200`}></div>
+                    <div className="flex items-center gap-2">
+                      <item.Icon className="w-4 h-4 text-slate-700/80" />
+                      <span className="text-sm font-semibold text-slate-700 group-hover:text-slate-900 transition-colors">{item.status}</span>
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
@@ -673,16 +775,21 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
   // Renderizar Gantt normal quando não expandido
   return (
     <Card className="mt-6 border-0 shadow-xl bg-white overflow-hidden transition-all duration-300">
-      <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50 border-b border-slate-200">
+              <CardHeader className="bg-gradient-to-r from-slate-50/80 to-blue-50/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-slate-200">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-3 text-slate-800">
-            <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg">
+            <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl shadow-lg ring-1 ring-white/50">
               <Calendar className="w-5 h-5 text-white" />
             </div>
             <div>
-              <div className="text-xl font-bold">Visualização Gantt</div>
-              <div className="text-sm font-normal text-slate-600 mt-1">
-                Cronograma do projeto • {validTasks.length} tarefa{validTasks.length !== 1 ? 's' : ''} • {weeks.length} semanas
+              <div className="text-xl font-bold tracking-tight">Visualização Gantt</div>
+              <div className="text-sm font-normal text-slate-600 mt-1 flex items-center gap-2">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/60 border border-slate-200 text-slate-700">
+                  <Clock className="w-3.5 h-3.5" /> {validTasks.length} tarefa{validTasks.length !== 1 ? 's' : ''}
+                </span>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/60 border border-slate-200 text-slate-700">
+                  <Calendar className="w-3.5 h-3.5" /> {weeks.length} semanas
+                </span>
               </div>
             </div>
           </CardTitle>
@@ -692,18 +799,24 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
             {/* Botão de download */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="p-2">
+                <Button variant="outline" size="sm" className="p-2 hover:scale-105 transition-transform">
                   <Download className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleDownloadPNG} className="gap-2">
-                  <FileImage className="w-4 h-4" />
-                  Baixar como PNG
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem onClick={handleDownloadPNG} className="gap-3 p-3">
+                  <FileImage className="w-4 h-4 text-blue-600" />
+                  <div className="flex flex-col">
+                    <span className="font-medium">Baixar como PNG</span>
+                    <span className="text-xs text-slate-500">Imagem de alta qualidade</span>
+                  </div>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleDownloadPDF} className="gap-2">
-                  <FileText className="w-4 h-4" />
-                  Baixar como PDF
+                <DropdownMenuItem onClick={handleDownloadPDF} className="gap-3 p-3">
+                  <FileText className="w-4 h-4 text-red-600" />
+                  <div className="flex flex-col">
+                    <span className="font-medium">Baixar como PDF</span>
+                    <span className="text-xs text-slate-500">Documento para impressão</span>
+                  </div>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -711,8 +824,8 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
             {/* Botão para expandir */}
             <button
               onClick={() => setIsExpanded(true)}
-              className="p-1.5 bg-gray-100 hover:bg-gray-200 rounded-md text-gray-600 hover:text-gray-700 transition-all duration-200"
-              title="Expandir visualização"
+              className="p-2 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-lg text-white transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
+              title="Expandir visualização (F11)"
             >
               <Maximize2 className="w-4 h-4" />
             </button>
@@ -723,38 +836,58 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
       <CardContent className="p-0">
         <div className="overflow-x-auto">
           <div id="gantt-chart-content" className="min-w-[900px]">
-            {/* Cabeçalho dos meses (altura/tipografia reduzidas) */}
+            {/* Cabeçalho dos meses (gradiente, separadores e realce do mês atual) */}
             <div className="grid sticky top-0 z-10" style={{ gridTemplateColumns: `280px repeat(${weeks.length}, 120px)` }}>
-              <div className="h-12 bg-gradient-to-r from-slate-100 to-slate-200 border-r border-slate-300"></div>
-              {Object.values(monthsWithWeeks).map((month, monthIndex) => (
-                <div
-                  key={monthIndex}
-                  className="h-12 bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center font-semibold text-white text-xs shadow-lg"
-                  style={{
-                    gridColumn: `${month.startIndex + 2} / span ${month.weekCount}`,
-                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), 0 2px 4px rgba(0,0,0,0.1)'
-                  }}
-                >
-                  {month.name.toUpperCase()}
-                </div>
-              ))}
+              <div className="h-12 bg-gradient-to-r from-slate-100 to-slate-200 border-r border-slate-300" />
+              {Object.values(monthsWithWeeks).map((month, monthIndex) => {
+                const isCurrentMonth = (() => {
+                  try {
+                    if (!currentYM) return false
+                    const [monthName, yearStr] = month.name.split(' de ')
+                    const date = new Date(`${monthName} 1, ${yearStr}`)
+                    return date.getMonth() === currentYM.m && date.getFullYear() === currentYM.y
+                  } catch { return false }
+                })()
+                return (
+                  <div
+                    key={monthIndex}
+                    className={`relative h-12 flex items-center justify-center text-white text-[11px] tracking-wide uppercase font-semibold shadow-md transition-colors duration-200 ${isCurrentMonth ? 'ring-2 ring-white/50' : ''}`}
+                    style={{
+                      gridColumn: `${month.startIndex + 2} / span ${month.weekCount}`,
+                      background: 'linear-gradient(180deg, #1d4ed8 0%, #2563eb 60%, #1e40af 100%)',
+                      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.25), 0 4px 10px rgba(0,0,0,0.06)'
+                    }}
+                    aria-label={`Mês ${month.name}`}
+                    title={month.name}
+                  >
+                    {/* Overlay de brilho sutil */}
+                    <div className="absolute inset-0 bg-white/5" />
+                    {/* Separador à direita de cada mês */}
+                    <div className="absolute right-0 top-0 bottom-0 w-px bg-white/20" />
+                    {/* Texto com leve sombra para contraste */}
+                    <span className="relative drop-shadow-sm text-center leading-tight">
+                      {month.name.toUpperCase()}
+                    </span>
+                  </div>
+                )
+              })}
             </div>
 
             {/* Cabeçalho das semanas */}
             <div className="grid" style={{ gridTemplateColumns: `280px repeat(${weeks.length}, 120px)` }}>
-              <div className="h-18 bg-gradient-to-br from-slate-50 to-slate-100 border-r border-slate-200 flex items-center justify-center">
+              <div className="h-18 bg-gradient-to-br from-slate-100 via-slate-50 to-slate-100 border-r border-slate-300 flex items-center justify-center shadow-sm">
                 <div className="text-center">
-                  <div className="font-semibold text-slate-700 text-xs">TAREFAS</div>
-                  <div className="text-[10px] text-slate-500 mt-1">{projectName || 'Projeto'}</div>
+                  <div className="font-bold text-slate-800 text-xs tracking-wide uppercase">TAREFAS</div>
+                  <div className="text-[10px] text-slate-600 mt-1 font-medium">{projectName || 'Projeto'}</div>
                 </div>
               </div>
               {weeks.map((week, weekIndex) => (
                 <div
                   key={weekIndex}
-                  className="h-18 bg-gradient-to-br from-slate-50 to-slate-100 border-r border-slate-200 flex flex-col items-center justify-center p-1.5"
+                  className="h-18 bg-gradient-to-br from-slate-100 via-slate-50 to-slate-100 border-r border-slate-300 flex flex-col items-center justify-center p-2 shadow-sm hover:from-slate-200 hover:to-slate-100 transition-all duration-200 group"
                 >
-                  <div className="font-semibold text-slate-700 text-[11px]">Semana {week.weekNumber}</div>
-                  <div className="text-[10px] text-slate-500 mt-0.5 font-mono">
+                  <div className="font-bold text-slate-800 text-[11px] group-hover:text-blue-700 transition-colors">Semana {week.weekNumber}</div>
+                  <div className="text-[10px] text-slate-600 mt-1 font-mono group-hover:text-blue-600 transition-colors">
                     {week.start.getDate().toString().padStart(2, '0')}/{week.start.getMonth() + 1}
                   </div>
                 </div>
@@ -766,16 +899,16 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
               {/* Linha da data atual */}
               {currentDateLinePosition !== null && (
                 <div 
-                  className="absolute w-0.5 bg-green-500 z-10 pointer-events-none"
+                  className="absolute w-1 bg-gradient-to-b from-emerald-400 via-emerald-500 to-emerald-600 z-10 pointer-events-none rounded-full"
                   style={{
                     left: `calc(280px + ${currentDateLinePosition * 120}px)`,
                     top: '0px',
                     height: `${validTasks.length * 80}px`, // Altura baseada no número de tarefas
-                    boxShadow: '0 0 4px rgba(34, 197, 94, 0.5)'
+                    boxShadow: '0 0 8px rgba(16, 185, 129, 0.4), 0 0 16px rgba(16, 185, 129, 0.2)'
                   }}
                 >
-                  <div className="absolute -top-2 -left-1 w-2 h-2 bg-green-500 rounded-full"></div>
-                  <div className="absolute -bottom-2 -left-1 w-2 h-2 bg-green-500 rounded-full"></div>
+                  <div className="absolute -top-3 -left-2 w-4 h-4 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full shadow-lg"></div>
+                  <div className="absolute -bottom-3 -left-2 w-4 h-4 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full shadow-lg"></div>
                 </div>
               )}
 
@@ -788,16 +921,17 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                 style={{ gridTemplateColumns: `280px repeat(${weeks.length}, 120px)` }}
               >
                 {/* Informações da tarefa */}
-                <div className="h-20 border-r border-slate-200 bg-white p-3 flex flex-col justify-center">
-                  <div className="font-semibold text-slate-800 text-sm leading-tight mb-2" data-task-title={task.name}>
-                    {task.name}
+                <div className="h-20 border-r border-slate-200 bg-white px-3 py-2.5 flex flex-col justify-center">
+                  <div className="flex items-start gap-2">
+                    {/* Farol de status */}
+                    <div className={`w-2.5 h-2.5 rounded-full ${getStatusDotColor(task.status)} ring-2 ring-white flex-shrink-0 mt-1.5`} title={getStatusText(task.status)} />
+                    <div className="font-semibold text-slate-900 text-[13px] leading-snug tracking-tight" data-task-title={task.name}>
+                      {task.name}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Users className="w-3 h-3 text-slate-500" />
-                    <span className="text-xs text-slate-600" data-task-assignee={task.responsible}>{task.responsible}</span>
-                    <Badge className={`text-xs px-1.5 py-0.5 border ${getStatusBadgeColor(task.status)}`} data-task-status={getStatusText(task.status)}>
-                      {getStatusText(task.status)}
-                    </Badge>
+                  <div className="mt-1.5 flex items-center gap-2 text-xs text-slate-600">
+                    <Users className="w-3.5 h-3.5 text-slate-500" />
+                    <span className="truncate" data-task-assignee={task.responsible}>{task.responsible}</span>
                   </div>
                 </div>
 
@@ -805,14 +939,14 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                 {weeks.map((week, weekIndex) => (
                   <div
                     key={weekIndex}
-                    className="h-20 border-r border-slate-200 relative bg-white"
+                    className="h-20 border-r border-slate-200 relative bg-white hover:bg-slate-50/50 transition-colors duration-200"
                   />
                 ))}
 
                 {/* SOLUÇÃO DEFINITIVA: Barra contínua posicionada absolutamente */}
                 {task.start_date && task.end_date && (
                   <div
-                    className={`absolute top-6 bottom-6 bg-gradient-to-r ${getTaskColor(task.status)} shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer group rounded-md`}
+                    className={`absolute top-6 bottom-6 bg-gradient-to-r ${getTaskColor(task.status)} shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group rounded-xl border border-white/20 hover:border-white/40 hover:scale-[1.02] backdrop-blur-sm`}
                     style={getTaskBarStyle(task)}
                     title={`${task.name}: ${task.start_date} a ${task.end_date}`}
                     data-progress-bar="true"
@@ -820,9 +954,24 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                     data-end-date={task.end_date}
                     data-progress={getTaskProgress(task)}
                   >
-                    <div className="px-2 py-1 text-white font-medium text-xs leading-tight opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                      <div className="font-bold">{task.name}</div>
-                      <div className="text-xs opacity-90">{task.responsible}</div>
+                    {/* Efeito de brilho interno */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-white/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    
+                    {/* Conteúdo da barra */}
+                    <div className="relative px-3 py-2 text-white font-medium text-xs leading-tight opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-y-0 translate-y-1">
+                      <div className="font-bold text-sm drop-shadow-sm">{task.name}</div>
+                      <div className="text-xs opacity-90 flex items-center gap-1">
+                        <Users className="w-3 h-3" />
+                        {task.responsible}
+                      </div>
+                    </div>
+                    
+                    {/* Indicador de progresso sutil */}
+                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20 rounded-b-xl overflow-hidden">
+                      <div 
+                        className="h-full bg-white/40 transition-all duration-500 ease-out"
+                        style={{ width: `${getTaskProgress(task)}%` }}
+                      />
                     </div>
                   </div>
                 )}
@@ -841,25 +990,47 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
         </div>
 
         {/* Legenda (compacta) */}
-        <div className="mt-3 mx-3 mb-3 p-3 bg-gradient-to-r from-slate-50 to-blue-50 rounded-xl border border-slate-200">
-          <h4 className="font-medium text-slate-800 mb-2.5 flex items-center gap-2 text-xs">
-            <div className="p-0.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded">
-              <TrendingUp className="w-3 h-3 text-white" />
+        <div className="mt-4 mx-3 mb-3 p-4 bg-gradient-to-r from-slate-50/80 to-blue-50/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 rounded-2xl border border-slate-200/50 shadow-sm">
+          <h4 className="font-semibold text-slate-800 mb-4 flex items-center gap-3 text-sm">
+            <div className="p-1.5 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl shadow-md">
+              <TrendingUp className="w-4 h-4 text-white" />
             </div>
             Legenda de Status
           </h4>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-2.5">
-            {[
-              { status: 'Não Iniciado', color: 'from-amber-400 to-amber-500' },
-              { status: 'Em Andamento', color: 'from-blue-500 to-blue-600' },
-              { status: 'Concluído', color: 'from-emerald-500 to-emerald-600' },
-              { status: 'Atrasado', color: 'from-red-500 to-red-600' },
-              { status: 'Pausado', color: 'from-slate-500 to-slate-600' }
-            ].map((item, index) => (
-            <div key={index} className="flex items-center gap-1.5">
-              <div className={`w-3 h-3 bg-gradient-to-r ${item.color} rounded-full`}></div>
-              <span className="text-[12px] font-medium text-slate-700">{item.status}</span>
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            {[{
+              status: 'Não Iniciado',
+              color: 'from-slate-400 to-slate-500',
+              bgColor: 'bg-slate-100',
+              Icon: Circle
+            },{
+              status: 'Em Andamento',
+              color: 'from-blue-500 to-blue-600',
+              bgColor: 'bg-blue-100',
+              Icon: PlayCircle
+            },{
+              status: 'Concluído',
+              color: 'from-emerald-500 to-emerald-600',
+              bgColor: 'bg-emerald-100',
+              Icon: CheckCircle
+            },{
+              status: 'Atrasado',
+              color: 'from-red-500 to-red-600',
+              bgColor: 'bg-red-100',
+              Icon: AlertTriangle
+            },{
+              status: 'Pausado',
+              color: 'from-violet-500 to-fuchsia-600',
+              bgColor: 'bg-violet-100',
+              Icon: PauseCircle
+            }].map((item, index) => (
+              <div key={index} className={`flex items-center gap-3 p-3 ${item.bgColor} rounded-xl border border-white/50 hover:shadow-md transition-all duration-200 group`}>
+                <div className={`w-4 h-4 bg-gradient-to-r ${item.color} rounded-full shadow-sm group-hover:scale-110 transition-transform duration-200`}></div>
+                <div className="flex items-center gap-2">
+                  <item.Icon className="w-4 h-4 text-slate-700/80" />
+                  <span className="text-sm font-semibold text-slate-700 group-hover:text-slate-900 transition-colors">{item.status}</span>
+                </div>
+              </div>
             ))}
           </div>
         </div>

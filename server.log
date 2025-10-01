@@ -2462,3 +2462,2116 @@ AuthApiError: Invalid Refresh Token: Refresh Token Not Found {
   userRole: 'admin_operacional'
 }
  GET /admin 200 in 394ms
+ GET /admin/projects 200 in 81ms
+ GET /auth/login 200 in 129ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+🔍 [Header] Debug user data: {
+  user: {
+    id: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    email: 'graziely@gobi.consulting',
+    full_name: 'Graziely Duete'
+  },
+  fullName: 'Graziely Duete',
+  email: 'graziely@gobi.consulting',
+  hasUser: true
+}
+✅ [Header] Using full_name initials: GD
+🏢 Empresas para contagem: 0
+👥 Usuários para contagem: 0
+👥 Total de usuários no sistema: 0
+👥 Total de associações usuário-empresa: 0
+👥 Associações da empresa selecionada: []
+📊 Projetos filtrados por período: 0
+📊 Total de projetos da empresa: 0
+🔍 Projetos por status: []
+🚀 Projetos em andamento (excluindo planning): 0
+⏸️ Projetos em planejamento: 0
+⚠️ Projetos atrasados: 0
+✅ Projetos concluídos: 0
+🏢 Estatísticas de horas do HourService: {
+  totalContractedHours: 0,
+  totalConsumedHours: 0,
+  totalRemainingHours: 0,
+  companiesWithPackages: 0
+}
+⏰ Total de horas contratadas: 0
+🔥 Horas consumidas: 0
+⏳ Horas restantes: 0
+💰 Total de faturamento: 0
+📁 Todos os projetos: 0
+🔍 Projetos filtrados por período: 0
+📊 Total de projetos (filtrado por empresa e período): 0
+📊 NOVA LÓGICA - Usando payment_metrics:
+📊 Total esperado: 0
+📊 Breakdown: []
+🔍 [GanttView] Projects data: []
+ GET /admin 200 in 820ms
+ ○ Compiling /admin/companies ...
+ ✓ Compiled /admin/companies in 1415ms (835 modules)
+ GET /admin/companies 200 in 1599ms
+ GET /admin/projects 200 in 170ms
+ ○ Compiling /admin/projects/new ...
+ ✓ Compiled /admin/projects/new in 5.3s (2549 modules)
+ GET /admin/projects/new 200 in 5530ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ GET /admin/projects 200 in 106ms
+ ○ Compiling /admin/projects/[id] ...
+ ✓ Compiled /admin/projects/[id] in 1096ms (1043 modules)
+ GET /admin/projects/7489df20-356f-4af5-bf45-52cf936dd040 200 in 1978ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 3.2s (2524 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/7489df20-356f-4af5-bf45-52cf936dd040 200 in 162ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 4.1s (2524 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/7489df20-356f-4af5-bf45-52cf936dd040 200 in 155ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+🔍 [Header] Debug user data: {
+  user: {
+    id: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    email: 'graziely@gobi.consulting',
+    full_name: 'Graziely Duete'
+  },
+  fullName: 'Graziely Duete',
+  email: 'graziely@gobi.consulting',
+  hasUser: true
+}
+✅ [Header] Using full_name initials: GD
+ ⨯ ReferenceError: document is not defined
+    at GanttChart (components/admin/gantt-chart.tsx:674:6)
+  672 |         </Card>
+  673 |       </div>,
+> 674 |       document.body
+      |      ^
+  675 |     )
+  676 |   }
+  677 | {
+  digest: '2582864483'
+}
+ GET /admin/projects/7489df20-356f-4af5-bf45-52cf936dd040 500 in 1025ms
+ ✓ Compiled in 2.1s (2524 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/7489df20-356f-4af5-bf45-52cf936dd040 200 in 128ms
+ ✓ Compiled in 3.1s (2524 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/7489df20-356f-4af5-bf45-52cf936dd040 200 in 227ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ GET /admin/projects 200 in 85ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ GET /admin/projects/new 200 in 146ms
+ GET /admin/projects 200 in 38ms
+ GET /admin/projects/7489df20-356f-4af5-bf45-52cf936dd040 200 in 602ms
+ ✓ Compiled in 8.8s (2524 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ GET /admin/projects/7489df20-356f-4af5-bf45-52cf936dd040 200 in 164ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 5.1s (2524 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/7489df20-356f-4af5-bf45-52cf936dd040 200 in 152ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 4.5s (2524 modules)
+ GET /admin/projects 200 in 766ms
+ GET /admin/projects 200 in 31ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 56ms
+ ✓ Compiled in 2.4s (2524 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 77ms
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 723ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 3.5s (2524 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 126ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 5.2s (2524 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 147ms
+ ✓ Compiled in 1597ms (2524 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 459ms
+ ✓ Compiled in 2.2s (2524 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 86ms
+ ✓ Compiled in 1606ms (2524 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 74ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 777ms (2524 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 1427ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 2.8s (2524 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 305ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 2.2s (2524 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 2802ms
+ ✓ Compiled in 2.8s (2524 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 1012ms
+ ✓ Compiled in 4.7s (2524 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 377ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 16.1s (2524 modules)
+ GET /admin/projects 200 in 2890ms
+ GET /admin/projects 200 in 64ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 3.8s (2524 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 623ms
+ ✓ Compiled in 3.4s (2524 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ○ Compiling /admin/projects/[id]/edit ...
+ ✓ Compiled /admin/projects/[id]/edit in 1627ms (1031 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+Project data received: {
+  id: '68156968-b0d7-4ebe-8d7a-0722a5e2cf98',
+  name: 'Pedido de Compra',
+  description: 'RPA para lançamento de pedido de compra',
+  status: 'in_progress',
+  priority: 'high',
+  start_date: '2025-09-01',
+  end_date: '2025-11-05',
+  budget: 44099,
+  company_id: '443a6a0e-768f-48e4-a9ea-0cd972375a30',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-04T13:39:43.745427+00:00',
+  updated_at: '2025-09-30T17:24:11.129319+00:00',
+  technical_responsible: 'Vitor Pinheiro',
+  key_user: 'Rafael Camilo',
+  estimated_hours: 211,
+  project_type: 'automation',
+  category: 'project'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98/edit 200 in 2110ms
+Project data received: {
+  id: '68156968-b0d7-4ebe-8d7a-0722a5e2cf98',
+  name: 'Pedido de Compra',
+  description: 'RPA para lançamento de pedido de compra',
+  status: 'in_progress',
+  priority: 'high',
+  start_date: '2025-09-01',
+  end_date: '2025-11-05',
+  budget: 44099,
+  company_id: '443a6a0e-768f-48e4-a9ea-0cd972375a30',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-04T13:39:43.745427+00:00',
+  updated_at: '2025-09-30T17:24:11.129319+00:00',
+  technical_responsible: 'Vitor Pinheiro',
+  key_user: 'Rafael Camilo',
+  estimated_hours: 211,
+  project_type: 'automation',
+  category: 'project'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98/edit 200 in 255ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 3s (2514 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+Project data received: {
+  id: '68156968-b0d7-4ebe-8d7a-0722a5e2cf98',
+  name: 'Pedido de Compra',
+  description: 'RPA para lançamento de pedido de compra',
+  status: 'in_progress',
+  priority: 'high',
+  start_date: '2025-09-01',
+  end_date: '2025-11-05',
+  budget: 44099,
+  company_id: '443a6a0e-768f-48e4-a9ea-0cd972375a30',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-04T13:39:43.745427+00:00',
+  updated_at: '2025-09-30T17:24:11.129319+00:00',
+  technical_responsible: 'Vitor Pinheiro',
+  key_user: 'Rafael Camilo',
+  estimated_hours: 211,
+  project_type: 'automation',
+  category: 'project'
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98/edit 200 in 829ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 3.5s (2514 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+Project data received: {
+  id: '68156968-b0d7-4ebe-8d7a-0722a5e2cf98',
+  name: 'Pedido de Compra',
+  description: 'RPA para lançamento de pedido de compra',
+  status: 'in_progress',
+  priority: 'high',
+  start_date: '2025-09-01',
+  end_date: '2025-11-05',
+  budget: 44099,
+  company_id: '443a6a0e-768f-48e4-a9ea-0cd972375a30',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-04T13:39:43.745427+00:00',
+  updated_at: '2025-09-30T17:24:11.129319+00:00',
+  technical_responsible: 'Vitor Pinheiro',
+  key_user: 'Rafael Camilo',
+  estimated_hours: 211,
+  project_type: 'automation',
+  category: 'project'
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98/edit 200 in 1274ms
+ ✓ Compiled in 2.3s (2514 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+Project data received: {
+  id: '68156968-b0d7-4ebe-8d7a-0722a5e2cf98',
+  name: 'Pedido de Compra',
+  description: 'RPA para lançamento de pedido de compra',
+  status: 'in_progress',
+  priority: 'high',
+  start_date: '2025-09-01',
+  end_date: '2025-11-05',
+  budget: 44099,
+  company_id: '443a6a0e-768f-48e4-a9ea-0cd972375a30',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-04T13:39:43.745427+00:00',
+  updated_at: '2025-09-30T17:24:11.129319+00:00',
+  technical_responsible: 'Vitor Pinheiro',
+  key_user: 'Rafael Camilo',
+  estimated_hours: 211,
+  project_type: 'automation',
+  category: 'project'
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98/edit 200 in 104ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 3.9s (2514 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+Project data received: {
+  id: '68156968-b0d7-4ebe-8d7a-0722a5e2cf98',
+  name: 'Pedido de Compra',
+  description: 'RPA para lançamento de pedido de compra',
+  status: 'in_progress',
+  priority: 'high',
+  start_date: '2025-09-01',
+  end_date: '2025-11-05',
+  budget: 44099,
+  company_id: '443a6a0e-768f-48e4-a9ea-0cd972375a30',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-04T13:39:43.745427+00:00',
+  updated_at: '2025-09-30T17:24:11.129319+00:00',
+  technical_responsible: 'Vitor Pinheiro',
+  key_user: 'Rafael Camilo',
+  estimated_hours: 211,
+  project_type: 'automation',
+  category: 'project'
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98/edit 200 in 340ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 2.9s (2519 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+Project data received: {
+  id: '68156968-b0d7-4ebe-8d7a-0722a5e2cf98',
+  name: 'Pedido de Compra',
+  description: 'RPA para lançamento de pedido de compra',
+  status: 'in_progress',
+  priority: 'high',
+  start_date: '2025-09-01',
+  end_date: '2025-11-05',
+  budget: 44099,
+  company_id: '443a6a0e-768f-48e4-a9ea-0cd972375a30',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-04T13:39:43.745427+00:00',
+  updated_at: '2025-09-30T17:24:11.129319+00:00',
+  technical_responsible: 'Vitor Pinheiro',
+  key_user: 'Rafael Camilo',
+  estimated_hours: 211,
+  project_type: 'automation',
+  category: 'project'
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98/edit 200 in 524ms
+ ✓ Compiled in 2.4s (2519 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+Project data received: {
+  id: '68156968-b0d7-4ebe-8d7a-0722a5e2cf98',
+  name: 'Pedido de Compra',
+  description: 'RPA para lançamento de pedido de compra',
+  status: 'in_progress',
+  priority: 'high',
+  start_date: '2025-09-01',
+  end_date: '2025-11-05',
+  budget: 44099,
+  company_id: '443a6a0e-768f-48e4-a9ea-0cd972375a30',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-04T13:39:43.745427+00:00',
+  updated_at: '2025-09-30T17:24:11.129319+00:00',
+  technical_responsible: 'Vitor Pinheiro',
+  key_user: 'Rafael Camilo',
+  estimated_hours: 211,
+  project_type: 'automation',
+  category: 'project'
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98/edit 200 in 209ms
+ ✓ Compiled in 985ms (2519 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+Project data received: {
+  id: '68156968-b0d7-4ebe-8d7a-0722a5e2cf98',
+  name: 'Pedido de Compra',
+  description: 'RPA para lançamento de pedido de compra',
+  status: 'in_progress',
+  priority: 'high',
+  start_date: '2025-09-01',
+  end_date: '2025-11-05',
+  budget: 44099,
+  company_id: '443a6a0e-768f-48e4-a9ea-0cd972375a30',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-04T13:39:43.745427+00:00',
+  updated_at: '2025-09-30T17:24:11.129319+00:00',
+  technical_responsible: 'Vitor Pinheiro',
+  key_user: 'Rafael Camilo',
+  estimated_hours: 211,
+  project_type: 'automation',
+  category: 'project'
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98/edit 200 in 226ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 3.4s (2519 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+Project data received: {
+  id: '68156968-b0d7-4ebe-8d7a-0722a5e2cf98',
+  name: 'Pedido de Compra',
+  description: 'RPA para lançamento de pedido de compra',
+  status: 'in_progress',
+  priority: 'high',
+  start_date: '2025-09-01',
+  end_date: '2025-11-05',
+  budget: 44099,
+  company_id: '443a6a0e-768f-48e4-a9ea-0cd972375a30',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-04T13:39:43.745427+00:00',
+  updated_at: '2025-09-30T17:24:11.129319+00:00',
+  technical_responsible: 'Vitor Pinheiro',
+  key_user: 'Rafael Camilo',
+  estimated_hours: 211,
+  project_type: 'automation',
+  category: 'project'
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98/edit 200 in 210ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 9.3s (2519 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+Project data received: {
+  id: '68156968-b0d7-4ebe-8d7a-0722a5e2cf98',
+  name: 'Pedido de Compra',
+  description: 'RPA para lançamento de pedido de compra',
+  status: 'in_progress',
+  priority: 'high',
+  start_date: '2025-09-01',
+  end_date: '2025-11-05',
+  budget: 44099,
+  company_id: '443a6a0e-768f-48e4-a9ea-0cd972375a30',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-04T13:39:43.745427+00:00',
+  updated_at: '2025-09-30T17:24:11.129319+00:00',
+  technical_responsible: 'Vitor Pinheiro',
+  key_user: 'Rafael Camilo',
+  estimated_hours: 211,
+  project_type: 'automation',
+  category: 'project'
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98/edit 200 in 1082ms
+ ✓ Compiled in 4s (2519 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+Project data received: {
+  id: '68156968-b0d7-4ebe-8d7a-0722a5e2cf98',
+  name: 'Pedido de Compra',
+  description: 'RPA para lançamento de pedido de compra',
+  status: 'in_progress',
+  priority: 'high',
+  start_date: '2025-09-01',
+  end_date: '2025-11-05',
+  budget: 44099,
+  company_id: '443a6a0e-768f-48e4-a9ea-0cd972375a30',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-04T13:39:43.745427+00:00',
+  updated_at: '2025-09-30T17:24:11.129319+00:00',
+  technical_responsible: 'Vitor Pinheiro',
+  key_user: 'Rafael Camilo',
+  estimated_hours: 211,
+  project_type: 'automation',
+  category: 'project'
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98/edit 200 in 762ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+Project data received: {
+  id: '68156968-b0d7-4ebe-8d7a-0722a5e2cf98',
+  name: 'Pedido de Compra',
+  description: 'RPA para lançamento de pedido de compra',
+  status: 'in_progress',
+  priority: 'high',
+  start_date: '2025-09-01',
+  end_date: '2025-11-05',
+  budget: 44099,
+  company_id: '443a6a0e-768f-48e4-a9ea-0cd972375a30',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-04T13:39:43.745427+00:00',
+  updated_at: '2025-09-30T17:24:11.129319+00:00',
+  technical_responsible: 'Vitor Pinheiro',
+  key_user: 'Rafael Camilo',
+  estimated_hours: 211,
+  project_type: 'automation',
+  category: 'project'
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+🔍 [Header] Debug user data: {
+  user: {
+    id: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    email: 'graziely@gobi.consulting',
+    full_name: 'Graziely Duete'
+  },
+  fullName: 'Graziely Duete',
+  email: 'graziely@gobi.consulting',
+  hasUser: true
+}
+✅ [Header] Using full_name initials: GD
+ProjectForm received project: {
+  id: '68156968-b0d7-4ebe-8d7a-0722a5e2cf98',
+  name: 'Pedido de Compra',
+  description: 'RPA para lançamento de pedido de compra',
+  status: 'in_progress',
+  priority: 'high',
+  start_date: '2025-09-01',
+  end_date: '2025-11-05',
+  budget: 44099,
+  company_id: '443a6a0e-768f-48e4-a9ea-0cd972375a30',
+  created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  created_at: '2025-09-04T13:39:43.745427+00:00',
+  updated_at: '2025-09-30T17:24:11.129319+00:00',
+  technical_responsible: 'Vitor Pinheiro',
+  key_user: 'Rafael Camilo',
+  estimated_hours: 211,
+  project_type: 'automation',
+  category: 'project'
+}
+Initial formData: {
+  name: 'Pedido de Compra',
+  description: 'RPA para lançamento de pedido de compra',
+  status: 'in_progress',
+  priority: 'high',
+  project_type: 'automation',
+  category: 'project',
+  start_date: '2025-09-01',
+  end_date: '2025-11-05',
+  budget: '44099',
+  company_id: '443a6a0e-768f-48e4-a9ea-0cd972375a30',
+  technical_responsible: 'Vitor Pinheiro',
+  key_user: 'Rafael Camilo',
+  estimated_hours: '211'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98/edit 200 in 1362ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ GET /admin/projects 200 in 148ms
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 894ms
+ ✓ Compiled in 2.9s (2519 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 103ms
+ ✓ Compiled in 2.2s (2519 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 3155ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+🔍 [Header] Debug user data: {
+  user: {
+    id: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    email: 'graziely@gobi.consulting',
+    full_name: 'Graziely Duete'
+  },
+  fullName: 'Graziely Duete',
+  email: 'graziely@gobi.consulting',
+  hasUser: true
+}
+✅ [Header] Using full_name initials: GD
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 6902ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 2s (2522 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 2509ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 116ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+🔍 [Header] Debug user data: {
+  user: {
+    id: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    email: 'graziely@gobi.consulting',
+    full_name: 'Graziely Duete'
+  },
+  fullName: 'Graziely Duete',
+  email: 'graziely@gobi.consulting',
+  hasUser: true
+}
+✅ [Header] Using full_name initials: GD
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 917ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 41ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 2.3s (2519 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 154ms
+ ✓ Compiled in 2.2s (2519 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 102ms
+ ✓ Compiled in 5.9s (2519 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 79ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ○ Compiling / ...
+ ✓ Compiled / in 581ms (1020 modules)
+ GET / 307 in 768ms
+ ○ Compiling /auth/login ...
+ ✓ Compiled /auth/login in 637ms (1045 modules)
+ GET /auth/login 200 in 946ms
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 1779ms (1058 modules)
+🔍 [ClientLayout] User role check: {
+  userId: 'dd360ee3-d34c-4e94-b56c-b06ee048b9f8',
+  userEmail: 'gsouzaduete@gmail.com',
+  profileRole: 'client',
+  shouldRedirect: false
+}
+ GET /dashboard 200 in 3623ms
+ ○ Compiling /dashboard/projects ...
+ ✓ Compiled /dashboard/projects in 2.3s (1062 modules)
+ GET /dashboard/projects 200 in 2693ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ○ Compiling /dashboard/projects/[id] ...
+ ✓ Compiled /dashboard/projects/[id] in 11.4s (1637 modules)
+ GET /dashboard/projects/5c74c833-082d-4430-8a58-6d4509961219 200 in 11535ms
+ ○ Compiling /api/client/project/[id] ...
+ ✓ Compiled /api/client/project/[id] in 853ms (1653 modules)
+🔍 API Route - Usuário: dd360ee3-d34c-4e94-b56c-b06ee048b9f8 Erro: null
+🔍 API Route - Empresa do usuário: { id: '443a6a0e-768f-48e4-a9ea-0cd972375a30', name: 'Copersucar' }
+🔍 API Route - Resultado da consulta: {
+  project: {
+    id: '5c74c833-082d-4430-8a58-6d4509961219',
+    name: 'Consultas Jurídico',
+    description: 'Consultas JusBrasil, Escavador e TJSP',
+    status: 'in_progress',
+    priority: 'medium',
+    start_date: '2025-09-15',
+    end_date: '2025-12-10',
+    budget: 50160,
+    company_id: '443a6a0e-768f-48e4-a9ea-0cd972375a30',
+    created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    created_at: '2025-09-04T20:43:09.041975+00:00',
+    updated_at: '2025-09-30T22:01:41.270303+00:00',
+    technical_responsible: 'Graziely Duete',
+    key_user: 'Remilly Cavalvante',
+    estimated_hours: 240,
+    project_type: 'automation',
+    category: 'project'
+  },
+  projectError: null
+}
+✅ API Route - Projeto encontrado: Consultas Jurídico
+ GET /api/client/project/5c74c833-082d-4430-8a58-6d4509961219 200 in 1740ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔍 API Route - Usuário: dd360ee3-d34c-4e94-b56c-b06ee048b9f8 Erro: null
+🔍 API Route - Empresa do usuário: { id: '443a6a0e-768f-48e4-a9ea-0cd972375a30', name: 'Copersucar' }
+🔍 API Route - Resultado da consulta: {
+  project: {
+    id: '5c74c833-082d-4430-8a58-6d4509961219',
+    name: 'Consultas Jurídico',
+    description: 'Consultas JusBrasil, Escavador e TJSP',
+    status: 'in_progress',
+    priority: 'medium',
+    start_date: '2025-09-15',
+    end_date: '2025-12-10',
+    budget: 50160,
+    company_id: '443a6a0e-768f-48e4-a9ea-0cd972375a30',
+    created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    created_at: '2025-09-04T20:43:09.041975+00:00',
+    updated_at: '2025-09-30T22:01:41.270303+00:00',
+    technical_responsible: 'Graziely Duete',
+    key_user: 'Remilly Cavalvante',
+    estimated_hours: 240,
+    project_type: 'automation',
+    category: 'project'
+  },
+  projectError: null
+}
+✅ API Route - Projeto encontrado: Consultas Jurídico
+ GET /api/client/project/5c74c833-082d-4430-8a58-6d4509961219 200 in 1249ms
+ ✓ Compiled in 3.4s (3129 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 249ms
+🔍 [ClientLayout] User role check: {
+  userId: 'dd360ee3-d34c-4e94-b56c-b06ee048b9f8',
+  userEmail: 'gsouzaduete@gmail.com',
+  profileRole: 'client',
+  shouldRedirect: false
+}
+ GET /dashboard/projects/5c74c833-082d-4430-8a58-6d4509961219 200 in 85ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 5.4s (3129 modules)
+🔍 [ClientLayout] User role check: {
+  userId: 'dd360ee3-d34c-4e94-b56c-b06ee048b9f8',
+  userEmail: 'gsouzaduete@gmail.com',
+  profileRole: 'client',
+  shouldRedirect: false
+}
+ GET /dashboard/projects/5c74c833-082d-4430-8a58-6d4509961219 200 in 146ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 123ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 5.2s (3111 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 1409ms
+🔍 [ClientLayout] User role check: {
+  userId: 'dd360ee3-d34c-4e94-b56c-b06ee048b9f8',
+  userEmail: 'gsouzaduete@gmail.com',
+  profileRole: 'client',
+  shouldRedirect: false
+}
+ GET /dashboard/projects/5c74c833-082d-4430-8a58-6d4509961219 200 in 235ms
+ ✓ Compiled in 3.3s (3111 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 102ms
+🔍 [ClientLayout] User role check: {
+  userId: 'dd360ee3-d34c-4e94-b56c-b06ee048b9f8',
+  userEmail: 'gsouzaduete@gmail.com',
+  profileRole: 'client',
+  shouldRedirect: false
+}
+ GET /dashboard/projects/5c74c833-082d-4430-8a58-6d4509961219 200 in 117ms
+ ✓ Compiled in 922ms (3111 modules)
+🔍 [ClientLayout] User role check: {
+  userId: 'dd360ee3-d34c-4e94-b56c-b06ee048b9f8',
+  userEmail: 'gsouzaduete@gmail.com',
+  profileRole: 'client',
+  shouldRedirect: false
+}
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /dashboard/projects/5c74c833-082d-4430-8a58-6d4509961219 200 in 1669ms
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 1698ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 1446ms (3111 modules)
+🔍 [ClientLayout] User role check: {
+  userId: 'dd360ee3-d34c-4e94-b56c-b06ee048b9f8',
+  userEmail: 'gsouzaduete@gmail.com',
+  profileRole: 'client',
+  shouldRedirect: false
+}
+ GET /dashboard/projects/5c74c833-082d-4430-8a58-6d4509961219 200 in 113ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 184ms
+ ✓ Compiled in 812ms (3111 modules)
+🔍 [ClientLayout] User role check: {
+  userId: 'dd360ee3-d34c-4e94-b56c-b06ee048b9f8',
+  userEmail: 'gsouzaduete@gmail.com',
+  profileRole: 'client',
+  shouldRedirect: false
+}
+ GET /dashboard/projects/5c74c833-082d-4430-8a58-6d4509961219 200 in 260ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 295ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 7.5s (3111 modules)
+🔍 [ClientLayout] User role check: {
+  userId: 'dd360ee3-d34c-4e94-b56c-b06ee048b9f8',
+  userEmail: 'gsouzaduete@gmail.com',
+  profileRole: 'client',
+  shouldRedirect: false
+}
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /dashboard/projects/5c74c833-082d-4430-8a58-6d4509961219 200 in 181ms
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 192ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 3.6s (3111 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 508ms
+🔍 [ClientLayout] User role check: {
+  userId: 'dd360ee3-d34c-4e94-b56c-b06ee048b9f8',
+  userEmail: 'gsouzaduete@gmail.com',
+  profileRole: 'client',
+  shouldRedirect: false
+}
+ GET /dashboard/projects/5c74c833-082d-4430-8a58-6d4509961219 200 in 200ms
+ ✓ Compiled in 3.2s (3111 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+🔍 [ClientLayout] User role check: {
+  userId: 'dd360ee3-d34c-4e94-b56c-b06ee048b9f8',
+  userEmail: 'gsouzaduete@gmail.com',
+  profileRole: 'client',
+  shouldRedirect: false
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 163ms
+ GET /dashboard/projects/5c74c833-082d-4430-8a58-6d4509961219 200 in 149ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 3.7s (3111 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+🔍 [ClientLayout] User role check: {
+  userId: 'dd360ee3-d34c-4e94-b56c-b06ee048b9f8',
+  userEmail: 'gsouzaduete@gmail.com',
+  profileRole: 'client',
+  shouldRedirect: false
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 1246ms
+ GET /dashboard/projects/5c74c833-082d-4430-8a58-6d4509961219 200 in 1249ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 7.8s (3111 modules)
+🔍 [ClientLayout] User role check: {
+  userId: 'dd360ee3-d34c-4e94-b56c-b06ee048b9f8',
+  userEmail: 'gsouzaduete@gmail.com',
+  profileRole: 'client',
+  shouldRedirect: false
+}
+ GET /dashboard/projects/5c74c833-082d-4430-8a58-6d4509961219 200 in 239ms
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 232ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 6.8s (3111 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔍 [ClientLayout] User role check: {
+  userId: 'dd360ee3-d34c-4e94-b56c-b06ee048b9f8',
+  userEmail: 'gsouzaduete@gmail.com',
+  profileRole: 'client',
+  shouldRedirect: false
+}
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /dashboard/projects/5c74c833-082d-4430-8a58-6d4509961219 200 in 2423ms
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 2458ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 9.3s (3111 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 621ms
+ ○ Compiling /_not-found ...
+ ⨯ Failed to generate static paths for /admin/projects/[id]:
+Error: Cannot find module './vendor-chunks/next.js'
+Require stack:
+- /Users/macbookair/Downloads/client-dashboard/.next/server/webpack-runtime.js
+- /Users/macbookair/Downloads/client-dashboard/.next/server/app/admin/projects/[id]/page.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/require.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/load-components.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/utils.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/dev/static-paths-worker.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at __webpack_require__.f.require (.next/server/webpack-runtime.js:203:28)
+    at <unknown> (.next/server/webpack-runtime.js:111:40)
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (.next/server/webpack-runtime.js:110:67) {
+  type: 'Error',
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ ✓ Compiled /_not-found in 1229ms (1611 modules)
+🔍 [ClientLayout] User role check: {
+  userId: 'dd360ee3-d34c-4e94-b56c-b06ee048b9f8',
+  userEmail: 'gsouzaduete@gmail.com',
+  profileRole: 'client',
+  shouldRedirect: false
+}
+ ⨯ Failed to generate static paths for /dashboard/projects/[id]:
+Error: Cannot find module './vendor-chunks/next.js'
+Require stack:
+- /Users/macbookair/Downloads/client-dashboard/.next/server/webpack-runtime.js
+- /Users/macbookair/Downloads/client-dashboard/.next/server/app/dashboard/projects/[id]/page.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/require.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/load-components.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/utils.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/dev/static-paths-worker.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at __webpack_require__.f.require (.next/server/webpack-runtime.js:203:28)
+    at <unknown> (.next/server/webpack-runtime.js:111:40)
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (.next/server/webpack-runtime.js:110:67) {
+  type: 'Error',
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ GET /dashboard/projects/5c74c833-082d-4430-8a58-6d4509961219 200 in 2908ms
+ GET /_next/static/css/app/layout.css?v=1759331318761 404 in 2829ms
+ GET /_next/static/css/app/layout.css?v=1759331321042 404 in 72ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 11.3s (3112 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ⨯ Error: Cannot find module './vendor-chunks/html2canvas.js'
+Require stack:
+- /Users/macbookair/Downloads/client-dashboard/.next/server/webpack-runtime.js
+- /Users/macbookair/Downloads/client-dashboard/.next/server/app/admin/projects/[id]/page.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/require.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/load-components.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/utils.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/swc/options.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/swc/index.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/lib/router-server.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/lib/start-server.js
+    at __webpack_require__.f.require (.next/server/webpack-runtime.js:203:28)
+    at <unknown> (.next/server/webpack-runtime.js:111:40)
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (.next/server/webpack-runtime.js:110:67)
+    at Array.map (<anonymous>)
+    at __webpack_require__.X (.next/server/webpack-runtime.js:162:22)
+    at <unknown> (.next/server/app/admin/projects/[id]/page.js:629:47)
+    at Object.<anonymous> (.next/server/app/admin/projects/[id]/page.js:632:3) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98'
+}
+ ⨯ Error: Cannot find module './vendor-chunks/html2canvas.js'
+Require stack:
+- /Users/macbookair/Downloads/client-dashboard/.next/server/webpack-runtime.js
+- /Users/macbookair/Downloads/client-dashboard/.next/server/app/admin/projects/[id]/page.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/require.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/load-components.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/utils.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/swc/options.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/swc/index.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/lib/router-server.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/lib/start-server.js
+    at __webpack_require__.f.require (.next/server/webpack-runtime.js:203:28)
+    at <unknown> (.next/server/webpack-runtime.js:111:40)
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (.next/server/webpack-runtime.js:110:67)
+    at Array.map (<anonymous>)
+    at __webpack_require__.X (.next/server/webpack-runtime.js:162:22)
+    at <unknown> (.next/server/app/dashboard/projects/[id]/page.js:696:47)
+    at Object.<anonymous> (.next/server/app/dashboard/projects/[id]/page.js:699:3) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/dashboard/projects/5c74c833-082d-4430-8a58-6d4509961219'
+}
+ ○ Compiling /_error ...
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 500 in 29591ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled / in 36.9s (3443 modules)
+ GET /dashboard/projects/5c74c833-082d-4430-8a58-6d4509961219 500 in 39263ms
+ GET / 307 in 5934ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ⨯ Error: Cannot find module './vendor-chunks/html2canvas.js'
+Require stack:
+- /Users/macbookair/Downloads/client-dashboard/.next/server/webpack-runtime.js
+- /Users/macbookair/Downloads/client-dashboard/.next/server/pages/_document.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/require.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/load-components.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/utils.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/swc/options.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/swc/index.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/lib/router-server.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/lib/start-server.js
+    at __webpack_require__.f.require (.next/server/webpack-runtime.js:203:28)
+    at <unknown> (.next/server/webpack-runtime.js:111:40)
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (.next/server/webpack-runtime.js:110:67)
+    at Array.map (<anonymous>)
+    at __webpack_require__.X (.next/server/webpack-runtime.js:162:22)
+    at <unknown> (.next/server/app/dashboard/projects/[id]/page.js:696:47)
+    at Object.<anonymous> (.next/server/app/dashboard/projects/[id]/page.js:699:3) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/dashboard/projects/5c74c833-082d-4430-8a58-6d4509961219'
+}
+ GET /auth/login 200 in 410ms
+ GET /dashboard/projects/5c74c833-082d-4430-8a58-6d4509961219 500 in 620ms
+ GET /_next/static/css/app/layout.css?v=1759331380367 404 in 89ms
+ GET /_next/static/chunks/main-app.js?v=1759331380367 404 in 202ms
+ GET /_next/static/chunks/app/auth/login/page.js 404 in 199ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 203ms
+ GET /_next/static/chunks/app/not-found.js 404 in 202ms
+ ⨯ Error: Cannot find module './vendor-chunks/html2canvas.js'
+Require stack:
+- /Users/macbookair/Downloads/client-dashboard/.next/server/webpack-runtime.js
+- /Users/macbookair/Downloads/client-dashboard/.next/server/pages/_document.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/require.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/load-components.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/utils.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/swc/options.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/swc/index.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/lib/router-server.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/lib/start-server.js
+    at __webpack_require__.f.require (.next/server/webpack-runtime.js:203:28)
+    at <unknown> (.next/server/webpack-runtime.js:111:40)
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (.next/server/webpack-runtime.js:110:67)
+    at Array.map (<anonymous>)
+    at __webpack_require__.X (.next/server/webpack-runtime.js:162:22)
+    at <unknown> (.next/server/app/dashboard/projects/[id]/page.js:696:47)
+    at Object.<anonymous> (.next/server/app/dashboard/projects/[id]/page.js:699:3) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/dashboard/projects/5c74c833-082d-4430-8a58-6d4509961219'
+}
+ GET /dashboard/projects/5c74c833-082d-4430-8a58-6d4509961219 500 in 287ms
+ ⨯ Error: Cannot find module './vendor-chunks/html2canvas.js'
+Require stack:
+- /Users/macbookair/Downloads/client-dashboard/.next/server/webpack-runtime.js
+- /Users/macbookair/Downloads/client-dashboard/.next/server/pages/_document.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/require.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/load-components.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/utils.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/swc/options.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/swc/index.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/lib/router-server.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/lib/start-server.js
+    at __webpack_require__.f.require (.next/server/webpack-runtime.js:203:28)
+    at <unknown> (.next/server/webpack-runtime.js:111:40)
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (.next/server/webpack-runtime.js:110:67)
+    at Array.map (<anonymous>)
+    at __webpack_require__.X (.next/server/webpack-runtime.js:162:22)
+    at <unknown> (.next/server/app/dashboard/projects/[id]/page.js:696:47)
+    at Object.<anonymous> (.next/server/app/dashboard/projects/[id]/page.js:699:3) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/dashboard/projects/5c74c833-082d-4430-8a58-6d4509961219'
+}
+ GET /dashboard/projects/5c74c833-082d-4430-8a58-6d4509961219 500 in 263ms
+ ⨯ Error: Cannot find module './vendor-chunks/html2canvas.js'
+Require stack:
+- /Users/macbookair/Downloads/client-dashboard/.next/server/webpack-runtime.js
+- /Users/macbookair/Downloads/client-dashboard/.next/server/pages/_document.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/require.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/load-components.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/utils.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/swc/options.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/swc/index.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/lib/router-server.js
+- /Users/macbookair/Downloads/client-dashboard/node_modules/next/dist/server/lib/start-server.js
+    at __webpack_require__.f.require (.next/server/webpack-runtime.js:203:28)
+    at <unknown> (.next/server/webpack-runtime.js:111:40)
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (.next/server/webpack-runtime.js:110:67)
+    at Array.map (<anonymous>)
+    at __webpack_require__.X (.next/server/webpack-runtime.js:162:22)
+    at <unknown> (.next/server/app/dashboard/projects/[id]/page.js:696:47)
+    at Object.<anonymous> (.next/server/app/dashboard/projects/[id]/page.js:699:3) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/dashboard/projects/5c74c833-082d-4430-8a58-6d4509961219'
+}
+ GET /dashboard/projects/5c74c833-082d-4430-8a58-6d4509961219 500 in 245ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+[?25h

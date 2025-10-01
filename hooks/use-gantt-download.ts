@@ -119,6 +119,42 @@ export function useGanttDownload() {
         throw new Error('Elemento do Gantt chart não encontrado')
       }
 
+      // Aguardar um pouco para garantir que todos os estilos sejam aplicados
+      await new Promise(resolve => setTimeout(resolve, 100))
+
+      // Forçar re-renderização dos elementos com bolinhas
+      const statusDots = element.querySelectorAll('[class*="rounded-full"]')
+      statusDots.forEach(dot => {
+        const computedStyle = window.getComputedStyle(dot)
+        console.log('Status dot styles:', {
+          backgroundColor: computedStyle.backgroundColor,
+          borderRadius: computedStyle.borderRadius,
+          width: computedStyle.width,
+          height: computedStyle.height
+        })
+        
+        // Garantir que os estilos sejam aplicados inline para captura
+        if (computedStyle.backgroundColor === 'rgba(0, 0, 0, 0)' || !computedStyle.backgroundColor) {
+          const classList = dot.className
+          if (classList.includes('bg-slate-500')) {
+            dot.style.backgroundColor = '#64748b'
+          } else if (classList.includes('bg-blue-500')) {
+            dot.style.backgroundColor = '#3b82f6'
+          } else if (classList.includes('bg-emerald-500')) {
+            dot.style.backgroundColor = '#10b981'
+          } else if (classList.includes('bg-red-500')) {
+            dot.style.backgroundColor = '#ef4444'
+          } else if (classList.includes('bg-violet-500')) {
+            dot.style.backgroundColor = '#8b5cf6'
+          }
+        }
+        
+        // Garantir dimensões
+        if (!dot.style.width) dot.style.width = '10px'
+        if (!dot.style.height) dot.style.height = '10px'
+        if (!dot.style.borderRadius) dot.style.borderRadius = '50%'
+      })
+
       // Capturar cronograma
       const ganttCanvas = await captureGantt(element)
       
