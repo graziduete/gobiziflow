@@ -24,7 +24,8 @@ import {
   TrendingUp,
   Clock,
   Target,
-  ChevronDown
+  ChevronDown,
+  Sparkles
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
@@ -391,26 +392,39 @@ function NovaEstimativaTarefaContent() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="w-full px-4 py-8">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.push('/admin/estimativas')}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold tracking-tight">Nova Estimativa</h1>
-              <Badge className="bg-green-500 text-white border-green-400 text-sm px-3 py-1">
-                Por Tarefa
-              </Badge>
+        {/* Header modernizado */}
+        <div className="relative mb-8">
+          <div className="absolute inset-0 bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50 rounded-2xl -m-4"></div>
+          <div className="relative bg-white/70 backdrop-blur-sm border border-white/20 rounded-2xl p-8 shadow-lg">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.push('/admin/estimativas')}
+                className="absolute top-4 left-4 text-muted-foreground hover:text-foreground"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              <div className="flex items-center gap-4 ml-12">
+                <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg">
+                  <Target className="w-8 h-8 text-white" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-3">
+                    <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-slate-900 via-green-900 to-emerald-900 bg-clip-text text-transparent">
+                      Nova Estimativa
+                    </h1>
+                    <Badge className="bg-green-500 text-white border-green-400 text-sm px-3 py-1">
+                      Por Tarefa
+                    </Badge>
+                  </div>
+                  <p className="text-slate-600 text-lg mt-2 flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-green-500" />
+                    Crie uma estimativa baseada em tarefas e complexidade tecnológica
+                  </p>
+                </div>
+              </div>
             </div>
-            <p className="text-muted-foreground">
-              Crie uma estimativa baseada em tarefas e complexidade tecnológica
-            </p>
           </div>
         </div>
 
