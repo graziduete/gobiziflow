@@ -12,7 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
-import { Plus, Trash2, Calendar, Clock, User, Users } from "lucide-react"
+import { Plus, Trash2, Calendar, Clock, User, Users, FileText } from "lucide-react"
 import { GanttChart } from "./gantt-chart"
 import { DraggableTaskList } from "./draggable-task-list"
 import { formatDateBrazil } from "@/lib/utils/status-translation"
@@ -630,132 +630,170 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
   }
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle>{project ? "Editar Projeto" : "Novo Projeto"}</CardTitle>
-        <CardDescription>
-          {project ? "Atualize as informações do projeto" : "Preencha os dados para criar um novo projeto"}
-          {isOffline && (
-            <span className="block mt-1 text-amber-600 text-sm">
+    <Card className="w-full bg-white/80 backdrop-blur-sm border border-white/20 shadow-xl">
+      <CardContent className="p-8">
+        {isOffline && (
+          <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4">
+            <p className="text-amber-600 text-sm">
               ⚠️ Modo offline - As alterações serão sincronizadas quando a conexão for restaurada
-            </span>
-          )}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Nome do Projeto - Primeira linha */}
-          <div className="space-y-2">
-            <Label htmlFor="name">Nome do Projeto *</Label>
-            <Input
-              id="name"
-              value={formData.name}
-              onChange={(e) => handleChange("name", e.target.value)}
-              placeholder="Nome do projeto"
-              required
-              className="w-full"
-            />
+            </p>
           </div>
+        )}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Nome do Projeto - Card Principal */}
+          <Card className="bg-gradient-to-br from-slate-50/80 to-blue-50/50 border border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-200">
+            <CardContent className="p-6">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-md">
+                    <Plus className="w-4 h-4 text-white" />
+                  </div>
+                  <Label htmlFor="name" className="text-base font-semibold text-slate-700">Nome do Projeto *</Label>
+                </div>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => handleChange("name", e.target.value)}
+                  placeholder="Digite o nome do projeto"
+                  required
+                  className="w-full h-12 text-base bg-white border-slate-300 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                />
+              </div>
+            </CardContent>
+          </Card>
 
-          {/* Empresa, Tipo de Projeto, Categoria, Status e Prioridade - Segunda linha */}
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="company_id">Empresa *</Label>
-              <Select value={formData.company_id} onValueChange={(value) => handleChange("company_id", value)}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Selecione a empresa" />
-                </SelectTrigger>
-                <SelectContent>
-                  {companies.map((company) => (
-                    <SelectItem key={company.id} value={company.id}>
-                      {company.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="project_type">Tipo de Projeto</Label>
-              <Select value={formData.project_type} onValueChange={(value) => handleChange("project_type", value)}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Selecione o tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="automation">Automação de Processos (RPA ou Script de Automação)</SelectItem>
-                  <SelectItem value="data_analytics">Data & Analytics</SelectItem>
-                  <SelectItem value="digital_development">Desenvolvimento Digital (App / Web)</SelectItem>
-                  <SelectItem value="design">Design</SelectItem>
-                  <SelectItem value="consulting">Consultoria</SelectItem>
-                  <SelectItem value="project_management">Gestão de Projetos/PMO</SelectItem>
-                  <SelectItem value="system_integration">Integração de Sistemas / APIs</SelectItem>
-                  <SelectItem value="infrastructure">Infraestrutura/Cloud</SelectItem>
-                  <SelectItem value="support">Suporte / Sustentação</SelectItem>
-                  <SelectItem value="training">Treinamento / Capacitação</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="category">Categoria</Label>
-              <Select value={formData.category} onValueChange={(value) => handleChange("category", value)}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Selecione a categoria" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="project">Projeto</SelectItem>
-                  <SelectItem value="improvement">Melhoria</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
-              <Select value={formData.status} onValueChange={(value) => handleChange("status", value)}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="planning">Planejamento</SelectItem>
-                  <SelectItem value="commercial_proposal">Proposta Comercial</SelectItem>
-                  <SelectItem value="in_progress">Em Andamento</SelectItem>
-                  <SelectItem value="homologation">Homologação</SelectItem>
-                  <SelectItem value="on_hold">Pausado</SelectItem>
-                  <SelectItem value="delayed">Atrasado</SelectItem>
-                  <SelectItem value="completed">Concluído</SelectItem>
-                  <SelectItem value="cancelled">Cancelado</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="priority">Prioridade</Label>
-              <Select value={formData.priority} onValueChange={(value) => handleChange("priority", value)}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Prioridade" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">Baixa</SelectItem>
-                  <SelectItem value="medium">Média</SelectItem>
-                  <SelectItem value="high">Alta</SelectItem>
-                  <SelectItem value="urgent">Urgente</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+          {/* Informações Básicas - Card com Grid */}
+          <Card className="bg-gradient-to-br from-slate-50/80 to-indigo-50/50 border border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-200">
+            <CardHeader className="pb-4">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-md">
+                  <Calendar className="w-4 h-4 text-white" />
+                </div>
+                <CardTitle className="text-lg font-semibold text-slate-700">Informações Básicas</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="company_id" className="text-sm font-medium text-slate-600">Empresa *</Label>
+                  <Select value={formData.company_id} onValueChange={(value) => handleChange("company_id", value)}>
+                    <SelectTrigger className="w-full h-10 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500/20">
+                      <SelectValue placeholder="Selecione a empresa" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {companies.map((company) => (
+                        <SelectItem key={company.id} value={company.id}>
+                          {company.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="project_type" className="text-sm font-medium text-slate-600">Tipo de Projeto</Label>
+                  <Select value={formData.project_type} onValueChange={(value) => handleChange("project_type", value)}>
+                    <SelectTrigger className="w-full h-10 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500/20">
+                      <SelectValue placeholder="Selecione o tipo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="automation">Automação de Processos (RPA ou Script de Automação)</SelectItem>
+                      <SelectItem value="data_analytics">Data & Analytics</SelectItem>
+                      <SelectItem value="digital_development">Desenvolvimento Digital (App / Web)</SelectItem>
+                      <SelectItem value="design">Design</SelectItem>
+                      <SelectItem value="consulting">Consultoria</SelectItem>
+                      <SelectItem value="project_management">Gestão de Projetos/PMO</SelectItem>
+                      <SelectItem value="system_integration">Integração de Sistemas / APIs</SelectItem>
+                      <SelectItem value="infrastructure">Infraestrutura/Cloud</SelectItem>
+                      <SelectItem value="support">Suporte / Sustentação</SelectItem>
+                      <SelectItem value="training">Treinamento / Capacitação</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="category" className="text-sm font-medium text-slate-600">Categoria</Label>
+                  <Select value={formData.category} onValueChange={(value) => handleChange("category", value)}>
+                    <SelectTrigger className="w-full h-10 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500/20">
+                      <SelectValue placeholder="Selecione a categoria" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="project">Projeto</SelectItem>
+                      <SelectItem value="improvement">Melhoria</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="status" className="text-sm font-medium text-slate-600">Status</Label>
+                  <Select value={formData.status} onValueChange={(value) => handleChange("status", value)}>
+                    <SelectTrigger className="w-full h-10 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500/20">
+                      <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="planning">Planejamento</SelectItem>
+                      <SelectItem value="commercial_proposal">Proposta Comercial</SelectItem>
+                      <SelectItem value="in_progress">Em Andamento</SelectItem>
+                      <SelectItem value="homologation">Homologação</SelectItem>
+                      <SelectItem value="on_hold">Pausado</SelectItem>
+                      <SelectItem value="delayed">Atrasado</SelectItem>
+                      <SelectItem value="completed">Concluído</SelectItem>
+                      <SelectItem value="cancelled">Cancelado</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="priority" className="text-sm font-medium text-slate-600">Prioridade</Label>
+                  <Select value={formData.priority} onValueChange={(value) => handleChange("priority", value)}>
+                    <SelectTrigger className="w-full h-10 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500/20">
+                      <SelectValue placeholder="Prioridade" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low">Baixa</SelectItem>
+                      <SelectItem value="medium">Média</SelectItem>
+                      <SelectItem value="high">Alta</SelectItem>
+                      <SelectItem value="urgent">Urgente</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-          <div className="space-y-2">
-            <Label htmlFor="description">Descrição</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => handleChange("description", e.target.value)}
-              placeholder="Descrição do projeto"
-              rows={3}
-            />
-          </div>
+          {/* Descrição - Card */}
+          <Card className="bg-gradient-to-br from-slate-50/80 to-purple-50/50 border border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-200">
+            <CardContent className="p-6">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 bg-gradient-to-br from-purple-500 to-pink-600 rounded-md">
+                    <FileText className="w-4 h-4 text-white" />
+                  </div>
+                  <Label htmlFor="description" className="text-base font-semibold text-slate-700">Descrição do Projeto</Label>
+                </div>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => handleChange("description", e.target.value)}
+                  placeholder="Descreva os objetivos e detalhes do projeto..."
+                  rows={3}
+                  className="border-slate-300 focus:border-purple-500 focus:ring-purple-500/20 transition-all duration-200 resize-none"
+                />
+              </div>
+            </CardContent>
+          </Card>
 
 
 
-          {/* Orçamento, Horas e Datas - Tudo na mesma linha */}
+          {/* Informações Financeiras e Temporais - Card */}
           {userRole && (
-            <div className={`grid grid-cols-1 gap-4 ${userRole !== 'admin_operacional' ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
+            <Card className="bg-gradient-to-br from-slate-50/80 to-emerald-50/50 border border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-200">
+              <CardHeader className="pb-4">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-md">
+                    <Clock className="w-4 h-4 text-white" />
+                  </div>
+                  <CardTitle className="text-lg font-semibold text-slate-700">Informações Financeiras e Temporais</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className={`grid grid-cols-1 gap-4 ${userRole !== 'admin_operacional' ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
               {/* Campo Orçamento - apenas para admin */}
               {userRole !== 'admin_operacional' && (
                 <div className="space-y-2">
@@ -817,7 +855,7 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
                     }
                   }}
                   placeholder="0,00"
-                  className="w-full"
+                  className="w-full h-10 bg-white border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
                 />
                 <p className="text-xs text-muted-foreground">
                   Digite o valor (ex: 3059015 para R$ 30.590,15)
@@ -836,7 +874,7 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
                 value={formData.estimated_hours}
                 onChange={(e) => handleChange("estimated_hours", e.target.value)}
                 placeholder="Ex: 100"
-                className="w-full"
+                className="w-full h-10 bg-white border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
               />
             </div>
             <div className="space-y-2">
@@ -846,7 +884,7 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
                 type="date"
                 value={formData.start_date}
                 onChange={(e) => handleChange("start_date", e.target.value)}
-                className="w-full"
+                className="w-full h-10 bg-white border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
               />
             </div>
             <div className="space-y-2">
@@ -856,61 +894,77 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
                 type="date"
                 value={formData.end_date}
                 onChange={(e) => handleChange("end_date", e.target.value)}
-                className="w-full"
+                className="w-full h-10 bg-white border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
               />
-            </div>
-                      </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
           )}
 
-          {/* Responsáveis - Pessoas envolvidas no projeto */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="technical_responsible" className="flex items-center gap-2">
-                <User className="w-4 h-4" />
-                Responsável Técnico
-              </Label>
-              <Input
-                id="technical_responsible"
-                value={formData.technical_responsible}
-                onChange={(e) => handleChange("technical_responsible", e.target.value)}
-                placeholder="Nome do responsável técnico"
-                className="w-full"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="key_user" className="flex items-center gap-2">
-                <Users className="w-4 h-4" />
-                Key User
-              </Label>
-              <Input
-                id="key_user"
-                value={formData.key_user}
-                onChange={(e) => handleChange("key_user", e.target.value)}
-                placeholder="Nome do key user"
-                className="w-full"
-              />
-            </div>
-          </div>
+          {/* Responsáveis - Card */}
+          <Card className="bg-gradient-to-br from-slate-50/80 to-orange-50/50 border border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-200">
+            <CardHeader className="pb-4">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 bg-gradient-to-br from-orange-500 to-red-600 rounded-md">
+                  <Users className="w-4 h-4 text-white" />
+                </div>
+                <CardTitle className="text-lg font-semibold text-slate-700">Responsáveis pelo Projeto</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="technical_responsible" className="text-sm font-medium text-slate-600 flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    Responsável Técnico
+                  </Label>
+                  <Input
+                    id="technical_responsible"
+                    value={formData.technical_responsible}
+                    onChange={(e) => handleChange("technical_responsible", e.target.value)}
+                    placeholder="Nome do responsável técnico"
+                    className="w-full h-10 bg-white border-slate-300 focus:border-orange-500 focus:ring-orange-500/20 transition-all duration-200"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="key_user" className="text-sm font-medium text-slate-600 flex items-center gap-2">
+                    <Users className="w-4 h-4" />
+                    Key User
+                  </Label>
+                  <Input
+                    id="key_user"
+                    value={formData.key_user}
+                    onChange={(e) => handleChange("key_user", e.target.value)}
+                    placeholder="Nome do key user"
+                    className="w-full h-10 bg-white border-slate-300 focus:border-orange-500 focus:ring-orange-500/20 transition-all duration-200"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-          {/* Seção de Tarefas - Tabela */}
-          <Card className="mt-6">
-            <CardHeader>
+          {/* Seção de Tarefas - Card Modernizado */}
+          <Card className="bg-gradient-to-br from-slate-50/80 to-cyan-50/50 border border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-200">
+            <CardHeader className="bg-gradient-to-r from-cyan-50/50 to-blue-50/30 border-b border-white/20">
               <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="flex items-center gap-2">
-                    <Calendar className="w-5 h-5" />
-                    Configurar Tarefas (Gantt)
-                  </CardTitle>
-                  <CardDescription>
-                    Configure as tarefas do projeto com datas e responsáveis
-                  </CardDescription>
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg shadow-md">
+                    <Calendar className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg font-semibold text-slate-700">Configurar Tarefas (Gantt)</CardTitle>
+                    <CardDescription className="text-slate-600">
+                      Configure as tarefas do projeto com datas e responsáveis
+                    </CardDescription>
+                  </div>
                 </div>
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   onClick={addTask}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 bg-white/80 hover:bg-white border-slate-300 hover:border-cyan-500 hover:text-cyan-600 transition-all duration-200"
                 >
                   <Plus className="w-4 h-4" />
                   Adicionar Tarefa
@@ -943,21 +997,45 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
             projectName={formData.name}
           />
 
-          {error && <p className="text-sm text-destructive">{error}</p>}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
 
-          <div className="flex gap-2 pt-4">
-            <Button type="submit" disabled={isLoading} className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-200">
-              {isLoading ? "Salvando..." : project ? "Atualizar Projeto" : "Criar Projeto"}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => (onSuccess ? onSuccess() : router.back())}
-              disabled={isLoading}
-            >
-              Cancelar
-            </Button>
-          </div>
+          {/* Botões de Ação - Card */}
+          <Card className="bg-gradient-to-r from-slate-50/80 to-blue-50/50 border border-slate-200/60 shadow-sm">
+            <CardContent className="p-6">
+              <div className="flex gap-3 justify-end">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    if (onSuccess) {
+                      onSuccess()
+                    } else if (project) {
+                      // Se está editando, vai para a listagem de projetos
+                      router.push('/admin/projects')
+                    } else {
+                      // Se está criando, volta para a página anterior
+                      router.back()
+                    }
+                  }}
+                  disabled={isLoading}
+                  className="px-6 py-2 border-slate-300 hover:border-slate-400 hover:bg-slate-50 transition-all duration-200"
+                >
+                  Cancelar
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={isLoading} 
+                  className="px-8 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-200 font-semibold"
+                >
+                  {isLoading ? "Salvando..." : project ? "Atualizar Projeto" : "Criar Projeto"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </form>
       </CardContent>
     </Card>
