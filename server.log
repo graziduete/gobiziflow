@@ -379,3 +379,122 @@
  GET /admin 200 in 31ms
 <w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
 <w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ GET /admin/projects 200 in 33ms
+ ✓ Compiled in 573ms (1441 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/projects 200 in 103ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ○ Compiling /admin/projects/[id] ...
+ ✓ Compiled /admin/projects/[id] in 3.4s (1858 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ GET /admin/projects/68156968-b0d7-4ebe-8d7a-0722a5e2cf98 200 in 4782ms
+ GET /admin/estimativas 200 in 34ms
+ GET /admin/estimativas/nova?tipo=recurso 200 in 26ms
+ GET /admin/projects 200 in 73ms
+ GET /admin/projects/dd13f521-e0d1-458b-aae3-2d2dff19e52f 200 in 860ms
+ ✓ Compiled in 1842ms (1857 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ ⨯ ReferenceError: ArrowLeftCircle is not defined
+    at ProjectPage (app/admin/projects/[id]/page.tsx:87:13)
+  85 |         <div className="flex items-center gap-4">
+  86 |           <Link href="/admin/projects" className="inline-flex items-center text-slate-600 hover:text-slate-800 transition-colors">
+> 87 |             <ArrowLeftCircle className="h-7 w-7" />
+     |             ^
+  88 |           </Link>
+  89 |           <div>
+  90 |             <h2 className="text-3xl font-bold tracking-tight">Cronograma do Projeto</h2> {
+  digest: '3003528537'
+}
+ GET /admin/projects/dd13f521-e0d1-458b-aae3-2d2dff19e52f 200 in 180ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 1496ms (1863 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+🔍 [Header] Debug user data: {
+  user: {
+    id: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    email: 'graziely@gobi.consulting',
+    full_name: 'Graziely Duete'
+  },
+  fullName: 'Graziely Duete',
+  email: 'graziely@gobi.consulting',
+  hasUser: true
+}
+✅ [Header] Using full_name initials: GD
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ⨯ ReferenceError: document is not defined
+    at GanttChart (components/admin/gantt-chart.tsx:669:6)
+  667 |         </Card>
+  668 |       </div>,
+> 669 |       document.body
+      |      ^
+  670 |     )
+  671 |   }
+  672 | {
+  digest: '3175524228'
+}
+ GET /admin/projects/dd13f521-e0d1-458b-aae3-2d2dff19e52f 500 in 1268ms

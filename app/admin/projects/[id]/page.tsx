@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import { GanttChart } from "@/components/admin/gantt-chart"
 import { notFound } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, ArrowLeftCircle } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
 interface ProjectPageProps {
@@ -83,9 +83,10 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href="/admin/projects" className="inline-flex items-center text-slate-600 hover:text-slate-800 transition-colors">
-            <ArrowLeftCircle className="h-7 w-7" />
+          <Link href="/admin/projects" className="inline-flex items-center text-blue-600 hover:text-blue-700 transition-colors hover:bg-blue-50 rounded-md p-1">
+            <ArrowLeft className="h-5 w-5" />
           </Link>
+          <div className="h-6 w-px bg-gray-300"></div>
           <div>
             <h2 className="text-3xl font-bold tracking-tight">Cronograma do Projeto</h2>
             <p className="text-muted-foreground">
