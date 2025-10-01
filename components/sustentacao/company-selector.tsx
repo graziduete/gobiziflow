@@ -325,7 +325,7 @@ export function CompanySelector({ onCompanySelect, selectedCompanyId, showConfig
                         <Button
                           variant="secondary"
                           size="default"
-                          className="h-10"
+                          className="h-10 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-200"
                           onClick={(e) => {
                             e.stopPropagation(); // Para a propagação do evento
                             onCompanySelect(company.id);
