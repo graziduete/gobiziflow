@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Edit, Trash2, Search, Filter, UserCheck, Mail, Phone, Building } from "lucide-react"
+import { Plus, Edit, Trash2, Search, Filter, UserCheck, Mail, Phone, Building, Grid3X3, List } from "lucide-react"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
@@ -28,6 +28,7 @@ export default function ResponsaveisPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const [filterAtivo, setFilterAtivo] = useState<"all" | "ativo" | "inativo">("all")
+  const [viewMode, setViewMode] = useState<"card" | "list">("card")
   const { toast } = useToast()
   const { showConfirmation, ConfirmationDialog } = useConfirmationDialog()
 
@@ -135,6 +136,157 @@ export default function ResponsaveisPage() {
 
   const ativosCount = responsaveis.filter(r => r.ativo).length
   const inativosCount = responsaveis.filter(r => !r.ativo).length
+
+  // Componente de visualização em lista
+  const ListView = () => (
+    <div className="space-y-2">
+      {filteredResponsaveis.map((responsavel) => (
+        <div key={responsavel.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-slate-50/50 hover:border-slate-200 transition-all duration-200 group">
+          <div className="flex items-center gap-4 flex-1">
+            <div className="flex-shrink-0">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+                <UserCheck className="h-5 w-5 text-white" />
+              </div>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-3 mb-1">
+                <h3 className="font-medium text-slate-900 truncate">{responsavel.nome}</h3>
+                <Badge className={responsavel.ativo 
+                  ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold shadow-sm" 
+                  : "bg-gradient-to-r from-gray-500 to-slate-600 text-white font-semibold shadow-sm"
+                }>
+                  {responsavel.ativo ? "Ativo" : "Inativo"}
+                </Badge>
+              </div>
+              <div className="flex items-center gap-4 text-sm text-slate-600">
+                <div className="flex items-center gap-1">
+                  <Mail className="h-3 w-3" />
+                  <span className="truncate">{responsavel.email}</span>
+                </div>
+                {responsavel.telefone && (
+                  <div className="flex items-center gap-1">
+                    <Phone className="h-3 w-3" />
+                    <span>{responsavel.telefone}</span>
+                  </div>
+                )}
+                {responsavel.empresa && (
+                  <div className="flex items-center gap-1">
+                    <Building className="h-3 w-3" />
+                    <span className="truncate">{responsavel.empresa}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              asChild 
+              className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-all"
+            >
+              <Link href={`/admin/responsaveis/${responsavel.id}/editar`}>
+                <Edit className="h-3 w-3 mr-1" />
+                Editar
+              </Link>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleToggleAtivo(responsavel.id, responsavel.ativo)}
+              className="hover:bg-green-50 hover:text-green-600 hover:border-green-300 transition-all"
+            >
+              {responsavel.ativo ? "Desativar" : "Ativar"}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleDelete(responsavel.id, responsavel.nome)}
+              className="text-red-600 hover:text-red-700 hover:bg-red-50 hover:border-red-300 transition-all"
+            >
+              <Trash2 className="h-3 w-3" />
+            </Button>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+
+  // Componente de visualização em cards
+  const CardView = () => (
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {filteredResponsaveis.map((responsavel) => (
+        <div key={responsavel.id} className="p-4 border rounded-lg hover:bg-blue-50/50 hover:border-blue-200 hover:shadow-md transition-all duration-200 flex flex-col h-full group">
+          <div className="flex-1 space-y-3">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <h3 className="font-medium text-sm line-clamp-2">{responsavel.nome}</h3>
+                <Badge className={responsavel.ativo 
+                  ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold shadow-sm" 
+                  : "bg-gradient-to-r from-gray-500 to-slate-600 text-white font-semibold shadow-sm"
+                }>
+                  {responsavel.ativo ? "Ativo" : "Inativo"}
+                </Badge>
+              </div>
+              {responsavel.cargo && (
+                <p className="text-xs text-muted-foreground">{responsavel.cargo}</p>
+              )}
+            </div>
+            
+            <div className="space-y-2 text-xs text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <Mail className="h-3 w-3" />
+                <span className="truncate">{responsavel.email}</span>
+              </div>
+              {responsavel.telefone && (
+                <div className="flex items-center gap-2">
+                  <Phone className="h-3 w-3" />
+                  <span>{responsavel.telefone}</span>
+                </div>
+              )}
+              {responsavel.empresa && (
+                <div className="flex items-center gap-2">
+                  <Building className="h-3 w-3" />
+                  <span className="truncate">{responsavel.empresa}</span>
+                </div>
+              )}
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2 pt-4 mt-auto opacity-80 group-hover:opacity-100 transition-opacity">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              asChild 
+              className="flex-1 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-all"
+            >
+              <Link href={`/admin/responsaveis/${responsavel.id}/editar`}>
+                <Edit className="h-3 w-3 mr-1" />
+                Editar
+              </Link>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleToggleAtivo(responsavel.id, responsavel.ativo)}
+              className="flex-1 hover:bg-green-50 hover:text-green-600 hover:border-green-300 transition-all"
+            >
+              {responsavel.ativo ? "Desativar" : "Ativar"}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleDelete(responsavel.id, responsavel.nome)}
+              className="text-red-600 hover:text-red-700 hover:bg-red-50 hover:border-red-300 transition-all"
+            >
+              <Trash2 className="h-3 w-3" />
+            </Button>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
 
   if (isLoading) {
     return (
@@ -257,10 +409,41 @@ export default function ResponsaveisPage() {
         </CardContent>
       </Card>
 
+      {/* Toggle de Visualização */}
+      <div className="flex justify-end">
+        <div className="flex items-center bg-slate-100 rounded-lg p-1">
+          <Button
+            variant={viewMode === "card" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setViewMode("card")}
+            className={`h-8 px-3 ${viewMode === "card" 
+              ? "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-sm" 
+              : "text-slate-600 hover:text-slate-900 hover:bg-transparent"
+            }`}
+          >
+            <Grid3X3 className="h-4 w-4" />
+          </Button>
+          <Button
+            variant={viewMode === "list" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setViewMode("list")}
+            className={`h-8 px-3 ${viewMode === "list" 
+              ? "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-sm" 
+              : "text-slate-600 hover:text-slate-900 hover:bg-transparent"
+            }`}
+          >
+            <List className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
       {/* Lista de responsáveis */}
       <Card>
         <CardHeader>
-          <CardTitle>Lista de Responsáveis</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            {viewMode === "card" ? <Grid3X3 className="h-5 w-5" /> : <List className="h-5 w-5" />}
+            {viewMode === "card" ? "Cards de Responsáveis" : "Lista de Responsáveis"}
+          </CardTitle>
           <CardDescription>
             {filteredResponsaveis.length} de {responsaveis.length} responsáveis
           </CardDescription>
@@ -285,77 +468,7 @@ export default function ResponsaveisPage() {
               )}
             </div>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {filteredResponsaveis.map((responsavel) => (
-                <div key={responsavel.id} className="p-4 border rounded-lg hover:bg-blue-50/50 hover:border-blue-200 hover:shadow-md transition-all duration-200 flex flex-col h-full group">
-                  <div className="flex-1 space-y-3">
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-medium text-sm line-clamp-2">{responsavel.nome}</h3>
-                        <Badge className={responsavel.ativo 
-                          ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold shadow-sm" 
-                          : "bg-gradient-to-r from-gray-500 to-slate-600 text-white font-semibold shadow-sm"
-                        }>
-                          {responsavel.ativo ? "Ativo" : "Inativo"}
-                        </Badge>
-                      </div>
-                      {responsavel.cargo && (
-                        <p className="text-xs text-muted-foreground">{responsavel.cargo}</p>
-                      )}
-                    </div>
-                    
-                    <div className="space-y-2 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-2">
-                        <Mail className="h-3 w-3" />
-                        <span className="truncate">{responsavel.email}</span>
-                      </div>
-                      {responsavel.telefone && (
-                        <div className="flex items-center gap-2">
-                          <Phone className="h-3 w-3" />
-                          <span>{responsavel.telefone}</span>
-                        </div>
-                      )}
-                      {responsavel.empresa && (
-                        <div className="flex items-center gap-2">
-                          <Building className="h-3 w-3" />
-                          <span className="truncate">{responsavel.empresa}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-2 pt-4 mt-auto opacity-80 group-hover:opacity-100 transition-opacity">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      asChild 
-                      className="flex-1 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-all"
-                    >
-                      <Link href={`/admin/responsaveis/${responsavel.id}/editar`}>
-                        <Edit className="h-3 w-3 mr-1" />
-                        Editar
-                      </Link>
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleToggleAtivo(responsavel.id, responsavel.ativo)}
-                      className="flex-1 hover:bg-green-50 hover:text-green-600 hover:border-green-300 transition-all"
-                    >
-                      {responsavel.ativo ? "Desativar" : "Ativar"}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDelete(responsavel.id, responsavel.nome)}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50 hover:border-red-300 transition-all"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
+            viewMode === "card" ? <CardView /> : <ListView />
           )}
         </CardContent>
       </Card>

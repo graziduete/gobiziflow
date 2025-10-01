@@ -52,7 +52,7 @@ interface HourPackage {
 }
 
 export function CompanyForm({ company, onSuccess }: CompanyFormProps) {
-    const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({
     name: company?.name || "",
     description: company?.description || "",
     logo_url: company?.logo_url || "",
@@ -854,53 +854,127 @@ export function CompanyForm({ company, onSuccess }: CompanyFormProps) {
 
   return (
     <div className="w-full">
-      <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="space-y-3">
-                <Label htmlFor="name">Nome da Empresa *</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => handleChange("name", e.target.value)}
-                  placeholder="Nome da empresa"
-                  required
-                />
-              </div>
-              <div className="space-y-3">
-                <Label htmlFor="contact_email">Email de Contato</Label>
-                <Input
-                  id="contact_email"
-                  type="email"
-                  value={formData.contact_email}
-                  placeholder="contato@empresa.com"
-                  onChange={(e) => handleChange("contact_email", e.target.value)}
-                />
-              </div>
-              <div className="space-y-3">
-                <Label htmlFor="contact_phone">Telefone</Label>
-                <Input
-                  id="contact_phone"
-                  value={formData.contact_phone}
-                  onChange={(e) => handleChange("contact_phone", e.target.value)}
-                  placeholder="(11) 99999-9999"
-                />
-              </div>
-            </div>
+      <Card className="bg-white/80 backdrop-blur-sm border border-white/20 shadow-xl">
+        <CardContent className="p-8">
+          <form onSubmit={handleSubmit} className="space-y-8">
+            {/* Seção: Informações Básicas */}
+            <Card className="bg-gradient-to-br from-slate-50/80 to-blue-50/50 border border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-200">
+              <CardHeader className="pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-sm">
+                    <Building2 className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg font-semibold text-slate-800">Informações Básicas</CardTitle>
+                    <CardDescription className="text-slate-600">Dados principais da empresa</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div className="space-y-3">
+                    <Label htmlFor="name" className="text-base font-semibold text-slate-700 flex items-center gap-2">
+                      <Building2 className="w-4 h-4 text-blue-500" />
+                      Nome da Empresa *
+                    </Label>
+                    <Input
+                      id="name"
+                      value={formData.name}
+                      onChange={(e) => handleChange("name", e.target.value)}
+                      placeholder="Nome da empresa"
+                      required
+                      className="h-12 bg-white border-slate-300 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <Label htmlFor="contact_email" className="text-base font-semibold text-slate-700 flex items-center gap-2">
+                      <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                      Email de Contato
+                    </Label>
+                    <Input
+                      id="contact_email"
+                      type="email"
+                      value={formData.contact_email}
+                      placeholder="contato@empresa.com"
+                      onChange={(e) => handleChange("contact_email", e.target.value)}
+                      className="h-12 bg-white border-slate-300 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <Label htmlFor="contact_phone" className="text-base font-semibold text-slate-700 flex items-center gap-2">
+                      <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                      </svg>
+                      Telefone
+                    </Label>
+                    <Input
+                      id="contact_phone"
+                      value={formData.contact_phone}
+                      onChange={(e) => handleChange("contact_phone", e.target.value)}
+                      placeholder="(11) 99999-9999"
+                      className="h-12 bg-white border-slate-300 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-            <div className="space-y-2">
-              <Label htmlFor="description">Descrição</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => handleChange("description", e.target.value)}
-                placeholder="Descrição da empresa"
-                rows={3}
-              />
-            </div>
+            {/* Seção: Descrição */}
+            <Card className="bg-gradient-to-br from-slate-50/80 to-indigo-50/50 border border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-200">
+              <CardHeader className="pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg shadow-sm">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg font-semibold text-slate-800">Descrição</CardTitle>
+                    <CardDescription className="text-slate-600">Informações adicionais sobre a empresa</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <Label htmlFor="description" className="text-base font-semibold text-slate-700 flex items-center gap-2">
+                    <svg className="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Descrição da Empresa
+                  </Label>
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) => handleChange("description", e.target.value)}
+                    placeholder="Descrição da empresa"
+                    rows={3}
+                    className="bg-white border-slate-300 focus:border-indigo-500 focus:ring-indigo-500/20 transition-all duration-200"
+                  />
+                </div>
+              </CardContent>
+            </Card>
 
-            {/* Logo Upload Section */}
-            <div className="space-y-4">
-              <Label>Logo da Empresa</Label>
+            {/* Seção: Logo da Empresa */}
+            <Card className="bg-gradient-to-br from-slate-50/80 to-purple-50/50 border border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-200">
+              <CardHeader className="pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg shadow-sm">
+                    <ImageIcon className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg font-semibold text-slate-800">Logo da Empresa</CardTitle>
+                    <CardDescription className="text-slate-600">Upload e gerenciamento do logo</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <Label className="text-base font-semibold text-slate-700 flex items-center gap-2">
+                    <ImageIcon className="w-4 h-4 text-purple-500" />
+                    Logo da Empresa
+                  </Label>
               
               {/* Logo Preview */}
               {logoPreview && (
@@ -969,41 +1043,75 @@ export function CompanyForm({ company, onSuccess }: CompanyFormProps) {
                   </Button>
                 )}
               </div>
-            </div>
+                </div>
+              </CardContent>
+            </Card>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="space-y-3">
-                <Label htmlFor="website">Website</Label>
-                <Input
-                  id="website"
-                  value={formData.website}
-                  onChange={(e) => handleChange("website", e.target.value)}
-                  placeholder="https://www.empresa.com"
-                />
-              </div>
-              <div className="space-y-3">
-                <Label htmlFor="address">Endereço</Label>
-                <Input
-                  id="address"
-                  value={formData.address}
-                  onChange={(e) => handleChange("address", e.target.value)}
-                  placeholder="Endereço completo da empresa"
-                />
-              </div>
-            </div>
+            {/* Seção: Website e Endereço */}
+            <Card className="bg-gradient-to-br from-slate-50/80 to-emerald-50/50 border border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-200">
+              <CardHeader className="pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg shadow-sm">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9" />
+                    </svg>
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg font-semibold text-slate-800">Website e Endereço</CardTitle>
+                    <CardDescription className="text-slate-600">Informações de contato e localização</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <Label htmlFor="website" className="text-base font-semibold text-slate-700 flex items-center gap-2">
+                      <svg className="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9" />
+                      </svg>
+                      Website
+                    </Label>
+                    <Input
+                      id="website"
+                      value={formData.website}
+                      onChange={(e) => handleChange("website", e.target.value)}
+                      placeholder="https://www.empresa.com"
+                      className="h-12 bg-white border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <Label htmlFor="address" className="text-base font-semibold text-slate-700 flex items-center gap-2">
+                      <svg className="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      Endereço
+                    </Label>
+                    <Input
+                      id="address"
+                      value={formData.address}
+                      onChange={(e) => handleChange("address", e.target.value)}
+                      placeholder="Endereço completo da empresa"
+                      className="h-12 bg-white border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-            {/* Seção de Métricas de Pagamento - Independente do pacote de horas */}
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-gray-100 rounded-lg">
-                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {/* Seção: Métricas de Pagamento */}
+            <Card className="bg-gradient-to-br from-slate-50/80 to-orange-50/50 border border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-200">
+              <CardHeader className="pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg shadow-sm">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-800">
-                    Métricas de Pagamento
-                  </h3>
+                  <div>
+                    <CardTitle className="text-lg font-semibold text-slate-800">Métricas de Pagamento</CardTitle>
+                    <CardDescription className="text-slate-600">Configure como esta empresa será faturada</CardDescription>
+                  </div>
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button variant="ghost" size="sm" className="p-1 h-6 w-6">
@@ -1031,8 +1139,9 @@ export function CompanyForm({ company, onSuccess }: CompanyFormProps) {
                     </DialogContent>
                   </Dialog>
                 </div>
-                  
-                  <div className="space-y-4">
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
                     {/* Tipo de Métrica */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
@@ -2090,21 +2199,32 @@ export function CompanyForm({ company, onSuccess }: CompanyFormProps) {
               </Card>
             )}
 
-            {/* Botões de Ação - Movidos para após o histórico */}
-            <div className="flex gap-4 pt-6">
-              <Button type="submit" disabled={isLoading} className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-200">
-                {isLoading ? "Salvando..." : company ? "Atualizar Empresa" : "Criar Empresa"}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => (onSuccess ? onSuccess() : router.back())}
-                disabled={isLoading}
-              >
-                Cancelar
-              </Button>
-            </div>
-        </form>
+            {/* Botões de Ação */}
+            <Card className="bg-gradient-to-br from-slate-50/80 to-slate-100/50 border border-slate-200/60 shadow-sm">
+              <CardContent className="p-6">
+                <div className="flex gap-4 justify-end">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => (onSuccess ? onSuccess() : router.back())}
+                    disabled={isLoading}
+                    className="px-6 py-2 border-slate-300 hover:border-slate-400 hover:bg-slate-50 transition-all duration-200"
+                  >
+                    Cancelar
+                  </Button>
+                  <Button 
+                    type="submit" 
+                    disabled={isLoading} 
+                    className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 px-6 py-2"
+                  >
+                    {isLoading ? "Salvando..." : company ? "Atualizar Empresa" : "Criar Empresa"}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   )
 }

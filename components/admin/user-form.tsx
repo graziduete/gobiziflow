@@ -318,14 +318,7 @@ export function UserForm({ user, onSuccess }: UserFormProps) {
             </div>
           )}
 
-          <div className="flex gap-3 pt-6 border-t border-slate-200">
-            <Button 
-              type="submit" 
-              disabled={isLoading}
-              className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-200 px-8"
-            >
-              {isLoading ? "Salvando..." : user ? "Atualizar Usuário" : "Criar Usuário"}
-            </Button>
+          <div className="flex gap-3 pt-6 border-t border-slate-200 justify-end">
             <Button
               type="button"
               variant="outline"
@@ -334,6 +327,13 @@ export function UserForm({ user, onSuccess }: UserFormProps) {
               className="border-2 hover:bg-slate-50 transition-all"
             >
               Cancelar
+            </Button>
+            <Button 
+              type="submit" 
+              disabled={isLoading}
+              className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-200 px-8"
+            >
+              {isLoading ? "Salvando..." : user ? "Atualizar Usuário" : "Criar Usuário"}
             </Button>
           </div>
         </form>

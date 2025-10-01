@@ -12,7 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
-import { Plus, Trash2, Calendar, Clock, User, Users, FileText } from "lucide-react"
+import { Plus, Trash2, Calendar, Clock, User, Users, FileText, AlertTriangle } from "lucide-react"
 import { GanttChart } from "./gantt-chart"
 import { DraggableTaskList } from "./draggable-task-list"
 import { formatDateBrazil } from "@/lib/utils/status-translation"
@@ -634,8 +634,9 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
       <CardContent className="p-8">
         {isOffline && (
           <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4">
-            <p className="text-amber-600 text-sm">
-              ⚠️ Modo offline - As alterações serão sincronizadas quando a conexão for restaurada
+            <p className="text-amber-600 text-sm flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4" />
+              Modo offline - As alterações serão sincronizadas quando a conexão for restaurada
             </p>
           </div>
         )}
