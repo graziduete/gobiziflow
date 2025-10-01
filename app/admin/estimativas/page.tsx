@@ -366,7 +366,7 @@ export default function EstimativasPage() {
           </Button>
           <Dialog open={showNewEstimativaModal} onOpenChange={setShowNewEstimativaModal}>
             <DialogTrigger asChild>
-              <Button className="gap-2">
+              <Button className="gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-200">
                 <Plus className="h-4 w-4" />
                 Nova Estimativa
               </Button>
@@ -516,7 +516,7 @@ export default function EstimativasPage() {
                 }
               </p>
               {!(filters.nome || filters.tipo !== 'todos') && (
-                <Button onClick={() => setShowNewEstimativaModal(true)}>
+                <Button onClick={() => setShowNewEstimativaModal(true)} className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-200">
                   <Plus className="h-4 w-4 mr-2" />
                   Nova Estimativa
                 </Button>
@@ -671,7 +671,7 @@ export default function EstimativasPage() {
                     variant={currentPage === pageNumber ? "default" : "outline"}
                     size="sm"
                     onClick={() => goToPage(pageNumber)}
-                    className="w-8 h-8 p-0"
+                    className={`w-8 h-8 p-0 ${currentPage === pageNumber ? 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md' : ''}`}
                   >
                     {pageNumber}
                   </Button>

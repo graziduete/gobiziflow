@@ -292,12 +292,12 @@ export default function UsersPage() {
             filters={filters}
             onFiltersChange={(newFilters) => setFilters(newFilters)}
           />
-          <Button asChild>
-            <Link href="/admin/users/new">
-              <Plus className="mr-2 h-4 w-4" />
-              Novo Usuário
-            </Link>
-          </Button>
+        <Button asChild className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-200">
+          <Link href="/admin/users/new">
+            <Plus className="mr-2 h-4 w-4" />
+            Novo Usuário
+          </Link>
+        </Button>
         </div>
       </div>
 
@@ -429,7 +429,7 @@ export default function UsersPage() {
                         variant={currentPage === pageNumber ? "default" : "outline"}
                         size="sm"
                         onClick={() => goToPage(pageNumber)}
-                        className="w-8 h-8 p-0"
+                        className={`w-8 h-8 p-0 ${currentPage === pageNumber ? 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md' : ''}`}
                       >
                         {pageNumber}
                       </Button>

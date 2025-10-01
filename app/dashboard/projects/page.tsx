@@ -613,7 +613,7 @@ export default function ClientProjectsPage() {
                         variant={currentPage === pageNumber ? "default" : "outline"}
                         size="sm"
                         onClick={() => goToPage(pageNumber)}
-                        className="w-8 h-8 p-0"
+                        className={`w-8 h-8 p-0 ${currentPage === pageNumber ? 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white shadow-md' : ''}`}
                       >
                         {pageNumber}
                       </Button>

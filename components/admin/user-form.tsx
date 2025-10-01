@@ -194,14 +194,8 @@ export function UserForm({ user, onSuccess }: UserFormProps) {
   }
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle>{user ? "Editar Usuário" : "Novo Usuário"}</CardTitle>
-        <CardDescription>
-          {user ? "Atualize as informações do usuário" : "Preencha os dados para criar um novo usuário"}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+    <Card className="w-full border-slate-200/60 shadow-lg">
+      <CardContent className="pt-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
             <div className="space-y-3">
@@ -231,33 +225,42 @@ export function UserForm({ user, onSuccess }: UserFormProps) {
           </div>
 
           <div className="space-y-3">
-            <Label>Tipo de Usuário *</Label>
+            <Label className="text-base font-semibold text-slate-700">Tipo de Usuário *</Label>
             <ToggleGroup 
               type="single" 
               value={formData.role} 
               onValueChange={(value) => value && handleChange("role", value)}
-              className="justify-start w-full"
+              className="grid grid-cols-1 md:grid-cols-3 gap-3 w-full"
             >
               <ToggleGroupItem 
                 value="client" 
                 aria-label="Cliente"
-                className="px-12 py-4 flex-1"
+                className="h-auto py-4 px-6 data-[state=on]:bg-gradient-to-r data-[state=on]:from-cyan-500 data-[state=on]:to-blue-600 data-[state=on]:text-white data-[state=on]:border-cyan-400 hover:bg-cyan-50 transition-all duration-200 border-2"
               >
-                👤 Cliente
+                <div className="flex flex-col items-center gap-2">
+                  <span className="text-lg font-bold">Cliente</span>
+                  <span className="text-xs opacity-80">Acesso ao portal</span>
+                </div>
               </ToggleGroupItem>
               <ToggleGroupItem 
                 value="admin" 
                 aria-label="Administrador"
-                className="px-12 py-4 flex-1"
+                className="h-auto py-4 px-6 data-[state=on]:bg-gradient-to-r data-[state=on]:from-blue-500 data-[state=on]:to-indigo-600 data-[state=on]:text-white data-[state=on]:border-blue-400 hover:bg-blue-50 transition-all duration-200 border-2"
               >
-                🔧 Administrador
+                <div className="flex flex-col items-center gap-2">
+                  <span className="text-lg font-bold">Administrador</span>
+                  <span className="text-xs opacity-80">Acesso total</span>
+                </div>
               </ToggleGroupItem>
               <ToggleGroupItem 
                 value="admin_operacional" 
                 aria-label="Admin Operacional"
-                className="px-12 py-4 flex-1"
+                className="h-auto py-4 px-6 data-[state=on]:bg-gradient-to-r data-[state=on]:from-purple-500 data-[state=on]:to-pink-600 data-[state=on]:text-white data-[state=on]:border-purple-400 hover:bg-purple-50 transition-all duration-200 border-2"
               >
-                ⚙️ Admin Operacional
+                <div className="flex flex-col items-center gap-2">
+                  <span className="text-lg font-bold">Admin Operacional</span>
+                  <span className="text-xs opacity-80">Gestão operacional</span>
+                </div>
               </ToggleGroupItem>
             </ToggleGroup>
           </div>
@@ -281,29 +284,54 @@ export function UserForm({ user, onSuccess }: UserFormProps) {
           )}
 
           {!user && (
-            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="flex items-start gap-3">
-                <div className="text-blue-600 text-lg">ℹ️</div>
-                <div className="text-sm text-blue-800">
-                  <p className="font-medium mb-1">Senha Automática</p>
-                  <p>Uma senha segura será gerada automaticamente e enviada por e-mail para o usuário.</p>
+            <div className="relative overflow-hidden rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 p-5 shadow-sm">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-400/5 via-indigo-400/5 to-purple-400/5" />
+              <div className="relative flex items-start gap-4">
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-md">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="font-bold text-slate-900 mb-1">Senha Automática</p>
+                  <p className="text-sm text-slate-700">Uma senha segura será gerada automaticamente e enviada por e-mail para o usuário.</p>
                 </div>
               </div>
             </div>
           )}
 
-          {error && <p className="text-sm text-destructive">{error}</p>}
-          {success && <p className="text-sm text-green-600 bg-green-50 p-3 rounded-lg">{success}</p>}
+          {error && (
+            <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
+              <p className="text-sm text-red-800 font-medium">{error}</p>
+            </div>
+          )}
+          {success && (
+            <div className="relative overflow-hidden rounded-xl border border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 p-4 shadow-sm">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center text-white">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <p className="text-sm text-green-800 font-medium flex-1">{success}</p>
+              </div>
+            </div>
+          )}
 
-          <div className="flex gap-4 pt-6">
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Salvando..." : user ? "Atualizar" : "Criar Usuário"}
+          <div className="flex gap-3 pt-6 border-t border-slate-200">
+            <Button 
+              type="submit" 
+              disabled={isLoading}
+              className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-200 px-8"
+            >
+              {isLoading ? "Salvando..." : user ? "Atualizar Usuário" : "Criar Usuário"}
             </Button>
             <Button
               type="button"
               variant="outline"
               onClick={() => (onSuccess ? onSuccess() : router.back())}
               disabled={isLoading}
+              className="border-2 hover:bg-slate-50 transition-all"
             >
               Cancelar
             </Button>

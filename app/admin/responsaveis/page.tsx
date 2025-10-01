@@ -169,7 +169,7 @@ export default function ResponsaveisPage() {
             <span className="ml-2 text-blue-600">• {responsaveis.length} responsável{responsaveis.length !== 1 ? 'is' : ''}</span>
           </p>
         </div>
-        <Button asChild>
+        <Button asChild className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-200">
           <Link href="/admin/responsaveis/novo">
             <Plus className="mr-2 h-4 w-4" />
             Novo Responsável

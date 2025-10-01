@@ -132,7 +132,7 @@ export default function NotificationLogsPage() {
             Histórico de notificações enviadas para responsáveis
           </p>
         </div>
-        <Button onClick={fetchLogs} disabled={loading}>
+        <Button onClick={fetchLogs} disabled={loading} className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-200">
           <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
           Atualizar
         </Button>
