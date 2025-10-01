@@ -112,19 +112,19 @@ export function ClientProjectDetail({ project }: ClientProjectDetailProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "planning":
-        return "bg-blue-500"
+        return "bg-gradient-to-r from-slate-500 to-gray-600 text-white font-semibold shadow-sm"
       case "in_progress":
-        return "bg-yellow-500"
+        return "bg-gradient-to-r from-blue-500 to-cyan-600 text-white font-semibold shadow-sm"
       case "homologation":
-        return "bg-purple-500"
+        return "bg-gradient-to-r from-purple-500 to-pink-600 text-white font-semibold shadow-sm"
       case "on_hold":
-        return "bg-gray-500"
+        return "bg-gradient-to-r from-orange-500 to-amber-600 text-white font-semibold shadow-sm"
       case "delayed":
-        return "bg-red-500"
+        return "bg-gradient-to-r from-red-500 to-rose-600 text-white font-semibold shadow-sm"
       case "completed":
-        return "bg-green-500"
+        return "bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold shadow-sm"
       case "cancelled":
-        return "bg-gray-400"
+        return "bg-gradient-to-r from-gray-500 to-slate-600 text-white font-semibold shadow-sm"
       default:
         return "bg-blue-500"
     }
@@ -187,15 +187,23 @@ export function ClientProjectDetail({ project }: ClientProjectDetailProps) {
             {/* Prioridade */}
             <div className="space-y-2">
               <h4 className="text-sm font-medium text-muted-foreground">Prioridade</h4>
-              <Badge variant="secondary">
-                {project.priority === 'high' ? 'Alta' : project.priority === 'medium' ? 'Média' : 'Baixa'}
+              <Badge className={
+                project.priority === 'urgent' 
+                  ? 'bg-gradient-to-r from-red-500 to-rose-600 text-white font-semibold shadow-sm'
+                  : project.priority === 'high'
+                  ? 'bg-gradient-to-r from-orange-500 to-amber-600 text-white font-semibold shadow-sm'
+                  : project.priority === 'medium'
+                  ? 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white font-semibold shadow-sm'
+                  : 'bg-gradient-to-r from-slate-500 to-gray-600 text-white font-semibold shadow-sm'
+              }>
+                {project.priority === 'urgent' ? 'Urgente' : project.priority === 'high' ? 'Alta' : project.priority === 'medium' ? 'Média' : 'Baixa'}
               </Badge>
             </div>
 
             {/* Tipo */}
             <div className="space-y-2">
               <h4 className="text-sm font-medium text-muted-foreground">Tipo</h4>
-              <Badge variant="secondary">
+              <Badge className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold shadow-sm">
                 {getProjectTypeText(project.project_type || '')}
               </Badge>
             </div>

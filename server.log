@@ -1817,3 +1817,214 @@ AuthApiError: Invalid Refresh Token: Refresh Token Not Found {
   userRole: 'admin'
 }
  GET /admin/estimativas 200 in 274ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 2.5s (929 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled / in 470ms (1013 modules)
+ GET / 307 in 614ms
+ ○ Compiling /auth/login ...
+ ✓ Compiled /auth/login in 559ms (1036 modules)
+ GET /auth/login 200 in 946ms
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 1146ms (1049 modules)
+🔍 [ClientLayout] User role check: {
+  userId: 'dd360ee3-d34c-4e94-b56c-b06ee048b9f8',
+  userEmail: 'gsouzaduete@gmail.com',
+  profileRole: 'client',
+  shouldRedirect: false
+}
+ GET /dashboard 200 in 2641ms
+ ○ Compiling /dashboard/projects ...
+ ✓ Compiled /dashboard/projects in 982ms (1049 modules)
+ GET /dashboard/projects 200 in 1256ms
+ ○ Compiling /dashboard/projects/[id] ...
+ ✓ Compiled /dashboard/projects/[id] in 12.6s (3133 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ GET /dashboard/projects/5c74c833-082d-4430-8a58-6d4509961219 200 in 16058ms
+🔍 [ClientLayout] User role check: {
+  userId: 'dd360ee3-d34c-4e94-b56c-b06ee048b9f8',
+  userEmail: 'gsouzaduete@gmail.com',
+  profileRole: 'client',
+  shouldRedirect: false
+}
+ GET /dashboard/projects/5c74c833-082d-4430-8a58-6d4509961219 200 in 194ms
+ ○ Compiling /api/client/project/[id] ...
+ ✓ Compiled /api/client/project/[id] in 1300ms (3128 modules)
+🔍 API Route - Usuário: dd360ee3-d34c-4e94-b56c-b06ee048b9f8 Erro: null
+🔍 API Route - Empresa do usuário: { id: '443a6a0e-768f-48e4-a9ea-0cd972375a30', name: 'Copersucar' }
+🔍 API Route - Resultado da consulta: {
+  project: {
+    id: '5c74c833-082d-4430-8a58-6d4509961219',
+    name: 'Consultas Jurídico',
+    description: 'Consultas JusBrasil, Escavador e TJSP',
+    status: 'in_progress',
+    priority: 'medium',
+    start_date: '2025-09-15',
+    end_date: '2025-12-10',
+    budget: 50160,
+    company_id: '443a6a0e-768f-48e4-a9ea-0cd972375a30',
+    created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    created_at: '2025-09-04T20:43:09.041975+00:00',
+    updated_at: '2025-09-30T22:01:41.270303+00:00',
+    technical_responsible: 'Graziely Duete',
+    key_user: 'Remilly Cavalvante',
+    estimated_hours: 240,
+    project_type: 'automation',
+    category: 'project'
+  },
+  projectError: null
+}
+✅ API Route - Projeto encontrado: Consultas Jurídico
+ GET /api/client/project/5c74c833-082d-4430-8a58-6d4509961219 200 in 2909ms
+🔍 API Route - Usuário: dd360ee3-d34c-4e94-b56c-b06ee048b9f8 Erro: null
+🔍 API Route - Empresa do usuário: { id: '443a6a0e-768f-48e4-a9ea-0cd972375a30', name: 'Copersucar' }
+🔍 API Route - Resultado da consulta: {
+  project: {
+    id: '5c74c833-082d-4430-8a58-6d4509961219',
+    name: 'Consultas Jurídico',
+    description: 'Consultas JusBrasil, Escavador e TJSP',
+    status: 'in_progress',
+    priority: 'medium',
+    start_date: '2025-09-15',
+    end_date: '2025-12-10',
+    budget: 50160,
+    company_id: '443a6a0e-768f-48e4-a9ea-0cd972375a30',
+    created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    created_at: '2025-09-04T20:43:09.041975+00:00',
+    updated_at: '2025-09-30T22:01:41.270303+00:00',
+    technical_responsible: 'Graziely Duete',
+    key_user: 'Remilly Cavalvante',
+    estimated_hours: 240,
+    project_type: 'automation',
+    category: 'project'
+  },
+  projectError: null
+}
+✅ API Route - Projeto encontrado: Consultas Jurídico
+ GET /api/client/project/5c74c833-082d-4430-8a58-6d4509961219 200 in 750ms
+ ✓ Compiled in 2.2s (3131 modules)
+🔍 [ClientLayout] User role check: {
+  userId: 'dd360ee3-d34c-4e94-b56c-b06ee048b9f8',
+  userEmail: 'gsouzaduete@gmail.com',
+  profileRole: 'client',
+  shouldRedirect: false
+}
+ GET /dashboard/projects/5c74c833-082d-4430-8a58-6d4509961219 200 in 148ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ GET /dashboard/projects 200 in 106ms
+ GET /dashboard/projects/9b7482b6-91fe-420c-9316-6945f2481899 200 in 16ms
+🔍 API Route - Usuário: dd360ee3-d34c-4e94-b56c-b06ee048b9f8 Erro: null
+🔍 API Route - Empresa do usuário: { id: '443a6a0e-768f-48e4-a9ea-0cd972375a30', name: 'Copersucar' }
+🔍 API Route - Resultado da consulta: {
+  project: {
+    id: '9b7482b6-91fe-420c-9316-6945f2481899',
+    name: 'Venda Spot',
+    description: 'RPA Venda Spot',
+    status: 'in_progress',
+    priority: 'medium',
+    start_date: '2025-09-22',
+    end_date: '2025-12-09',
+    budget: 36366,
+    company_id: '443a6a0e-768f-48e4-a9ea-0cd972375a30',
+    created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    created_at: '2025-09-04T20:07:09.46689+00:00',
+    updated_at: '2025-09-30T17:33:34.70103+00:00',
+    technical_responsible: 'Graziely Duete',
+    key_user: 'Patricia Arruda',
+    estimated_hours: 174,
+    project_type: 'automation',
+    category: 'project'
+  },
+  projectError: null
+}
+✅ API Route - Projeto encontrado: Venda Spot
+ GET /api/client/project/9b7482b6-91fe-420c-9316-6945f2481899 200 in 789ms
+🔍 API Route - Usuário: dd360ee3-d34c-4e94-b56c-b06ee048b9f8 Erro: null
+🔍 API Route - Empresa do usuário: { id: '443a6a0e-768f-48e4-a9ea-0cd972375a30', name: 'Copersucar' }
+🔍 API Route - Resultado da consulta: {
+  project: {
+    id: '9b7482b6-91fe-420c-9316-6945f2481899',
+    name: 'Venda Spot',
+    description: 'RPA Venda Spot',
+    status: 'in_progress',
+    priority: 'medium',
+    start_date: '2025-09-22',
+    end_date: '2025-12-09',
+    budget: 36366,
+    company_id: '443a6a0e-768f-48e4-a9ea-0cd972375a30',
+    created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    created_at: '2025-09-04T20:07:09.46689+00:00',
+    updated_at: '2025-09-30T17:33:34.70103+00:00',
+    technical_responsible: 'Graziely Duete',
+    key_user: 'Patricia Arruda',
+    estimated_hours: 174,
+    project_type: 'automation',
+    category: 'project'
+  },
+  projectError: null
+}
+✅ API Route - Projeto encontrado: Venda Spot
+ GET /api/client/project/9b7482b6-91fe-420c-9316-6945f2481899 200 in 822ms
+ ✓ Compiled in 1159ms (3131 modules)
+🔍 [ClientLayout] User role check: {
+  userId: 'dd360ee3-d34c-4e94-b56c-b06ee048b9f8',
+  userEmail: 'gsouzaduete@gmail.com',
+  profileRole: 'client',
+  shouldRedirect: false
+}
+ GET /dashboard/projects/9b7482b6-91fe-420c-9316-6945f2481899 200 in 318ms
+ GET /dashboard/projects 200 in 403ms
+ GET /dashboard/projects/06e6b994-185b-458a-8fac-89ce0f2e6ee3 200 in 153ms
+🔍 API Route - Usuário: dd360ee3-d34c-4e94-b56c-b06ee048b9f8 Erro: null
+🔍 API Route - Empresa do usuário: { id: '443a6a0e-768f-48e4-a9ea-0cd972375a30', name: 'Copersucar' }
+🔍 API Route - Resultado da consulta: {
+  project: {
+    id: '06e6b994-185b-458a-8fac-89ce0f2e6ee3',
+    name: 'Ajuste DER PR',
+    description: 'Ajuste sistema de login DER PR',
+    status: 'completed',
+    priority: 'medium',
+    start_date: '2025-10-24',
+    end_date: '2025-10-29',
+    budget: 1672,
+    company_id: '443a6a0e-768f-48e4-a9ea-0cd972375a30',
+    created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    created_at: '2025-09-21T00:22:53.159438+00:00',
+    updated_at: '2025-09-30T17:33:50.286693+00:00',
+    technical_responsible: null,
+    key_user: null,
+    estimated_hours: 8,
+    project_type: 'automation',
+    category: 'improvement'
+  },
+  projectError: null
+}
+✅ API Route - Projeto encontrado: Ajuste DER PR
+ GET /api/client/project/06e6b994-185b-458a-8fac-89ce0f2e6ee3 200 in 1294ms
+🔍 API Route - Usuário: dd360ee3-d34c-4e94-b56c-b06ee048b9f8 Erro: null
+🔍 API Route - Empresa do usuário: { id: '443a6a0e-768f-48e4-a9ea-0cd972375a30', name: 'Copersucar' }
+🔍 API Route - Resultado da consulta: {
+  project: {
+    id: '06e6b994-185b-458a-8fac-89ce0f2e6ee3',
+    name: 'Ajuste DER PR',
+    description: 'Ajuste sistema de login DER PR',
+    status: 'completed',
+    priority: 'medium',
+    start_date: '2025-10-24',
+    end_date: '2025-10-29',
+    budget: 1672,
+    company_id: '443a6a0e-768f-48e4-a9ea-0cd972375a30',
+    created_by: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    created_at: '2025-09-21T00:22:53.159438+00:00',
+    updated_at: '2025-09-30T17:33:50.286693+00:00',
+    technical_responsible: null,
+    key_user: null,
+    estimated_hours: 8,
+    project_type: 'automation',
+    category: 'improvement'
+  },
+  projectError: null
+}
+✅ API Route - Projeto encontrado: Ajuste DER PR
+ GET /api/client/project/06e6b994-185b-458a-8fac-89ce0f2e6ee3 200 in 773ms
+ GET /dashboard/projects 200 in 51ms

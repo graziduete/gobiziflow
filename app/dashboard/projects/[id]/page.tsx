@@ -68,19 +68,19 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
-        return "bg-green-100 text-green-800"
+        return "bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold shadow-sm"
       case "in_progress":
-        return "bg-blue-100 text-blue-800"
+        return "bg-gradient-to-r from-blue-500 to-cyan-600 text-white font-semibold shadow-sm"
       case "homologation":
-        return "bg-purple-100 text-purple-800"
+        return "bg-gradient-to-r from-purple-500 to-pink-600 text-white font-semibold shadow-sm"
       case "on_hold":
-        return "bg-yellow-100 text-yellow-800"
+        return "bg-gradient-to-r from-orange-500 to-amber-600 text-white font-semibold shadow-sm"
       case "delayed":
-        return "bg-red-100 text-red-800"
+        return "bg-gradient-to-r from-red-500 to-rose-600 text-white font-semibold shadow-sm"
       case "cancelled":
-        return "bg-red-100 text-red-800"
+        return "bg-gradient-to-r from-gray-500 to-slate-600 text-white font-semibold shadow-sm"
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gradient-to-r from-slate-500 to-gray-600 text-white font-semibold shadow-sm"
     }
   }
 
