@@ -957,14 +957,6 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                     {/* Efeito de brilho interno */}
                     <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-white/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     
-                    {/* Conteúdo da barra */}
-                    <div className="relative px-3 py-2 text-white font-medium text-xs leading-tight opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-y-0 translate-y-1">
-                      <div className="font-bold text-sm drop-shadow-sm">{task.name}</div>
-                      <div className="text-xs opacity-90 flex items-center gap-1">
-                        <Users className="w-3 h-3" />
-                        {task.responsible}
-                      </div>
-                    </div>
                     
                     {/* Indicador de progresso sutil */}
                     <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20 rounded-b-xl overflow-hidden">
@@ -972,6 +964,21 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                         className="h-full bg-white/40 transition-all duration-500 ease-out"
                         style={{ width: `${getTaskProgress(task)}%` }}
                       />
+                    </div>
+
+                    {/* Tooltip moderno */}
+                    <div className="pointer-events-none absolute -top-3 left-1/2 -translate-x-1/2 -translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      <div className="min-w-[220px] max-w-[280px] px-3 py-2 rounded-xl border border-white/30 bg-white/70 backdrop-blur-md shadow-lg">
+                        <div className="text-[11px] font-semibold text-slate-900 line-clamp-1">{task.name}</div>
+                        <div className="mt-1 grid grid-cols-2 gap-2 text-[11px] text-slate-700">
+                          <div className="flex items-center gap-1"><Users className="w-3 h-3" /> {task.responsible}</div>
+                          <div className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {task.start_date} - {task.end_date}</div>
+                        </div>
+                        <div className="mt-1 flex items-center gap-1 text-[11px] text-slate-600">
+                          <div className={`w-2 h-2 rounded-full ${getStatusDotColor(task.status)}`}></div>
+                          {getStatusText(task.status)}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
