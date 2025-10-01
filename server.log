@@ -2028,3 +2028,148 @@ AuthApiError: Invalid Refresh Token: Refresh Token Not Found {
 ✅ API Route - Projeto encontrado: Ajuste DER PR
  GET /api/client/project/06e6b994-185b-458a-8fac-89ce0f2e6ee3 200 in 773ms
  GET /dashboard/projects 200 in 51ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ GET /auth/login 200 in 105ms
+ ○ Compiling /admin ...
+ ✓ Compiled /admin in 895ms (1621 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+🔍 [Header] Debug user data: {
+  user: {
+    id: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+    email: 'graziely@gobi.consulting',
+    full_name: 'Graziely Duete'
+  },
+  fullName: 'Graziely Duete',
+  email: 'graziely@gobi.consulting',
+  hasUser: true
+}
+✅ [Header] Using full_name initials: GD
+🏢 Empresas para contagem: 0
+👥 Usuários para contagem: 0
+👥 Total de usuários no sistema: 0
+👥 Total de associações usuário-empresa: 0
+👥 Associações da empresa selecionada: []
+📊 Projetos filtrados por período: 0
+📊 Total de projetos da empresa: 0
+🔍 Projetos por status: []
+🚀 Projetos em andamento (excluindo planning): 0
+⏸️ Projetos em planejamento: 0
+⚠️ Projetos atrasados: 0
+✅ Projetos concluídos: 0
+🏢 Estatísticas de horas do HourService: {
+  totalContractedHours: 0,
+  totalConsumedHours: 0,
+  totalRemainingHours: 0,
+  companiesWithPackages: 0
+}
+⏰ Total de horas contratadas: 0
+🔥 Horas consumidas: 0
+⏳ Horas restantes: 0
+💰 Total de faturamento: 0
+📁 Todos os projetos: 0
+🔍 Projetos filtrados por período: 0
+📊 Total de projetos (filtrado por empresa e período): 0
+📊 NOVA LÓGICA - Usando payment_metrics:
+📊 Total esperado: 0
+📊 Breakdown: []
+🔍 [GanttView] Projects data: []
+ GET /admin 200 in 1679ms
+ ○ Compiling /admin/users ...
+ ✓ Compiled /admin/users in 696ms (1634 modules)
+ GET /admin/users 200 in 828ms
+ ✓ Compiled in 3.6s (3120 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/users 200 in 117ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 2.5s (3120 modules)
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/users 200 in 122ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+ ✓ Compiled in 2.5s (3120 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+🔍 [AdminLayout] Auth check: {
+  hasUser: true,
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  error: undefined
+}
+🔍 [AdminLayout] Profile check: {
+  hasProfile: true,
+  profileRole: 'admin',
+  profileError: undefined,
+  profileData: {
+    role: 'admin',
+    full_name: 'Graziely Duete',
+    email: 'graziely@gobi.consulting'
+  }
+}
+✅ [AdminLayout] Admin access granted for: {
+  userId: '8ebbb0b6-2c2c-40cb-b640-ab4591bd87ff',
+  userEmail: 'graziely@gobi.consulting',
+  userRole: 'admin'
+}
+ GET /admin/users 200 in 2074ms
+ ○ Compiling /admin/projects ...
+ ✓ Compiled /admin/projects in 12.2s (1626 modules)
+ GET /admin/projects 200 in 12518ms

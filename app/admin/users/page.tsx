@@ -333,10 +333,16 @@ export default function UsersPage() {
                 <div className="space-y-1 flex-1">
                   <div className="flex items-center gap-2">
                     <h3 className="font-medium">{user.full_name || "Nome não informado"}</h3>
-                    <Badge variant={user.role === "admin" ? "default" : user.role === "admin_operacional" ? "outline" : "secondary"}>
+                    <Badge className={
+                      user.role === "admin" 
+                        ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold shadow-sm"
+                        : user.role === "admin_operacional"
+                        ? "bg-gradient-to-r from-purple-500 to-pink-600 text-white font-semibold shadow-sm"
+                        : "bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold shadow-sm"
+                    }>
                       {user.role === "admin" ? "Admin" : user.role === "admin_operacional" ? "Admin Operacional" : "Cliente"}
                     </Badge>
-                    {user.is_first_login && <Badge variant="outline">Primeiro Login</Badge>}
+                    {user.is_first_login && <Badge className="bg-gradient-to-r from-yellow-500 to-orange-600 text-white font-semibold shadow-sm">Primeiro Login</Badge>}
                   </div>
                   <p className="text-sm text-muted-foreground">{user.email}</p>
                   {user.company_name && (
