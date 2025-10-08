@@ -16,6 +16,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Bell,
+  DollarSign,
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -84,6 +85,12 @@ const navigation = [
     href: "/admin/sustentacao",
     icon: Shield,
     roles: ["admin", "admin_operacional"]
+  },
+  {
+    name: "Financeiro",
+    href: "/admin/financeiro",
+    icon: DollarSign,
+    roles: ["admin"] // Only admin can see
   },
   {
     name: "Configurações",

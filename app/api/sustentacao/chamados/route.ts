@@ -1,9 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleSheetsProvider } from '@/lib/providers/google-sheets-provider';
+import { localCache, createCacheKey } from '@/lib/cache/local-cache';
 
 export async function POST(request: NextRequest) {
   try {
     const { companyId, filters } = await request.json();
+
+    // Criar chave de cache
+    const cacheKey = createCacheKey('chamados', { companyId, ...filters });
+    
+    // Tentar buscar do cache primeiro (apenas em desenvolvimento)
+    if (process.env.NODE_ENV === 'development') {
+      const cachedData = localCache.get(cacheKey);
+      if (cachedData) {
+        console.log('🚀 Retornando dados do cache local');
+        return NextResponse.json({
+          ...cachedData,
+          cached: true,
+          cacheKey
+        });
+      }
+    }
+
+    console.log('🌐 Buscando dados do Google Sheets...');
+    const startTime = Date.now();
 
     // Verificar se as variáveis de ambiente estão configuradas
     const apiKey = process.env.GOOGLE_SHEETS_API_KEY;
@@ -45,12 +65,21 @@ export async function POST(request: NextRequest) {
       provider.getChamadosPorCategoria(filters)
     ]);
 
-    return NextResponse.json({
+    const responseData = {
       chamados,
       metricas,
       categorias,
-      success: true
-    });
+      success: true,
+      loadTime: Date.now() - startTime
+    };
+
+    // Salvar no cache (apenas em desenvolvimento)
+    if (process.env.NODE_ENV === 'development') {
+      localCache.set(cacheKey, responseData);
+      console.log(`⏱️ Dados carregados em ${responseData.loadTime}ms e salvos no cache`);
+    }
+
+    return NextResponse.json(responseData);
 
   } catch (error) {
     console.error('Erro na API de sustentação:', error);

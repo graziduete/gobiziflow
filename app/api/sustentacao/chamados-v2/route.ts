@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleSheetsProviderV2 } from '@/lib/providers/google-sheets-provider-v2';
+import { localCache, createCacheKey } from '@/lib/cache/local-cache';
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,6 +11,25 @@ export async function POST(request: NextRequest) {
     const ano: number = body.ano ?? body.filters?.ano ?? (new Date().getFullYear());
 
     console.log('📊 [V2] Buscando chamados com nova lógica...', { mes, ano, companyId, rawBodyKeys: Object.keys(body || {}) });
+
+    // Criar chave de cache
+    const cacheKey = createCacheKey('chamados-v2', { companyId, mes, ano });
+    
+    // Tentar buscar do cache primeiro (apenas em desenvolvimento)
+    if (process.env.NODE_ENV === 'development') {
+      const cachedData = localCache.get(cacheKey);
+      if (cachedData) {
+        console.log('🚀 [V2] Retornando dados do cache local');
+        return NextResponse.json({
+          ...cachedData,
+          cached: true,
+          cacheKey
+        });
+      }
+    }
+
+    console.log('🌐 [V2] Buscando dados do Google Sheets...');
+    const startTime = Date.now();
 
     // Verificar configuração
     const apiKey = process.env.GOOGLE_SHEETS_API_KEY;
@@ -124,18 +144,28 @@ export async function POST(request: NextRequest) {
     const metricas = await provider.getMetricas(filtros);
     const categorias = await provider.getChamadosPorCategoria(filtros);
 
+    const responseData = {
+      chamados,
+      metricas,
+      categorias,
+      loadTime: Date.now() - startTime
+    };
+
     console.log('✅ [V2] Dados obtidos com sucesso:', {
       chamados: chamados.length,
       metricas,
-      categorias: categorias.length
+      categorias: categorias.length,
+      loadTime: responseData.loadTime
     });
 
+    // Salvar no cache (apenas em desenvolvimento)
+    if (process.env.NODE_ENV === 'development') {
+      localCache.set(cacheKey, responseData);
+      console.log(`⏱️ [V2] Dados carregados em ${responseData.loadTime}ms e salvos no cache`);
+    }
+
     // Importante: manter o MESMO formato da v1 para evitar quebras no frontend
-    return NextResponse.json({
-      chamados,
-      metricas,
-      categorias
-    });
+    return NextResponse.json(responseData);
 
   } catch (error) {
     console.error('❌ [V2] Erro ao buscar dados:', error);
