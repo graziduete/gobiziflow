@@ -24,9 +24,10 @@ interface GanttChartProps {
   projectEndDate?: string;
   defaultExpanded?: boolean;
   projectName?: string;
+  hideControls?: boolean; // Nova prop para esconder ícones de controle
 }
 
-export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExpanded = false, projectName }: GanttChartProps) {
+export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExpanded = false, projectName, hideControls = false }: GanttChartProps) {
   // Estado para controlar a expansão da tela
   const [isExpanded, setIsExpanded] = React.useState(defaultExpanded)
   // Evitar hydration mismatch ao destacar mês atual
@@ -524,41 +525,43 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
               </CardTitle>
               
               {/* Botões de ação */}
-              <div className="flex items-center gap-2 bg-white/60 border border-slate-200 rounded-lg p-1.5 shadow-sm">
-                {/* Botão de download */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="p-2 hover:scale-105 transition-transform">
-                      <Download className="w-4 h-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="z-[999999] w-56">
-                    <DropdownMenuItem onClick={handleDownloadPNG} className="gap-3 p-3">
-                      <FileImage className="w-4 h-4 text-blue-600" />
-                      <div className="flex flex-col">
-                        <span className="font-medium">Baixar como PNG</span>
-                        <span className="text-xs text-slate-500">Imagem de alta qualidade</span>
-                      </div>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleDownloadPDF} className="gap-3 p-3">
-                      <FileText className="w-4 h-4 text-red-600" />
-                      <div className="flex flex-col">
-                        <span className="font-medium">Baixar como PDF</span>
-                        <span className="text-xs text-slate-500">Documento para impressão</span>
-                      </div>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                
-                {/* Botão para colapsar */}
-                <button
-                  onClick={() => setIsExpanded(false)}
-                  className="p-2 bg-gradient-to-r from-slate-100 to-slate-200 hover:from-slate-200 hover:to-slate-300 rounded-lg text-slate-700 hover:text-slate-900 transition-all duration-200 shadow-sm hover:shadow-md"
-                  title="Colapsar visualização (Esc)"
-                >
-                  <Minimize2 className="w-4 h-4" />
-                </button>
-              </div>
+              {!hideControls && (
+                <div className="flex items-center gap-2 bg-white/60 border border-slate-200 rounded-lg p-1.5 shadow-sm">
+                  {/* Botão de download */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm" className="p-2 hover:scale-105 transition-transform">
+                        <Download className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="z-[999999] w-56">
+                      <DropdownMenuItem onClick={handleDownloadPNG} className="gap-3 p-3">
+                        <FileImage className="w-4 h-4 text-blue-600" />
+                        <div className="flex flex-col">
+                          <span className="font-medium">Baixar como PNG</span>
+                          <span className="text-xs text-slate-500">Imagem de alta qualidade</span>
+                        </div>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={handleDownloadPDF} className="gap-3 p-3">
+                        <FileText className="w-4 h-4 text-red-600" />
+                        <div className="flex flex-col">
+                          <span className="font-medium">Baixar como PDF</span>
+                          <span className="text-xs text-slate-500">Documento para impressão</span>
+                        </div>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  
+                  {/* Botão para colapsar */}
+                  <button
+                    onClick={() => setIsExpanded(false)}
+                    className="p-2 bg-gradient-to-r from-slate-100 to-slate-200 hover:from-slate-200 hover:to-slate-300 rounded-lg text-slate-700 hover:text-slate-900 transition-all duration-200 shadow-sm hover:shadow-md"
+                    title="Colapsar visualização (Esc)"
+                  >
+                    <Minimize2 className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
             </div>
           </CardHeader>
           
@@ -795,41 +798,43 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
           </CardTitle>
           
           {/* Botões de ação */}
-          <div className="flex items-center gap-2">
-            {/* Botão de download */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="p-2 hover:scale-105 transition-transform">
-                  <Download className="w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem onClick={handleDownloadPNG} className="gap-3 p-3">
-                  <FileImage className="w-4 h-4 text-blue-600" />
-                  <div className="flex flex-col">
-                    <span className="font-medium">Baixar como PNG</span>
-                    <span className="text-xs text-slate-500">Imagem de alta qualidade</span>
-                  </div>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleDownloadPDF} className="gap-3 p-3">
-                  <FileText className="w-4 h-4 text-red-600" />
-                  <div className="flex flex-col">
-                    <span className="font-medium">Baixar como PDF</span>
-                    <span className="text-xs text-slate-500">Documento para impressão</span>
-                  </div>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            
-            {/* Botão para expandir */}
-            <button
-              onClick={() => setIsExpanded(true)}
-              className="p-2 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-lg text-white transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
-              title="Expandir visualização (F11)"
-            >
-              <Maximize2 className="w-4 h-4" />
-            </button>
-          </div>
+          {!hideControls && (
+            <div className="flex items-center gap-2">
+              {/* Botão de download */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="p-2 hover:scale-105 transition-transform">
+                    <Download className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuItem onClick={handleDownloadPNG} className="gap-3 p-3">
+                    <FileImage className="w-4 h-4 text-blue-600" />
+                    <div className="flex flex-col">
+                      <span className="font-medium">Baixar como PNG</span>
+                      <span className="text-xs text-slate-500">Imagem de alta qualidade</span>
+                    </div>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleDownloadPDF} className="gap-3 p-3">
+                    <FileText className="w-4 h-4 text-red-600" />
+                    <div className="flex flex-col">
+                      <span className="font-medium">Baixar como PDF</span>
+                      <span className="text-xs text-slate-500">Documento para impressão</span>
+                    </div>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              
+              {/* Botão para expandir */}
+              <button
+                onClick={() => setIsExpanded(true)}
+                className="p-2 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-lg text-white transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
+                title="Expandir visualização (F11)"
+              >
+                <Maximize2 className="w-4 h-4" />
+              </button>
+            </div>
+          )}
         </div>
       </CardHeader>
       

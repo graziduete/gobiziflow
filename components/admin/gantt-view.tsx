@@ -1,14 +1,16 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { createClient } from "@/lib/supabase/client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 
 
-import { Calendar, Clock, TrendingUpIcon as TrendingRight, Maximize2, Search, Building2, Tag, Activity } from "lucide-react"
+import { Calendar, Clock, TrendingUpIcon as TrendingRight, Maximize2, Search, Building2, Tag, Activity, BarChart3 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { GanttChart } from "@/components/admin/gantt-chart"
 
 interface GanttViewProps {
   projects: any[] // já filtrados pelo container
@@ -23,16 +25,20 @@ interface ExpandedFilters {
   search: string
   company: string
   type: string
-  status: string
+  status: string[] // Mudança: agora é array para multiselect
 }
 
 export function GanttView({ projects, allProjects, companies = [], selectedMonth, selectedYear, userRole }: GanttViewProps) {
   const [isExpanded, setIsExpanded] = useState(false)
+  const [isGanttView, setIsGanttView] = useState(false)
+  const [projectTasks, setProjectTasks] = useState<{[key: string]: any[]}>({})
+  const [loadingTasks, setLoadingTasks] = useState<{[key: string]: boolean}>({})
+  const [visibleProjects, setVisibleProjects] = useState(10) // Paginação: 10 projetos por vez
   const [expandedFilters, setExpandedFilters] = useState<ExpandedFilters>({
     search: "",
     company: "all",
     type: "all",
-    status: "all"
+    status: ["planning", "in_progress"] // Padrão inteligente: Planejamento + Em Andamento
   })
 
 
@@ -172,18 +178,45 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
     }
   }
 
+  // Função para obter o nome da empresa de forma segura
+  const getCompanyName = (project: any) => {
+    // Primeiro tenta acessar via relação (visão admin)
+    if (project.companies?.name) {
+      return project.companies.name
+    }
+    
+    // Se não tiver relação, busca na lista de companies passada via props (visão cliente)
+    if (companies.length > 0) {
+      return companies[0].name // Na visão cliente, sempre será a empresa do usuário
+    }
+    
+    return "Empresa não definida"
+  }
+
   const isProjectDelayed = (endDate: string, status: string) => {
     if (!endDate || status === "completed" || status === "cancelled") return false
     return new Date(endDate) < new Date()
   }
 
-  const updateExpandedFilter = (key: keyof ExpandedFilters, value: string) => {
+  const updateExpandedFilter = (key: keyof ExpandedFilters, value: string | string[]) => {
     console.log('🔍 Atualizando filtro:', key, 'para:', value)
     console.log('🔍 Estado anterior:', expandedFilters)
     setExpandedFilters(prev => {
       const newState = { ...prev, [key]: value }
       console.log('🔍 Novo estado:', newState)
       return newState
+    })
+  }
+
+  // Função específica para toggle de status
+  const toggleStatusFilter = (statusValue: string) => {
+    setExpandedFilters(prev => {
+      const currentStatus = prev.status
+      const newStatus = currentStatus.includes(statusValue)
+        ? currentStatus.filter(s => s !== statusValue)
+        : [...currentStatus, statusValue]
+      
+      return { ...prev, status: newStatus }
     })
   }
 
@@ -221,25 +254,25 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
       console.log('🔍 Após filtro de tipo:', filtered.length)
     }
 
-    // Aplicar filtro de status
-    if (expandedFilters.status && expandedFilters.status !== 'all') {
+    // Aplicar filtro de status (multiselect)
+    if (expandedFilters.status && expandedFilters.status.length > 0) {
       console.log('🔍 Filtrando por status:', expandedFilters.status)
       console.log('🔍 Projetos antes do filtro de status:', filtered.map(p => ({ id: p.id, name: p.name, status: p.status })))
       
-      // Filtro case-insensitive para status
+      // Filtro multiselect para status
       filtered = filtered.filter(project => 
-        project.status?.toLowerCase() === expandedFilters.status.toLowerCase()
+        expandedFilters.status.includes(project.status)
       )
       
       console.log('🔍 Após filtro de status:', filtered.length)
       console.log('🔍 Projetos após filtro de status:', filtered.map(p => ({ id: p.id, name: p.name, status: p.status })))
     }
 
-    // Regra adicional (Opção A): quando status = 'completed', incluir projetos
+    // Regra adicional (Opção A): quando status inclui 'completed', incluir projetos
     // concluídos até o fim do mês/ano selecionado no Dashboard.
     // Como o componente não recebe diretamente o mês/ano, usamos created_at/start/end
     // para relaxar a regra caso o projeto não intersecte o mês já aplicado pelo container.
-    if (expandedFilters.status === 'completed') {
+    if (expandedFilters.status.includes('completed')) {
       // Inclusão de concluídos até o fim do mês selecionado
       const baseYear = selectedYear ?? new Date().getFullYear()
       const baseMonth = (selectedMonth ?? (new Date().getMonth() + 1))
@@ -272,11 +305,118 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
       search: "",
       company: "all",
       type: "all",
-      status: "all"
+      status: ["planning", "in_progress"] // Reset para padrão inteligente
     })
+    setVisibleProjects(10) // Reset paginação
   }
 
+  // Função para obter todos os projetos filtrados (sem paginação)
+  const getAllFilteredProjects = () => {
+    let baseProjects = isExpanded ? (allProjects || []) : projects
+    let filtered = [...baseProjects]
+    
+    if (expandedFilters.search && expandedFilters.search.trim() !== '') {
+      filtered = filtered.filter(project =>
+        project.name.toLowerCase().includes(expandedFilters.search.toLowerCase())
+      )
+    }
 
+    if (expandedFilters.company && expandedFilters.company !== 'all') {
+      filtered = filtered.filter(project => project.company_id === expandedFilters.company)
+    }
+
+    if (expandedFilters.type && expandedFilters.type !== 'all') {
+      filtered = filtered.filter(project => project.project_type === expandedFilters.type)
+    }
+
+    if (expandedFilters.status && expandedFilters.status.length > 0) {
+      filtered = filtered.filter(project => 
+        expandedFilters.status.includes(project.status)
+      )
+    }
+
+    if (expandedFilters.status.includes('completed')) {
+      const baseYear = selectedYear ?? new Date().getFullYear()
+      const baseMonth = (selectedMonth ?? (new Date().getMonth() + 1))
+      const endOfMonth = new Date(baseYear, baseMonth, 0)
+      filtered = [
+        ...filtered,
+        ...((allProjects ?? projects).filter(p => p.status === 'completed' && p.end_date && new Date(p.end_date) <= endOfMonth && !filtered.some(f => f.id === p.id)))
+      ]
+    }
+
+    const sortedProjects = filtered.sort((a, b) => {
+      const ad = a?.start_date ? new Date(a.start_date).getTime() : Infinity
+      const bd = b?.start_date ? new Date(b.start_date).getTime() : Infinity
+      return ad - bd
+    })
+
+    // Retornar apenas os projetos visíveis (paginação)
+    return sortedProjects.slice(0, visibleProjects)
+  }
+
+  // Função para carregar mais projetos
+  const loadMoreProjects = () => {
+    setVisibleProjects(prev => prev + 10)
+  }
+
+  // Função para buscar tarefas de um projeto
+  const fetchProjectTasks = async (projectId: string) => {
+    if (projectTasks[projectId] || loadingTasks[projectId]) {
+      return // Já carregado ou carregando
+    }
+
+    setLoadingTasks(prev => ({ ...prev, [projectId]: true }))
+
+    try {
+      const supabase = createClient()
+      
+      const { data: tasksData, error } = await supabase
+        .from("tasks")
+        .select(`
+          id,
+          name,
+          description,
+          start_date,
+          end_date,
+          status,
+          responsible
+        `)
+        .eq("project_id", projectId)
+        .order("start_date", { ascending: true })
+
+      if (error) throw error
+
+      // Transformar dados para o formato esperado pelo GanttChart
+      const formattedTasks = (tasksData || [])
+        .map((task: any) => ({
+          id: task.id,
+          name: task.name,
+          start_date: task.start_date,
+          end_date: task.end_date,
+          status: task.status,
+          responsible: task.responsible || '—',
+          description: task.description || ''
+        }))
+        .filter((t: any) => !!t.start_date && !!t.end_date)
+
+      setProjectTasks(prev => ({ ...prev, [projectId]: formattedTasks }))
+    } catch (error) {
+      console.error("Erro ao buscar tarefas:", error)
+      setProjectTasks(prev => ({ ...prev, [projectId]: [] }))
+    } finally {
+      setLoadingTasks(prev => ({ ...prev, [projectId]: false }))
+    }
+  }
+
+  // Carregar tarefas quando a visão Gantt for ativada
+  useEffect(() => {
+    if (isGanttView) {
+      getFilteredProjects().forEach(project => {
+        fetchProjectTasks(project.id)
+      })
+    }
+  }, [isGanttView, expandedFilters])
 
   return (
     <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-white to-slate-50/50 shadow-md">
@@ -327,7 +467,7 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
                     <h4 className="font-bold text-slate-900 text-lg mb-1 group-hover:text-blue-700 transition-colors truncate">{project.name}</h4>
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 text-xs font-medium border border-blue-100">
-                        {project.companies?.name}
+                        {getCompanyName(project)}
                       </span>
                       <span className="text-sm text-slate-500">
                         {getProjectTypeText(project.project_type)}
@@ -480,6 +620,15 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
                 Todos os Cronogramas
               </h2>
             </div>
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setIsGanttView(!isGanttView)}
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white border-0 shadow-md hover:shadow-lg transition-all duration-200"
+              >
+                <BarChart3 className="h-4 w-4" />
+                {isGanttView ? 'Visão Cards' : 'Visão Gantt'}
+              </Button>
             <Button
               variant="ghost"
               size="sm"
@@ -491,11 +640,12 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </Button>
+            </div>
           </div>
           
           <div className="flex h-[calc(100vh-80px)] relative z-10">
             {/* Painel lateral de filtros */}
-            <aside className="w-[320px] border-r border-slate-200/60 bg-white/60 backdrop-blur-md p-6 overflow-y-auto shadow-sm">
+            <aside className={`${isGanttView ? 'w-0 opacity-0' : 'w-[320px]'} border-r border-slate-200/60 bg-white/60 backdrop-blur-md p-6 overflow-y-auto shadow-sm transition-all duration-300`}>
               <div className="space-y-5">
                 <div>
                   <h3 className="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wide">Filtros</h3>
@@ -558,27 +708,42 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
                   </Select>
                 </div>
 
-                {/* Status */}
+                {/* Status - Multiselect */}
                 <div>
-                  <label className="text-xs font-bold text-slate-600 mb-2 block flex items-center gap-2 uppercase tracking-wide">
+                  <label className="text-xs font-bold text-slate-600 mb-3 block flex items-center gap-2 uppercase tracking-wide">
                     <div className="p-1 bg-purple-50 rounded">
                       <Activity className="h-3.5 w-3.5 text-purple-600" />
                     </div>
-                    Status
+                    Status ({expandedFilters.status.length} selecionados)
                   </label>
-                  <Select value={expandedFilters.status} onValueChange={(value) => updateExpandedFilter("status", value)}>
-                    <SelectTrigger className="w-full h-12 text-sm bg-white border-gray-300 hover:border-gray-400 focus:border-blue-500">
-                      <SelectValue placeholder="Todos os status" />
-                    </SelectTrigger>
-                    <SelectContent className="z-[10000]">
-                      <SelectItem value="all">Todos os status</SelectItem>
+                  <div className="space-y-2 bg-white rounded-lg border border-gray-300 p-3">
                       {statusOptions.map((status) => (
-                        <SelectItem key={status.value} value={status.value}>
+                      <label key={status.value} className="flex items-center gap-3 cursor-pointer hover:bg-slate-50 p-2 rounded-md transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={expandedFilters.status.includes(status.value)}
+                          onChange={() => toggleStatusFilter(status.value)}
+                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                        />
+                        <span className="text-sm font-medium text-slate-700 flex-1">
                           {status.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                        </span>
+                        {expandedFilters.status.includes(status.value) && (
+                          <div className={`w-2 h-2 rounded-full ${
+                            status.value === 'completed' ? 'bg-green-500' :
+                            status.value === 'in_progress' ? 'bg-blue-500' :
+                            status.value === 'delayed' ? 'bg-red-500' :
+                            status.value === 'planning' ? 'bg-blue-400' :
+                            status.value === 'cancelled' ? 'bg-gray-500' :
+                            status.value === 'commercial_proposal' ? 'bg-purple-500' :
+                            status.value === 'on_hold' ? 'bg-yellow-500' :
+                            status.value === 'homologation' ? 'bg-orange-500' :
+                            'bg-slate-400'
+                          }`} />
+                        )}
+                      </label>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Ações */}
@@ -587,7 +752,7 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
                     Limpar Filtros
                   </Button>
                   <div className="text-xs text-gray-600 text-center">
-                    {getFilteredProjects().length} de {projects.length} projetos
+                    {getAllFilteredProjects().length} projeto{getAllFilteredProjects().length !== 1 ? 's' : ''} encontrado{getAllFilteredProjects().length !== 1 ? 's' : ''}
                   </div>
                 </div>
               </div>
@@ -596,7 +761,80 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
             {/* Lista de projetos */}
             <section className="flex-1 overflow-y-auto p-6">
               <div className="space-y-3">
-                {getFilteredProjects().length === 0 ? (
+                {isGanttView ? (
+                  <div className="space-y-8">
+                    <div className="text-center py-6">
+                      <div className="flex items-center justify-center gap-3 mb-4">
+                        <div className="p-3 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl shadow-lg">
+                          <BarChart3 className="w-6 h-6 text-white" />
+                        </div>
+                        <h3 className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-blue-900 bg-clip-text text-transparent">
+                          Visão Unificada Gantt
+                        </h3>
+                      </div>
+                      <p className="text-slate-600">Cronogramas de todos os projetos em uma única visualização</p>
+                      <div className="mt-4 inline-flex items-center px-4 py-2 bg-blue-50 rounded-lg border border-blue-200">
+                        <span className="text-sm font-medium text-blue-700">
+                          {getFilteredProjects().length} projeto{getFilteredProjects().length !== 1 ? 's' : ''} encontrado{getFilteredProjects().length !== 1 ? 's' : ''}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    {getFilteredProjects().map((project, index) => (
+                      <div key={project.id} className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+                        <div className="bg-gradient-to-r from-slate-50 to-blue-50 px-6 py-4 border-b border-slate-200">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h4 className="text-lg font-bold text-slate-900">{project.name}</h4>
+                              <div className="flex items-center gap-4 mt-2">
+                                <span className="text-sm text-slate-600">
+                                  <strong>Empresa:</strong> {getCompanyName(project)}
+                                </span>
+                                <span className="text-sm text-slate-600">
+                                  <strong>Período:</strong> {formatDate(project.start_date)} - {formatDate(project.end_date)}
+                                </span>
+                              </div>
+                            </div>
+                            <Badge 
+                              className={`border-0 shadow-md font-bold px-3 py-1 text-xs ${
+                                project.status === 'completed' ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white' :
+                                project.status === 'in_progress' ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white' :
+                                project.status === 'delayed' ? 'bg-gradient-to-r from-red-500 to-orange-500 text-white' :
+                                project.status === 'planning' ? 'bg-gradient-to-r from-blue-400 to-sky-400 text-white' :
+                                project.status === 'cancelled' ? 'bg-gradient-to-r from-gray-500 to-slate-500 text-white' :
+                                project.status === 'commercial_proposal' ? 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white' :
+                                project.status === 'on_hold' ? 'bg-gradient-to-r from-yellow-500 to-amber-500 text-white' :
+                                project.status === 'homologation' ? 'bg-gradient-to-r from-orange-500 to-yellow-500 text-white' :
+                                'bg-gradient-to-r from-slate-400 to-slate-500 text-white'
+                              }`}
+                            >
+                              {getStatusText(project.status || "planning")}
+                            </Badge>
+                          </div>
+                        </div>
+                        <div className="p-6">
+                          {loadingTasks[project.id] ? (
+                            <div className="flex items-center justify-center py-8">
+                              <div className="text-center">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                                <p className="text-sm text-slate-600">Carregando tarefas...</p>
+                              </div>
+                            </div>
+                          ) : (
+                          <GanttChart 
+                            tasks={projectTasks[project.id] || []}
+                            projectStartDate={project.start_date}
+                            projectEndDate={project.end_date}
+                            projectName={project.name}
+                            defaultExpanded={false}
+                            hideControls={true} // Esconder ícones na visão unificada
+                          />
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : getFilteredProjects().length === 0 ? (
                   <p className="text-center text-muted-foreground py-8">Nenhum projeto encontrado</p>
                 ) : (
                   getFilteredProjects().map((project) => (
@@ -625,7 +863,7 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
                           <h4 className="font-bold text-slate-900 text-lg mb-1 group-hover:text-blue-700 transition-colors truncate">{project.name}</h4>
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 text-xs font-medium border border-blue-100">
-                              {project.companies?.name}
+                              {getCompanyName(project)}
                             </span>
                             <span className="text-sm text-slate-500">
                               {getProjectTypeText(project.project_type)}
@@ -733,6 +971,24 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
                       )}
                     </div>
                   ))
+                )}
+                
+                {/* Botão Load More */}
+                {getAllFilteredProjects().length > visibleProjects && (
+                  <div className="mt-6 pt-6 border-t border-slate-200">
+                    <div className="text-center">
+                      <div className="mb-4 text-sm text-slate-600">
+                        Mostrando {getFilteredProjects().length} de {getAllFilteredProjects().length} projetos
+                      </div>
+                      <Button
+                        onClick={loadMoreProjects}
+                        variant="outline"
+                        className="px-8 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white border-0 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"
+                      >
+                        Carregar Mais 10
+                      </Button>
+                    </div>
+                  </div>
                 )}
               </div>
             </section>
