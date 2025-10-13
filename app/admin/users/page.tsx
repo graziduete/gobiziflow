@@ -41,7 +41,7 @@ export default function UsersPage() {
   
   // Paginação
   const [currentPage, setCurrentPage] = useState(1)
-  const [usersPerPage] = useState(10)
+  const [usersPerPage] = useState(50) // Aumentado para Admin Master ver todos os usuários
   const [totalCount, setTotalCount] = useState(0)
 
   // Estado para exclusão

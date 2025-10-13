@@ -123,23 +123,63 @@ export class PaymentMetricService {
         // Garantir valores padrão para campos opcionais
         insertData.start_date = insertData.start_date || new Date().toISOString().split('T')[0]
         insertData.end_date = insertData.end_date || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-        insertData.total_value = insertData.total_value || 0
-        insertData.total_hours = insertData.total_hours || 0
+        
+        // Para métricas "percentual por fases", total_value deve ser 0 pois é calculado dinamicamente
+        if (insertData.metric_type === 'percentage_phases') {
+          insertData.total_value = 0
+        } else {
+          insertData.total_value = insertData.total_value || 0
+        }
+        
+        // Para métricas "percentual por fases", total_hours deve ser NULL pois não se aplica
+        console.log('🔍 [DEBUG] total_hours antes do processamento:', insertData.total_hours)
+        console.log('🔍 [DEBUG] metric_type:', insertData.metric_type)
+        
+        if (insertData.metric_type === 'percentage_phases') {
+          insertData.total_hours = null
+          console.log('🔍 [DEBUG] total_hours definido como NULL para percentage_phases')
+        } else {
+          insertData.total_hours = insertData.total_hours || 0
+          console.log('🔍 [DEBUG] total_hours definido como:', insertData.total_hours)
+        }
+        console.log('🔍 [DEBUG] total_hours após processamento:', insertData.total_hours)
         insertData.is_active = insertData.is_active !== undefined ? insertData.is_active : true
+        
+        // Garantir valores padrão para percentuais (para métricas percentage_phases)
+        if (insertData.metric_type === 'percentage_phases') {
+          // CRÍTICO: Para satisfazer a constraint, a soma deve ser 100
+          // Se homologation_percentage for undefined/null/vazio, usar 0
+          insertData.planning_percentage = insertData.planning_percentage !== undefined ? parseInt(String(insertData.planning_percentage)) : 0
+          insertData.homologation_percentage = (insertData.homologation_percentage !== undefined && 
+                                               insertData.homologation_percentage !== null && 
+                                               insertData.homologation_percentage !== '') 
+                                               ? parseInt(String(insertData.homologation_percentage)) 
+                                               : 0
+          insertData.completion_percentage = insertData.completion_percentage !== undefined ? parseInt(String(insertData.completion_percentage)) : 0
+          
+          console.log('🔍 [DEBUG] Percentuais processados:', {
+            planning: insertData.planning_percentage,
+            homologation: insertData.homologation_percentage,
+            completion: insertData.completion_percentage,
+            soma: insertData.planning_percentage + insertData.homologation_percentage + insertData.completion_percentage
+          })
+        }
         
         console.log('🔧 Dados após validação e ajustes:', insertData)
         
-        // Validar se start_date é anterior a end_date (mais flexível)
-        const startDate = new Date(insertData.start_date)
-        const endDate = new Date(insertData.end_date)
-        
-        if (startDate >= endDate) {
-          console.warn('⚠️ Data de início >= Data de fim, ajustando...')
-          // Ajustar end_date para 1 dia após start_date se necessário
-          const adjustedEndDate = new Date(startDate)
-          adjustedEndDate.setDate(adjustedEndDate.getDate() + 1)
-          insertData.end_date = adjustedEndDate.toISOString().split('T')[0]
-          console.log('📅 End date ajustado para:', insertData.end_date)
+        // Validar datas apenas para métricas que não são "percentual por fases"
+        if (insertData.metric_type !== 'percentage_phases') {
+          const startDate = new Date(insertData.start_date)
+          const endDate = new Date(insertData.end_date)
+          
+          if (startDate >= endDate) {
+            console.warn('⚠️ Data de início >= Data de fim, ajustando...')
+            // Ajustar end_date para 1 dia após start_date se necessário
+            const adjustedEndDate = new Date(startDate)
+            adjustedEndDate.setDate(adjustedEndDate.getDate() + 1)
+            insertData.end_date = adjustedEndDate.toISOString().split('T')[0]
+            console.log('📅 End date ajustado para:', insertData.end_date)
+          }
         }
         
         console.log('📤 Dados que serão inseridos:', JSON.stringify(insertData, null, 2))
@@ -155,13 +195,9 @@ export class PaymentMetricService {
           .insert([insertData])
         
         if (insertError) {
-          console.error('❌ Erro no INSERT:', {
-            message: insertError.message,
-            details: insertError.details,
-            hint: insertError.hint,
-            code: insertError.code,
-            data: insertData
-          })
+          console.error('❌ Erro no INSERT:', insertError)
+          console.error('❌ Erro completo:', JSON.stringify(insertError, null, 2))
+          console.error('❌ Dados que causaram erro:', JSON.stringify(insertData, null, 2))
           
           // Se for erro de constraint, tentar com valores padrão
           if (insertError.code === '23514') {

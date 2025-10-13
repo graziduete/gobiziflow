@@ -52,6 +52,21 @@ export default function AdminDashboard() {
     totalExpected: 0,
     breakdown: []
   })
+
+  // Estado separado para Faturamento Total (anual)
+  const [totalRevenueData, setTotalRevenueData] = useState<{
+    totalExpected: number
+    breakdown: Array<{
+      companyId: string
+      companyName: string
+      metricType: string
+      expectedValue: number
+      details: string
+    }>
+  }>({
+    totalExpected: 0,
+    breakdown: []
+  })
   
   // Estado para o role do usuário
   const [userRole, setUserRole] = useState<string | null>(null)
@@ -485,12 +500,15 @@ export default function AdminDashboard() {
           tenant_id: c.tenant_id
         })))
         
-        const result = await DashboardService.getExpectedValueForMonth(monthYear, filteredCompanyIds)
+        // Para "Previsto para este mês", usar cálculo mensal
+        const monthlyResult = await DashboardService.getExpectedValueForMonth(monthYear, filteredCompanyIds)
+        setExpectedValueData(monthlyResult)
+        console.log('📊 Valor mensal calculado:', monthlyResult)
         
-        setExpectedValueData(result)
-        console.log('📊 Valor esperado calculado:', result)
-        console.log('📊 Total esperado:', result.totalExpected)
-        console.log('📊 Breakdown length:', result.breakdown.length)
+        // Para "Faturamento Total", usar cálculo anual
+        const yearlyResult = await DashboardService.getExpectedValueForYear(selectedYear.toString(), filteredCompanyIds)
+        setTotalRevenueData(yearlyResult)
+        console.log('📊 Valor anual calculado:', yearlyResult)
       } else {
         // Para empresa específica, usar lógica atual (projetos)
         setExpectedValueData({
@@ -801,7 +819,7 @@ export default function AdminDashboard() {
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <h3 className="text-sm font-semibold text-slate-600 group-hover:text-slate-900 transition-colors">
-                    {selectedCompany !== "all" ? "Faturamento da Empresa" : "Faturamento Total"}
+                    {selectedCompany !== "all" ? "Faturamento da Empresa" : "Faturamento Total do Ano"}
                   </h3>
                   <button
                     onClick={() => setIsRevenueVisible(!isRevenueVisible)}
@@ -818,7 +836,7 @@ export default function AdminDashboard() {
               
               <p className="text-3xl font-bold bg-gradient-to-r from-green-700 to-emerald-700 bg-clip-text text-transparent mb-2 group-hover:scale-105 transition-transform">
                 {isRevenueVisible 
-                  ? `R$ ${totalRevenue.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                  ? `R$ ${totalRevenueData.totalExpected.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                   : "••••••••"
                 }
               </p>

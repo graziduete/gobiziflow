@@ -25,20 +25,54 @@ export function UserFilters({ filters, onFiltersChange }: UserFiltersProps) {
   const [localFilters, setLocalFilters] = useState<UserFilters>(filters)
   const [companies, setCompanies] = useState<Array<{ id: string; name: string }>>([])
 
-  // Buscar empresas
+  // Buscar empresas com filtro baseado no role
   useEffect(() => {
     const fetchCompanies = async () => {
       try {
         const supabase = createClient()
-        const { data, error } = await supabase
-          .from("companies")
-          .select("id, name")
-          .order("name")
+        
+        // Verificar usuário logado e seu perfil
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) {
+          console.error('🔍 [UserFilters] Usuário não autenticado')
+          return
+        }
+
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role, is_client_admin')
+          .eq('id', user.id)
+          .single()
+
+        console.log('🔍 [UserFilters] Perfil do usuário:', profile)
+
+        let query = supabase.from('companies').select('id, name, tenant_id').order('name')
+
+        // Verificar se é Client Admin
+        const { data: isClientAdmin } = await supabase
+          .from('client_admins')
+          .select('company_id')
+          .eq('id', user.id)
+          .single()
+
+        if (isClientAdmin) {
+          console.log('🏢 [UserFilters] Client Admin detectado, filtrando empresas por tenant:', isClientAdmin.company_id)
+          query = query.eq('tenant_id', isClientAdmin.company_id)
+        } else if (profile?.role === 'admin' || profile?.role === 'admin_operacional') {
+          console.log('👤 [UserFilters] Admin Normal/Operacional detectado, filtrando empresas sem tenant_id')
+          query = query.is('tenant_id', null)
+        } else {
+          console.log('👑 [UserFilters] Admin Master detectado, sem filtro de empresas')
+        }
+
+        const { data, error } = await query
         
         if (error) throw error
+        console.log('✅ [UserFilters] Empresas encontradas para filtro:', data)
         setCompanies(data || [])
       } catch (error) {
-        console.error("Erro ao buscar empresas:", error)
+        console.error("❌ [UserFilters] Erro ao buscar empresas:", error)
+        setCompanies([])
       }
     }
 

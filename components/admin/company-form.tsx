@@ -1509,19 +1509,19 @@ export function CompanyForm({ company, onSuccess }: CompanyFormProps) {
                                 
                                 {metric.metric_type === 'percentage_phases' && (
                                   <>
-                                    {metric.planning_percentage && metric.planning_percentage > 0 && (
+                                    {metric.planning_percentage !== undefined && metric.planning_percentage !== null && (
                                       <div className="flex items-center gap-2">
                                         <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
                                         <span>Planejamento: {metric.planning_percentage}%</span>
                                       </div>
                                     )}
-                                    {metric.homologation_percentage && metric.homologation_percentage > 0 && (
+                                    {metric.homologation_percentage !== undefined && metric.homologation_percentage !== null && (
                                       <div className="flex items-center gap-2">
                                         <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
                                         <span>Homologação: {metric.homologation_percentage}%</span>
                                       </div>
                                     )}
-                                    {metric.completion_percentage && metric.completion_percentage > 0 && (
+                                    {metric.completion_percentage !== undefined && metric.completion_percentage !== null && (
                                       <div className="flex items-center gap-2">
                                         <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                                         <span>Conclusão: {metric.completion_percentage}%</span>
