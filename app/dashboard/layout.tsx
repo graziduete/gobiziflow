@@ -26,11 +26,11 @@ export default async function ClientLayout({
       userId: data.user.id,
       userEmail: data.user.email,
       profileRole: profile?.role,
-      shouldRedirect: profile?.role === "admin" || profile?.role === "admin_operacional"
+      shouldRedirect: profile?.role === "admin" || profile?.role === "admin_operacional" || profile?.role === "admin_master"
     })
 
-    if (profile?.role === "admin" || profile?.role === "admin_operacional") {
-      console.log("🔄 [ClientLayout] Redirecting admin/admin_operacional to /admin")
+    if (profile?.role === "admin" || profile?.role === "admin_operacional" || profile?.role === "admin_master") {
+      console.log("🔄 [ClientLayout] Redirecting admin/admin_operacional/admin_master to /admin")
       return <RedirectToAdmin />
     }
   } catch (networkError) {

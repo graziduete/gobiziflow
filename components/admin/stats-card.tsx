@@ -15,6 +15,11 @@ interface StatsCardProps {
 }
 
 export function StatsCard({ title, value, description, icon: Icon, trend }: StatsCardProps) {
+  // Debug: rastrear valores recebidos pelo StatsCard
+  if (title.includes("Horas Consumidas")) {
+    console.log("🔧 [StatsCard] Total de Horas Consumidas recebeu valor:", value)
+  }
+  
   return (
     <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-0 bg-gradient-to-br from-white to-slate-50/50 group">
       {/* Fundo decorativo com gradiente */}

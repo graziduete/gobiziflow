@@ -4,6 +4,7 @@ export interface User {
   full_name: string
   role: 'admin' | 'admin_operacional' | 'client'
   is_first_login: boolean
+  first_login_completed?: boolean
   created_at: string
   updated_at: string
 }

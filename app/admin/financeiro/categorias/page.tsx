@@ -45,7 +45,7 @@ import {
   ArrowLeft
 } from "lucide-react"
 import Link from "next/link"
-import { useConfirmationDialog } from "@/components/ui/confirmation-dialog"
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog"
 import { ModernLoading } from "@/components/ui/modern-loading"
 
 // Interface para categorias
@@ -173,7 +173,12 @@ const availableIcons = [
 ]
 
 export default function CategoriasPage() {
-  const { showConfirmation, ConfirmationDialog } = useConfirmationDialog()
+  const [showConfirmation, setShowConfirmation] = useState(false)
+  const [confirmationData, setConfirmationData] = useState<{
+    title: string
+    description: string
+    onConfirm: () => void
+  } | null>(null)
   const [categories, setCategories] = useState<Category[]>([])
   const [subcategories, setSubcategories] = useState<Subcategory[]>([])
   const [searchTerm, setSearchTerm] = useState("")
@@ -996,7 +1001,19 @@ export default function CategoriasPage() {
       )}
       
       {/* Dialog de Confirmação */}
-      {ConfirmationDialog}
+      {confirmationData && (
+        <ConfirmationDialog
+          open={showConfirmation}
+          onOpenChange={setShowConfirmation}
+          title={confirmationData.title}
+          description={confirmationData.description}
+          onConfirm={() => {
+            confirmationData.onConfirm()
+            setShowConfirmation(false)
+            setConfirmationData(null)
+          }}
+        />
+      )}
     </div>
   )
 }

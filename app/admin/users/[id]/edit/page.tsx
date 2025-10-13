@@ -17,6 +17,21 @@ export default async function EditUserPage({ params }: EditUserPageProps) {
     notFound()
   }
 
+  // Verificar permissões: apenas admin_master pode editar outros admin_master
+  const { data: { user: currentUser } } = await supabase.auth.getUser()
+  if (currentUser) {
+    const { data: currentProfile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", currentUser.id)
+      .single()
+
+    // Se o usuário sendo editado é admin_master e o usuário atual não é admin_master, negar acesso
+    if (user.role === "admin_master" && currentProfile?.role !== "admin_master") {
+      notFound() // Retorna 404 para não revelar a existência da página
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div>

@@ -50,6 +50,31 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  // Check if user is a client_admin who needs to complete first login
+  if (user && !request.nextUrl.pathname.startsWith("/api")) {
+    try {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role, is_client_admin, first_login_completed")
+        .eq("id", user.id)
+        .single()
+
+      // If user is a client_admin and hasn't completed first login
+      if (
+        profile?.is_client_admin && 
+        !profile?.first_login_completed && 
+        request.nextUrl.pathname !== "/admin/first-login"
+      ) {
+        const url = request.nextUrl.clone()
+        url.pathname = "/admin/first-login"
+        return NextResponse.redirect(url)
+      }
+    } catch (error) {
+      // If there's an error fetching profile, continue normally
+      console.error("Error fetching user profile in middleware:", error)
+    }
+  }
+
   // IMPORTANT: You *must* return the supabaseResponse object as it is.
   // If you're creating a new response object with NextResponse.next() make sure to:
   // 1. Pass the request in it, like so:

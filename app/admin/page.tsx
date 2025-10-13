@@ -18,6 +18,7 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState<any[]>([])
   const [userCompanies, setUserCompanies] = useState<any[]>([])
   const [projects, setProjects] = useState<any[]>([])
+  const [companiesFiltered, setCompaniesFiltered] = useState(false)
   const [filteredProjects, setFilteredProjects] = useState<any[]>([])
   const [selectedMonth, setSelectedMonth] = useState<number | null>(new Date().getMonth() + 1)
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
@@ -31,6 +32,13 @@ export default function AdminDashboard() {
     totalRemainingHours: 0,
     companiesWithPackages: 0
   })
+  
+  // Debug: rastrear mudanças no estado
+  useEffect(() => {
+    console.log("🔧 [DEBUG] dashboardHourStats mudou:", dashboardHourStats)
+    // Forçar re-renderização para garantir que o frontend seja atualizado
+    console.log("🔄 [DEBUG] Forçando re-renderização do componente")
+  }, [dashboardHourStats])
   const [expectedValueData, setExpectedValueData] = useState<{
     totalExpected: number
     breakdown: Array<{
@@ -129,24 +137,143 @@ export default function AdminDashboard() {
   useEffect(() => {
     const runFilters = async () => {
       await applyFilters()
-      await loadExpectedValue()
+      // Só executar loadExpectedValue se as empresas já foram filtradas
+      if (companiesFiltered) {
+        await loadExpectedValue()
+      }
     }
     runFilters()
-  }, [projects, selectedMonth, selectedYear, selectedCompany])
+  }, [projects, companies, selectedMonth, selectedYear, selectedCompany, companiesFiltered])
 
   const fetchData = async () => {
     try {
       console.log("🔄 Iniciando busca de dados...")
+      setCompaniesFiltered(false) // Resetar flag antes de filtrar
       
-      const [companiesResult, usersResult, userCompaniesResult, projectsResult] = await Promise.all([
-      supabase.from("companies").select("*"),
-      supabase.from("profiles").select("*"),
-        supabase.from("user_companies").select("*"),
-      supabase.from("projects").select(`
+      // Verificar se é Client Admin para aplicar filtros
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        console.error("❌ Usuário não autenticado")
+        return
+      }
+
+      // Verificar se é Client Admin
+      const { data: isClientAdmin } = await supabase
+        .from('client_admins')
+        .select('company_id')
+        .eq('id', user.id)
+        .single()
+      
+      console.log("🔍 [Dashboard] Verificando Client Admin:", { 
+        userId: user.id, 
+        isClientAdmin: !!isClientAdmin 
+      })
+
+      let companiesQuery = supabase.from("companies").select("*")
+      let usersQuery = supabase.from("profiles").select("*")
+      let userCompaniesQuery = supabase.from("user_companies").select("*")
+      let projectsQuery = supabase.from("projects").select(`
         *,
           companies(name, has_hour_package, contracted_hours)
-      `),
-    ])
+      `)
+
+           // Se for Client Admin, aplicar filtros por tenant_id
+           if (isClientAdmin) {
+             console.log("🏢 [Dashboard] Client Admin detectado, aplicando filtros por tenant:", isClientAdmin.company_id)
+             console.log("🔍 [Dashboard] Query original de empresas:", companiesQuery)
+             
+             // 1. Empresas: apenas as criadas pelo Client Admin (tenant_id = company_id do Client Admin)
+             companiesQuery = companiesQuery.eq('tenant_id', isClientAdmin.company_id)
+             console.log("🔍 [Dashboard] Query filtrada de empresas:", companiesQuery)
+        
+        // 2. Projetos: apenas de empresas criadas pelo Client Admin
+        projectsQuery = projectsQuery.eq('tenant_id', isClientAdmin.company_id)
+        
+        // 3. Usuários: apenas usuários de empresas criadas pelo Client Admin
+        // Primeiro buscar empresas criadas pelo Client Admin
+        const { data: clientCompanies } = await supabase
+          .from('companies')
+          .select('id')
+          .eq('tenant_id', isClientAdmin.company_id)
+        
+        if (clientCompanies && clientCompanies.length > 0) {
+          const companyIds = clientCompanies.map(c => c.id)
+          
+          // Buscar usuários associados a essas empresas
+          const { data: tenantUsers } = await supabase
+            .from('user_companies')
+            .select('user_id')
+            .in('company_id', companyIds)
+          
+          if (tenantUsers && tenantUsers.length > 0) {
+            const userIds = tenantUsers.map(u => u.user_id)
+            usersQuery = usersQuery.in('id', userIds)
+          } else {
+            // Se não há usuários, retornar lista vazia
+            usersQuery = usersQuery.eq('id', '00000000-0000-0000-0000-000000000000')
+          }
+          
+          // Filtrar user_companies também
+          userCompaniesQuery = userCompaniesQuery.in('company_id', companyIds)
+        } else {
+          // Se não há empresas criadas pelo Client Admin, retornar listas vazias
+          usersQuery = usersQuery.eq('id', '00000000-0000-0000-0000-000000000000')
+          userCompaniesQuery = userCompaniesQuery.eq('company_id', '00000000-0000-0000-0000-000000000000')
+        }
+      }
+      // Se for Admin Normal/Operacional, filtrar apenas dados sem tenant_id
+      else {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+        
+        if (profile?.role === 'admin' || profile?.role === 'admin_operacional') {
+          console.log("👤 [Dashboard] Admin Normal detectado, aplicando filtros para dados sem tenant_id")
+          
+          // Empresas sem tenant_id
+          companiesQuery = companiesQuery.is('tenant_id', null)
+          
+          // Projetos sem tenant_id
+          projectsQuery = projectsQuery.is('tenant_id', null)
+          
+          // Usuários de empresas sem tenant_id
+          const { data: mainCompanies } = await supabase
+            .from('companies')
+            .select('id')
+            .is('tenant_id', null)
+          
+          if (mainCompanies && mainCompanies.length > 0) {
+            const companyIds = mainCompanies.map(c => c.id)
+            
+            const { data: mainCompanyUsers } = await supabase
+              .from('user_companies')
+              .select('user_id')
+              .in('company_id', companyIds)
+            
+            if (mainCompanyUsers && mainCompanyUsers.length > 0) {
+              const userIds = mainCompanyUsers.map(u => u.user_id)
+              usersQuery = usersQuery.in('id', userIds)
+            } else {
+              usersQuery = usersQuery.eq('id', '00000000-0000-0000-0000-000000000000')
+            }
+            
+            userCompaniesQuery = userCompaniesQuery.in('company_id', companyIds)
+          } else {
+            usersQuery = usersQuery.eq('id', '00000000-0000-0000-0000-000000000000')
+            userCompaniesQuery = userCompaniesQuery.eq('company_id', '00000000-0000-0000-0000-000000000000')
+          }
+        }
+        // Admin Master vê tudo (sem filtros)
+      }
+      
+      const [companiesResult, usersResult, userCompaniesResult, projectsResult] = await Promise.all([
+        companiesQuery,
+        usersQuery,
+        userCompaniesQuery,
+        projectsQuery,
+      ])
 
       if (companiesResult.error) {
         console.error("❌ Erro ao buscar empresas:", companiesResult.error)
@@ -161,15 +288,24 @@ export default function AdminDashboard() {
         console.error("❌ Erro ao buscar projetos:", projectsResult.error)
       }
 
-      const companiesData = companiesResult.data || []
-      const usersData = usersResult.data || []
-      const userCompaniesData = userCompaniesResult.data || []
-      const projectsData = projectsResult.data || []
+           const companiesData = companiesResult.data || []
+           const usersData = usersResult.data || []
+           const userCompaniesData = userCompaniesResult.data || []
+           const projectsData = projectsResult.data || []
 
-      console.log("📊 Dados carregados:")
-      console.log("- Empresas:", companiesData.length)
-      console.log("- Usuários:", usersData.length)
-      console.log("- Projetos:", projectsData.length)
+           console.log("📊 Dados carregados:")
+           console.log("- Empresas:", companiesData.length)
+           console.log("- Usuários:", usersData.length)
+           console.log("- Projetos:", projectsData.length)
+           
+           // Debug: mostrar detalhes das empresas filtradas
+           console.log("🏢 [Dashboard] Empresas filtradas:", companiesData.map(c => ({
+             id: c.id,
+             name: c.name,
+             tenant_id: c.tenant_id,
+             has_hour_package: c.has_hour_package,
+             contracted_hours: c.contracted_hours
+           })))
       
       if (projectsData.length > 0) {
         console.log("💰 Primeiro projeto:", {
@@ -179,13 +315,27 @@ export default function AdminDashboard() {
         })
       }
 
-      setCompanies(companiesData)
-      setUsers(usersData)
-      setUserCompanies(userCompaniesData)
-      setProjects(projectsData)
+           setCompanies(companiesData)
+           setUsers(usersData)
+           setUserCompanies(userCompaniesData)
+           setProjects(projectsData)
+           setCompaniesFiltered(true) // Marcar que as empresas foram filtradas
       
-      // Buscar estatísticas de horas após carregar empresas
-      await fetchHourStats(companiesData)
+           // Buscar estatísticas de horas após carregar empresas
+           // Passar informações do tenant para filtrar estatísticas
+           
+           // Buscar perfil do usuário para obter o role
+           let userRole: string | undefined
+           if (!isClientAdmin) {
+             const { data: userProfile } = await supabase
+               .from('profiles')
+               .select('role')
+               .eq('id', user.id)
+               .single()
+             userRole = userProfile?.role
+           }
+           
+           await fetchHourStats(companiesData, isClientAdmin?.company_id, userRole)
     } catch (error) {
       console.error("💥 Erro geral na busca de dados:", error)
     }
@@ -194,24 +344,72 @@ export default function AdminDashboard() {
   // fetchMonthlyForecast REMOVIDA - Agora usa apenas payment_metrics
 
   // Nova função para buscar estatísticas de horas
-  const fetchHourStats = async (companiesData: any[]) => {
+  const fetchHourStats = async (companiesData: any[], clientAdminCompanyId?: string, userRole?: string) => {
     try {
       console.log("🔄 Buscando estatísticas de horas...")
       console.log("📊 Parâmetros:", {
         selectedCompany,
         selectedMonth,
         selectedYear,
-        companiesCount: companiesData.length
+        companiesCount: companiesData.length,
+        clientAdminCompanyId,
+        userRole
       })
       
+           // Se for Client Admin, usar apenas empresas do tenant
+           let filteredCompanies = companiesData
+           if (clientAdminCompanyId) {
+             console.log("🏢 [fetchHourStats] Client Admin detectado, filtrando empresas por tenant:", clientAdminCompanyId)
+             console.log("🔍 [fetchHourStats] Empresas antes do filtro:", companiesData.map(c => ({
+               id: c.id,
+               name: c.name,
+               tenant_id: c.tenant_id
+             })))
+             filteredCompanies = companiesData.filter(c => c.tenant_id === clientAdminCompanyId)
+             console.log("🏢 [fetchHourStats] Empresas filtradas:", filteredCompanies.length)
+             console.log("🔍 [fetchHourStats] Empresas após filtro:", filteredCompanies.map(c => ({
+               id: c.id,
+               name: c.name,
+               tenant_id: c.tenant_id
+             })))
+      } else if (userRole === 'admin' || userRole === 'admin_operacional') {
+        console.log("👤 [fetchHourStats] Admin Normal detectado, filtrando empresas sem tenant_id")
+        filteredCompanies = companiesData.filter(c => c.tenant_id === null)
+        console.log("👤 [fetchHourStats] Empresas filtradas:", filteredCompanies.length)
+      }
+      
+      // Se não há empresas filtradas, retornar zeros
+      if (filteredCompanies.length === 0) {
+        console.log("⚠️ [fetchHourStats] Nenhuma empresa encontrada, retornando estatísticas zeradas")
+        console.log("🔧 [setDashboardHourStats] Definindo estatísticas zeradas para Client Admin")
+        
+        const zeroStats = {
+          totalContractedHours: 0,
+          totalConsumedHours: 0,
+          totalRemainingHours: 0,
+          companiesWithPackages: 0
+        }
+        
+        console.log("🔧 [setDashboardHourStats] Valores que serão definidos:", zeroStats)
+        setDashboardHourStats(zeroStats)
+        return
+      }
+      
       // Buscar estatísticas consolidadas do dashboard
+      const filteredCompanyIds = filteredCompanies.map(c => c.id)
+      console.log("🏢 [fetchHourStats] Empresas filtradas para HourService:", filteredCompanyIds)
+      console.log("🏢 [fetchHourStats] Detalhes das empresas filtradas:", filteredCompanies.map(c => ({ id: c.id, name: c.name, has_hour_package: c.has_hour_package })))
+      console.log("🔧 [fetchHourStats] Chamando HourService.getDashboardHourStats com filtros...")
+      
       const dashboardStats = await HourService.getDashboardHourStats(
         selectedCompany !== "all" ? selectedCompany : undefined,
         selectedMonth ? selectedMonth.toString() : undefined,
-        selectedYear.toString()
+        selectedYear.toString(),
+        filteredCompanyIds
       )
       
       console.log("📈 Dashboard stats retornadas:", dashboardStats)
+      console.log("🔧 [setDashboardHourStats] Definindo estatísticas filtradas:", dashboardStats)
       setDashboardHourStats(dashboardStats)
       
       // Buscar estatísticas detalhadas por empresa (APENAS se empresa específica selecionada)
@@ -268,12 +466,26 @@ export default function AdminDashboard() {
 
   const loadExpectedValue = async () => {
     try {
+      console.log('🚀 [loadExpectedValue] Iniciando cálculo do valor esperado...')
+      console.log('🚀 [loadExpectedValue] selectedCompany:', selectedCompany)
+      console.log('🚀 [loadExpectedValue] companies.length:', companies.length)
+      
       if (selectedCompany === "all") {
         // Para todas as empresas, calcular baseado nas métricas
         const monthYear = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}`
-        console.log('🔄 Calculando valor esperado para:', monthYear)
+        console.log('🔄 [loadExpectedValue] Calculando valor esperado para:', monthYear)
         
-        const result = await DashboardService.getExpectedValueForMonth(monthYear)
+        // Passar empresas filtradas para o DashboardService
+        const filteredCompanyIds = companies.map(c => c.id)
+        console.log('🏢 [loadExpectedValue] Empresas disponíveis:', companies.length)
+        console.log('🏢 [loadExpectedValue] Empresas filtradas para DashboardService:', filteredCompanyIds)
+        console.log('🔍 [loadExpectedValue] Detalhes das empresas:', companies.map(c => ({
+          id: c.id,
+          name: c.name,
+          tenant_id: c.tenant_id
+        })))
+        
+        const result = await DashboardService.getExpectedValueForMonth(monthYear, filteredCompanyIds)
         
         setExpectedValueData(result)
         console.log('📊 Valor esperado calculado:', result)
@@ -496,18 +708,27 @@ export default function AdminDashboard() {
   console.log('⚠️ Projetos atrasados:', projectsDelayed)
   console.log('✅ Projetos concluídos:', projectsCompleted)
 
-  // Cálculo de horas baseado no HourService (mais preciso e com lógica de conta corrente)
-  // Sempre usar dashboardHourStats que já inclui pacotes + projetos sem pacote
+  // Usar diretamente os valores do HourService (já calculados corretamente)
   const totalContractedHours = dashboardHourStats.totalContractedHours
-  
   const totalConsumedHours = dashboardHourStats.totalConsumedHours
-  const totalRemainingHours = totalContractedHours - totalConsumedHours
+  const totalRemainingHours = dashboardHourStats.totalRemainingHours // Usar valor do HourService
+  
+  // Debug: rastrear valores antes de usar nos cards
+  console.log("🔧 [DEBUG] Valores antes de usar nos cards:", {
+    totalContractedHours,
+    totalConsumedHours,
+    totalRemainingHours,
+    dashboardHourStats
+  })
 
   // Debug: verificar horas do HourService
   console.log('🏢 Estatísticas de horas do HourService:', dashboardHourStats)
   console.log('⏰ Total de horas contratadas:', totalContractedHours)
   console.log('🔥 Horas consumidas:', totalConsumedHours)
   console.log('⏳ Horas restantes:', totalRemainingHours)
+  
+  // Chave única para forçar re-renderização dos cards
+  const cardsKey = `${totalContractedHours}-${totalConsumedHours}-${totalRemainingHours}-${Date.now()}`
 
   // Cálculo do faturamento total (soma de todos os orçamentos, excluindo cancelados e propostas comerciais)
   const totalRevenue = selectedCompany !== "all" 
@@ -816,19 +1037,22 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <StatsCard 
+        <StatsCard
+          key={`contracted-${cardsKey}`}
           title="Total de Horas Contratadas" 
           value={totalContractedHours} 
           description="Horas" 
           icon={Clock} 
         />
         <StatsCard
+          key={`consumed-${cardsKey}`}
           title="Total de Horas Consumidas"
           value={totalConsumedHours}
           description="Horas utilizadas"
           icon={TrendingUp}
         />
         <StatsCard
+          key={`remaining-${cardsKey}`}
           title="Total de Horas Restantes"
           value={totalRemainingHours}
           description="Horas disponíveis"

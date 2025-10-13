@@ -105,7 +105,44 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
       try {
         console.log("[v0] Fetching companies...")
         const supabase = createClient()
-        const { data, error } = await supabase.from("companies").select("id, name").order("name")
+        
+        // Obter dados do usuário logado
+        const { data: { user } } = await supabase.auth.getUser()
+        
+        if (!user) {
+          throw new Error('Usuário não autenticado')
+        }
+
+        // Buscar perfil do usuário
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role, is_client_admin')
+          .eq('id', user.id)
+          .single()
+
+        let query = supabase
+          .from("companies")
+          .select("id, name")
+          .order("name")
+
+        // Se for Client Admin, filtrar por tenant_id
+        if (profile?.is_client_admin) {
+          const { data: clientAdmin } = await supabase
+            .from('client_admins')
+            .select('company_id')
+            .eq('id', user.id)
+            .single()
+          
+          if (clientAdmin?.company_id) {
+            query = query.eq('tenant_id', clientAdmin.company_id)
+          }
+        } 
+        // Se for Admin Normal, filtrar apenas empresas sem tenant_id (criadas por Admin Master/Normal)
+        else if (profile?.role === 'admin' || profile?.role === 'admin_operacional') {
+          query = query.is('tenant_id', null)
+        }
+
+        const { data, error } = await query
 
         if (error) throw error
 
@@ -211,6 +248,31 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
         }
       }
 
+      // Verificar se é Client Admin para definir tenant_id
+      let tenantId = null
+      if (user.id && !isOffline) {
+        try {
+          const supabase = createClient()
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('is_client_admin')
+            .eq('id', user.id)
+            .single()
+          
+          if (profile?.is_client_admin) {
+            const { data: clientAdmin } = await supabase
+              .from('client_admins')
+              .select('company_id')
+              .eq('id', user.id)
+              .single()
+            
+            tenantId = clientAdmin?.company_id
+          }
+        } catch (error) {
+          console.log('Erro ao buscar tenant_id:', error)
+        }
+      }
+
       const projectData = {
         name: formData.name,
         description: formData.description || null,
@@ -226,6 +288,7 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
         key_user: formData.key_user || null,
         estimated_hours: formData.estimated_hours ? Number.parseInt(formData.estimated_hours) : null,
         created_by: user.id,
+        tenant_id: tenantId, // Auto-preencher tenant_id se for Client Admin
       }
 
       console.log("🚀 DEBUG - Status sendo enviado:", formData.status)

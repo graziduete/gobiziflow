@@ -7,11 +7,48 @@ export class NotificationService {
 
   async getNotificationsByUser(userId: string) {
     try {
-      const { data, error } = await this.supabase
+      // Obter dados do usuário logado
+      const { data: { user } } = await this.supabase.auth.getUser()
+      
+      if (!user) {
+        throw new Error('Usuário não autenticado')
+      }
+
+      // Buscar perfil do usuário
+      const { data: profile } = await this.supabase
+        .from('profiles')
+        .select('role, is_client_admin')
+        .eq('id', user.id)
+        .single()
+
+      let query = this.supabase
         .from('notifications')
-        .select('*')
+        .select(`
+          *,
+          projects!notifications_project_id_fkey (tenant_id)
+        `)
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
+
+      // Se for Client Admin, filtrar por tenant_id
+      if (profile?.is_client_admin) {
+        const { data: clientAdmin } = await this.supabase
+          .from('client_admins')
+          .select('company_id')
+          .eq('id', user.id)
+          .single()
+        
+        if (clientAdmin?.company_id) {
+          query = query.eq('projects.tenant_id', clientAdmin.company_id)
+        }
+      } 
+      // Se for Admin Normal, filtrar apenas notificações de projetos sem tenant_id
+      else if (profile?.role === 'admin' || profile?.role === 'admin_operacional') {
+        query = query.is('projects.tenant_id', null)
+      }
+      // Admin Master vê tudo (sem filtro)
+
+      const { data, error } = await query
 
       if (error) throw error
       return data || []
@@ -23,12 +60,49 @@ export class NotificationService {
 
   async getUnreadNotifications(userId: string) {
     try {
-      const { data, error } = await this.supabase
+      // Obter dados do usuário logado
+      const { data: { user } } = await this.supabase.auth.getUser()
+      
+      if (!user) {
+        throw new Error('Usuário não autenticado')
+      }
+
+      // Buscar perfil do usuário
+      const { data: profile } = await this.supabase
+        .from('profiles')
+        .select('role, is_client_admin')
+        .eq('id', user.id)
+        .single()
+
+      let query = this.supabase
         .from('notifications')
-        .select('*')
+        .select(`
+          *,
+          projects!notifications_project_id_fkey (tenant_id)
+        `)
         .eq('user_id', userId)
         .eq('read', false)
         .order('created_at', { ascending: false })
+
+      // Se for Client Admin, filtrar por tenant_id
+      if (profile?.is_client_admin) {
+        const { data: clientAdmin } = await this.supabase
+          .from('client_admins')
+          .select('company_id')
+          .eq('id', user.id)
+          .single()
+        
+        if (clientAdmin?.company_id) {
+          query = query.eq('projects.tenant_id', clientAdmin.company_id)
+        }
+      } 
+      // Se for Admin Normal, filtrar apenas notificações de projetos sem tenant_id
+      else if (profile?.role === 'admin' || profile?.role === 'admin_operacional') {
+        query = query.is('projects.tenant_id', null)
+      }
+      // Admin Master vê tudo (sem filtro)
+
+      const { data, error } = await query
 
       if (error) throw error
       return data || []

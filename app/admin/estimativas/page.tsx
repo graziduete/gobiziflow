@@ -26,7 +26,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useConfirmationDialog } from "@/components/ui/confirmation-dialog"
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog"
 import { 
   Dialog,
   DialogContent,
@@ -105,7 +105,12 @@ export default function EstimativasPage() {
   
   const router = useRouter()
   const supabase = createClient()
-  const { showConfirmation, ConfirmationDialog } = useConfirmationDialog()
+  const [showConfirmation, setShowConfirmation] = useState(false)
+  const [confirmationData, setConfirmationData] = useState<{
+    title: string
+    description: string
+    onConfirm: () => void
+  } | null>(null)
 
   useEffect(() => {
     fetchUserRole()
@@ -754,7 +759,19 @@ export default function EstimativasPage() {
       </Dialog>
 
       {/* Modal de Confirmação */}
-      {ConfirmationDialog}
+      {confirmationData && (
+        <ConfirmationDialog
+          open={showConfirmation}
+          onOpenChange={setShowConfirmation}
+          title={confirmationData.title}
+          description={confirmationData.description}
+          onConfirm={() => {
+            confirmationData.onConfirm()
+            setShowConfirmation(false)
+            setConfirmationData(null)
+          }}
+        />
+      )}
     </div>
   )
 }

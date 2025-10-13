@@ -9,7 +9,7 @@ import { Plus, Edit, Trash2, Search, Filter, UserCheck, Mail, Phone, Building, G
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
-import { useConfirmationDialog } from "@/components/ui/confirmation-dialog"
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog"
 
 interface Responsavel {
   id: string
@@ -30,7 +30,12 @@ export default function ResponsaveisPage() {
   const [filterAtivo, setFilterAtivo] = useState<"all" | "ativo" | "inativo">("all")
   const [viewMode, setViewMode] = useState<"card" | "list">("card")
   const { toast } = useToast()
-  const { showConfirmation, ConfirmationDialog } = useConfirmationDialog()
+  const [showConfirmation, setShowConfirmation] = useState(false)
+  const [confirmationData, setConfirmationData] = useState<{
+    title: string
+    description: string
+    onConfirm: () => void
+  } | null>(null)
 
   useEffect(() => {
     fetchResponsaveis()
@@ -474,7 +479,19 @@ export default function ResponsaveisPage() {
       </Card>
       
       {/* Modal de Confirmação */}
-      {ConfirmationDialog}
+      {confirmationData && (
+        <ConfirmationDialog
+          open={showConfirmation}
+          onOpenChange={setShowConfirmation}
+          title={confirmationData.title}
+          description={confirmationData.description}
+          onConfirm={() => {
+            confirmationData.onConfirm()
+            setShowConfirmation(false)
+            setConfirmationData(null)
+          }}
+        />
+      )}
     </div>
   )
 }

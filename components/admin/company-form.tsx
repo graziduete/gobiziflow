@@ -505,6 +505,26 @@ export function CompanyForm({ company, onSuccess }: CompanyFormProps) {
         return null
       }
 
+      // Verificar se é Client Admin para definir tenant_id
+      let tenantId = null
+      if (user.data.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('is_client_admin')
+          .eq('id', user.data.user.id)
+          .single()
+        
+        if (profile?.is_client_admin) {
+          const { data: clientAdmin } = await supabase
+            .from('client_admins')
+            .select('company_id')
+            .eq('id', user.data.user.id)
+            .single()
+          
+          tenantId = clientAdmin?.company_id
+        }
+      }
+
       const companyData = {
         name: formData.name,
         description: formData.description || null,
@@ -520,6 +540,7 @@ export function CompanyForm({ company, onSuccess }: CompanyFormProps) {
         package_type: formData.has_hour_package ? formData.package_type : null,
         account_model: formData.has_hour_package ? formData.account_model : null,
         created_by: user.data.user.id,
+        tenant_id: tenantId, // Auto-preencher tenant_id se for Client Admin
       }
 
       let result

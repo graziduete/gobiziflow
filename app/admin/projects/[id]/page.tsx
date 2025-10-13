@@ -17,10 +17,20 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   const { id } = await params
   const supabase = await createClient()
 
+  // Verificar permissões do usuário
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    notFound()
+  }
 
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role, is_client_admin')
+    .eq('id', user.id)
+    .single()
 
-  // Buscar dados do projeto
-  const { data: project } = await supabase
+  // Buscar projeto com filtro baseado no role
+  let projectQuery = supabase
     .from("projects")
     .select(`
       id,
@@ -34,10 +44,32 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
       company_id,
       technical_responsible,
       key_user,
-      estimated_hours
+      estimated_hours,
+      tenant_id
     `)
     .eq("id", id)
-    .single()
+  
+  // Aplicar filtro baseado no role
+  if (profile?.is_client_admin) {
+    // Client Admin: apenas projetos do seu tenant
+    const { data: clientAdmin } = await supabase
+      .from('client_admins')
+      .select('company_id')
+      .eq('id', user.id)
+      .single()
+    
+    if (clientAdmin?.company_id) {
+      projectQuery = projectQuery.eq('tenant_id', clientAdmin.company_id)
+    } else {
+      notFound()
+    }
+  } else if (profile?.role === 'admin' || profile?.role === 'admin_operacional') {
+    // Admin Normal/Operacional: apenas projetos sem tenant_id
+    projectQuery = projectQuery.is('tenant_id', null)
+  }
+  // Admin Master vê tudo (sem filtro)
+
+  const { data: project } = await projectQuery.single()
 
   if (!project) {
     notFound()

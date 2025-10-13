@@ -19,6 +19,8 @@ interface User {
   role: string
   created_at: string
   is_first_login: boolean
+  first_login_completed?: boolean
+  is_client_admin?: boolean
   company_name?: string
 }
 
@@ -30,6 +32,7 @@ interface UserFilters {
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null)
   const [filters, setFilters] = useState<UserFilters>({
     search: "",
     company: "all"
@@ -54,8 +57,29 @@ export default function UsersPage() {
   const { toast } = useToast()
 
   useEffect(() => {
+    console.log('🔄 [UsersPage] useEffect executando - carregando dados...')
     fetchData()
+    getCurrentUserRole()
   }, [])
+
+  const getCurrentUserRole = async () => {
+    try {
+      console.log('👤 [UsersPage] getCurrentUserRole executando...')
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .single()
+        console.log('👤 [UsersPage] Role encontrado:', profile?.role)
+        setCurrentUserRole(profile?.role || null)
+      }
+    } catch (error) {
+      console.error("Erro ao buscar role do usuário atual:", error)
+    }
+  }
 
   // Debounce para busca e recomputo de filtros sem re-render custoso
   useEffect(() => {
@@ -68,14 +92,32 @@ export default function UsersPage() {
 
   const fetchData = async () => {
     try {
+      console.log('🚀 [UsersPage] Iniciando fetchData...')
       setIsLoading(true)
       const supabase = createClient()
+
+      // Obter dados do usuário logado
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) {
+        throw new Error('Usuário não autenticado')
+      }
+
+      // Buscar perfil do usuário
+      console.log('🔍 [UsersPage] Buscando perfil do usuário:', user.id)
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role, is_client_admin')
+        .eq('id', user.id)
+        .single()
+      
+      console.log('👤 [UsersPage] Perfil encontrado:', profile)
 
       // Buscar usuários (payload enxuto)
       const start = (currentPage - 1) * usersPerPage
       const end = start + usersPerPage - 1
 
-      const { data: usersData, error, count } = await supabase
+      let query = supabase
         .from("profiles")
         .select(`
           id,
@@ -83,16 +125,196 @@ export default function UsersPage() {
           email,
           role,
           created_at,
-          is_first_login
+          is_first_login,
+          first_login_completed,
+          is_client_admin
         `, { count: 'exact' })
         .order("created_at", { ascending: false })
         .range(start, end)
 
+      // Se for Client Admin, filtrar apenas usuários do seu tenant
+      // Verificar se é Client Admin (tem registro na tabela client_admins)
+      const { data: isClientAdmin } = await supabase
+        .from('client_admins')
+        .select('id')
+        .eq('id', user.id)
+        .single()
+      
+      console.log('🔍 [UsersPage] Verificando se é Client Admin:', { 
+        userId: user.id, 
+        isClientAdmin: !!isClientAdmin,
+        profileIsClientAdmin: profile?.is_client_admin 
+      })
+      
+      if (isClientAdmin) {
+        console.log('🏢 [UsersPage] CLIENT ADMIN detectado - Filtrando usuários do tenant')
+        console.log('🔍 [UsersPage] User ID do Client Admin:', user.id)
+        
+        const { data: clientAdmin } = await supabase
+          .from('client_admins')
+          .select('company_id')
+          .eq('id', user.id)
+          .single()
+        
+        console.log('🏢 [UsersPage] Dados do client_admin:', clientAdmin)
+        
+        if (clientAdmin?.company_id) {
+          console.log('🔍 [UsersPage] Tenant ID do Client Admin (company_id):', clientAdmin.company_id)
+          
+          // Client Admin vê TODOS os usuários das empresas do seu tenant
+          // Empresas criadas pelo Client Admin têm tenant_id = company_id do Client Admin
+          
+          // 1. Buscar empresas criadas pelo Client Admin
+          const { data: clientCompanies } = await supabase
+            .from('companies')
+            .select('id, name, tenant_id')
+            .eq('tenant_id', clientAdmin.company_id)
+          
+          console.log('🏢 [UsersPage] Empresas do tenant (tenant_id = company_id):', clientCompanies)
+          
+          if (clientCompanies && clientCompanies.length > 0) {
+            const companyIds = clientCompanies.map(c => c.id)
+            console.log('🏢 [UsersPage] IDs das empresas do tenant:', companyIds)
+            
+            // 2. Buscar usuários associados a essas empresas
+            const { data: tenantUsers } = await supabase
+              .from('user_companies')
+              .select('user_id, company_id')
+              .in('company_id', companyIds)
+            
+            console.log('👥 [UsersPage] Associações user_companies do tenant:', tenantUsers)
+            
+            if (tenantUsers && tenantUsers.length > 0) {
+              const userIds = tenantUsers.map(u => u.user_id)
+              console.log('🆔 [UsersPage] IDs dos usuários do tenant:', userIds)
+              query = query.in('id', userIds)
+            } else {
+              console.log('⚠️ [UsersPage] Nenhum usuário encontrado nas empresas do tenant')
+              console.log('🔍 [UsersPage] Verificando se há usuários na tabela user_companies...')
+              
+              // Debug: verificar todas as associações user_companies
+              const { data: allUserCompanies } = await supabase
+                .from('user_companies')
+                .select('user_id, company_id, companies(name, tenant_id)')
+              
+              console.log('🔍 [UsersPage] TODAS as associações user_companies:', allUserCompanies)
+              
+              query = query.eq('id', '00000000-0000-0000-0000-000000000000')
+            }
+          } else {
+            console.log('⚠️ [UsersPage] Nenhuma empresa encontrada no tenant')
+            console.log('🔍 [UsersPage] Verificando todas as empresas...')
+            
+            // Debug: verificar todas as empresas
+            const { data: allCompanies } = await supabase
+              .from('companies')
+              .select('id, name, tenant_id')
+            
+            console.log('🔍 [UsersPage] TODAS as empresas:', allCompanies)
+            
+            query = query.eq('id', '00000000-0000-0000-0000-000000000000')
+          }
+        } else {
+          console.log('❌ [UsersPage] Client Admin sem company_id')
+          console.log('🔍 [UsersPage] Verificando tabela client_admins...')
+          
+          // Debug: verificar todos os client_admins
+          const { data: allClientAdmins } = await supabase
+            .from('client_admins')
+            .select('id, company_id')
+          
+          console.log('🔍 [UsersPage] TODOS os client_admins:', allClientAdmins)
+        }
+      } 
+      // Se for Admin Normal, filtrar usuários da aplicação principal
+      else if (profile?.role === 'admin' || profile?.role === 'admin_operacional') {
+        console.log('👤 [UsersPage] ADMIN NORMAL/OPERACIONAL detectado - Filtrando usuários da aplicação principal')
+        
+        // Admin Normal/Operacional vê:
+        // 1. Todos os usuários admin e admin_operacional (não precisam estar associados a empresas)
+        // 2. Clientes associados às empresas da aplicação principal (sem tenant_id)
+        // 3. NÃO vê Client Admins (usuários da tabela client_admins)
+        // Não aplicar filtro na query agora, vamos filtrar após buscar
+      }
+      // Admin Master vê tudo (sem filtro)
+      else {
+        console.log('👑 [UsersPage] ADMIN MASTER detectado - Sem filtros (vê tudo)')
+      }
+
+      const { data: usersData, error, count } = await query
+
       if (error) throw error
+      
+      // Aplicar filtro APENAS para Admin Normal/Operacional (NÃO para Client Admin)
+      let filteredUsers = usersData
+      if ((profile?.role === 'admin' || profile?.role === 'admin_operacional') && !isClientAdmin) {
+        console.log('🔍 [UsersPage] Filtrando usuários para Admin Normal...')
+        
+        // Buscar IDs de todos os Client Admins para excluir
+        const { data: clientAdmins } = await supabase
+          .from('client_admins')
+          .select('id')
+        
+        const clientAdminIds = clientAdmins?.map(ca => ca.id) || []
+        console.log('🚫 [UsersPage] Client Admins a excluir:', clientAdminIds)
+        
+        // Buscar empresas sem tenant_id (empresas da aplicação principal)
+        const { data: mainCompanies } = await supabase
+          .from('companies')
+          .select('id')
+          .is('tenant_id', null)
+        
+        const companyIds = mainCompanies?.map(c => c.id) || []
+        console.log('🏢 [UsersPage] Empresas da aplicação principal:', companyIds)
+        
+        // Buscar usuários associados a essas empresas
+        const { data: mainCompanyUsers } = await supabase
+          .from('user_companies')
+          .select('user_id')
+          .in('company_id', companyIds)
+        
+        const companyUserIds = mainCompanyUsers?.map(u => u.user_id) || []
+        console.log('👥 [UsersPage] Usuários das empresas principais:', companyUserIds)
+        
+        // Filtrar usuários que:
+        // 1. São admin ou admin_operacional (qualquer um)
+        // 2. OU são clientes das empresas da aplicação principal
+        // 3. E NÃO são Client Admin
+        
+        filteredUsers = usersData?.filter(user => {
+          // Excluir Client Admins
+          if (clientAdminIds.includes(user.id)) {
+            console.log('🚫 [UsersPage] Excluindo Client Admin:', user.email)
+            return false
+          }
+          
+          // Incluir todos os admin e admin_operacional
+          if (user.role === 'admin' || user.role === 'admin_operacional') {
+            console.log('✅ [UsersPage] Incluindo admin/admin_operacional:', user.email)
+            return true
+          }
+          
+          // Incluir clientes das empresas da aplicação principal
+          if (user.role === 'client' && companyUserIds.includes(user.id)) {
+            console.log('✅ [UsersPage] Incluindo cliente da aplicação principal:', user.email)
+            return true
+          }
+          
+          // Excluir outros tipos de usuário
+          console.log('❌ [UsersPage] Excluindo usuário:', user.email, 'role:', user.role)
+          return false
+        }) || []
+        
+        console.log('✅ [UsersPage] Usuários após filtro:', filteredUsers.length)
+      } else {
+        console.log('✅ [UsersPage] Usando usuários sem filtro adicional (Client Admin ou Admin Master)')
+      }
+
+      console.log("🔍 [UsersPage] Usuários encontrados:", filteredUsers?.map(u => ({ id: u.id, email: u.email, role: u.role })))
 
       // Buscar empresas associadas em lote para clientes (evita N+1)
-      if (usersData && usersData.length > 0) {
-        const clientIds = usersData.filter((u: any) => u.role === 'client').map((u: any) => u.id)
+      if (filteredUsers && filteredUsers.length > 0) {
+        const clientIds = filteredUsers.filter((u: any) => u.role === 'client').map((u: any) => u.id)
         let companyByUser: Record<string, string | null> = {}
         if (clientIds.length > 0) {
           const { data: ucData } = await supabase
@@ -107,12 +329,12 @@ export default function UsersPage() {
           }
         }
 
-        const usersWithCompanies = usersData.map((u: any) => ({
+        const usersWithCompanies = filteredUsers.map((u: any) => ({
           ...u,
           company_name: u.role === 'client' ? (companyByUser[u.id] || null) : null
         }))
         setUsers(usersWithCompanies)
-        setTotalCount(count || 0)
+        setTotalCount(filteredUsers.length) // Usar o tamanho dos usuários filtrados
       } else {
         setUsers([])
         setTotalCount(0)
@@ -338,11 +560,16 @@ export default function UsersPage() {
                         ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold shadow-sm"
                         : user.role === "admin_operacional"
                         ? "bg-gradient-to-r from-purple-500 to-pink-600 text-white font-semibold shadow-sm"
+                        : user.role === "admin_master"
+                        ? "bg-gradient-to-r from-orange-500 to-red-600 text-white font-semibold shadow-sm"
                         : "bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold shadow-sm"
                     }>
-                      {user.role === "admin" ? "Admin" : user.role === "admin_operacional" ? "Admin Operacional" : "Cliente"}
+                      {user.role === "admin" ? "Admin" : 
+                       user.role === "admin_operacional" ? "Admin Operacional" : 
+                       user.role === "admin_master" ? "Admin Master" : 
+                       "Cliente"}
                     </Badge>
-                    {user.is_first_login && <Badge className="bg-gradient-to-r from-yellow-500 to-orange-600 text-white font-semibold shadow-sm">Primeiro Login</Badge>}
+                    {!user.first_login_completed && <Badge className="bg-gradient-to-r from-yellow-500 to-orange-600 text-white font-semibold shadow-sm">Primeiro Login</Badge>}
                   </div>
                   <p className="text-sm text-muted-foreground">{user.email}</p>
                   {user.company_name && (
@@ -358,20 +585,41 @@ export default function UsersPage() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
-                  <Button variant="outline" size="sm" asChild className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-all">
-                    <Link href={`/admin/users/${user.id}/edit`}>
+                  {/* Lógica de permissões: apenas admin_master pode editar outros admin_master */}
+                  {(currentUserRole === "admin_master" || user.role !== "admin_master") ? (
+                    <Button variant="outline" size="sm" asChild className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 transition-all">
+                      <Link href={`/admin/users/${user.id}/edit`}>
+                        <Edit className="h-4 w-4 mr-1" />
+                        Editar
+                      </Link>
+                    </Button>
+                  ) : (
+                    <Button variant="outline" size="sm" disabled className="opacity-50 cursor-not-allowed">
                       <Edit className="h-4 w-4 mr-1" />
                       Editar
-                    </Link>
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleDeleteUser(user)}
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50 hover:border-red-300 border-red-200 transition-all"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                    </Button>
+                  )}
+                  
+                  {/* Lógica de permissões: apenas admin_master pode excluir outros admin_master */}
+                  {(currentUserRole === "admin_master" || user.role !== "admin_master") ? (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleDeleteUser(user)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 hover:border-red-300 border-red-200 transition-all"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  ) : (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      disabled 
+                      className="opacity-50 cursor-not-allowed text-red-300 border-red-200"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               </div>
             ))}

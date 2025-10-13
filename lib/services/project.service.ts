@@ -6,7 +6,21 @@ export class ProjectService {
 
   async getAllProjects() {
     try {
-      const { data, error } = await this.supabase
+      // Obter dados do usuário logado
+      const { data: { user } } = await this.supabase.auth.getUser()
+      
+      if (!user) {
+        throw new Error('Usuário não autenticado')
+      }
+
+      // Buscar perfil do usuário
+      const { data: profile } = await this.supabase
+        .from('profiles')
+        .select('role, is_client_admin')
+        .eq('id', user.id)
+        .single()
+
+      let query = this.supabase
         .from('projects')
         .select(`
           *,
@@ -15,6 +29,26 @@ export class ProjectService {
           profiles!projects_technical_responsible_fkey (full_name)
         `)
         .order('created_at', { ascending: false })
+
+      // Se for Client Admin, filtrar por tenant_id
+      if (profile?.is_client_admin) {
+        const { data: clientAdmin } = await this.supabase
+          .from('client_admins')
+          .select('company_id')
+          .eq('id', user.id)
+          .single()
+        
+        if (clientAdmin?.company_id) {
+          query = query.eq('tenant_id', clientAdmin.company_id)
+        }
+      } 
+      // Se for Admin Normal, filtrar apenas projetos sem tenant_id (criados por Admin Master/Normal)
+      else if (profile?.role === 'admin' || profile?.role === 'admin_operacional') {
+        query = query.is('tenant_id', null)
+      }
+      // Admin Master vê tudo (sem filtro)
+
+      const { data, error } = await query
 
       if (error) throw error
       return data || []

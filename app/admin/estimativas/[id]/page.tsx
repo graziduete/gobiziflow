@@ -21,7 +21,7 @@ import {
   User
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
-import { useConfirmationDialog } from "@/components/ui/confirmation-dialog"
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog"
 import { useEstimativaDownload } from "@/hooks/use-estimativa-download"
 import { ShareModal } from "@/components/ui/share-modal"
 import { toast } from "sonner"

@@ -11,7 +11,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
-import { emailTemplates } from "@/lib/email-templates"
 
 interface UserFormProps {
   user?: {
@@ -46,12 +45,51 @@ export function UserForm({ user, onSuccess }: UserFormProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null)
   const router = useRouter()
 
   useEffect(() => {
     const fetchCompanies = async () => {
       const supabase = createClient()
-      const { data } = await supabase.from("companies").select("id, name").order("name")
+      
+      // Obter dados do usuário logado
+      const { data: { user: currentUser } } = await supabase.auth.getUser()
+      
+      if (!currentUser) {
+        console.error('Usuário não autenticado')
+        return
+      }
+
+      // Buscar perfil do usuário atual
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role, is_client_admin')
+        .eq('id', currentUser.id)
+        .single()
+
+      let query = supabase
+        .from("companies")
+        .select("id, name")
+        .order("name")
+
+      // Se for Client Admin, filtrar por tenant_id
+      // Verificar se é Client Admin (tem registro na tabela client_admins)
+      const { data: isClientAdmin } = await supabase
+        .from('client_admins')
+        .select('company_id')
+        .eq('id', currentUser.id)
+        .single()
+      
+      if (isClientAdmin) {
+        console.log('🔍 [UserForm] Client Admin detectado, filtrando empresas do tenant:', isClientAdmin.company_id)
+        query = query.eq('tenant_id', isClientAdmin.company_id)
+      } 
+      // Se for Admin Normal, filtrar apenas empresas sem tenant_id (criadas por Admin Master/Normal)
+      else if (profile?.role === 'admin' || profile?.role === 'admin_operacional') {
+        query = query.is('tenant_id', null)
+      }
+
+      const { data } = await query
       if (data) setCompanies(data)
 
       // If editing user, fetch their company
@@ -68,6 +106,23 @@ export function UserForm({ user, onSuccess }: UserFormProps) {
 
     fetchCompanies()
   }, [user?.id])
+
+  // Buscar o role do usuário atual
+  useEffect(() => {
+    const getCurrentUserRole = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .single()
+        setCurrentUserRole(profile?.role || null)
+      }
+    }
+    getCurrentUserRole()
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -145,33 +200,8 @@ export function UserForm({ user, onSuccess }: UserFormProps) {
         const result = await response.json()
         console.log("✅ [UserForm] User created via API:", result.user)
 
-        // Send email with credentials via API
-        const companyName = companies.find(c => c.id === selectedCompany)?.name
-        const emailTemplate = emailTemplates.newUserCredentials({
-          fullName: formData.full_name,
-          email: formData.email,
-          password: result.user.password,
-          appUrl: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-          companyName: companyName,
-        })
-        
-        const emailResponse = await fetch('/api/send-email', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            to: formData.email,
-            ...emailTemplate
-          })
-        })
-        
-        const emailResult = await emailResponse.json()
-        const emailSent = emailResult.success
-
-        if (emailSent) {
-          setSuccess(`Usuário criado com sucesso! E-mail com credenciais enviado para ${formData.email}`)
-        } else {
-          setSuccess(`Usuário criado com sucesso! Senha: ${result.user.password} (E-mail não foi enviado)`)
-        }
+        // Email já foi enviado pelo UserService
+        setSuccess(`Usuário criado com sucesso! E-mail com credenciais enviado para ${formData.email}`)
 
         setTimeout(() => {
           if (onSuccess) {
@@ -230,7 +260,11 @@ export function UserForm({ user, onSuccess }: UserFormProps) {
               type="single" 
               value={formData.role} 
               onValueChange={(value) => value && handleChange("role", value)}
-              className="grid grid-cols-1 md:grid-cols-3 gap-3 w-full"
+              className={`grid grid-cols-1 gap-3 w-full ${
+                currentUserRole === "admin_master" 
+                  ? "md:grid-cols-4" 
+                  : "md:grid-cols-3"
+              }`}
             >
               <ToggleGroupItem 
                 value="client" 
@@ -262,6 +296,18 @@ export function UserForm({ user, onSuccess }: UserFormProps) {
                   <span className="text-xs opacity-80">Gestão operacional</span>
                 </div>
               </ToggleGroupItem>
+              {currentUserRole === "admin_master" && (
+                <ToggleGroupItem 
+                  value="admin_master" 
+                  aria-label="Admin Master"
+                  className="h-auto py-4 px-6 data-[state=on]:bg-gradient-to-r data-[state=on]:from-orange-500 data-[state=on]:to-red-600 data-[state=on]:text-white data-[state=on]:border-orange-400 hover:bg-orange-50 transition-all duration-200 border-2"
+                >
+                  <div className="flex flex-col items-center gap-2">
+                    <span className="text-lg font-bold">Admin Master</span>
+                    <span className="text-xs opacity-80">Gestão multitenant</span>
+                  </div>
+                </ToggleGroupItem>
+              )}
             </ToggleGroup>
           </div>
 

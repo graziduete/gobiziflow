@@ -17,6 +17,7 @@ import {
   ChevronRight,
   Bell,
   DollarSign,
+  UserCog,
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -42,61 +43,69 @@ const navigation = [
     name: "Dashboard",
     href: "/admin",
     icon: LayoutDashboard,
-    roles: ["admin", "admin_operacional"]
+    roles: ["admin", "admin_operacional", "admin_master"]
   },
   {
     name: "Empresas",
     href: "/admin/companies",
     icon: Building2,
-    roles: ["admin"] // Only admin can see
+    roles: ["admin", "admin_master"] // Only admin and admin_master can see
   },
   {
     name: "Usuários",
     href: "/admin/users",
     icon: Users,
-    roles: ["admin"] // Only admin can see
+    roles: ["admin", "admin_master"] // Only admin and admin_master can see
   },
   {
     name: "Projetos",
     href: "/admin/projects",
     icon: FolderKanban,
-    roles: ["admin", "admin_operacional"]
+    roles: ["admin", "admin_operacional", "admin_master"]
   },
   {
     name: "Estimativas",
     href: "/admin/estimativas",
     icon: Calculator,
-    roles: ["admin", "admin_operacional"]
+    roles: ["admin", "admin_operacional", "admin_master"]
   },
   {
     name: "Responsáveis",
     href: "/admin/responsaveis",
     icon: UserCheck,
-    roles: ["admin", "admin_operacional"]
+    roles: ["admin", "admin_operacional", "admin_master"]
   },
   {
     name: "Logs de Notificações",
     href: "/admin/notifications/logs",
     icon: Bell,
-    roles: ["admin", "admin_operacional"]
+    roles: ["admin", "admin_operacional", "admin_master"]
   },
   {
     name: "Sustentação",
     href: "/admin/sustentacao",
     icon: Shield,
-    roles: ["admin", "admin_operacional"]
+    roles: ["admin", "admin_operacional", "admin_master"]
   },
   {
     name: "Financeiro",
     href: "/admin/financeiro",
     icon: DollarSign,
-    roles: ["admin"] // Only admin can see
+    roles: ["admin", "admin_master"] // Only admin and admin_master can see
   },
   {
     name: "Configurações",
     href: "/admin/settings",
     icon: Settings,
-    roles: ["admin", "admin_operacional"]
+    roles: ["admin", "admin_operacional", "admin_master"]
+  },
+  // NOVO: Menu específico para admin_master
+  {
+    name: "Admin Clientes",
+    href: "/admin/client-management",
+    icon: UserCog,
+    roles: ["admin_master"], // Apenas admin_master vê este menu
+    badge: "Admin"
   },
 ]
 
@@ -178,7 +187,16 @@ export function Sidebar({ className, collapsed, onCollapsedChange, userRole }: S
                     )}>
                       <item.icon className="h-4 w-4 shrink-0" />
                     </div>
-                    {!collapsed && <span className="flex-1 text-left">{item.name}</span>}
+                    {!collapsed && (
+                      <div className="flex-1 flex items-center justify-between">
+                        <span className="text-left">{item.name}</span>
+                        {item.badge && (
+                          <span className="px-1.5 py-0.5 text-xs font-medium bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full">
+                            {item.badge}
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </Button>
                 </div>
               </Link>

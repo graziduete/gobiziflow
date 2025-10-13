@@ -55,12 +55,13 @@ export async function sendProjectCreatedNotification(projectId: string, createdB
   const supabase = await createClient()
 
   try {
-    // Get project details
+    // Get project details including tenant_id
     const { data: project } = await supabase
       .from("projects")
       .select(`
         name,
         company_id,
+        tenant_id,
         companies (
           name
         )
@@ -73,7 +74,14 @@ export async function sendProjectCreatedNotification(projectId: string, createdB
     // Get creator details
     const { data: creator } = await supabase.from("profiles").select("full_name").eq("id", createdById).single()
 
-    // Get company users
+    // Determine target company_id based on tenant_id
+    let targetCompanyId = project.company_id
+    if (project.tenant_id) {
+      // Se o projeto tem tenant_id, enviar email para usuários do tenant
+      targetCompanyId = project.tenant_id
+    }
+
+    // Get company users based on tenant_id
     const { data: companyUsers } = await supabase
       .from("user_companies")
       .select(`
@@ -82,7 +90,7 @@ export async function sendProjectCreatedNotification(projectId: string, createdB
           full_name
         )
       `)
-      .eq("company_id", project.company_id)
+      .eq("company_id", targetCompanyId)
 
     if (!companyUsers) return false
 

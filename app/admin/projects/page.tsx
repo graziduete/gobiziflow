@@ -117,11 +117,44 @@ export default function ProjectsPage() {
       setIsLoading(true)
       const supabase = createClient()
 
-      // Buscar empresas
-      const { data: companiesData, error: companiesError } = await supabase
+      // Obter dados do usuário logado
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) {
+        throw new Error('Usuário não autenticado')
+      }
+
+      // Buscar perfil do usuário
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role, is_client_admin')
+        .eq('id', user.id)
+        .single()
+
+      let query = supabase
         .from("companies")
         .select("id, name")
         .order("name")
+
+      // Se for Client Admin, filtrar por tenant_id
+      if (profile?.is_client_admin) {
+        const { data: clientAdmin } = await supabase
+          .from('client_admins')
+          .select('company_id')
+          .eq('id', user.id)
+          .single()
+        
+        if (clientAdmin?.company_id) {
+          query = query.eq('tenant_id', clientAdmin.company_id)
+        }
+      } 
+      // Se for Admin Normal, filtrar apenas empresas sem tenant_id (criadas por Admin Master/Normal)
+      else if (profile?.role === 'admin' || profile?.role === 'admin_operacional') {
+        query = query.is('tenant_id', null)
+      }
+      // Admin Master vê tudo (sem filtro)
+
+      const { data: companiesData, error: companiesError } = await query
 
       if (companiesError) throw companiesError
       setCompanies(companiesData || [])
@@ -145,17 +178,50 @@ export default function ProjectsPage() {
       setIsLoading(true)
       const supabase = createClient()
 
+      // Obter dados do usuário logado
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) {
+        throw new Error('Usuário não autenticado')
+      }
+
+      // Buscar perfil do usuário
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role, is_client_admin')
+        .eq('id', user.id)
+        .single()
+
       const start = (currentPage - 1) * projectsPerPage
       const end = start + projectsPerPage - 1
 
       let query = supabase
         .from("projects")
         .select(
-          `id, name, description, status, priority, project_type, category, start_date, end_date, budget, created_at, company_id`,
+          `id, name, description, status, priority, project_type, category, start_date, end_date, budget, created_at, company_id, tenant_id`,
           { count: "exact" }
         )
         .order("start_date", { ascending: true, nullsFirst: false })
 
+      // Se for Client Admin, filtrar por tenant_id
+      if (profile?.is_client_admin) {
+        const { data: clientAdmin } = await supabase
+          .from('client_admins')
+          .select('company_id')
+          .eq('id', user.id)
+          .single()
+        
+        if (clientAdmin?.company_id) {
+          query = query.eq('tenant_id', clientAdmin.company_id)
+        }
+      } 
+      // Se for Admin Normal, filtrar apenas projetos sem tenant_id (criados por Admin Master/Normal)
+      else if (profile?.role === 'admin' || profile?.role === 'admin_operacional') {
+        query = query.is('tenant_id', null)
+      }
+      // Admin Master vê tudo (sem filtro)
+
+      // Aplicar filtros adicionais
       if (filters.company_id && filters.company_id !== "all") {
         query = query.eq("company_id", filters.company_id)
       }
@@ -609,6 +675,7 @@ export default function ProjectsPage() {
                     company_id: "all",
                     status: "all",
                     priority: "all",
+                    category: "all",
                     search: ""
                   })}>
                     Limpar Filtros

@@ -104,14 +104,19 @@ function ResetPasswordContent() {
 
         if (error) throw error
 
-        // Update is_first_login to false
+        // Update first login flags
         if (user) {
-          await supabase.from("profiles").update({ is_first_login: false }).eq("id", user.id)
+          await supabase.from("profiles").update({ 
+            is_first_login: false,
+            first_login_completed: true // Marcar primeiro login como completado
+          }).eq("id", user.id)
+
+          console.log("✅ [ResetPassword] Flags de primeiro login atualizadas para o usuário:", user.id)
 
           // Get user role to redirect appropriately
           const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single()
 
-          if (profile?.role === "admin") {
+          if (profile?.role === "admin" || profile?.role === "admin_operacional" || profile?.role === "admin_master") {
             router.push("/admin")
           } else {
             router.push("/dashboard")

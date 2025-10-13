@@ -39,33 +39,67 @@ export async function GET(
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
-    // Buscar empresa do usuário
-    const { data: userCompanies, error: userCompaniesError } = await supabase
-      .from("user_companies")
-      .select(`
-        companies (
-          id,
-          name
-        )
-      `)
-      .eq("user_id", user.id)
+    // Buscar perfil do usuário para determinar se é client_admin
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role, is_client_admin')
+      .eq('id', user.id)
+      .single()
 
-    if (userCompaniesError || !userCompanies || userCompanies.length === 0) {
-      console.log("❌ API Route - Usuário não tem empresa associada:", userCompaniesError)
-      return NextResponse.json({ error: "Usuário não tem empresa associada" }, { status: 403 })
+    let companyId: string
+
+    if (profile?.is_client_admin) {
+      // Se for Client Admin, buscar company_id da tabela client_admins
+      const { data: clientAdmin } = await supabase
+        .from('client_admins')
+        .select('company_id')
+        .eq('id', user.id)
+        .single()
+      
+      if (!clientAdmin?.company_id) {
+        return NextResponse.json({ error: "Client Admin não tem empresa associada" }, { status: 403 })
+      }
+      
+      companyId = clientAdmin.company_id
+    } else {
+      // Se for usuário normal, buscar empresa via user_companies
+      const { data: userCompanies, error: userCompaniesError } = await supabase
+        .from("user_companies")
+        .select(`
+          companies (
+            id,
+            name
+          )
+        `)
+        .eq("user_id", user.id)
+
+      if (userCompaniesError || !userCompanies || userCompanies.length === 0) {
+        console.log("❌ API Route - Usuário não tem empresa associada:", userCompaniesError)
+        return NextResponse.json({ error: "Usuário não tem empresa associada" }, { status: 403 })
+      }
+
+      const company = userCompanies[0].companies as any
+      companyId = company.id
     }
 
-    const company = userCompanies[0].companies as any
-
-    console.log("🔍 API Route - Empresa do usuário:", company)
+    console.log("🔍 API Route - Empresa do usuário:", companyId)
 
     // Buscar projeto específico da empresa usando service client
-    const { data: project, error: projectError } = await supabaseService
+    let projectQuery = supabaseService
       .from("projects")
       .select("*")
       .eq("id", resolvedParams.id)
-      .eq("company_id", company.id)
-      .single()
+    
+    // Aplicar filtro baseado no role
+    if (profile?.is_client_admin) {
+      // Client Admin: apenas projetos do seu tenant
+      projectQuery = projectQuery.eq('tenant_id', companyId)
+    } else {
+      // Usuário normal: apenas projetos sem tenant_id (criados por Admin Master/Normal)
+      projectQuery = projectQuery.is('tenant_id', null).eq("company_id", companyId)
+    }
+    
+    const { data: project, error: projectError } = await projectQuery.single()
 
     console.log("🔍 API Route - Resultado da consulta:", { project, projectError })
 

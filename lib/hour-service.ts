@@ -93,7 +93,8 @@ export class HourService {
   static async getDashboardHourStats(
     companyId?: string,
     month?: string,
-    year?: string
+    year?: string,
+    filteredCompanyIds?: string[]
   ): Promise<{
     totalContractedHours: number
     totalConsumedHours: number
@@ -101,11 +102,22 @@ export class HourService {
     companiesWithPackages: number
   }> {
     try {
-      console.log("🔍 getDashboardHourStats chamado com:", { companyId, month, year })
+      console.log("🔍 getDashboardHourStats chamado com:", { companyId, month, year, filteredCompanyIds })
       
       if (companyId) {
         // Empresa específica selecionada
         console.log("🏢 Calculando para empresa específica:", companyId)
+        
+        // Verificar se a empresa específica está nos filtros permitidos
+        if (filteredCompanyIds && filteredCompanyIds.length > 0 && !filteredCompanyIds.includes(companyId)) {
+          console.log("⚠️ [HourService] Empresa específica não está nos filtros permitidos, retornando zeros")
+          return {
+            totalContractedHours: 0,
+            totalConsumedHours: 0,
+            totalRemainingHours: 0,
+            companiesWithPackages: 0
+          }
+        }
         
         const companyData = await this.getCompanyHourData(companyId)
         console.log("🔍 Dados da empresa retornados:", companyData)
@@ -220,10 +232,22 @@ export class HourService {
         console.log("🏢 Calculando para todas as empresas")
         
         // 1. Buscar horas dos pacotes de horas (empresas com has_hour_package = true)
-        const { data: companies, error } = await supabase
+        let companiesQuery = supabase
           .from('companies')
           .select('id, contracted_hours, has_hour_package')
           .eq('has_hour_package', true)
+        
+       // Aplicar filtro de tenant se fornecido
+       if (filteredCompanyIds && filteredCompanyIds.length > 0) {
+         console.log("🏢 [HourService] Aplicando filtro de empresas para pacotes de horas:", filteredCompanyIds)
+         console.log("🔍 [HourService] Query antes do filtro:", companiesQuery)
+         companiesQuery = companiesQuery.in('id', filteredCompanyIds)
+         console.log("🔍 [HourService] Query após filtro:", companiesQuery)
+       } else {
+         console.log("⚠️ [HourService] Nenhum filtro de empresas aplicado - buscando todas as empresas")
+       }
+        
+        const { data: companies, error } = await companiesQuery
 
         if (error) {
           console.error('❌ Erro ao buscar empresas:', error)
@@ -235,14 +259,30 @@ export class HourService {
           }
         }
 
+        console.log("🏢 [HourService] Empresas encontradas para pacotes de horas:", companies?.map(c => ({
+          id: c.id,
+          contracted_hours: c.contracted_hours,
+          has_hour_package: c.has_hour_package
+        })) || [])
+
         const packageHours = companies?.reduce((sum, c) => sum + (c.contracted_hours || 0), 0) || 0
         const companiesWithPackages = companies?.length || 0
 
         // 2. Buscar empresas que NÃO possuem pacote de horas
-        const { data: companiesWithoutPackage, error: companiesError } = await supabase
+        let companiesWithoutPackageQuery = supabase
           .from('companies')
           .select('id')
           .eq('has_hour_package', false)
+        
+        // Aplicar filtro de tenant se fornecido
+        if (filteredCompanyIds && filteredCompanyIds.length > 0) {
+          console.log("🏢 [HourService] Aplicando filtro de empresas para empresas sem pacote:", filteredCompanyIds)
+          companiesWithoutPackageQuery = companiesWithoutPackageQuery.in('id', filteredCompanyIds)
+        } else {
+          console.log("⚠️ [HourService] Nenhum filtro de empresas aplicado para empresas sem pacote")
+        }
+        
+        const { data: companiesWithoutPackage, error: companiesError } = await companiesWithoutPackageQuery
 
         console.log("🏢 Empresas sem pacote:", companiesWithoutPackage)
         console.log("❌ Erro na busca de empresas sem pacote:", companiesError)
@@ -276,9 +316,27 @@ export class HourService {
 
         // 3. Calcular horas consumidas para todas as empresas
         let totalConsumed = 0
-        const { data: allProjects, error: allProjectsError } = await supabase
+        let allProjectsQuery = supabase
           .from('projects')
           .select('id, estimated_hours, status, company_id')
+        
+        // Aplicar filtro de tenant se fornecido
+        if (filteredCompanyIds && filteredCompanyIds.length > 0) {
+          console.log("🏢 [HourService] Aplicando filtro de empresas para cálculo de horas consumidas:", filteredCompanyIds)
+          allProjectsQuery = allProjectsQuery.in('company_id', filteredCompanyIds)
+        } else {
+          console.log("⚠️ [HourService] Nenhum filtro de empresas aplicado para cálculo de horas consumidas")
+        }
+        
+        const { data: allProjects, error: allProjectsError } = await allProjectsQuery
+
+        console.log("🔍 [HourService] Projetos encontrados para cálculo de horas consumidas:", allProjects?.length || 0)
+        console.log("🔍 [HourService] Projetos detalhes:", allProjects?.map(p => ({
+          id: p.id,
+          estimated_hours: p.estimated_hours,
+          status: p.status,
+          company_id: p.company_id
+        })) || [])
 
         if (!allProjectsError && allProjects) {
           for (const project of allProjects) {

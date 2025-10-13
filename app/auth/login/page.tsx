@@ -72,7 +72,7 @@ export default function LoginPage() {
       if (data.user) {
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
-          .select("role, is_first_login")
+          .select("role, is_client_admin, first_login_completed")
           .eq("id", data.user.id)
           .single()
 
@@ -82,13 +82,40 @@ export default function LoginPage() {
           return
         }
 
-        if (profile.is_first_login) {
-          router.push("/auth/reset-password?first_login=true")
+        // Debug: Log das flags do usuário
+        console.log("🔍 [Login] Flags do usuário:", {
+          email: profile.email,
+          role: profile.role,
+          is_client_admin: profile.is_client_admin,
+          first_login_completed: profile.first_login_completed,
+          is_first_login: profile.is_first_login
+        })
+
+        // Se não completou primeiro login, redirecionar para redefinição
+        if (!profile.first_login_completed) {
+          console.log("🔄 [Login] Primeiro login não completado, redirecionando...")
+          // Se é client_admin, vai para página específica
+          if (profile.is_client_admin) {
+            console.log("🔄 [Login] Redirecionando client_admin para /admin/first-login")
+            router.push("/admin/first-login")
+          } else {
+            // Se é usuário normal, vai para redefinição padrão
+            console.log("🔄 [Login] Redirecionando usuário normal para /auth/reset-password")
+            router.push("/auth/reset-password?first_login=true")
+          }
           return
         }
 
-        if (profile.role === "admin") {
-          window.location.href = "/admin"
+        console.log("✅ [Login] Primeiro login já completado, prosseguindo com redirecionamento normal")
+
+        // Redirecionamento baseado no role
+        if (profile.role === "admin" || profile.role === "admin_operacional" || profile.role === "admin_master") {
+          // Se é client_admin (mesmo com role admin), vai para /admin
+          if (profile.is_client_admin) {
+            window.location.href = "/admin"
+          } else {
+            window.location.href = "/admin"
+          }
         } else {
           window.location.href = "/dashboard"
         }

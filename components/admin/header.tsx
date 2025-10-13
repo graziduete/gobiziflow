@@ -67,15 +67,63 @@ export function Header({ title, userData }: HeaderProps) {
   useEffect(() => {
     const fetchNotifications = async () => {
       if (!user?.id) return
-      const { data } = await supabase
-        .from('notifications')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(20)
+      
+      try {
+        // Obter dados do usuário logado
+        const { data: { user: currentUser } } = await supabase.auth.getUser()
+        
+        if (!currentUser) {
+          throw new Error('Usuário não autenticado')
+        }
 
-      setNotifications(data || [])
-      setUnreadCount((data || []).filter((n) => !n.read).length)
+        // Buscar perfil do usuário
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role, is_client_admin')
+          .eq('id', currentUser.id)
+          .single()
+
+        let query = supabase
+          .from('notifications')
+          .select(`
+            *,
+            projects!inner (tenant_id, name)
+          `)
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(20)
+
+        // Se for Client Admin, filtrar por tenant_id
+        if (profile?.is_client_admin) {
+          const { data: clientAdmin } = await supabase
+            .from('client_admins')
+            .select('company_id')
+            .eq('id', currentUser.id)
+            .single()
+          
+          if (clientAdmin?.company_id) {
+            query = query.eq('projects.tenant_id', clientAdmin.company_id)
+          }
+        } 
+        // Se for Admin Normal, filtrar apenas notificações de projetos sem tenant_id
+        else if (profile?.role === 'admin' || profile?.role === 'admin_operacional') {
+          console.log('🔍 [Header] Admin Normal - Aplicando filtro: projects.tenant_id IS NULL')
+          query = query.is('projects.tenant_id', null)
+        }
+        // Admin Master vê tudo (sem filtro)
+
+        console.log('🔍 [Header] Query final:', query)
+        const { data } = await query
+        console.log('🔍 [Header] Notificações encontradas:', data?.length || 0)
+        console.log('🔍 [Header] Dados das notificações:', data)
+        
+        setNotifications(data || [])
+        setUnreadCount((data || []).filter((n) => !n.read).length)
+      } catch (error) {
+        console.error('Erro ao buscar notificações:', error)
+        setNotifications([])
+        setUnreadCount(0)
+      }
     }
     fetchNotifications()
   }, [user?.id])

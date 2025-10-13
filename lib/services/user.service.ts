@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { User } from '@/lib/types'
+import { sendEmail, emailTemplates } from '@/lib/email-server'
 
 export class UserService {
   private supabase = createClient(
@@ -52,10 +53,14 @@ export class UserService {
 
   async createUser(userData: Omit<User, 'id' | 'created_at' | 'updated_at'>) {
     try {
+      console.log('🚀 [UserService] Iniciando criação de usuário:', { email: userData.email, role: userData.role })
+      
       // Gerar senha aleatória
       const password = this.generateRandomPassword()
+      console.log('🔑 [UserService] Senha gerada')
       
       // Criar usuário no auth usando service role
+      console.log('👤 [UserService] Criando usuário no auth...')
       const { data: authData, error: authError } = await this.supabase.auth.admin.createUser({
         email: userData.email,
         password: password,
@@ -66,20 +71,34 @@ export class UserService {
         },
       })
 
-      if (authError) throw authError
+      if (authError) {
+        console.error('❌ [UserService] Erro ao criar usuário no auth:', authError)
+        if (authError.message.includes('already been registered') || authError.code === 'email_exists') {
+          throw new Error('Este e-mail já está cadastrado no sistema')
+        }
+        throw authError
+      }
+      
+      console.log('✅ [UserService] Usuário criado no auth:', authData.user?.id)
 
       if (authData.user) {
         // Aguardar um pouco para o trigger criar o perfil
         await new Promise(resolve => setTimeout(resolve, 1000))
 
         // Buscar o perfil criado pelo trigger
+        console.log('🔍 [UserService] Buscando perfil criado pelo trigger...')
         const { data: profile, error: profileError } = await this.supabase
           .from('profiles')
           .select('*')
           .eq('id', authData.user.id)
           .single()
+        
+        console.log('📊 [UserService] Resultado da busca do perfil:', { profile: !!profile, error: profileError })
+
+        let finalProfile = profile
 
         if (profileError) {
+          console.log('⚠️ [UserService] Trigger não funcionou, criando perfil manualmente...')
           // Se o trigger não funcionou, criar manualmente
           const { data: newProfile, error: createError } = await this.supabase
             .from('profiles')
@@ -89,22 +108,26 @@ export class UserService {
               full_name: userData.full_name,
               role: userData.role,
               is_first_login: true,
+              first_login_completed: false, // Flag para primeiro login
             })
             .select()
             .single()
 
-          if (createError) throw createError
-          
-          // Enviar email com a senha
-          await this.sendPasswordEmail(userData.email, password, userData.full_name)
-          
-          return { user: newProfile, password }
+          if (createError) {
+            console.error('❌ [UserService] Erro ao criar perfil manualmente:', createError)
+            throw createError
+          }
+          console.log('✅ [UserService] Perfil criado manualmente:', newProfile?.id)
+          finalProfile = newProfile
         }
 
-        // Enviar email com a senha
+        // Enviar email com a senha apenas uma vez
+        console.log('📧 [UserService] Enviando email de boas-vindas...')
         await this.sendPasswordEmail(userData.email, password, userData.full_name)
+        console.log('✅ [UserService] Email enviado com sucesso')
 
-        return { user: profile, password }
+        console.log('🎉 [UserService] Usuário criado com sucesso!')
+        return { user: finalProfile, password }
       }
 
       throw new Error('Falha ao criar usuário')
@@ -229,15 +252,32 @@ export class UserService {
 
   private async sendPasswordEmail(email: string, password: string, fullName: string) {
     try {
-      // Aqui você implementaria o envio de email
-      // Por enquanto, vamos apenas logar
-      console.log(`Email enviado para ${email}: Senha: ${password}`)
+      console.log(`📧 [UserService] Enviando email de credenciais para ${email}`)
       
-      // TODO: Implementar envio real de email
-      // await emailService.sendPasswordEmail(email, password, fullName)
+      const emailTemplate = emailTemplates.newUserCredentials({
+        fullName,
+        email,
+        password,
+        appUrl: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+        companyName: undefined // Para admin_master não há empresa associada
+      })
+      
+      const result = await sendEmail({
+        to: email,
+        ...emailTemplate
+      })
+      
+      if (result.success) {
+        console.log(`✅ [UserService] Email enviado com sucesso para ${email}`)
+      } else {
+        console.error(`❌ [UserService] Falha ao enviar email para ${email}:`, result.error)
+      }
+      
+      return result
     } catch (error) {
-      console.error('Erro ao enviar email:', error)
+      console.error('❌ [UserService] Erro ao enviar email:', error)
       // Não vamos falhar a criação do usuário por causa do email
+      return { success: false, error: error instanceof Error ? error.message : 'Erro desconhecido' }
     }
   }
 

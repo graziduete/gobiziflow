@@ -50,7 +50,7 @@ import {
   FileImage
 } from "lucide-react"
 import Link from "next/link"
-import { useConfirmationDialog } from "@/components/ui/confirmation-dialog"
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog"
 
 // Interfaces para os dados do banco
 interface Category {
@@ -103,7 +103,12 @@ interface ExpenseData {
 }
 
 export default function DespesasPage() {
-  const { showConfirmation, ConfirmationDialog } = useConfirmationDialog()
+  const [showConfirmation, setShowConfirmation] = useState(false)
+  const [confirmationData, setConfirmationData] = useState<{
+    title: string
+    description: string
+    onConfirm: () => void
+  } | null>(null)
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
   const [searchTerm, setSearchTerm] = useState("")
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set())
@@ -1287,7 +1292,19 @@ export default function DespesasPage() {
       )}
 
       {/* Dialog de Confirmação */}
-      {ConfirmationDialog}
+      {confirmationData && (
+        <ConfirmationDialog
+          open={showConfirmation}
+          onOpenChange={setShowConfirmation}
+          title={confirmationData.title}
+          description={confirmationData.description}
+          onConfirm={() => {
+            confirmationData.onConfirm()
+            setShowConfirmation(false)
+            setConfirmationData(null)
+          }}
+        />
+      )}
     </div>
   )
 }

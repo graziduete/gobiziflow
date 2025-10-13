@@ -37,7 +37,7 @@ export class DashboardService {
   }
 
   // Calcular valor previsto para um mês específico
-  static async getExpectedValueForMonth(monthYear: string): Promise<{
+  static async getExpectedValueForMonth(monthYear: string, filteredCompanyIds?: string[]): Promise<{
     totalExpected: number
     breakdown: Array<{
       companyId: string
@@ -65,7 +65,7 @@ export class DashboardService {
       }> = []
 
       // 1. Buscar todas as métricas ativas (sem filtro de data por enquanto)
-      const { data: metrics, error: metricsError } = await this.supabase
+      let metricsQuery = this.supabase
         .from('payment_metrics')
         .select(`
           *,
@@ -75,14 +75,30 @@ export class DashboardService {
           )
         `)
         .eq('is_active', true)
+      
+      // Aplicar filtro de tenant se fornecido
+      if (filteredCompanyIds && filteredCompanyIds.length > 0) {
+        console.log('🏢 [DashboardService] Aplicando filtro de empresas:', filteredCompanyIds)
+        metricsQuery = metricsQuery.in('company_id', filteredCompanyIds)
+      } else {
+        console.log('⚠️ [DashboardService] Nenhum filtro de empresas aplicado - buscando todas as métricas')
+      }
+      
+      const { data: metrics, error: metricsError } = await metricsQuery
 
       if (metricsError) {
         console.error('❌ Erro ao buscar métricas:', metricsError)
         throw new Error(`Erro ao buscar métricas: ${metricsError.message}`)
       }
 
-      console.log('📊 Métricas encontradas:', metrics?.length || 0)
-      console.log('📊 Métricas:', metrics)
+      console.log('📊 Métricas encontradas após filtro:', metrics?.length || 0)
+      console.log('📊 Métricas detalhes:', metrics?.map(m => ({
+        id: m.id,
+        company_id: m.company_id,
+        company_name: m.companies?.name,
+        amount: m.amount,
+        is_active: m.is_active
+      })) || [])
 
       let totalExpected = 0
 
