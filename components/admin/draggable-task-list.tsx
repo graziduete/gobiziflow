@@ -166,6 +166,7 @@ function SortableTaskItem({ task, index, responsaveis, onUpdateTask, onRemoveTas
             <SelectItem value="not_started">Não Iniciado</SelectItem>
             <SelectItem value="in_progress">Em Andamento</SelectItem>
             <SelectItem value="completed">Concluído</SelectItem>
+            <SelectItem value="completed_delayed">Concluído com Atraso</SelectItem>
             <SelectItem value="on_hold">Pausado</SelectItem>
             <SelectItem value="delayed">Atrasado</SelectItem>
           </SelectContent>

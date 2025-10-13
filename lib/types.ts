@@ -88,7 +88,7 @@ export interface Task {
   id: string
   title: string
   description?: string
-  status: 'pending' | 'in_progress' | 'completed' | 'blocked'
+  status: 'pending' | 'in_progress' | 'completed' | 'completed_delayed' | 'blocked'
   priority: 'low' | 'medium' | 'high'
   due_date: string
   estimated_hours: number

@@ -317,6 +317,9 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
       case 'concluído':
       case 'completed':
         return 'from-emerald-500 via-green-400 to-emerald-600'
+      case 'concluído com atraso':
+      case 'completed_delayed':
+        return 'from-orange-500 via-orange-400 to-orange-600'
       case 'atrasado':
       case 'delayed':
         return 'from-red-500 via-orange-400 to-red-600'
@@ -340,6 +343,9 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
       case 'concluído':
       case 'completed':
         return 100
+      case 'concluído com atraso':
+      case 'completed_delayed':
+        return 100 // Concluído mas com atraso
       case 'atrasado':
       case 'delayed':
         return 80 // Progresso alto mas atrasado
@@ -364,6 +370,9 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
       case 'concluído':
       case 'completed':
         return 'Concluído'
+      case 'concluído com atraso':
+      case 'completed_delayed':
+        return 'Concluído com Atraso'
       case 'atrasado':
       case 'delayed':
         return 'Atrasado'
@@ -388,6 +397,9 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
       case 'concluído':
       case 'completed':
         return 'bg-emerald-100 text-emerald-800 border-emerald-200'
+      case 'concluído com atraso':
+      case 'completed_delayed':
+        return 'bg-orange-100 text-orange-800 border-orange-200'
       case 'atrasado':
       case 'delayed':
         return 'bg-red-100 text-red-800 border-red-200'
@@ -413,6 +425,9 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
       case 'concluído':
       case 'completed':
         return 'bg-emerald-500'
+      case 'concluído com atraso':
+      case 'completed_delayed':
+        return 'bg-orange-500'
       case 'atrasado':
       case 'delayed':
         return 'bg-red-500'
@@ -731,7 +746,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                 </div>
                 Legenda de Status
               </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                 {[{
                   status: 'Não Iniciado',
                   color: 'from-slate-400 to-slate-500',
@@ -746,6 +761,11 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                   status: 'Concluído',
                   color: 'from-emerald-500 to-emerald-600',
                   bgColor: 'bg-emerald-100',
+                  Icon: CheckCircle
+                },{
+                  status: 'Concluído com Atraso',
+                  color: 'from-orange-500 to-orange-600',
+                  bgColor: 'bg-orange-100',
                   Icon: CheckCircle
                 },{
                   status: 'Atrasado',
@@ -1009,7 +1029,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
             </div>
             Legenda de Status
           </h4>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             {[{
               status: 'Não Iniciado',
               color: 'from-slate-400 to-slate-500',
@@ -1024,6 +1044,11 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
               status: 'Concluído',
               color: 'from-emerald-500 to-emerald-600',
               bgColor: 'bg-emerald-100',
+              Icon: CheckCircle
+            },{
+              status: 'Concluído com Atraso',
+              color: 'from-orange-500 to-orange-600',
+              bgColor: 'bg-orange-100',
               Icon: CheckCircle
             },{
               status: 'Atrasado',
