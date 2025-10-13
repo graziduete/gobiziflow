@@ -112,7 +112,7 @@ export async function GET(
     const { data: companyData, error: companyError } = await supabaseService
       .from("companies")
       .select("*")
-      .eq("id", company.id)
+      .eq("id", companyId)
       .single()
 
     // Adicionar dados da empresa ao projeto
