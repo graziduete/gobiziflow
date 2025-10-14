@@ -876,15 +876,6 @@ export default function DespesasPage() {
             </CardTitle>
           </div>
           <div className="flex items-center gap-4">
-            <Button onClick={() => setShowAddCategoryModal(true)} className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 relative">
-              <Plus className="h-4 w-4 mr-2" />
-              Gerenciar Categorias
-              {getCategoriesNeedingAttention() > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
-                  {getCategoriesNeedingAttention()}
-                </span>
-              )}
-            </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button 

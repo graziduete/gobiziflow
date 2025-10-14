@@ -80,6 +80,7 @@ const DRE_STRUCTURE = [
   { name: "      - Pessoal", level: 1, type: 'item', calculated: false },
   { name: "      - Tributos e Impostos", level: 1, type: 'item', calculated: false },
   { name: "      - Outras", level: 1, type: 'item', calculated: false },
+  { name: "      - RDI (Reembolsos)", level: 1, type: 'item', calculated: false },
   { name: "= Resultado Operacional", level: 0, type: 'subtotal', calculated: true },
   
   // 4. Resultado Antes do IR/CSLL
@@ -319,6 +320,20 @@ export function DRETable({ year, onYearChange, viewMode }: DRETableProps) {
               flatData.map(item => item.name).filter(name => name.includes("Despesas"))
             );
           }
+        } else if (structureItem.name === "      - RDI (Reembolsos)") {
+          // Mapear RDI para a categoria RDI
+          apiData = flatData.find(item => item.name === "(-) RDI (Reembolsos)");
+          
+          console.log("🔍 DEBUG RDI - apiData encontrado:", apiData);
+          
+          if (apiData) {
+            console.log("🔍 RDI - Categoria encontrada:", apiData.name);
+            console.log("🔍 RDI - Dados mensais:", apiData.monthlyData);
+          } else {
+            console.log("🔍 RDI - Categoria não encontrada. Categorias disponíveis:", 
+              flatData.map(item => item.name).filter(name => name.includes("RDI"))
+            );
+          }
         } else if (structureItem.name === "4. (+) Receitas Financeiras") {
           apiData = flatData.find(item => item.name === "(+) Receitas Financeiras");
         } else if (structureItem.name === "   (-) Despesas Financeiras") {
@@ -462,12 +477,13 @@ export function DRETable({ year, onYearChange, viewMode }: DRETableProps) {
       "= Receita Líquida de Serviços": "Receita Bruta - Deduções da Receita (valor líquido após impostos)",
       "2. (-) Custos dos Serviços Prestados": "Soma das despesas da categoria 'Serviços Prestados'",
       "= Lucro Bruto": "Receita Líquida de Serviços - Custos dos Serviços Prestados",
-      "3. (-) Despesas Operacionais": "Soma total de: Administrativas + Comerciais + Pessoal + Tributos e Impostos + Outras",
+      "3. (-) Despesas Operacionais": "Soma total de: Administrativas + Comerciais + Pessoal + Tributos e Impostos + Outras + RDI",
       "      - Administrativas": "Soma das despesas administrativas cadastradas",
       "      - Comerciais": "Soma das despesas comerciais e de marketing",
       "      - Pessoal": "Soma das despesas relacionadas ao pessoal da empresa",
       "      - Tributos e Impostos": "Soma dos tributos e impostos operacionais (ICMS, IPI, PIS/COFINS, etc.)",
       "      - Outras": "Soma das despesas gerais e outras categorias",
+      "      - RDI (Reembolsos)": "Soma dos reembolsos de despesas por prestador de serviço",
       "= Resultado Operacional": "Lucro Bruto - Despesas com Pessoal (cálculo específico)",
       "4. (+) Receitas Financeiras": "Soma das receitas do tipo 'Receitas Financeiras'",
       "   (-) Despesas Financeiras": "Soma das despesas da categoria 'Despesas Financeiras'",

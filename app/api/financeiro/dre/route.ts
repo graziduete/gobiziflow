@@ -9,6 +9,37 @@ export async function GET(request: NextRequest) {
 
     console.log(`=== API DRE - Buscando dados para o ano ${year} ===`)
 
+    // Obter dados do usuário logado para filtro de tenant
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) {
+      return NextResponse.json({ error: 'Usuário não autenticado' }, { status: 401 })
+    }
+
+    // Buscar perfil do usuário
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role, is_client_admin')
+      .eq('id', user.id)
+      .single()
+
+    let tenantId = null
+
+    // Determinar tenant_id baseado no perfil do usuário
+    if (profile?.is_client_admin) {
+      // Client Admin: buscar company_id
+      const { data: clientAdmin } = await supabase
+        .from('client_admins')
+        .select('company_id')
+        .eq('id', user.id)
+        .single()
+      
+      tenantId = clientAdmin?.company_id || null
+    }
+    // Admin Master/Normal/Operacional: tenantId = null (já definido)
+
+    console.log(`🔍 DRE - Tenant ID determinado: ${tenantId} (Role: ${profile?.role}, IsClientAdmin: ${profile?.is_client_admin})`)
+
     // Buscar categorias ordenadas
     const { data: categories, error: categoriesError } = await supabase
       .from("financial_categories")
@@ -32,19 +63,31 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Erro ao buscar entradas" }, { status: 500 })
     }
 
-    // Buscar receitas do ano
-    const { data: revenues, error: revenuesError } = await supabase
+    // Buscar receitas do ano com filtro de tenant
+    let revenuesQuery = supabase
       .from("revenue_entries")
       .select("*")
       .gte("date", `${year}-01-01`)
       .lte("date", `${year}-12-31`)
 
+    // Aplicar filtro de tenant
+    if (profile?.is_client_admin) {
+      revenuesQuery = revenuesQuery.eq('tenant_id', tenantId)
+    } else {
+      revenuesQuery = revenuesQuery.is('tenant_id', null)
+    }
+
+    const { data: revenues, error: revenuesError } = await revenuesQuery
+
     console.log(`🔍 Debug DRE - Query receitas:`, {
       year,
       startDate: `${year}-01-01`,
       endDate: `${year}-12-31`,
+      tenantId,
+      userRole: profile?.role,
+      isClientAdmin: profile?.is_client_admin,
       revenuesCount: revenues?.length || 0,
-      revenues: revenues?.map(r => ({ id: r.id, type: r.type, month: r.month, amount: r.amount, date: r.date }))
+      revenues: revenues?.map(r => ({ id: r.id, type: r.type, month: r.month, amount: r.amount, date: r.date, tenant_id: r.tenant_id }))
     })
 
     if (revenuesError) {
@@ -52,8 +95,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Erro ao buscar receitas" }, { status: 500 })
     }
 
-    // Buscar despesas do ano (para custos dos serviços)
-    const { data: expenseEntries, error: expenseEntriesError } = await supabase
+    // Buscar despesas do ano com filtro de tenant
+    let expenseEntriesQuery = supabase
       .from("expense_entries")
       .select(`
         *,
@@ -63,6 +106,15 @@ export async function GET(request: NextRequest) {
         )
       `)
       .eq("year", parseInt(year))
+
+    // Aplicar filtro de tenant
+    if (profile?.is_client_admin) {
+      expenseEntriesQuery = expenseEntriesQuery.eq('tenant_id', tenantId)
+    } else {
+      expenseEntriesQuery = expenseEntriesQuery.is('tenant_id', null)
+    }
+
+    const { data: expenseEntries, error: expenseEntriesError } = await expenseEntriesQuery
 
     if (expenseEntriesError) {
       console.error("Erro ao buscar despesas:", expenseEntriesError)
@@ -80,10 +132,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Erro ao buscar categorias de despesas" }, { status: 500 })
     }
 
-    console.log(`Receitas encontradas: ${revenues?.length || 0}`)
-    console.log(`Despesas encontradas: ${expenseEntries?.length || 0}`)
-    console.log(`Categorias DRE: ${categories?.length || 0}`)
-    console.log(`Categorias de despesas (Serviços Prestados): ${expenseCategories?.length || 0}`)
+    console.log(`📊 DRE - Resumo dos dados encontrados:`)
+    console.log(`  - Tenant ID: ${tenantId}`)
+    console.log(`  - Role: ${profile?.role}`)
+    console.log(`  - Receitas encontradas: ${revenues?.length || 0}`)
+    console.log(`  - Despesas encontradas: ${expenseEntries?.length || 0}`)
+    console.log(`  - Categorias DRE: ${categories?.length || 0}`)
+    console.log(`  - Categorias de despesas (Serviços Prestados): ${expenseCategories?.length || 0}`)
 
     // Calcular receita bruta por mês
     const revenueByMonth = Array.from({ length: 12 }, (_, index) => {
@@ -194,7 +249,8 @@ export async function GET(request: NextRequest) {
           "Despesas com Pessoal",
           "Despesas com Tributos e Impostos",
           "Despesas Gerais",
-          "Despesas com Marketing"
+          "Despesas com Marketing",
+          "RDI (Reembolsos)"
         ].includes(categoryName)
         
         return isCorrectMonth && isOperationalExpense
@@ -231,7 +287,8 @@ export async function GET(request: NextRequest) {
         "Despesas com Pessoal",
         "Despesas com Tributos e Impostos",
         "Despesas Gerais",
-        "Despesas com Marketing"
+        "Despesas com Marketing",
+        "RDI (Reembolsos)"
       ].includes(categoryName)
       
       if (isOperationalExpense) {
@@ -408,6 +465,33 @@ export async function GET(request: NextRequest) {
       return isGeneralExpense
     }).reduce((sum, expense) => sum + parseFloat(expense.amount), 0) || 0
 
+    // Calcular despesas RDI por mês
+    const rdiExpensesByMonth = Array.from({ length: 12 }, (_, index) => {
+      const month = index + 1
+      
+      const monthExpenses = expenseEntries?.filter(entry => {
+        const isCorrectMonth = entry.month === month
+        const isRdiExpense = entry.expense_subcategories?.expense_categories?.name === "RDI (Reembolsos)"
+        
+        return isCorrectMonth && isRdiExpense
+      }) || []
+      
+      const totalExpenses = monthExpenses.reduce((sum, expense) => sum + parseFloat(expense.amount), 0)
+      
+      return {
+        month,
+        amount: totalExpenses,
+        isProjection: false
+      }
+    })
+
+    // Calcular total anual de despesas RDI
+    const annualRdiExpensesTotal = expenseEntries?.filter(entry => {
+      const isRdiExpense = entry.expense_subcategories?.expense_categories?.name === "RDI (Reembolsos)"
+      
+      return isRdiExpense
+    }).reduce((sum, expense) => sum + parseFloat(expense.amount), 0) || 0
+
     // Calcular receitas financeiras por mês
     const financialRevenuesByMonth = Array.from({ length: 12 }, (_, index) => {
       const month = index + 1
@@ -483,6 +567,7 @@ export async function GET(request: NextRequest) {
     console.log(`Total anual de despesas com pessoal: ${annualPersonnelExpensesTotal}`)
     console.log(`Total anual de despesas com tributos e impostos: ${annualTributosImpostosTotal}`)
     console.log(`Total anual de despesas gerais: ${annualGeneralExpensesTotal}`)
+    console.log(`Total anual de despesas RDI: ${annualRdiExpensesTotal}`)
     console.log(`Total anual de receitas financeiras: ${annualFinancialRevenuesTotal}`)
     console.log(`Total anual de despesas financeiras: ${annualFinancialExpensesTotal}`)
 
@@ -624,6 +709,17 @@ export async function GET(request: NextRequest) {
           monthlyData: marketingExpensesByMonth,
           annualTotal: annualMarketingExpensesTotal,
           hasData: annualMarketingExpensesTotal > 0,
+          isCalculated: true // Marca que é calculado automaticamente
+        }
+      }
+
+      // Se for a categoria "(-) RDI (Reembolsos)", usar dados das despesas RDI
+      if (category.name === "(-) RDI (Reembolsos)") {
+        return {
+          ...category,
+          monthlyData: rdiExpensesByMonth,
+          annualTotal: annualRdiExpensesTotal,
+          hasData: annualRdiExpensesTotal > 0,
           isCalculated: true // Marca que é calculado automaticamente
         }
       }
