@@ -52,15 +52,51 @@ export default function NotificationLogsPage() {
       setLoading(true)
       const supabase = createClient()
       
+      // Obter dados do usuário logado para aplicar filtros
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) {
+        throw new Error('Usuário não autenticado')
+      }
+
+      // Buscar perfil do usuário
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role, is_client_admin')
+        .eq('id', user.id)
+        .single()
+
       let query = supabase
         .from('notification_logs')
         .select(`
           *,
-          responsaveis!inner(nome),
-          projects(name)
+          responsaveis!inner(nome, tenant_id),
+          projects(name, tenant_id)
         `)
         .order('sent_at', { ascending: false })
         .range((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage - 1)
+
+      // Aplicar filtros baseados no role
+      if (profile?.is_client_admin) {
+        // Client Admin: apenas logs de responsáveis e projetos do seu tenant
+        const { data: clientAdmin } = await supabase
+          .from('client_admins')
+          .select('company_id')
+          .eq('id', user.id)
+          .single()
+        
+        if (clientAdmin?.company_id) {
+          // Filtrar por responsáveis do tenant
+          query = query.eq('responsaveis.tenant_id', clientAdmin.company_id)
+        } else {
+          // Se não encontrar client_admin, não mostrar nenhum log
+          query = query.eq('responsaveis.tenant_id', '00000000-0000-0000-0000-000000000000') // UUID inválido
+        }
+      } else if (profile?.role === 'admin' || profile?.role === 'admin_operacional') {
+        // Admin Normal/Operacional: apenas logs de responsáveis sem tenant_id
+        query = query.is('responsaveis.tenant_id', null)
+      }
+      // Admin Master vê tudo (sem filtro)
 
       if (statusFilter !== "all") {
         query = query.eq('status', statusFilter)
@@ -70,9 +106,24 @@ export default function NotificationLogsPage() {
         query = query.eq('type', typeFilter)
       }
 
+      console.log('🔍 [NotificationLogs] Executando query com filtros:', {
+        userRole: profile?.role,
+        isClientAdmin: profile?.is_client_admin,
+        statusFilter,
+        typeFilter
+      })
+
       const { data, error, count } = await query
 
-      if (error) throw error
+      if (error) {
+        console.error('🔍 [NotificationLogs] Erro na query:', error)
+        throw error
+      }
+
+      console.log('🔍 [NotificationLogs] Query executada com sucesso:', {
+        logsCount: data?.length || 0,
+        totalCount: count
+      })
 
       setLogs(data || [])
       setTotalPages(Math.ceil((count || 0) / itemsPerPage))
