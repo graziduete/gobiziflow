@@ -47,6 +47,7 @@ import {
 import Link from "next/link"
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog"
 import { ModernLoading } from "@/components/ui/modern-loading"
+import { useToast } from "@/hooks/use-toast"
 
 // Interface para categorias
 interface Category {
@@ -173,12 +174,9 @@ const availableIcons = [
 ]
 
 export default function CategoriasPage() {
-  const [showConfirmation, setShowConfirmation] = useState(false)
-  const [confirmationData, setConfirmationData] = useState<{
-    title: string
-    description: string
-    onConfirm: () => void
-  } | null>(null)
+  const { toast } = useToast()
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null)
   const [categories, setCategories] = useState<Category[]>([])
   const [subcategories, setSubcategories] = useState<Subcategory[]>([])
   const [searchTerm, setSearchTerm] = useState("")
@@ -414,31 +412,49 @@ export default function CategoriasPage() {
 
   const handleDeleteCategory = (categoryId: string) => {
     const category = categories.find(cat => cat.id === categoryId)
-    const categoryName = category?.name || 'esta categoria'
-    
-    showConfirmation({
-      title: "Deletar Categoria",
-      description: `Tem certeza que deseja deletar a categoria "${categoryName}"? Todas as subcategorias associadas também serão removidas.`,
-      confirmText: "Deletar",
-      cancelText: "Cancelar",
-      variant: "destructive",
-      onConfirm: async () => {
-        try {
-          const response = await fetch(`/api/financeiro/categories?id=${categoryId}`, {
-            method: 'DELETE'
-          })
+    setCategoryToDelete(category || null)
+    setDeleteDialogOpen(true)
+  }
 
-          if (response.ok) {
-            // Recarregar dados após deletar (forçado)
-            await refreshData(true)
-          } else {
-            console.error('Erro ao deletar categoria')
-          }
-        } catch (error) {
-          console.error('Erro ao deletar categoria:', error)
-        }
+  const confirmDeleteCategory = async () => {
+    if (!categoryToDelete) return
+
+    try {
+      // Determinar se é categoria ou subcategoria
+      const isSubcategory = 'category_id' in categoryToDelete
+      const endpoint = isSubcategory ? 'subcategories' : 'categories'
+      
+      const response = await fetch(`/api/financeiro/${endpoint}?id=${categoryToDelete.id}`, {
+        method: 'DELETE'
+      })
+
+      if (response.ok) {
+        // Recarregar dados após deletar (forçado)
+        await refreshData(true)
+        toast({
+          title: "Sucesso",
+          description: `${isSubcategory ? 'Subcategoria' : 'Categoria'} excluída com sucesso!`,
+        })
+      } else {
+        const errorData = await response.json()
+        console.error(`Erro ao deletar ${isSubcategory ? 'subcategoria' : 'categoria'}:`, errorData)
+        toast({
+          title: "Erro",
+          description: `Erro ao excluir ${isSubcategory ? 'subcategoria' : 'categoria'}: ` + (errorData.error || 'Erro desconhecido'),
+          variant: "destructive"
+        })
       }
-    })
+    } catch (error) {
+      console.error('Erro ao deletar:', error)
+      toast({
+        title: "Erro",
+        description: "Erro ao excluir",
+        variant: "destructive"
+      })
+    } finally {
+      setDeleteDialogOpen(false)
+      setCategoryToDelete(null)
+    }
   }
 
   // Funções para subcategorias
@@ -516,31 +532,8 @@ export default function CategoriasPage() {
 
   const handleDeleteSubcategory = (subcategoryId: string) => {
     const subcategory = subcategories.find(sub => sub.id === subcategoryId)
-    const subcategoryName = subcategory?.name || 'esta subcategoria'
-    
-    showConfirmation({
-      title: "Deletar Subcategoria",
-      description: `Tem certeza que deseja deletar a subcategoria "${subcategoryName}"?`,
-      confirmText: "Deletar",
-      cancelText: "Cancelar",
-      variant: "destructive",
-      onConfirm: async () => {
-        try {
-          const response = await fetch(`/api/financeiro/subcategories?id=${subcategoryId}`, {
-            method: 'DELETE'
-          })
-
-          if (response.ok) {
-            // Recarregar dados após deletar (forçado)
-            await refreshData(true)
-          } else {
-            console.error('Erro ao deletar subcategoria')
-          }
-        } catch (error) {
-          console.error('Erro ao deletar subcategoria:', error)
-        }
-      }
-    })
+    setCategoryToDelete(subcategory as any || null) // Reutilizando o estado
+    setDeleteDialogOpen(true)
   }
 
   // Função para obter subcategorias de uma categoria
@@ -1001,19 +994,20 @@ export default function CategoriasPage() {
       )}
       
       {/* Dialog de Confirmação */}
-      {confirmationData && (
-        <ConfirmationDialog
-          open={showConfirmation}
-          onOpenChange={setShowConfirmation}
-          title={confirmationData.title}
-          description={confirmationData.description}
-          onConfirm={() => {
-            confirmationData.onConfirm()
-            setShowConfirmation(false)
-            setConfirmationData(null)
-          }}
-        />
-      )}
+      {/* Dialog de Confirmação de Exclusão */}
+      <ConfirmationDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title="Confirmar Exclusão"
+        description={
+          categoryToDelete && 'category_id' in categoryToDelete
+            ? `Tem certeza que deseja excluir a subcategoria "${categoryToDelete.name}"?`
+            : `Tem certeza que deseja excluir a categoria "${categoryToDelete?.name}"? Todas as subcategorias associadas também serão removidas.`
+        }
+        confirmText="Excluir"
+        variant="destructive"
+        onConfirm={confirmDeleteCategory}
+      />
     </div>
   )
 }

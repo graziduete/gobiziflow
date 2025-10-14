@@ -14,21 +14,78 @@ export async function GET(request: NextRequest) {
     
     console.log('Filtros recebidos:', { year, month, client, type })
     
-    // Primeiro, vamos verificar TODAS as receitas sem filtros
-    const { data: allRevenues, error: allError } = await supabase
-      .from('revenue_entries')
-      .select('*')
-      .order('date', { ascending: false })
+    // =====================================================
+    // MULTI-TENANCY: Determinar tenant_id baseado no perfil
+    // =====================================================
     
-    console.log('🔍 Debug - TODAS as receitas (sem filtros):', {
-      count: allRevenues?.length || 0,
-      revenues: allRevenues?.map(r => ({ id: r.id, type: r.type, month: r.month, amount: r.amount, date: r.date }))
+    // Buscar usuário logado
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    if (userError || !user) {
+      console.error('Erro ao obter usuário:', userError)
+      return NextResponse.json({ error: 'Usuário não autenticado' }, { status: 401 })
+    }
+    
+    // Buscar perfil do usuário
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('role, is_client_admin')
+      .eq('id', user.id)
+      .single()
+    
+    if (profileError) {
+      console.error('Erro ao obter perfil:', profileError)
+      return NextResponse.json({ error: 'Erro ao obter perfil do usuário' }, { status: 500 })
+    }
+    
+    console.log('👤 Perfil do usuário:', {
+      userId: user.id,
+      role: profile?.role,
+      isClientAdmin: profile?.is_client_admin
     })
+    
+    // Determinar tenant_id para filtro
+    let tenantId = null
+    
+    if (profile?.is_client_admin) {
+      // Client Admin: buscar company_id associado
+      const { data: clientAdmin, error: clientAdminError } = await supabase
+        .from('client_admins')
+        .select('company_id')
+        .eq('id', user.id)
+        .single()
+      
+      if (clientAdminError) {
+        console.error('Erro ao obter client_admin:', clientAdminError)
+        return NextResponse.json({ error: 'Erro ao obter dados do Client Admin' }, { status: 500 })
+      }
+      
+      tenantId = clientAdmin?.company_id || null
+      console.log('🏢 Client Admin - tenant_id:', tenantId)
+    } else {
+      // Admin Master/Normal/Operacional: ver apenas tenant_id = NULL
+      tenantId = null
+      console.log('👑 Admin Master/Normal - filtrando tenant_id = NULL')
+    }
+    
+    // =====================================================
+    // QUERY COM FILTRO DE TENANT
+    // =====================================================
     
     let query = supabase
       .from('revenue_entries')
       .select('*')
       .order('date', { ascending: false })
+    
+    // Aplicar filtro de tenant
+    if (tenantId === null) {
+      // Admin Master/Normal: ver apenas registros sem tenant (tenant_id = NULL)
+      query = query.is('tenant_id', null)
+      console.log('🔍 Aplicando filtro: tenant_id IS NULL')
+    } else {
+      // Client Admin: ver apenas registros do seu tenant
+      query = query.eq('tenant_id', tenantId)
+      console.log('🔍 Aplicando filtro: tenant_id =', tenantId)
+    }
     
     // Filtros
     if (year) {
@@ -75,9 +132,99 @@ export async function POST(request: NextRequest) {
     
     console.log('Dados recebidos na API de receitas:', body)
     
+    // =====================================================
+    // MULTI-TENANCY: Determinar tenant_id para inserção
+    // =====================================================
+    
+    // Buscar usuário logado
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    if (userError || !user) {
+      console.error('Erro ao obter usuário:', userError)
+      return NextResponse.json({ error: 'Usuário não autenticado' }, { status: 401 })
+    }
+    
+    // Buscar perfil do usuário
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('role, is_client_admin')
+      .eq('id', user.id)
+      .single()
+    
+    if (profileError) {
+      console.error('Erro ao obter perfil:', profileError)
+      return NextResponse.json({ error: 'Erro ao obter perfil do usuário' }, { status: 500 })
+    }
+    
+    // Determinar tenant_id para inserção
+    let tenantId = null
+    
+    if (profile?.is_client_admin) {
+      console.log('🔍 [DEBUG] Client Admin detectado, buscando dados...')
+      console.log('🔍 [DEBUG] User ID:', user.id)
+      
+      // Client Admin: buscar company_id associado
+      const { data: clientAdmin, error: clientAdminError } = await supabase
+        .from('client_admins')
+        .select('company_id')
+        .eq('id', user.id)
+        .single()
+      
+      console.log('🔍 [DEBUG] Resultado da busca client_admin:', {
+        data: clientAdmin,
+        error: clientAdminError,
+        hasData: !!clientAdmin,
+        companyId: clientAdmin?.company_id
+      })
+      
+      if (clientAdminError) {
+        console.error('❌ [DEBUG] Erro ao obter client_admin:', clientAdminError)
+        console.error('❌ [DEBUG] Detalhes do erro:', {
+          message: clientAdminError.message,
+          details: clientAdminError.details,
+          hint: clientAdminError.hint,
+          code: clientAdminError.code
+        })
+        return NextResponse.json({ 
+          error: 'Erro ao obter dados do Client Admin', 
+          details: clientAdminError,
+          userId: user.id 
+        }, { status: 500 })
+      }
+      
+      if (!clientAdmin) {
+        console.error('❌ [DEBUG] Client Admin não encontrado na tabela client_admins')
+        console.error('❌ [DEBUG] User ID buscado:', user.id)
+        return NextResponse.json({ 
+          error: 'Client Admin não encontrado na tabela client_admins', 
+          userId: user.id 
+        }, { status: 404 })
+      }
+      
+      console.log('✅ [DEBUG] Client Admin encontrado:', clientAdmin)
+      
+      tenantId = clientAdmin?.company_id || null
+      console.log('🏢 Client Admin criando receita - tenant_id:', tenantId)
+      
+      if (!tenantId) {
+        console.warn('⚠️ [DEBUG] Client Admin sem company_id associado')
+      }
+    } else {
+      // Admin Master/Normal/Operacional: tenant_id = NULL
+      tenantId = null
+      console.log('👑 Admin Master/Normal criando receita - tenant_id = NULL')
+    }
+    
+    // Adicionar tenant_id aos dados
+    const dataWithTenant = {
+      ...body,
+      tenant_id: tenantId
+    }
+    
+    console.log('Dados com tenant_id:', dataWithTenant)
+    
     const { data, error } = await supabase
       .from('revenue_entries')
-      .insert([body])
+      .insert([dataWithTenant])
       .select()
       .single()
     
@@ -104,16 +251,72 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'ID da receita é obrigatório' }, { status: 400 })
     }
     
-    const { data, error } = await supabase
+    // =====================================================
+    // MULTI-TENANCY: Verificar permissão de edição
+    // =====================================================
+    
+    // Buscar usuário logado
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    if (userError || !user) {
+      console.error('Erro ao obter usuário:', userError)
+      return NextResponse.json({ error: 'Usuário não autenticado' }, { status: 401 })
+    }
+    
+    // Buscar perfil do usuário
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('role, is_client_admin')
+      .eq('id', user.id)
+      .single()
+    
+    if (profileError) {
+      console.error('Erro ao obter perfil:', profileError)
+      return NextResponse.json({ error: 'Erro ao obter perfil do usuário' }, { status: 500 })
+    }
+    
+    // Determinar tenant_id para verificação
+    let tenantId = null
+    
+    if (profile?.is_client_admin) {
+      // Client Admin: buscar company_id associado
+      const { data: clientAdmin, error: clientAdminError } = await supabase
+        .from('client_admins')
+        .select('company_id')
+        .eq('id', user.id)
+        .single()
+      
+      if (clientAdminError) {
+        console.error('Erro ao obter client_admin:', clientAdminError)
+        return NextResponse.json({ error: 'Erro ao obter dados do Client Admin' }, { status: 500 })
+      }
+      
+      tenantId = clientAdmin?.company_id || null
+    }
+    
+    // Construir query com filtro de tenant
+    let query = supabase
       .from('revenue_entries')
       .update(updateData)
       .eq('id', id)
-      .select()
-      .single()
+    
+    // Aplicar filtro de tenant
+    if (tenantId === null) {
+      // Admin Master/Normal: só pode editar registros sem tenant
+      query = query.is('tenant_id', null)
+    } else {
+      // Client Admin: só pode editar registros do seu tenant
+      query = query.eq('tenant_id', tenantId)
+    }
+    
+    const { data, error } = await query.select().single()
     
     if (error) {
       console.error('Erro ao atualizar receita:', error)
       return NextResponse.json({ error: 'Erro ao atualizar receita', details: error }, { status: 500 })
+    }
+    
+    if (!data) {
+      return NextResponse.json({ error: 'Receita não encontrada ou sem permissão para editar' }, { status: 404 })
     }
     
     return NextResponse.json({ revenue: data })
@@ -133,10 +336,64 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'ID da receita é obrigatório' }, { status: 400 })
     }
     
-    const { error } = await supabase
+    // =====================================================
+    // MULTI-TENANCY: Verificar permissão de exclusão
+    // =====================================================
+    
+    // Buscar usuário logado
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    if (userError || !user) {
+      console.error('Erro ao obter usuário:', userError)
+      return NextResponse.json({ error: 'Usuário não autenticado' }, { status: 401 })
+    }
+    
+    // Buscar perfil do usuário
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('role, is_client_admin')
+      .eq('id', user.id)
+      .single()
+    
+    if (profileError) {
+      console.error('Erro ao obter perfil:', profileError)
+      return NextResponse.json({ error: 'Erro ao obter perfil do usuário' }, { status: 500 })
+    }
+    
+    // Determinar tenant_id para verificação
+    let tenantId = null
+    
+    if (profile?.is_client_admin) {
+      // Client Admin: buscar company_id associado
+      const { data: clientAdmin, error: clientAdminError } = await supabase
+        .from('client_admins')
+        .select('company_id')
+        .eq('id', user.id)
+        .single()
+      
+      if (clientAdminError) {
+        console.error('Erro ao obter client_admin:', clientAdminError)
+        return NextResponse.json({ error: 'Erro ao obter dados do Client Admin' }, { status: 500 })
+      }
+      
+      tenantId = clientAdmin?.company_id || null
+    }
+    
+    // Construir query com filtro de tenant
+    let query = supabase
       .from('revenue_entries')
       .delete()
       .eq('id', id)
+    
+    // Aplicar filtro de tenant
+    if (tenantId === null) {
+      // Admin Master/Normal: só pode deletar registros sem tenant
+      query = query.is('tenant_id', null)
+    } else {
+      // Client Admin: só pode deletar registros do seu tenant
+      query = query.eq('tenant_id', tenantId)
+    }
+    
+    const { error } = await query
     
     if (error) {
       console.error('Erro ao deletar receita:', error)

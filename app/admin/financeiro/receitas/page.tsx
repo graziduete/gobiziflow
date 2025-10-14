@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ModernLoading } from "@/components/ui/modern-loading"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog"
+import { useToast } from "@/hooks/use-toast"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { 
   TrendingUp, 
@@ -52,6 +54,7 @@ interface RevenueEntry {
 }
 
 export default function ReceitasPage() {
+  const { toast } = useToast()
   const [revenues, setRevenues] = useState<RevenueEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
@@ -83,6 +86,8 @@ export default function ReceitasPage() {
     notes: ''
   }])
   const [companies, setCompanies] = useState<{id: string, name: string}[]>([])
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [revenueToDelete, setRevenueToDelete] = useState<string | null>(null)
 
   // Carregar dados
   useEffect(() => {
@@ -92,16 +97,84 @@ export default function ReceitasPage() {
 
   const loadCompanies = async () => {
     try {
-      const response = await fetch('/api/companies')
-      if (response.ok) {
-        const data = await response.json()
-        console.log('Empresas carregadas:', data)
-        setCompanies(data.data || [])
-      } else {
-        console.error('Erro na resposta da API de empresas:', response.status)
+      // =====================================================
+      // MULTI-TENANCY: Buscar empresas baseado no perfil
+      // =====================================================
+      
+      // Buscar usuário logado
+      const { createClient } = await import('@/lib/supabase/client')
+      const supabase = createClient()
+      
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      if (userError || !user) {
+        console.error('Erro ao obter usuário:', userError)
+        setCompanies([])
+        return
       }
+      
+      // Buscar perfil do usuário
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role, is_client_admin')
+        .eq('id', user.id)
+        .single()
+      
+      if (profileError) {
+        console.error('Erro ao obter perfil:', profileError)
+        setCompanies([])
+        return
+      }
+      
+      console.log('👤 Perfil do usuário (receitas):', {
+        userId: user.id,
+        role: profile?.role,
+        isClientAdmin: profile?.is_client_admin
+      })
+      
+      // Determinar filtro de tenant para empresas
+      let query = supabase.from('companies').select('id, name, tenant_id').order('name')
+      
+      if (profile?.is_client_admin) {
+        // Client Admin: buscar company_id associado e filtrar empresas do seu tenant
+        const { data: clientAdmin, error: clientAdminError } = await supabase
+          .from('client_admins')
+          .select('company_id')
+          .eq('id', user.id)
+          .single()
+        
+        if (clientAdminError) {
+          console.error('Erro ao obter client_admin:', clientAdminError)
+          setCompanies([])
+          return
+        }
+        
+        const tenantId = clientAdmin?.company_id || null
+        if (tenantId) {
+          query = query.eq('tenant_id', tenantId)
+          console.log('🏢 Client Admin - filtrando empresas por tenant_id:', tenantId)
+        } else {
+          query = query.eq('tenant_id', '00000000-0000-0000-0000-000000000000')
+          console.log('🏢 Client Admin - usando tenant_id padrão')
+        }
+      } else {
+        // Admin Master/Normal/Operacional: ver apenas empresas sem tenant
+        query = query.is('tenant_id', null)
+        console.log('👑 Admin Master/Normal - filtrando empresas: tenant_id IS NULL')
+      }
+      
+      const { data: companiesData, error: companiesError } = await query
+      
+      if (companiesError) {
+        console.error('Erro ao buscar empresas:', companiesError)
+        setCompanies([])
+        return
+      }
+      
+      console.log('🏢 Empresas filtradas para receitas:', companiesData)
+      setCompanies(companiesData || [])
     } catch (error) {
       console.error('Erro ao carregar empresas:', error)
+      setCompanies([])
     }
   }
 
@@ -402,22 +475,45 @@ export default function ReceitasPage() {
       )
 
       const responses = await Promise.all(promises)
-      const allSuccessful = responses.every(response => response.ok)
-
-      if (allSuccessful) {
-        setShowAddRow(false)
-        setNewRevenues([{
-          month: new Date().getMonth() + 1,
-          date: new Date().toLocaleDateString('pt-BR'),
-          due_date: new Date().toLocaleDateString('pt-BR'),
-          amount: 0,
-          tax_percentage: 10,
-          notes: ''
-        }])
-        loadRevenues()
-      } else {
-        alert('Erro ao criar algumas receitas')
+      
+      // Debug: verificar cada resposta
+      console.log('🔍 Respostas da API:', responses.map((response, index) => ({
+        index,
+        ok: response.ok,
+        status: response.status,
+        statusText: response.statusText
+      })))
+      
+      // Verificar se alguma resposta falhou
+      const failedResponses = responses.filter(response => !response.ok)
+      if (failedResponses.length > 0) {
+        console.error('❌ Respostas com erro:', failedResponses)
+        
+        // Buscar detalhes do erro
+        for (const response of failedResponses) {
+          try {
+            const errorData = await response.json()
+            console.error('❌ Detalhes do erro:', errorData)
+          } catch (e) {
+            console.error('❌ Erro ao ler resposta:', e)
+          }
+        }
+        
+        alert('Erro ao criar algumas receitas. Verifique o console para detalhes.')
+        return
       }
+
+      // Se chegou aqui, todas as respostas foram bem-sucedidas
+      setShowAddRow(false)
+      setNewRevenues([{
+        month: new Date().getMonth() + 1,
+        date: new Date().toLocaleDateString('pt-BR'),
+        due_date: new Date().toLocaleDateString('pt-BR'),
+        amount: 0,
+        tax_percentage: 10,
+        notes: ''
+      }])
+      loadRevenues()
     } catch (error) {
       console.error('Erro ao criar receitas:', error)
       alert('Erro ao criar receitas')
@@ -526,23 +622,43 @@ export default function ReceitasPage() {
   }
 
   const handleDelete = async (id: string) => {
-    if (confirm('Tem certeza que deseja excluir esta receita?')) {
-      try {
-        const response = await fetch(`/api/financeiro/revenues?id=${id}`, {
-          method: 'DELETE'
+    setRevenueToDelete(id)
+    setDeleteDialogOpen(true)
+  }
+
+  const confirmDelete = async () => {
+    if (!revenueToDelete) return
+
+    try {
+      const response = await fetch(`/api/financeiro/revenues?id=${revenueToDelete}`, {
+        method: 'DELETE'
+      })
+      
+      if (response.ok) {
+        loadRevenues()
+        toast({
+          title: "Sucesso",
+          description: "Receita excluída com sucesso!",
         })
-        
-        if (response.ok) {
-          loadRevenues()
-        } else {
-          const errorData = await response.json()
-          console.error('Erro ao excluir receita:', errorData)
-          alert('Erro ao excluir receita: ' + (errorData.error || 'Erro desconhecido'))
-        }
-      } catch (error) {
-        console.error('Erro ao excluir receita:', error)
-        alert('Erro ao excluir receita')
+      } else {
+        const errorData = await response.json()
+        console.error('Erro ao excluir receita:', errorData)
+        toast({
+          title: "Erro",
+          description: "Erro ao excluir receita: " + (errorData.error || 'Erro desconhecido'),
+          variant: "destructive"
+        })
       }
+    } catch (error) {
+      console.error('Erro ao excluir receita:', error)
+      toast({
+        title: "Erro",
+        description: "Erro ao excluir receita",
+        variant: "destructive"
+      })
+    } finally {
+      setDeleteDialogOpen(false)
+      setRevenueToDelete(null)
     }
   }
 
@@ -1122,6 +1238,17 @@ export default function ReceitasPage() {
           </Button>
         </div>
       )}
+
+      {/* Dialog de Confirmação de Exclusão */}
+      <ConfirmationDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title="Confirmar Exclusão"
+        description="Tem certeza que deseja excluir esta receita? Esta ação não pode ser desfeita."
+        confirmText="Excluir"
+        variant="destructive"
+        onConfirm={confirmDelete}
+      />
 
     </div>
   )
