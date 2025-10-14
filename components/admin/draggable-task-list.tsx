@@ -208,11 +208,49 @@ export function DraggableTaskList({ tasks, onUpdateTask, onRemoveTask, onReorder
       const supabase = createClient()
       console.log("🔍 [DraggableTaskList] Buscando responsáveis...")
       
-      const { data, error } = await supabase
+      // Obter dados do usuário logado para aplicar filtros
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) {
+        console.error("🔍 [DraggableTaskList] Usuário não autenticado")
+        setResponsaveis([])
+        return
+      }
+
+      // Buscar perfil do usuário
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role, is_client_admin')
+        .eq('id', user.id)
+        .single()
+
+      let query = supabase
         .from("responsaveis")
-        .select("id, nome, email, ativo")
+        .select("id, nome, email, ativo, tenant_id")
         .eq("ativo", true)
-        .order("nome")
+
+      // Aplicar filtros baseados no role
+      if (profile?.is_client_admin) {
+        // Client Admin: apenas responsáveis do seu tenant
+        const { data: clientAdmin } = await supabase
+          .from('client_admins')
+          .select('company_id')
+          .eq('id', user.id)
+          .single()
+        
+        if (clientAdmin?.company_id) {
+          query = query.eq('tenant_id', clientAdmin.company_id)
+        } else {
+          // Se não encontrar client_admin, não mostrar nenhum responsável
+          query = query.eq('tenant_id', '00000000-0000-0000-0000-000000000000') // UUID inválido
+        }
+      } else if (profile?.role === 'admin' || profile?.role === 'admin_operacional') {
+        // Admin Normal/Operacional: apenas responsáveis sem tenant_id
+        query = query.is('tenant_id', null)
+      }
+      // Admin Master vê tudo (sem filtro)
+
+      const { data, error } = await query.order("nome")
 
       if (error) {
         console.error("🔍 [DraggableTaskList] Erro ao buscar responsáveis:", error)

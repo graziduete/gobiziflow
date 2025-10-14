@@ -35,10 +35,47 @@ export default function NovoResponsavelPage() {
   const fetchCompanies = async () => {
     try {
       const supabase = createClient()
-      const { data, error } = await supabase
+      
+      // Obter dados do usuário logado para aplicar filtros
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) {
+        throw new Error('Usuário não autenticado')
+      }
+
+      // Buscar perfil do usuário
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role, is_client_admin')
+        .eq('id', user.id)
+        .single()
+
+      let query = supabase
         .from("companies")
         .select("id, name")
-        .order("name")
+
+      // Aplicar filtros baseados no role
+      if (profile?.is_client_admin) {
+        // Client Admin: apenas empresas do seu tenant
+        const { data: clientAdmin } = await supabase
+          .from('client_admins')
+          .select('company_id')
+          .eq('id', user.id)
+          .single()
+        
+        if (clientAdmin?.company_id) {
+          query = query.eq('tenant_id', clientAdmin.company_id)
+        } else {
+          // Se não encontrar client_admin, não mostrar nenhuma empresa
+          query = query.eq('tenant_id', '00000000-0000-0000-0000-000000000000') // UUID inválido
+        }
+      } else if (profile?.role === 'admin' || profile?.role === 'admin_operacional') {
+        // Admin Normal/Operacional: apenas empresas sem tenant_id
+        query = query.is('tenant_id', null)
+      }
+      // Admin Master vê tudo (sem filtro)
+
+      const { data, error } = await query.order("name")
 
       if (error) throw error
       setCompanies(data || [])
@@ -90,13 +127,41 @@ export default function NovoResponsavelPage() {
       setIsLoading(true)
       const supabase = createClient()
       
+      // Obter dados do usuário logado para definir tenant_id
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) {
+        throw new Error('Usuário não autenticado')
+      }
+
+      // Buscar perfil do usuário para definir tenant_id
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role, is_client_admin')
+        .eq('id', user.id)
+        .single()
+
+      let tenantId = null
+      if (profile?.is_client_admin) {
+        // Client Admin: definir tenant_id
+        const { data: clientAdmin } = await supabase
+          .from('client_admins')
+          .select('company_id')
+          .eq('id', user.id)
+          .single()
+        
+        tenantId = clientAdmin?.company_id || null
+      }
+      // Admin Master/Normal: tenant_id = null (padrão)
+
       const { error } = await supabase
         .from("responsaveis")
         .insert({
           nome: formData.nome.trim(),
           email: formData.email.trim(),
           empresa: formData.empresa && formData.empresa.trim() ? formData.empresa.trim() : null,
-          ativo: true
+          ativo: true,
+          tenant_id: tenantId
         })
 
       if (error) throw error
