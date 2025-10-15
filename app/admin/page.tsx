@@ -510,11 +510,19 @@ export default function AdminDashboard() {
         setTotalRevenueData(yearlyResult)
         console.log('📊 Valor anual calculado:', yearlyResult)
       } else {
-        // Para empresa específica, usar lógica atual (projetos)
+        // Para empresa específica, calcular faturamento específico da empresa
+        console.log('🏢 [loadExpectedValue] Calculando faturamento para empresa específica:', selectedCompany)
+        
+        // Para "Previsto para este mês", manter lógica atual (projetos)
         setExpectedValueData({
           totalExpected: 0,
           breakdown: []
         })
+        
+        // Para "Faturamento da Empresa", calcular valor anual específico da empresa
+        const yearlyResult = await DashboardService.getExpectedValueForYear(selectedYear.toString(), [selectedCompany])
+        setTotalRevenueData(yearlyResult)
+        console.log('📊 [loadExpectedValue] Faturamento anual da empresa:', yearlyResult)
       }
     } catch (error) {
       console.error('❌ Erro ao calcular valor esperado:', error)
