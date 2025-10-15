@@ -199,6 +199,29 @@ function NovaEstimativaContent() {
         throw new Error('Usuário não autenticado')
       }
 
+      // Buscar perfil do usuário para determinar tenant_id
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role, is_client_admin')
+        .eq('id', user.id)
+        .single()
+
+      let tenantId = null
+
+      // Determinar tenant_id baseado no perfil do usuário
+      if (profile?.is_client_admin) {
+        // Client Admin: buscar company_id
+        const { data: clientAdmin } = await supabase
+          .from('client_admins')
+          .select('company_id')
+          .eq('id', user.id)
+          .single()
+        
+        tenantId = clientAdmin?.company_id || null
+        console.log('🏢 Client Admin criando estimativa - tenant_id:', tenantId)
+      }
+      // Admin Master/Normal/Operacional: tenantId = null (já definido)
+
       // Criar estimativa
       const { data: estimativa, error: estimativaError } = await supabase
         .from('estimativas')
@@ -210,7 +233,8 @@ function NovaEstimativaContent() {
           total_estimado: totalEstimado,
           total_com_impostos: totalComImpostos,
           status: 'proposta_comercial',
-          created_by: user.id
+          created_by: user.id,
+          tenant_id: tenantId
         })
         .select()
         .single()
@@ -227,7 +251,8 @@ function NovaEstimativaContent() {
             taxa_hora: recurso.taxa_hora,
             total_horas: recurso.total_horas,
             total_custo: recurso.total_custo,
-            ordem: recursos.indexOf(recurso)
+            ordem: recursos.indexOf(recurso),
+            tenant_id: tenantId
           })
           .select()
           .single()
@@ -241,7 +266,8 @@ function NovaEstimativaContent() {
             recurso_id: recursoData.id,
             semana: aloc.semana,
             horas: aloc.horas,
-            custo_semanal: aloc.horas * Number(recurso.taxa_hora)
+            custo_semanal: aloc.horas * Number(recurso.taxa_hora),
+            tenant_id: tenantId
           }))
 
         if (alocacoesData.length > 0) {

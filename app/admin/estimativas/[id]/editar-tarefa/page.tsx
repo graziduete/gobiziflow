@@ -478,31 +478,36 @@ function EditarEstimativaTarefaContent({ params }: { params: Promise<{ id: strin
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="percentual_imposto">Impostos (%)</Label>
-                    <Input
-                      id="percentual_imposto"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      max="100"
-                      value={formData.percentual_imposto || ''}
-                      onChange={(e) => setFormData({...formData, percentual_imposto: parseFloat(e.target.value) || 0})}
-                      placeholder="15.53"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="valor_hora">Valor Hora (R$)</Label>
-                    <Input
-                      id="valor_hora"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={formData.valor_hora || ''}
-                      onChange={(e) => setFormData({...formData, valor_hora: parseFloat(e.target.value) || 0})}
-                      placeholder="100.00"
-                    />
-                  </div>
+                  {/* Campos sensíveis - apenas Admin Master/Normal podem ver */}
+                  {userRole !== 'admin_operacional' && (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="percentual_imposto">Impostos (%)</Label>
+                        <Input
+                          id="percentual_imposto"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          max="100"
+                          value={formData.percentual_imposto || ''}
+                          onChange={(e) => setFormData({...formData, percentual_imposto: parseFloat(e.target.value) || 0})}
+                          placeholder="15.53"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="valor_hora">Valor Hora (R$)</Label>
+                        <Input
+                          id="valor_hora"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={formData.valor_hora || ''}
+                          onChange={(e) => setFormData({...formData, valor_hora: parseFloat(e.target.value) || 0})}
+                          placeholder="100.00"
+                        />
+                      </div>
+                    </>
+                  )}
                   <div className="space-y-2">
                     <Label htmlFor="percentual_gordura">Percentual de Gordura (%)</Label>
                     <Input
@@ -618,13 +623,18 @@ function EditarEstimativaTarefaContent({ params }: { params: Promise<{ id: strin
                 </div>
 
                 <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Settings className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">Valor Hora:</span>
-                  </div>
-                  <p className="text-lg font-semibold">
-                    R$ {formData.valor_hora.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                  </p>
+                {/* Valor Hora - apenas Admin Master/Normal podem ver */}
+                {userRole !== 'admin_operacional' && (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <Settings className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm font-medium">Valor Hora:</span>
+                    </div>
+                    <p className="text-lg font-semibold">
+                      R$ {formData.valor_hora.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
+                  </>
+                )}
                 </div>
 
                 <div className="border-t pt-4">
@@ -635,12 +645,15 @@ function EditarEstimativaTarefaContent({ params }: { params: Promise<{ id: strin
                         R$ {totalEstimado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Impostos ({formData.percentual_imposto}%):</span>
-                      <span className="font-medium">
-                        R$ {impostos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                      </span>
-                    </div>
+                    {/* Impostos - apenas Admin Master/Normal podem ver */}
+                    {userRole !== 'admin_operacional' && (
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Impostos ({formData.percentual_imposto}%):</span>
+                        <span className="font-medium">
+                          R$ {impostos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </span>
+                      </div>
+                    )}
                     <div className="border-t pt-2">
                       <div className="flex justify-between">
                         <span className="font-semibold">Total Geral:</span>

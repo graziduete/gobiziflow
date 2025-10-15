@@ -86,7 +86,12 @@ export default function VisualizarEstimativaPage() {
   const params = useParams()
   const estimativaId = params.id as string
   const supabase = createClient()
-  const { showConfirmation, ConfirmationDialog } = useConfirmationDialog()
+  const [showConfirmation, setShowConfirmation] = useState(false)
+  const [confirmationData, setConfirmationData] = useState<{
+    title: string
+    description: string
+    onConfirm: () => void
+  } | null>(null)
 
   const [estimativa, setEstimativa] = useState<Estimativa | null>(null)
   const [recursos, setRecursos] = useState<RecursoEstimativa[]>([])
@@ -170,12 +175,9 @@ export default function VisualizarEstimativaPage() {
   }
 
   const handleDelete = async () => {
-    showConfirmation({
+    setConfirmationData({
       title: "Excluir Estimativa",
       description: "Tem certeza que deseja excluir esta estimativa? Esta ação não pode ser desfeita.",
-      confirmText: "Excluir",
-      cancelText: "Cancelar",
-      variant: "destructive",
       onConfirm: async () => {
         try {
           const { error } = await supabase
@@ -193,6 +195,7 @@ export default function VisualizarEstimativaPage() {
         }
       }
     })
+    setShowConfirmation(true)
   }
 
   const handleConvertToProject = async () => {
@@ -608,7 +611,19 @@ export default function VisualizarEstimativaPage() {
       </div>
       
       {/* Modal de Confirmação */}
-      {ConfirmationDialog}
+      {confirmationData && (
+        <ConfirmationDialog
+          open={showConfirmation}
+          onOpenChange={setShowConfirmation}
+          title={confirmationData.title}
+          description={confirmationData.description}
+          onConfirm={() => {
+            confirmationData.onConfirm()
+            setShowConfirmation(false)
+            setConfirmationData(null)
+          }}
+        />
+      )}
       
       {/* Modal de Compartilhamento */}
       <ShareModal

@@ -292,6 +292,29 @@ function NovaEstimativaTarefaContent() {
         return
       }
 
+      // Buscar perfil do usuário para determinar tenant_id
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role, is_client_admin')
+        .eq('id', user.id)
+        .single()
+
+      let tenantId = null
+
+      // Determinar tenant_id baseado no perfil do usuário
+      if (profile?.is_client_admin) {
+        // Client Admin: buscar company_id
+        const { data: clientAdmin } = await supabase
+          .from('client_admins')
+          .select('company_id')
+          .eq('id', user.id)
+          .single()
+        
+        tenantId = clientAdmin?.company_id || null
+        console.log('🏢 Client Admin criando estimativa por tarefa - tenant_id:', tenantId)
+      }
+      // Admin Master/Normal/Operacional: tenantId = null (já definido)
+
       // Criar estimativa
       const { data: estimativa, error: estimativaError } = await supabase
         .from('estimativas')
@@ -306,7 +329,8 @@ function NovaEstimativaTarefaContent() {
           created_by: user.id,
           tipo: 'tarefa',
           valor_hora: formData.valor_hora,
-          percentual_gordura: formData.percentual_gordura || 0
+          percentual_gordura: formData.percentual_gordura || 0,
+          tenant_id: tenantId
         })
         .select()
         .single()
@@ -326,7 +350,8 @@ function NovaEstimativaTarefaContent() {
             quantidade: tarefa.quantidade,
             fator_aplicado: tarefa.fator_aplicado,
             total_base: tarefa.total_base,
-            total_com_gordura: tarefa.total_com_gordura
+            total_com_gordura: tarefa.total_com_gordura,
+            tenant_id: tenantId
           })
 
         if (tarefaError) throw tarefaError

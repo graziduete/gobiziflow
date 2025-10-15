@@ -56,6 +56,7 @@ export default function EditarEstimativaPage() {
 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [userRole, setUserRole] = useState<string | null>(null)
   const [templates, setTemplates] = useState<TemplateRecurso[]>([])
   const [recursos, setRecursos] = useState<RecursoEstimativa[]>([])
   const [formData, setFormData] = useState({
@@ -71,8 +72,29 @@ export default function EditarEstimativaPage() {
     if (estimativaId) {
       fetchEstimativa()
       loadTemplates()
+      fetchUserProfile()
     }
   }, [estimativaId])
+
+  // Buscar perfil do usuário
+  const fetchUserProfile = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+        
+        if (profile) {
+          setUserRole(profile.role)
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao buscar perfil:', error)
+    }
+  }
 
   const loadTemplates = async () => {
     try {
@@ -491,23 +513,26 @@ export default function EditarEstimativaPage() {
                     className="text-xs"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="percentual_imposto">Impostos (%)</Label>
-                  <div className="flex items-center gap-1">
-                    <Input
-                      id="percentual_imposto"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      max="100"
-                      value={formData.percentual_imposto || ''}
-                      onChange={(e) => setFormData({...formData, percentual_imposto: parseFloat(e.target.value) || 0})}
-                      className="text-right text-xs"
-                      placeholder="15.53"
-                    />
-                    <span className="text-xs text-muted-foreground">%</span>
+                {/* Campo de impostos - apenas Admin Master/Normal podem ver */}
+                {userRole !== 'admin_operacional' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="percentual_imposto">Impostos (%)</Label>
+                    <div className="flex items-center gap-1">
+                      <Input
+                        id="percentual_imposto"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        max="100"
+                        value={formData.percentual_imposto || ''}
+                        onChange={(e) => setFormData({...formData, percentual_imposto: parseFloat(e.target.value) || 0})}
+                        className="text-right text-xs"
+                        placeholder="15.53"
+                      />
+                      <span className="text-xs text-muted-foreground">%</span>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
               
               <div className="space-y-2">
@@ -602,15 +627,18 @@ export default function EditarEstimativaPage() {
                     R$ {totalEstimado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </p>
                 </div>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">Impostos ({formData.percentual_imposto}%)</span>
+                {/* Impostos - apenas Admin Master/Normal podem ver */}
+                {userRole !== 'admin_operacional' && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm font-medium">Impostos ({formData.percentual_imposto}%)</span>
+                    </div>
+                    <p className="text-2xl font-bold text-orange-600">
+                      R$ {(totalComImpostos - totalEstimado).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
                   </div>
-                  <p className="text-2xl font-bold text-orange-600">
-                    R$ {(totalComImpostos - totalEstimado).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                  </p>
-                </div>
+                )}
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <DollarSign className="h-4 w-4 text-muted-foreground" />

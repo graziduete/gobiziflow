@@ -144,7 +144,28 @@ export default function EstimativasPage() {
   const fetchEstimativas = async () => {
     try {
       setLoading(true)
-      console.log('Buscando estimativas...', { userRole })
+      console.log('🔍 Buscando estimativas...', { userRole })
+      
+      // Obter dados do usuário logado
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        console.log('❌ Usuário não autenticado')
+        setLoading(false)
+        return
+      }
+      
+      // Buscar perfil do usuário
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role, is_client_admin')
+        .eq('id', user.id)
+        .single()
+      
+      console.log('👤 Perfil do usuário:', { 
+        role: profile?.role, 
+        is_client_admin: profile?.is_client_admin,
+        user_id: user.id 
+      })
       
       // Calcular offset para paginação
       const from = (currentPage - 1) * itemsPerPage
@@ -160,25 +181,66 @@ export default function EstimativasPage() {
         .from('estimativas')
         .select('*', { count: 'exact', head: true })
       
-      // Se for admin_operacional, filtrar apenas estimativas criadas por admin_operacional
-      if (userRole === 'admin_operacional') {
-        // Buscar IDs de usuários com perfil admin_operacional
+      // ===================================================
+      // LÓGICA DE FILTRO POR PERFIL E TENANT
+      // ===================================================
+      
+      if (profile?.is_client_admin) {
+        // CLIENT ADMIN: Ver apenas seu tenant
+        console.log('🔒 Client Admin - Aplicando filtro de tenant')
+        
+        const { data: clientAdmin } = await supabase
+          .from('client_admins')
+          .select('company_id')
+          .eq('id', user.id)
+          .single()
+        
+        const tenantId = clientAdmin?.company_id || null
+        console.log('🏢 Client Admin - tenant_id:', tenantId)
+        
+        if (tenantId) {
+          estimativasQuery = estimativasQuery.eq('tenant_id', tenantId)
+          countQuery = countQuery.eq('tenant_id', tenantId)
+        } else {
+          // Se não tem tenant, não mostra nada
+          estimativasQuery = estimativasQuery.eq('tenant_id', '00000000-0000-0000-0000-000000000000')
+          countQuery = countQuery.eq('tenant_id', '00000000-0000-0000-0000-000000000000')
+        }
+        
+      } else if (profile?.role === 'admin_operacional') {
+        // ADMIN OPERACIONAL: Ver apenas tenant_id = NULL + created_by = admin_operacional
+        console.log('🔧 Admin Operacional - Aplicando filtros: tenant_id = NULL + created_by = admin_operacional')
+        
+        // Filtro 1: Apenas tenant_id = NULL (dados principais)
+        estimativasQuery = estimativasQuery.is('tenant_id', null)
+        countQuery = countQuery.is('tenant_id', null)
+        
+        // Filtro 2: Apenas criadas por admin_operacional
         const { data: adminOperacionalUsers } = await supabase
           .from('profiles')
           .select('id')
           .eq('role', 'admin_operacional')
         
         const adminOperacionalIds = adminOperacionalUsers?.map(u => u.id) || []
+        console.log('👥 Admin Operacional - IDs encontrados:', adminOperacionalIds.length)
         
         if (adminOperacionalIds.length > 0) {
           estimativasQuery = estimativasQuery.in('created_by', adminOperacionalIds)
           countQuery = countQuery.in('created_by', adminOperacionalIds)
         } else {
-          // Se não há usuários admin_operacional, não mostrar nenhuma estimativa
+          // Se não há admin_operacional, não mostra nada
           estimativasQuery = estimativasQuery.eq('created_by', '00000000-0000-0000-0000-000000000000')
           countQuery = countQuery.eq('created_by', '00000000-0000-0000-0000-000000000000')
         }
+        
+      } else if (profile?.role === 'admin' || profile?.role === 'admin_normal') {
+        // ADMIN NORMAL: Ver apenas tenant_id = NULL (sem filtro por created_by)
+        console.log('👔 Admin Normal - Aplicando filtro: tenant_id = NULL')
+        estimativasQuery = estimativasQuery.is('tenant_id', null)
+        countQuery = countQuery.is('tenant_id', null)
+        
       }
+      // ADMIN MASTER: Sem filtros (vê tudo)
       
       // Buscar total de estimativas para paginação
       const { count: totalCount, error: countError } = await countQuery
