@@ -397,12 +397,9 @@ export default function EstimativasPage() {
   }
 
   const handleDeleteEstimativa = async (id: string) => {
-    showConfirmation({
+    setConfirmationData({
       title: "Excluir Estimativa",
       description: "Tem certeza que deseja excluir esta estimativa? Esta ação não pode ser desfeita.",
-      confirmText: "Excluir",
-      cancelText: "Cancelar",
-      variant: "destructive",
       onConfirm: async () => {
         try {
           const { error } = await supabase
@@ -420,6 +417,7 @@ export default function EstimativasPage() {
         }
       }
     })
+    setShowConfirmation(true)
   }
 
   const handleConvertToProject = async (estimativa: Estimativa) => {
