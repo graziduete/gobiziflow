@@ -5,18 +5,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar } from "lucide-react"
 
 interface ModernDateFilterProps {
-  onDateChange: (month: number | null, year: number) => void
+  onDateChange: (month: number, year: number) => void
   onCompanyChange: (companyId: string) => void
   companies: any[]
   selectedCompany: string
 }
 
 export function ModernDateFilter({ onDateChange, onCompanyChange, companies, selectedCompany }: ModernDateFilterProps) {
-  const [selectedMonth, setSelectedMonth] = useState<number | null>(new Date().getMonth() + 1)
+  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1)
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
 
   const months = [
-    { value: null, label: "Todos os meses" },
     { value: 1, label: "Janeiro" },
     { value: 2, label: "Fevereiro" },
     { value: 3, label: "Março" },
@@ -34,14 +33,9 @@ export function ModernDateFilter({ onDateChange, onCompanyChange, companies, sel
   const years = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - 5 + i)
 
   const handleMonthChange = (month: string) => {
-    if (month === "null") {
-      setSelectedMonth(null)
-      onDateChange(null, selectedYear)
-    } else {
-      const monthNum = Number.parseInt(month)
-      setSelectedMonth(monthNum)
-      onDateChange(monthNum, selectedYear)
-    }
+    const monthNum = Number.parseInt(month)
+    setSelectedMonth(monthNum)
+    onDateChange(monthNum, selectedYear)
   }
 
   const handleYearChange = (year: string) => {
@@ -95,7 +89,7 @@ export function ModernDateFilter({ onDateChange, onCompanyChange, companies, sel
                 <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full"></div>
                 Mês
               </label>
-              <Select value={selectedMonth?.toString() || "null"} onValueChange={handleMonthChange}>
+              <Select value={selectedMonth.toString()} onValueChange={handleMonthChange}>
                 <SelectTrigger className="w-40 h-10 bg-white/80 backdrop-blur-sm border-slate-200 hover:border-indigo-300 focus:border-indigo-500 transition-all shadow-sm">
                   <SelectValue />
                 </SelectTrigger>

@@ -20,7 +20,7 @@ export default function AdminDashboard() {
   const [projects, setProjects] = useState<any[]>([])
   const [companiesFiltered, setCompaniesFiltered] = useState(false)
   const [filteredProjects, setFilteredProjects] = useState<any[]>([])
-  const [selectedMonth, setSelectedMonth] = useState<number | null>(new Date().getMonth() + 1)
+  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1)
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
   const [selectedCompany, setSelectedCompany] = useState("all")
   const [hourStats, setHourStats] = useState<CompanyHourStats[]>([])
@@ -418,7 +418,7 @@ export default function AdminDashboard() {
       
       const dashboardStats = await HourService.getDashboardHourStats(
         selectedCompany !== "all" ? selectedCompany : undefined,
-        selectedMonth ? selectedMonth.toString() : undefined,
+        selectedMonth.toString(),
         selectedYear.toString(),
         filteredCompanyIds
       )
@@ -438,7 +438,7 @@ export default function AdminDashboard() {
           const companyStats = {
             company_id: selectedCompany,
             company_name: company?.name || 'Empresa',
-            month_year: selectedMonth && selectedYear ? `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}` : '',
+            month_year: `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}`,
             contracted_hours: companyData.contracted_hours,
             consumed_hours: 0, // Será calculado automaticamente
             previous_months_remaining: 0,
@@ -604,8 +604,8 @@ export default function AdminDashboard() {
         console.log(`📊 Projetos após filtro de período contratado: ${filtered.length}`)
       } else {
         console.log("📅 Usando filtro por interseção de período do projeto com mês/ano selecionado")
-        const startOfMonth = new Date(selectedYear, (selectedMonth || 1) - 1, 1)
-        const endOfMonth = new Date(selectedYear, (selectedMonth || 1), 0)
+        const startOfMonth = new Date(selectedYear, selectedMonth - 1, 1)
+        const endOfMonth = new Date(selectedYear, selectedMonth, 0)
         // Mostrar projetos ativos no mês OU (se filtro status = concluído) concluídos até o fim do mês
         filtered = filtered.filter((project) => {
           const hasStart = !!project.start_date && !isNaN(new Date(project.start_date).getTime())
@@ -619,9 +619,7 @@ export default function AdminDashboard() {
             // Fallback para projetos antigos: usar created_at
             const d = new Date(project.created_at)
             if (!isNaN(d.getTime())) {
-              includeByMonth = (selectedMonth === null)
-                ? d.getFullYear() === selectedYear
-                : (d.getMonth() + 1 === selectedMonth && d.getFullYear() === selectedYear)
+              includeByMonth = (d.getMonth() + 1 === selectedMonth && d.getFullYear() === selectedYear)
             }
           }
 
@@ -630,8 +628,8 @@ export default function AdminDashboard() {
       }
     } else {
       // Para "todas as empresas", considerar interseção com o mês/ano selecionado
-      const startOfMonth = new Date(selectedYear, (selectedMonth || 1) - 1, 1)
-      const endOfMonth = new Date(selectedYear, (selectedMonth || 1), 0)
+      const startOfMonth = new Date(selectedYear, selectedMonth - 1, 1)
+      const endOfMonth = new Date(selectedYear, selectedMonth, 0)
       filtered = filtered.filter((project) => {
         const hasStart = !!project.start_date && !isNaN(new Date(project.start_date).getTime())
         const hasEnd = !!project.end_date && !isNaN(new Date(project.end_date).getTime())
@@ -643,9 +641,7 @@ export default function AdminDashboard() {
         } else if (project.created_at) {
           const d = new Date(project.created_at)
           if (!isNaN(d.getTime())) {
-            includeByMonth = (selectedMonth === null)
-              ? d.getFullYear() === selectedYear
-              : (d.getMonth() + 1 === selectedMonth && d.getFullYear() === selectedYear)
+            includeByMonth = (d.getMonth() + 1 === selectedMonth && d.getFullYear() === selectedYear)
           }
         }
 
@@ -667,7 +663,7 @@ export default function AdminDashboard() {
     }
   }
 
-  const handleDateChange = (month: number | null, year: number) => {
+  const handleDateChange = (month: number, year: number) => {
     setSelectedMonth(month)
     setSelectedYear(year)
     
