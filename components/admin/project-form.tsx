@@ -37,6 +37,12 @@ interface Task {
   responsible: string
   description?: string
   order?: number
+  project_id?: string // ← ADICIONAR project_id!
+  delay_justification?: string
+  original_end_date?: string
+  actual_end_date?: string
+  delay_created_at?: string
+  delay_created_by?: string
 }
 
 interface ProjectFormProps {
@@ -185,40 +191,41 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
     fetchUserRole()
   }, [])
 
-  // Carregar tarefas existentes quando estiver editando um projeto
-  useEffect(() => {
-    const fetchTasks = async () => {
-      if (!project?.id) return
+  // Função para recarregar tasks do banco
+  const fetchTasks = async () => {
+    if (!project?.id) return
 
-      try {
-        console.log("[v0] Fetching tasks for project:", project.id)
-        const supabase = createClient()
-        const { data, error } = await supabase
-          .from("tasks")
-          .select("id, name, description, start_date, end_date, status, responsible, \"order\"")
-          .eq("project_id", project.id)
-          .order("\"order\"", { ascending: true })
+    try {
+      console.log("[v0] Fetching tasks for project:", project.id)
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from("tasks")
+        .select("id, name, description, start_date, end_date, status, responsible, \"order\", delay_justification, original_end_date, actual_end_date, delay_created_at, delay_created_by")
+        .eq("project_id", project.id)
+        .order("\"order\"", { ascending: true })
 
-        if (error) throw error
+      if (error) throw error
 
-        if (data) {
-          console.log("[v0] Tasks fetched successfully:", data.length)
-          // Adicionar ordem para tarefas existentes que não têm ordem
-          const tasksWithOrder = data.map((task: any, index: number) => ({
-            ...task,
-            order: task.order || index
-          }))
-          setTasks(tasksWithOrder)
-        } else {
-          console.log("[v0] No tasks found for project")
-          setTasks([])
-        }
-      } catch (error: any) {
-        console.log("[v0] Tasks fetch failed:", error.message)
+      if (data) {
+        console.log("[v0] Tasks fetched successfully:", data.length)
+        // Adicionar ordem para tarefas existentes que não têm ordem
+        const tasksWithOrder = data.map((task: any, index: number) => ({
+          ...task,
+          order: task.order || index
+        }))
+        setTasks(tasksWithOrder)
+      } else {
+        console.log("[v0] No tasks found for project")
         setTasks([])
       }
+    } catch (error: any) {
+      console.log("[v0] Tasks fetch failed:", error.message)
+      setTasks([])
     }
+  }
 
+  // Carregar tarefas existentes quando estiver editando um projeto
+  useEffect(() => {
     fetchTasks()
   }, [project?.id])
 
@@ -332,6 +339,12 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
               project_id: projectId,
               created_by: user.id,
               order: task.order || 0, // Incluir campo order
+              // Preservar campos de justificativa de atraso
+              delay_justification: task.delay_justification || null,
+              original_end_date: task.original_end_date || null,
+              actual_end_date: task.actual_end_date || null,
+              delay_created_at: task.delay_created_at || null,
+              delay_created_by: task.delay_created_by || null,
             }))
 
             console.log("[v0] Tasks data prepared:", tasksData)
@@ -486,7 +499,7 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
 
   const addTask = () => {
     const newTask: Task = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       name: "",
       start_date: "",
       end_date: "",
@@ -494,6 +507,7 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
       responsible: "",
       description: "",
       order: tasks.length, // Ordem baseada no número de tarefas existentes
+      project_id: project?.id || "", // ← ADICIONAR project_id!
     }
     setTasks([...tasks, newTask])
   }
@@ -1023,16 +1037,18 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
                     </CardDescription>
                   </div>
                 </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={addTask}
-                  className="flex items-center gap-2 bg-white/80 hover:bg-white border-slate-300 hover:border-cyan-500 hover:text-cyan-600 transition-all duration-200"
-                >
-                  <Plus className="w-4 h-4" />
-                  Adicionar Tarefa
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={addTask}
+                    className="flex items-center gap-2 bg-white/80 hover:bg-white border-slate-300 hover:border-cyan-500 hover:text-cyan-600 transition-all duration-200"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Adicionar Tarefa
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardContent>
@@ -1042,6 +1058,7 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
                   onUpdateTask={updateTask}
                   onRemoveTask={removeTask}
                   onReorderTasks={reorderTasks}
+                  onRefreshTasks={fetchTasks}
                 />
               ) : (
                 <div className="text-center py-8 text-gray-500">

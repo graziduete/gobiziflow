@@ -85,10 +85,16 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
       start_date,
       end_date,
       status,
-      responsible
+      responsible,
+      delay_justification,
+      original_end_date,
+      actual_end_date,
+      delay_created_at,
+      delay_created_by
     `)
     .eq("project_id", id)
     .order("created_at")
+
 
   // Buscar nome da empresa
   const { data: company } = await supabase

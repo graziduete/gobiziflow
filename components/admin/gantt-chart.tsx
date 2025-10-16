@@ -16,6 +16,11 @@ interface Task {
   status: string
   responsible: string
   description?: string
+  delay_justification?: string
+  original_end_date?: string
+  actual_end_date?: string
+  delay_created_at?: string
+  delay_created_by?: string
 }
 
 interface GanttChartProps {
@@ -660,20 +665,27 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                   )}
 
                 {/* Tarefas com barras contínuas */}
-                {validTasks.map((task, taskIndex) => (
-                  <div
-                    key={task.id}
-                    data-task-id={task.id}
-                    className="grid hover:bg-slate-50 transition-colors duration-200 relative"
-                    style={{ gridTemplateColumns: `280px repeat(${weeks.length}, 120px)` }}
-                  >
+                {validTasks.map((task, taskIndex) => {
+                  const hasDelayJustification = task.delay_justification && task.status === 'completed_delayed'
+                  
+                  return (
+                    <div
+                      key={task.id}
+                      data-task-id={task.id}
+                      className={`grid hover:bg-slate-50 transition-colors duration-200 relative ${hasDelayJustification ? 'bg-orange-50/30' : ''}`}
+                      style={{ gridTemplateColumns: `280px repeat(${weeks.length}, 120px)` }}
+                    >
                     {/* Informações da tarefa */}
                     <div className="h-20 border-r border-slate-200 bg-white px-3 py-2.5 flex flex-col justify-center">
                       <div className="flex items-start gap-2">
                         {/* Farol de status */}
                         <div className={`w-2.5 h-2.5 rounded-full ${getStatusDotColor(task.status)} ring-2 ring-white flex-shrink-0 mt-1.5`} title={getStatusText(task.status)} />
-                        <div className="font-semibold text-slate-900 text-[13px] leading-snug tracking-tight" data-task-title={task.name}>
+                        <div className="font-semibold text-slate-900 text-[13px] leading-snug tracking-tight flex-1" data-task-title={task.name}>
                           {task.name}
+                          {/* Ícone de alerta para tarefas com justificativa */}
+                          {hasDelayJustification && (
+                            <AlertTriangle className="inline-block w-3.5 h-3.5 text-orange-500 ml-1 align-middle" />
+                          )}
                         </div>
                       </div>
                       <div className="mt-1.5 flex items-center gap-2 text-xs text-slate-600">
@@ -709,9 +721,21 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                             <div className="text-[11px] font-semibold text-slate-900 line-clamp-1">{task.name}</div>
                             <div className="mt-1 grid grid-cols-2 gap-2 text-[11px] text-slate-700">
                               <div className="flex items-center gap-1"><Users className="w-3 h-3" /> {task.responsible}</div>
-                              <div className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {new Date(task.start_date).toLocaleDateString('pt-BR')} - {new Date(task.end_date).toLocaleDateString('pt-BR')}</div>
+                              <div className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {new Date(task.start_date + 'T12:00:00').toLocaleDateString('pt-BR')} - {new Date(task.end_date + 'T12:00:00').toLocaleDateString('pt-BR')}</div>
                             </div>
                             <div className="mt-1 text-[11px] text-slate-600">{getStatusText(task.status)}</div>
+                            {task.status === 'completed_delayed' && (
+                              <div className="mt-2 pt-2 border-t border-orange-200">
+                                <div className="text-[10px] font-medium text-orange-600 mb-1">Justificativa de Atraso:</div>
+                                {task.delay_justification && (
+                                  <div className="text-[10px] text-slate-600 mb-2 line-clamp-2">{task.delay_justification}</div>
+                                )}
+                                <div className="text-[10px] text-slate-500">
+                                  <div><strong>Data planejada:</strong> {task.original_end_date ? new Date(task.original_end_date + 'T12:00:00').toLocaleDateString('pt-BR') : 'N/A'}</div>
+                                  <div className="mt-1"><strong>Data real:</strong> {task.actual_end_date ? new Date(task.actual_end_date + 'T12:00:00').toLocaleDateString('pt-BR') : 'N/A'}</div>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
 
@@ -733,7 +757,8 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                       />
                     )}
                   </div>
-                ))}
+                  )
+                })}
                 </div> {/* Fechar container das tarefas */}
               </div>
             </div>
@@ -938,21 +963,28 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
               )}
 
             {/* Tarefas com barras contínuas */}
-            {validTasks.map((task, taskIndex) => (
-              <div
-                key={task.id}
-                data-task-id={task.id}
-                className="grid hover:bg-slate-50 transition-colors duration-200 relative"
-                style={{ gridTemplateColumns: `280px repeat(${weeks.length}, 120px)` }}
-              >
+            {validTasks.map((task, taskIndex) => {
+              const hasDelayJustification = task.delay_justification && task.status === 'completed_delayed'
+              
+              return (
+                <div
+                  key={task.id}
+                  data-task-id={task.id}
+                  className={`grid hover:bg-slate-50 transition-colors duration-200 relative ${hasDelayJustification ? 'bg-orange-50/30' : ''}`}
+                  style={{ gridTemplateColumns: `280px repeat(${weeks.length}, 120px)` }}
+                >
                 {/* Informações da tarefa */}
                 <div className="h-20 border-r border-slate-200 bg-white px-3 py-2.5 flex flex-col justify-center">
                   <div className="flex items-start gap-2">
                     {/* Farol de status */}
                     <div className={`w-2.5 h-2.5 rounded-full ${getStatusDotColor(task.status)} ring-2 ring-white flex-shrink-0 mt-1.5`} title={getStatusText(task.status)} />
-                    <div className="font-semibold text-slate-900 text-[13px] leading-snug tracking-tight" data-task-title={task.name}>
-                      {task.name}
-                    </div>
+                        <div className="font-semibold text-slate-900 text-[13px] leading-snug tracking-tight flex-1" data-task-title={task.name}>
+                          {task.name}
+                          {/* Ícone de alerta para tarefas com justificativa */}
+                          {hasDelayJustification && (
+                            <AlertTriangle className="inline-block w-3.5 h-3.5 text-orange-500 ml-1 align-middle" />
+                          )}
+                        </div>
                   </div>
                   <div className="mt-1.5 flex items-center gap-2 text-xs text-slate-600">
                     <Users className="w-3.5 h-3.5 text-slate-500" />
@@ -997,12 +1029,24 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                         <div className="text-[11px] font-semibold text-slate-900 line-clamp-1">{task.name}</div>
                         <div className="mt-1 grid grid-cols-2 gap-2 text-[11px] text-slate-700">
                           <div className="flex items-center gap-1"><Users className="w-3 h-3" /> {task.responsible}</div>
-                          <div className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {task.start_date} - {task.end_date}</div>
+                          <div className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {new Date(task.start_date + 'T12:00:00').toLocaleDateString('pt-BR')} - {new Date(task.end_date + 'T12:00:00').toLocaleDateString('pt-BR')}</div>
                         </div>
                         <div className="mt-1 flex items-center gap-1 text-[11px] text-slate-600">
                           <div className={`w-2 h-2 rounded-full ${getStatusDotColor(task.status)}`}></div>
                           {getStatusText(task.status)}
                         </div>
+                        {task.status === 'completed_delayed' && (
+                          <div className="mt-2 pt-2 border-t border-orange-200">
+                            <div className="text-[10px] font-medium text-orange-600 mb-1">Justificativa de Atraso:</div>
+                            {task.delay_justification && (
+                              <div className="text-[10px] text-slate-600 mb-2 line-clamp-2">{task.delay_justification}</div>
+                            )}
+                            <div className="text-[10px] text-slate-500">
+                              <div><strong>Data planejada:</strong> {task.original_end_date ? new Date(task.original_end_date + 'T12:00:00').toLocaleDateString('pt-BR') : 'N/A'}</div>
+                              <div className="mt-1"><strong>Data real:</strong> {task.actual_end_date ? new Date(task.actual_end_date + 'T12:00:00').toLocaleDateString('pt-BR') : 'N/A'}</div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1016,7 +1060,8 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                   />
                 )}
               </div>
-            ))}
+              )
+            })}
             </div> {/* Fechar container das tarefas */}
           </div>
         </div>

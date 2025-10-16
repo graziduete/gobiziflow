@@ -67,7 +67,12 @@ export function ClientProjectDetail({ project }: ClientProjectDetailProps) {
           start_date,
           end_date,
           status,
-          responsible
+          responsible,
+          delay_justification,
+          original_end_date,
+          actual_end_date,
+          delay_created_at,
+          delay_created_by
         `)
         .eq("project_id", project.id)
         .order("start_date", { ascending: true })
@@ -91,7 +96,12 @@ export function ClientProjectDetail({ project }: ClientProjectDetailProps) {
           end_date: task.end_date,
           status: task.status,
           responsible: task.responsible || '—',
-          description: task.description || ''
+          description: task.description || '',
+          delay_justification: task.delay_justification,
+          original_end_date: task.original_end_date,
+          actual_end_date: task.actual_end_date,
+          delay_created_at: task.delay_created_at,
+          delay_created_by: task.delay_created_by
         }))
         .filter((t: any) => !!t.start_date && !!t.end_date)
 

@@ -20,11 +20,13 @@ import {
   useSortable,
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-import { GripVertical, Trash2 } from "lucide-react"
+import { GripVertical, Trash2, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { createClient } from "@/lib/supabase/client"
+import { DelayJustificationModal } from "@/components/admin/delay-justification-modal"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 interface Task {
   id: string
@@ -35,6 +37,11 @@ interface Task {
   responsible: string
   description?: string
   order?: number
+  delay_justification?: string
+  original_end_date?: string
+  actual_end_date?: string
+  delay_created_at?: string
+  delay_created_by?: string
 }
 
 interface Responsavel {
@@ -49,6 +56,7 @@ interface DraggableTaskListProps {
   onUpdateTask: (taskId: string, field: keyof Task, value: string) => void
   onRemoveTask: (taskId: string) => void
   onReorderTasks: (oldIndex: number, newIndex: number) => void
+  onRefreshTasks?: () => void
 }
 
 interface SortableTaskItemProps {
@@ -57,9 +65,10 @@ interface SortableTaskItemProps {
   responsaveis: Responsavel[]
   onUpdateTask: (taskId: string, field: keyof Task, value: string) => void
   onRemoveTask: (taskId: string) => void
+  onStatusChange: (taskId: string, newStatus: string) => void
 }
 
-function SortableTaskItem({ task, index, responsaveis, onUpdateTask, onRemoveTask }: SortableTaskItemProps) {
+function SortableTaskItem({ task, index, responsaveis, onUpdateTask, onRemoveTask, onStatusChange }: SortableTaskItemProps) {
   const {
     attributes,
     listeners,
@@ -86,11 +95,13 @@ function SortableTaskItem({ task, index, responsaveis, onUpdateTask, onRemoveTas
     }
   }
 
+  const hasDelayJustification = task.delay_justification && task.status === 'completed_delayed'
+
   return (
     <tr 
       ref={setNodeRef}
       style={style}
-      className={`border-b hover:bg-blue-50 ${isDragging ? 'bg-blue-100' : ''}`}
+      className={`border-b hover:bg-blue-50 ${isDragging ? 'bg-blue-100' : ''} ${hasDelayJustification ? 'bg-orange-50 border-l-4 border-l-orange-400' : ''}`}
     >
       {/* Handle de arrastar */}
       <td className="p-2 w-8">
@@ -155,22 +166,49 @@ function SortableTaskItem({ task, index, responsaveis, onUpdateTask, onRemoveTas
 
       {/* Status */}
       <td className="p-4">
-        <Select
-          value={task.status}
-          onValueChange={(value) => onUpdateTask(task.id, "status", value)}
-        >
-          <SelectTrigger className="border-0 bg-transparent p-0 h-auto w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="not_started">Não Iniciado</SelectItem>
-            <SelectItem value="in_progress">Em Andamento</SelectItem>
-            <SelectItem value="completed">Concluído</SelectItem>
-            <SelectItem value="completed_delayed">Concluído com Atraso</SelectItem>
-            <SelectItem value="on_hold">Pausado</SelectItem>
-            <SelectItem value="delayed">Atrasado</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex items-center gap-2">
+          <Select
+            value={task.status}
+            onValueChange={(value) => onStatusChange(task.id, value)}
+          >
+            <SelectTrigger className="border-0 bg-transparent p-0 h-auto flex-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="not_started">Não Iniciado</SelectItem>
+              <SelectItem value="in_progress">Em Andamento</SelectItem>
+              <SelectItem value="completed">Concluído</SelectItem>
+              <SelectItem value="completed_delayed">Concluído com Atraso</SelectItem>
+              <SelectItem value="on_hold">Pausado</SelectItem>
+              <SelectItem value="delayed">Atrasado</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          {/* Ícone de alerta para tarefas com justificativa */}
+          {hasDelayJustification && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <AlertTriangle className="w-4 h-4 text-orange-500 flex-shrink-0" />
+                </TooltipTrigger>
+                       <TooltipContent>
+                         <div className="max-w-xs">
+                           <p className="font-medium text-white mb-1">Tarefa com atraso justificado</p>
+                           <p className="text-sm text-gray-200 mb-2">
+                             <strong>Data planejada:</strong> {new Date(task.original_end_date + 'T12:00:00').toLocaleDateString('pt-BR')}
+                           </p>
+                           <p className="text-sm text-gray-200 mb-2">
+                             <strong>Data real:</strong> {new Date(task.actual_end_date + 'T12:00:00').toLocaleDateString('pt-BR')}
+                           </p>
+                           <p className="text-sm text-gray-200">
+                             <strong>Justificativa:</strong> {task.delay_justification}
+                           </p>
+                         </div>
+                       </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
       </td>
 
       {/* Ações */}
@@ -189,8 +227,10 @@ function SortableTaskItem({ task, index, responsaveis, onUpdateTask, onRemoveTas
   )
 }
 
-export function DraggableTaskList({ tasks, onUpdateTask, onRemoveTask, onReorderTasks }: DraggableTaskListProps) {
+export function DraggableTaskList({ tasks, onUpdateTask, onRemoveTask, onReorderTasks, onRefreshTasks }: DraggableTaskListProps) {
   const [responsaveis, setResponsaveis] = useState<Responsavel[]>([])
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null)
   
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -275,6 +315,35 @@ export function DraggableTaskList({ tasks, onUpdateTask, onRemoveTask, onReorder
     }
   }
 
+  const handleStatusChange = (taskId: string, newStatus: string) => {
+    const task = tasks.find(t => t.id === taskId)
+    
+    if (newStatus === 'completed_delayed') {
+      // Abrir modal de justificativa
+      setSelectedTask(task || null)
+      setIsModalOpen(true)
+    } else {
+      // Mudança normal de status
+      onUpdateTask(taskId, 'status', newStatus)
+    }
+  }
+
+  const handleModalSuccess = () => {
+    // Recarregar tasks do banco para incluir dados de justificativa
+    if (onRefreshTasks) {
+      console.log("🔄 [DraggableTaskList] Recarregando tasks após justificativa...")
+      onRefreshTasks()
+    }
+    
+    setIsModalOpen(false)
+    setSelectedTask(null)
+  }
+
+  const handleModalClose = () => {
+    setIsModalOpen(false)
+    setSelectedTask(null)
+  }
+
   // Ordenar tarefas por ordem
   const sortedTasks = [...tasks].sort((a, b) => (a.order || 0) - (b.order || 0))
 
@@ -307,12 +376,23 @@ export function DraggableTaskList({ tasks, onUpdateTask, onRemoveTask, onReorder
                   responsaveis={responsaveis}
                   onUpdateTask={onUpdateTask}
                   onRemoveTask={onRemoveTask}
+                  onStatusChange={handleStatusChange}
                 />
               ))}
             </SortableContext>
           </tbody>
         </table>
       </DndContext>
+
+      {/* Modal de Justificativa de Atraso */}
+      {selectedTask && (
+        <DelayJustificationModal
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+          task={selectedTask}
+          onSuccess={handleModalSuccess}
+        />
+      )}
     </div>
   )
 }

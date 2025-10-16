@@ -148,11 +148,11 @@ export default function ProjectsPage() {
           query = query.eq('tenant_id', clientAdmin.company_id)
         }
       } 
-      // Se for Admin Normal, filtrar apenas empresas sem tenant_id (criadas por Admin Master/Normal)
+      // Se for Admin Normal ou Admin Operacional, filtrar apenas empresas sem tenant_id (aplicação principal)
       else if (profile?.role === 'admin' || profile?.role === 'admin_operacional') {
         query = query.is('tenant_id', null)
       }
-      // Admin Master vê tudo (sem filtro)
+      // Admin Master vê tudo (sem filtro) - tenant_id = NULL + todos os tenants
 
       const { data: companiesData, error: companiesError } = await query
 

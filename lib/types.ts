@@ -104,6 +104,12 @@ export interface Task {
   dependencies?: string[] // IDs das tarefas que devem ser concluídas antes
   // Campo renomeado
   name?: string
+  // Campos para justificativa de atraso
+  delay_justification?: string
+  original_end_date?: string
+  actual_end_date?: string
+  delay_created_at?: string
+  delay_created_by?: string
 }
 
 export interface DashboardStats {
