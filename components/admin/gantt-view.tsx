@@ -11,6 +11,7 @@ import { Calendar, Clock, TrendingUpIcon as TrendingRight, Maximize2, Search, Bu
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { GanttChart } from "@/components/admin/gantt-chart"
+import { calculateProjectProgress } from "@/lib/calculate-progress"
 
 interface GanttViewProps {
   projects: any[] // já filtrados pelo container
@@ -127,13 +128,26 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
     return type ? type.label : projectType
   }
 
-  const getProgressWidth = (percentage: number, status: string) => {
-    // Se o projeto tem uma porcentagem específica definida, usar ela
+  const getProgressWidth = (projectId: string, percentage: number, status: string) => {
+    // 1. Prioridade: calcular baseado nas tasks reais do projeto
+    const tasks = projectTasks[projectId]
+    if (tasks && tasks.length > 0) {
+      const calculatedProgress = calculateProjectProgress(tasks)
+      console.log(`🔍 [GanttView] Progresso calculado para projeto ${projectId}:`, {
+        tasksCount: tasks.length,
+        calculatedProgress,
+        oldProgress: percentage,
+        status
+      })
+      return calculatedProgress
+    }
+    
+    // 2. Se o projeto tem uma porcentagem específica definida no banco, usar ela
     if (percentage && percentage > 0) {
       return Math.min(Math.max(percentage, 0), 100)
     }
     
-    // Caso contrário, usar porcentagem baseada no status
+    // 3. Fallback: usar porcentagem baseada no status do projeto
     switch (status) {
       case "commercial_proposal":
         return 0  // Proposta comercial ainda não aprovada
@@ -401,6 +415,10 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
         .filter((t: any) => !!t.start_date && !!t.end_date)
 
       setProjectTasks(prev => ({ ...prev, [projectId]: formattedTasks }))
+      console.log(`✅ [GanttView] Tasks carregadas para projeto ${projectId}:`, {
+        tasksCount: formattedTasks.length,
+        tasks: formattedTasks.map(t => ({ name: t.name, status: t.status }))
+      })
     } catch (error) {
       console.error("Erro ao buscar tarefas:", error)
       setProjectTasks(prev => ({ ...prev, [projectId]: [] }))
@@ -409,14 +427,22 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
     }
   }
 
-  // Carregar tarefas quando a visão Gantt for ativada
+  // Carregar tarefas de todos os projetos para cálculo de progresso
+  useEffect(() => {
+    // Carregar tasks de todos os projetos visíveis para cálculo de progresso
+    getFilteredProjects().forEach(project => {
+      fetchProjectTasks(project.id)
+    })
+  }, [projects, expandedFilters])
+
+  // Carregar tarefas quando a visão Gantt for ativada (mantido para compatibilidade)
   useEffect(() => {
     if (isGanttView) {
       getFilteredProjects().forEach(project => {
         fetchProjectTasks(project.id)
       })
     }
-  }, [isGanttView, expandedFilters])
+  }, [isGanttView])
 
   return (
     <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-white to-slate-50/50 shadow-md">
@@ -536,14 +562,14 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-slate-600 font-medium">Progresso do Projeto</span>
                     <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">
-                      {getProgressWidth(project.completion_percentage, project.status || "planning")}%
+                      {getProgressWidth(project.id, project.completion_percentage, project.status || "planning")}%
                     </span>
                   </div>
                   <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden shadow-inner">
                     <div
                       className="h-3 rounded-full transition-all duration-500"
                       style={{ 
-                        width: `${getProgressWidth(project.completion_percentage, project.status || "planning")}%`,
+                        width: `${getProgressWidth(project.id, project.completion_percentage, project.status || "planning")}%`,
                         background: project.status === 'completed' ? 'linear-gradient(90deg, #10b981 0%, #059669 100%)' :
                                    project.status === 'delayed' ? 'linear-gradient(90deg, #ef4444 0%, #f97316 100%)' :
                                    project.status === 'in_progress' ? 'linear-gradient(90deg, #3b82f6 0%, #06b6d4 100%)' :
@@ -932,14 +958,14 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-slate-600 font-medium">Progresso do Projeto</span>
                           <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">
-                            {getProgressWidth(project.completion_percentage, project.status || "planning")}%
+                            {getProgressWidth(project.id, project.completion_percentage, project.status || "planning")}%
                           </span>
                         </div>
                         <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden shadow-inner">
                           <div
                             className="h-3 rounded-full transition-all duration-500"
                             style={{ 
-                              width: `${getProgressWidth(project.completion_percentage, project.status || "planning")}%`,
+                              width: `${getProgressWidth(project.id, project.completion_percentage, project.status || "planning")}%`,
                               background: project.status === 'completed' ? 'linear-gradient(90deg, #10b981 0%, #059669 100%)' :
                                          project.status === 'delayed' ? 'linear-gradient(90deg, #ef4444 0%, #f97316 100%)' :
                                          project.status === 'in_progress' ? 'linear-gradient(90deg, #3b82f6 0%, #06b6d4 100%)' :

@@ -3,6 +3,7 @@
 import { Progress } from "@/components/ui/progress"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { calculateProjectProgress, getProgressStats } from "@/lib/calculate-progress"
 
 interface ProjectProgressProps {
   project: {
@@ -21,10 +22,13 @@ interface ProjectProgressProps {
 }
 
 export function ProjectProgress({ project, tasks }: ProjectProgressProps) {
-  const totalTasks = tasks.length
-  const completedTasks = tasks.filter((task) => task.status === "completed").length
-  const inProgressTasks = tasks.filter((task) => task.status === "in_progress").length
-  const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0
+  // Usar cálculo inteligente baseado em status das tasks
+  const progress = calculateProjectProgress(tasks)
+  const stats = getProgressStats(tasks)
+  
+  const totalTasks = stats.total
+  const completedTasks = stats.completed
+  const inProgressTasks = stats.inProgress
 
   const getStatusColor = (status: string) => {
     switch (status) {

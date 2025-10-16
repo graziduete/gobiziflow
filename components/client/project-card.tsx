@@ -4,6 +4,7 @@ import { Progress } from "@/components/ui/progress"
 import { Calendar, DollarSign, Clock } from "lucide-react"
 import { StatusBadge } from "@/components/shared/status-badge"
 import { PriorityBadge } from "@/components/shared/priority-badge"
+import { calculateProjectProgress, getProgressStats } from "@/lib/calculate-progress"
 
 interface ProjectCardProps {
   project: {
@@ -25,9 +26,12 @@ interface ProjectCardProps {
 }
 
 export function ProjectCard({ project, tasks }: ProjectCardProps) {
-  const totalTasks = tasks.length
-  const completedTasks = tasks.filter((task) => task.status === "completed").length
-  const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0
+  // Usar cálculo inteligente baseado em status das tasks
+  const progress = calculateProjectProgress(tasks)
+  const stats = getProgressStats(tasks)
+  
+  const totalTasks = stats.total
+  const completedTasks = stats.completed
 
   const isOverdue = project.end_date && new Date(project.end_date) < new Date() && project.status !== "completed"
 
