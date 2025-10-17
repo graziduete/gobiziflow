@@ -58,6 +58,39 @@ export default async function EditProjectPage({ params }: EditProjectPageProps) 
     notFound()
   }
 
+  // PRÉ-CARREGAR EMPRESAS NO SERVIDOR para máxima velocidade
+  let companies = []
+  try {
+    let companiesQuery = supabase
+      .from("companies")
+      .select("id, name, tenant_id")
+      .order("name")
+
+    // Aplicar filtros baseados no perfil
+    if (profile?.is_client_admin) {
+      const { data: clientAdmin } = await supabase
+        .from('client_admins')
+        .select('company_id')
+        .eq('id', user.id)
+        .single()
+      
+      if (clientAdmin?.company_id) {
+        companiesQuery = companiesQuery.eq('tenant_id', clientAdmin.company_id)
+      }
+    } else if (profile?.role === 'admin' || profile?.role === 'admin_operacional') {
+      companiesQuery = companiesQuery.is('tenant_id', null)
+    }
+    // Admin Master vê tudo (sem filtro)
+
+    const { data: companiesData } = await companiesQuery
+    companies = companiesData?.map(c => ({ id: c.id, name: c.name })) || []
+    
+    console.log("[SERVER] Companies pre-loaded:", companies.length)
+  } catch (error) {
+    console.error("[SERVER] Failed to pre-load companies:", error)
+    companies = []
+  }
+
   // Debug: verificar se há campos null
   console.log("Project data received:", project)
 
@@ -93,7 +126,7 @@ export default async function EditProjectPage({ params }: EditProjectPageProps) 
         </div>
       </div>
 
-      <ProjectForm project={project} />
+      <ProjectForm project={project} preloadedCompanies={companies} />
 
       {/* Documentos do Projeto */}
       <ProjectDocsCard projectId={project.id} userId={project.created_by || ""} />

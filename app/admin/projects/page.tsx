@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Edit, Calendar, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Filter, List, Grid3X3 } from "lucide-react"
+import { Plus, Edit, Calendar, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Filter, List, Grid3X3, Kanban } from "lucide-react"
 import Link from "next/link"
 import { ProjectFilters } from "@/components/admin/project-filters"
 import { createClient } from "@/lib/supabase/client"
@@ -605,7 +605,16 @@ export default function ProjectsPage() {
                   <div className="relative flex-1 space-y-4">
                     {/* Header do Card */}
                     <div className="space-y-2">
-                      <h3 className="font-bold text-base leading-tight text-slate-900 line-clamp-2 group-hover:text-blue-700 transition-colors">{project.name}</h3>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-bold text-base leading-tight text-slate-900 line-clamp-2 group-hover:text-blue-700 transition-colors flex-1">{project.name}</h3>
+                        <Link 
+                          href={`/admin/flowtasks/${project.id}`}
+                          className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-blue-50 to-cyan-50 hover:from-blue-100 hover:to-cyan-100 text-blue-600 hover:text-blue-700 border border-blue-200 hover:border-blue-300 hover:shadow-md transition-all duration-200 group/icon"
+                          title="Abrir FlowTasks (Kanban)"
+                        >
+                          <Kanban className="h-4 w-4 group-hover/icon:scale-110 transition-transform duration-200" />
+                        </Link>
+                      </div>
                       <p className="text-sm text-slate-600 line-clamp-2">{project.description || "Sem descrição"}</p>
                     </div>
                     

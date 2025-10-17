@@ -731,7 +731,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                                   <div className="text-[10px] text-slate-600 mb-2 line-clamp-2">{task.delay_justification}</div>
                                 )}
                                 <div className="text-[10px] text-slate-500">
-                                  <div><strong>Data planejada:</strong> {task.original_end_date ? new Date(task.original_end_date + 'T12:00:00').toLocaleDateString('pt-BR') : 'N/A'}</div>
+                                  <div><strong>Data planejada:</strong> {task.original_end_date ? new Date(task.original_end_date + 'T12:00:00').toLocaleDateString('pt-BR') : (task.end_date ? new Date(task.end_date + 'T12:00:00').toLocaleDateString('pt-BR') : 'N/A')}</div>
                                   <div className="mt-1"><strong>Data real:</strong> {task.actual_end_date ? new Date(task.actual_end_date + 'T12:00:00').toLocaleDateString('pt-BR') : 'N/A'}</div>
                                 </div>
                               </div>
@@ -1042,7 +1042,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                               <div className="text-[10px] text-slate-600 mb-2 line-clamp-2">{task.delay_justification}</div>
                             )}
                             <div className="text-[10px] text-slate-500">
-                              <div><strong>Data planejada:</strong> {task.original_end_date ? new Date(task.original_end_date + 'T12:00:00').toLocaleDateString('pt-BR') : 'N/A'}</div>
+                              <div><strong>Data planejada:</strong> {task.original_end_date ? new Date(task.original_end_date + 'T12:00:00').toLocaleDateString('pt-BR') : (task.end_date ? new Date(task.end_date + 'T12:00:00').toLocaleDateString('pt-BR') : 'N/A')}</div>
                               <div className="mt-1"><strong>Data real:</strong> {task.actual_end_date ? new Date(task.actual_end_date + 'T12:00:00').toLocaleDateString('pt-BR') : 'N/A'}</div>
                             </div>
                           </div>

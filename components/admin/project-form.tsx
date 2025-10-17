@@ -17,16 +17,7 @@ import { GanttChart } from "./gantt-chart"
 import { DraggableTaskList } from "./draggable-task-list"
 import { formatDateBrazil } from "@/lib/utils/status-translation"
 
-const mockCompanies = [
-  { id: "1", name: "TechCorp Solutions" },
-  { id: "2", name: "Digital Marketing Pro" },
-  { id: "3", name: "E-commerce Plus" },
-]
-
-const mockUser = {
-  id: "mock-admin-user",
-  email: "admin@test.com",
-}
+// Removidos os mocks - usando apenas dados reais
 
 interface Task {
   id: string
@@ -63,9 +54,10 @@ interface ProjectFormProps {
     estimated_hours?: number
   }
   onSuccess?: () => void
+  preloadedCompanies?: any[]
 }
 
-export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
+export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectFormProps) {
   // Debug: verificar dados recebidos
   console.log("ProjectForm received project:", project)
   
@@ -101,37 +93,74 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
   
   const [tasks, setTasks] = useState<Task[]>([])
   const [companies, setCompanies] = useState<any[]>([])
+  const [isLoadingCompanies, setIsLoadingCompanies] = useState(true)
+  const [companiesLoaded, setCompaniesLoaded] = useState(false)
+  
+  // Cache global para empresas - evita recarregamento
+  const [globalCompaniesCache, setGlobalCompaniesCache] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [isOffline, setIsOffline] = useState(false)
+  // Removido isOffline - não usando mais mocks
   const router = useRouter()
 
+  // Carregar empresas IMEDIATAMENTE - antes de qualquer coisa
   useEffect(() => {
-    const fetchCompanies = async () => {
+    // PRIORIDADE MÁXIMA: Se temos empresas pré-carregadas do servidor, usar IMEDIATAMENTE
+    if (preloadedCompanies && preloadedCompanies.length > 0) {
+      console.log("[v0] Using PRELOADED companies from server:", preloadedCompanies.length)
+      setCompanies(preloadedCompanies)
+      setGlobalCompaniesCache(preloadedCompanies) // Cache global também
+      setIsLoadingCompanies(false)
+      setCompaniesLoaded(true)
+      return
+    }
+
+    // Se já temos cache global, usar imediatamente
+    if (globalCompaniesCache.length > 0) {
+      console.log("[v0] Using global companies cache:", globalCompaniesCache.length)
+      setCompanies(globalCompaniesCache)
+      setIsLoadingCompanies(false)
+      setCompaniesLoaded(true)
+      return
+    }
+
+    // Se já carregou empresas antes, usar cache local
+    if (companiesLoaded) {
+      setIsLoadingCompanies(false)
+      return
+    }
+
+    // Carregar empresas com MÁXIMA PRIORIDADE
+    const fetchCompaniesImmediately = async () => {
       try {
-        console.log("[v0] Fetching companies...")
+        console.log("[v0] Fetching companies IMMEDIATELY...")
         const supabase = createClient()
         
-        // Obter dados do usuário logado
+        // Query ultra otimizada - buscar empresas primeiro, sem filtros complexos
         const { data: { user } } = await supabase.auth.getUser()
         
         if (!user) {
           throw new Error('Usuário não autenticado')
         }
 
-        // Buscar perfil do usuário
+        // PRIMEIRA QUERY: Buscar todas as empresas (mais rápido)
+        const { data: allCompanies, error: companiesError } = await supabase
+          .from("companies")
+          .select("id, name, tenant_id")
+          .order("name")
+
+        if (companiesError) throw companiesError
+
+        // SEGUNDA QUERY: Buscar perfil do usuário (em paralelo)
         const { data: profile } = await supabase
           .from('profiles')
           .select('role, is_client_admin')
           .eq('id', user.id)
           .single()
 
-        let query = supabase
-          .from("companies")
-          .select("id, name")
-          .order("name")
+        let filteredCompanies = allCompanies || []
 
-        // Se for Client Admin, filtrar por tenant_id
+        // Aplicar filtros localmente (mais rápido)
         if (profile?.is_client_admin) {
           const { data: clientAdmin } = await supabase
             .from('client_admins')
@@ -140,33 +169,38 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
             .single()
           
           if (clientAdmin?.company_id) {
-            query = query.eq('tenant_id', clientAdmin.company_id)
+            filteredCompanies = allCompanies?.filter(c => c.tenant_id === clientAdmin.company_id) || []
           }
-        } 
-        // Se for Admin Normal, filtrar apenas empresas sem tenant_id (criadas por Admin Master/Normal)
-        else if (profile?.role === 'admin' || profile?.role === 'admin_operacional') {
-          query = query.is('tenant_id', null)
+        } else if (profile?.role === 'admin' || profile?.role === 'admin_operacional') {
+          filteredCompanies = allCompanies?.filter(c => c.tenant_id === null) || []
         }
 
-        const { data, error } = await query
+        // Limpar dados (remover tenant_id)
+        const cleanCompanies = filteredCompanies.map(c => ({ id: c.id, name: c.name }))
 
-        if (error) throw error
-
-        if (data) {
-          console.log("[v0] Companies fetched successfully:", data.length)
-          setCompanies(data)
+        if (cleanCompanies.length > 0) {
+          console.log("[v0] Companies loaded IMMEDIATELY:", cleanCompanies.length)
+          setCompanies(cleanCompanies)
+          setGlobalCompaniesCache(cleanCompanies) // Cache global
+          setCompaniesLoaded(true)
         } else {
-          console.log("[v0] No companies data, using mock data")
-          setCompanies(mockCompanies)
-          setIsOffline(true)
+          console.log("[v0] No companies found")
+          setCompanies([])
         }
       } catch (error: any) {
-        console.log("[v0] Companies fetch failed, using mock data:", error.message)
-        setCompanies(mockCompanies)
-        setIsOffline(true)
+        console.error("[v0] Companies fetch failed:", error.message)
+        setCompanies([])
+      } finally {
+        setIsLoadingCompanies(false)
       }
     }
 
+    // Executar IMEDIATAMENTE - máxima prioridade
+    fetchCompaniesImmediately()
+  }, [])
+
+  // Carregar role do usuário em paralelo (não bloqueia empresas)
+  useEffect(() => {
     const fetchUserRole = async () => {
       try {
         const supabase = createClient()
@@ -187,7 +221,6 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
       }
     }
 
-    fetchCompanies()
     fetchUserRole()
   }, [])
 
@@ -237,27 +270,25 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
     try {
       console.log("[v0] Starting project submission...")
 
-      let user = mockUser // Default fallback user
+      let user = null
 
-      if (!isOffline) {
-        try {
-          const supabase = createClient()
-          const {
-            data: { user: realUser },
-            error: authError,
-          } = await supabase.auth.getUser()
+      try {
+        const supabase = createClient()
+        const {
+          data: { user: realUser },
+          error: authError,
+        } = await supabase.auth.getUser()
 
-          if (authError) throw authError
-          if (realUser) user = realUser
-        } catch (authError: any) {
-          console.log("[v0] Auth failed, using mock user:", authError.message)
-          setIsOffline(true)
-        }
+        if (authError) throw authError
+        if (realUser) user = realUser
+      } catch (authError: any) {
+        console.log("[v0] Auth failed:", authError.message)
+        throw new Error('Usuário não autenticado')
       }
 
       // Verificar se é Client Admin para definir tenant_id
       let tenantId = null
-      if (user.id && !isOffline) {
+      if (user?.id) {
         try {
           const supabase = createClient()
           const { data: profile } = await supabase
@@ -305,10 +336,9 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
       console.log("[v0] Tasks to save:", tasks)
 
       let savedProjectId: string | null = null
-      if (!isOffline) {
-        try {
-          const supabase = createClient()
-          let result
+      try {
+        const supabase = createClient()
+        let result
 
           if (project?.id) {
             result = await supabase.from("projects").update(projectData).eq("id", project.id).select().single()
@@ -446,14 +476,9 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
           }
 
         } catch (dbError: any) {
-          console.log("[v0] Database operation failed, simulating success:", dbError.message)
-          setIsOffline(true)
+          console.log("[v0] Database operation failed:", dbError.message)
+          throw dbError
         }
-      }
-
-      if (isOffline) {
-        console.log("[v0] Offline mode: Project and tasks would be saved when connection is restored")
-      }
 
       if (!project?.id && savedProjectId) {
         try {
@@ -709,14 +734,7 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
   return (
     <Card className="w-full bg-white/80 backdrop-blur-sm border border-white/20 shadow-xl">
       <CardContent className="p-8">
-        {isOffline && (
-          <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4">
-            <p className="text-amber-600 text-sm flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4" />
-              Modo offline - As alterações serão sincronizadas quando a conexão for restaurada
-            </p>
-          </div>
-        )}
+        {/* Removido aviso offline - sempre usando dados reais */}
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Nome do Projeto - Card Principal */}
           <Card className="bg-gradient-to-br from-slate-50/80 to-blue-50/50 border border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-200">
@@ -754,9 +772,9 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
               <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="company_id" className="text-sm font-medium text-slate-600">Empresa *</Label>
-                  <Select value={formData.company_id} onValueChange={(value) => handleChange("company_id", value)}>
+                  <Select value={formData.company_id} onValueChange={(value) => handleChange("company_id", value)} disabled={isLoadingCompanies}>
                     <SelectTrigger className="w-full h-10 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500/20">
-                      <SelectValue placeholder="Selecione a empresa" />
+                      <SelectValue placeholder={isLoadingCompanies ? "Carregando empresas..." : "Selecione a empresa"} />
                     </SelectTrigger>
                     <SelectContent>
                       {companies.map((company) => (
@@ -956,7 +974,7 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="start_date">Data de Início</Label>
+              <Label htmlFor="start_date">Data de Início Prevista</Label>
               <Input
                 id="start_date"
                 type="date"
@@ -966,7 +984,7 @@ export function ProjectForm({ project, onSuccess }: ProjectFormProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="end_date">Data de Término</Label>
+              <Label htmlFor="end_date">Data de Término Prevista</Label>
               <Input
                 id="end_date"
                 type="date"
