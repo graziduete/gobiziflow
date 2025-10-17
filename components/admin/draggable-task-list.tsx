@@ -57,6 +57,7 @@ interface DraggableTaskListProps {
   onRemoveTask: (taskId: string) => void
   onReorderTasks: (oldIndex: number, newIndex: number) => void
   onRefreshTasks?: () => void
+  invalidTasks?: Set<string>
 }
 
 interface SortableTaskItemProps {
@@ -66,9 +67,10 @@ interface SortableTaskItemProps {
   onUpdateTask: (taskId: string, field: keyof Task, value: string) => void
   onRemoveTask: (taskId: string) => void
   onStatusChange: (taskId: string, newStatus: string) => void
+  invalidTasks?: Set<string>
 }
 
-function SortableTaskItem({ task, index, responsaveis, onUpdateTask, onRemoveTask, onStatusChange }: SortableTaskItemProps) {
+function SortableTaskItem({ task, index, responsaveis, onUpdateTask, onRemoveTask, onStatusChange, invalidTasks = new Set() }: SortableTaskItemProps) {
   const {
     attributes,
     listeners,
@@ -83,6 +85,10 @@ function SortableTaskItem({ task, index, responsaveis, onUpdateTask, onRemoveTas
     transition,
     opacity: isDragging ? 0.5 : 1,
   }
+
+  // Verificar se esta tarefa tem datas inválidas
+  const isTaskInvalid = invalidTasks.has(task.id)
+  const invalidDateClass = isTaskInvalid ? "!border-red-500 !border-2 focus:!border-red-500 focus:!ring-red-500/20" : ""
 
   const getStatusText = (status: string) => {
     switch (status) {
@@ -101,7 +107,7 @@ function SortableTaskItem({ task, index, responsaveis, onUpdateTask, onRemoveTas
     <tr 
       ref={setNodeRef}
       style={style}
-      className={`border-b hover:bg-blue-50 ${isDragging ? 'bg-blue-100' : ''} ${hasDelayJustification ? 'bg-orange-50 border-l-4 border-l-orange-400' : ''}`}
+      className={`border-b hover:bg-blue-50 ${isDragging ? 'bg-blue-100' : ''} ${hasDelayJustification ? 'bg-orange-50 border-l-4 border-l-orange-400' : ''} ${isTaskInvalid ? 'bg-red-50 border-l-4 border-l-red-500' : ''}`}
     >
       {/* Handle de arrastar */}
       <td className="p-2 w-8">
@@ -131,7 +137,7 @@ function SortableTaskItem({ task, index, responsaveis, onUpdateTask, onRemoveTas
           type="date"
           value={task.start_date || ''}
           onChange={(e) => onUpdateTask(task.id, "start_date", e.target.value)}
-          className="border-0 bg-transparent p-0 text-sm focus:ring-0 w-full"
+          className={`border-0 bg-transparent p-0 text-sm focus:ring-0 w-full ${invalidDateClass}`}
         />
       </td>
 
@@ -141,7 +147,7 @@ function SortableTaskItem({ task, index, responsaveis, onUpdateTask, onRemoveTas
           type="date"
           value={task.end_date || ''}
           onChange={(e) => onUpdateTask(task.id, "end_date", e.target.value)}
-          className="border-0 bg-transparent p-0 text-sm focus:ring-0 w-full"
+          className={`border-0 bg-transparent p-0 text-sm focus:ring-0 w-full ${invalidDateClass}`}
         />
       </td>
 
@@ -227,10 +233,12 @@ function SortableTaskItem({ task, index, responsaveis, onUpdateTask, onRemoveTas
   )
 }
 
-export function DraggableTaskList({ tasks, onUpdateTask, onRemoveTask, onReorderTasks, onRefreshTasks }: DraggableTaskListProps) {
+export function DraggableTaskList({ tasks, onUpdateTask, onRemoveTask, onReorderTasks, onRefreshTasks, invalidTasks = new Set() }: DraggableTaskListProps) {
   const [responsaveis, setResponsaveis] = useState<Responsavel[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
+  
+  // Removidas as funções de máscara complexa - usando inputs nativos de data
   
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -377,6 +385,7 @@ export function DraggableTaskList({ tasks, onUpdateTask, onRemoveTask, onReorder
                   onUpdateTask={onUpdateTask}
                   onRemoveTask={onRemoveTask}
                   onStatusChange={handleStatusChange}
+                  invalidTasks={invalidTasks}
                 />
               ))}
             </SortableContext>

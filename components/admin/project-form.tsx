@@ -100,6 +100,8 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
   const [globalCompaniesCache, setGlobalCompaniesCache] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [invalidTasks, setInvalidTasks] = useState<Set<string>>(new Set())
+  const [showDateValidationModal, setShowDateValidationModal] = useState(false)
   // Removido isOffline - não usando mais mocks
   const router = useRouter()
 
@@ -331,6 +333,22 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
 
       console.log("🚀 DEBUG - Status sendo enviado:", formData.status)
       console.log("🚀 DEBUG - ProjectData completo:", projectData)
+
+      // Validação final das datas das tarefas antes de salvar
+      const invalidTasks = tasks.filter(task => {
+        if (task.start_date && task.end_date) {
+          const startDate = new Date(task.start_date)
+          const endDate = new Date(task.end_date)
+          return startDate > endDate
+        }
+        return false
+      })
+
+      if (invalidTasks.length > 0) {
+        setShowDateValidationModal(true)
+        setIsLoading(false)
+        return
+      }
 
       console.log("[v0] Project data prepared:", projectData)
       console.log("[v0] Tasks to save:", tasks)
@@ -682,10 +700,49 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
   }
 
   const updateTask = async (taskId: string, field: keyof Task, value: string) => {
+    // SEMPRE atualiza a tarefa primeiro para permitir digitação
     const updatedTasks = tasks.map((task: Task) => 
       task.id === taskId ? { ...task, [field]: value } : task
     )
     setTasks(updatedTasks)
+    
+    // Validação básica de datas APÓS atualizar (não bloqueia digitação)
+    if (field === 'start_date' || field === 'end_date') {
+      const updatedTask = updatedTasks.find(t => t.id === taskId)
+      if (updatedTask) {
+        const newStartDate = updatedTask.start_date
+        const newEndDate = updatedTask.end_date
+        
+        // Verificar se ambas as datas estão preenchidas E são válidas
+        if (newStartDate && newEndDate && newStartDate !== '' && newEndDate !== '') {
+          try {
+            // Converter para Date para comparação
+            const startDate = new Date(newStartDate)
+            const endDate = new Date(newEndDate)
+            
+            // Validar: data início deve ser menor ou igual à data fim
+            if (startDate > endDate) {
+              setError('❌ Data de início não pode ser maior que a data de fim da tarefa')
+              setInvalidTasks(prev => new Set(prev).add(taskId))
+            } else {
+              // Limpar erro se a validação passou
+              if (error?.includes('Data de início não pode ser maior')) {
+                setError(null)
+              }
+              // Remover da lista de tarefas inválidas
+              setInvalidTasks(prev => {
+                const newSet = new Set(prev)
+                newSet.delete(taskId)
+                return newSet
+              })
+            }
+          } catch (dateError) {
+            // Ignorar erros de data durante digitação
+            console.log('Data ainda sendo digitada:', dateError)
+          }
+        }
+      }
+    }
     
     // Notificação será enviada apenas no salvamento do projeto
     // para evitar duplicação
@@ -1077,6 +1134,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                   onRemoveTask={removeTask}
                   onReorderTasks={reorderTasks}
                   onRefreshTasks={fetchTasks}
+                  invalidTasks={invalidTasks}
                 />
               ) : (
                 <div className="text-center py-8 text-gray-500">
@@ -1099,6 +1157,42 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4">
               <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+
+          {/* Modal de Validação de Datas */}
+          {showDateValidationModal && (
+            <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-[9999] p-4 pb-20">
+              <div className="bg-white rounded-lg p-6 max-w-md w-full shadow-xl max-h-[70vh] overflow-y-auto transform translate-y-0 transition-transform duration-300">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-red-100 rounded-full">
+                    <AlertTriangle className="w-6 h-6 text-red-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Datas Inválidas Detectadas
+                  </h3>
+                </div>
+                <p className="text-gray-600 mb-4">
+                  Existem {invalidTasks.size} tarefa(s) com datas inválidas. 
+                  Verifique os campos destacados em vermelho nas tarefas abaixo.
+                </p>
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+                  <p className="text-sm text-red-700 font-medium mb-2">
+                    Problema encontrado:
+                  </p>
+                  <p className="text-sm text-red-600">
+                    Data de início é maior que a data de fim em algumas tarefas.
+                  </p>
+                </div>
+                <div className="flex gap-3 justify-end">
+                  <Button
+                    onClick={() => setShowDateValidationModal(false)}
+                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                  >
+                    Entendi, vou corrigir
+                  </Button>
+                </div>
+              </div>
             </div>
           )}
 
