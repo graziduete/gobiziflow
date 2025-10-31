@@ -39,6 +39,7 @@ export function SustentacaoDashboard({
   const [categorias, setCategorias] = useState<any[]>([]);
   const [forceUpdate, setForceUpdate] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [hasConfig, setHasConfig] = useState<boolean | null>(null); // null = verificando, true = tem config, false = não tem
   const [filters, setFilters] = useState<any>({
     mes: new Date().getMonth() + 1, // Mês atual
     ano: new Date().getFullYear()
@@ -136,6 +137,7 @@ export function SustentacaoDashboard({
         setMetricas(data.metricas);
         setCategorias(data.categorias);
         setChamados(data.chamados);
+        setHasConfig(true);
         console.log('✅ Dados do Google Sheets carregados!', {
           chamados: data.chamados.length,
           metricas: data.metricas,
@@ -144,12 +146,21 @@ export function SustentacaoDashboard({
         return;
       } else {
         const errorData = await response.json();
+        
+        // Verificar se é erro de configuração não encontrada
+        if (response.status === 404 || 
+            (errorData.message && errorData.message.includes('não possui configuração'))) {
+          console.log('⚠️ Empresa não possui configuração de sustentação');
+          setHasConfig(false);
+          return;
+        }
+        
+        // Para outros erros, logar detalhes
         console.error('❌ Erro na API:', errorData);
         console.error('❌ Status:', response.status);
-        console.error('❌ Response:', response);
       }
       
-      // Fallback para dados mockados
+      // Fallback para dados mockados apenas se não for erro de configuração
       console.log('🔄 Carregando dados mockados (fallback)...', filters);
       
       const mockData = getMockSustentacaoData(companyId, filters);
@@ -163,6 +174,7 @@ export function SustentacaoDashboard({
 
       setCategorias(mockData.chamadosPorCategoria);
       setChamados(mockData.chamados);
+      setHasConfig(true); // Dados mockados disponíveis
       
       console.log('✅ Dados mockados carregados!');
     } catch (error) {
@@ -182,13 +194,13 @@ export function SustentacaoDashboard({
   };
 
   const handleFilterChange = (key: string, value: string) => {
-    let processedValue = value === 'all' ? '' : value;
+    let processedValue: string | number = value === 'all' ? '' : value;
     
     // Converter para número se for mês ou ano
     if (key === 'mes' && processedValue !== '') {
-      processedValue = parseInt(processedValue);
+      processedValue = parseInt(processedValue as string);
     } else if (key === 'ano' && processedValue !== '') {
-      processedValue = parseInt(processedValue);
+      processedValue = parseInt(processedValue as string);
     }
     
     const newFilters = { ...filters, [key]: processedValue };
@@ -304,6 +316,37 @@ export function SustentacaoDashboard({
           <p className="text-lg font-semibold text-slate-700 mb-1">Carregando dados de sustentação...</p>
           <p className="text-sm text-slate-500">Aguarde um momento</p>
         </div>
+      </div>
+    );
+  }
+
+  // Mostrar mensagem se não há configuração
+  if (hasConfig === false) {
+    return (
+      <div className="flex items-center justify-center min-h-96">
+        <Card className="bg-white/80 backdrop-blur-sm border border-white/20 shadow-xl max-w-2xl w-full">
+          <CardContent className="p-12">
+            <div className="text-center">
+              <div className="bg-amber-50 border border-amber-200 rounded-full w-24 h-24 mx-auto mb-6 flex items-center justify-center">
+                <AlertTriangle className="w-12 h-12 text-amber-600" />
+              </div>
+              <h3 className="text-2xl font-bold text-slate-800 mb-4">
+                Sustentação não configurada
+              </h3>
+              <p className="text-lg text-slate-600 mb-2">
+                Sua empresa ainda não possui uma planilha de sustentação configurada.
+              </p>
+              <p className="text-base text-slate-500 mb-8">
+                Entre em contato com o administrador para configurar a sustentação da sua empresa.
+              </p>
+              <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
+                <p className="text-sm text-slate-600">
+                  <strong className="text-slate-800">Informação:</strong> O dashboard de sustentação precisa de uma planilha do Google Sheets configurada para exibir dados de horas contratadas, consumidas e chamados.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
