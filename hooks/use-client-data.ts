@@ -24,6 +24,7 @@ interface Company {
   logo_url: string | null
   has_hour_package: boolean
   contracted_hours: number | null
+  tenant_id?: string | null
 }
 
 interface UserCompany {
@@ -95,28 +96,67 @@ export function useClientData() {
       console.log('🔄 [useClientData] Fetching fresh data')
       setData(prev => ({ ...prev, isLoading: true, error: null }))
 
-      // Primeiro buscar empresas do usuário
-      const { data: userCompanies, error: userCompaniesError } = await supabase
-        .from("user_companies")
-        .select(`
-          id,
-          user_id,
-          company_id,
-          companies (
+      // Buscar perfil do usuário para verificar se é client admin
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role, is_client_admin')
+        .eq('id', user.id)
+        .single()
+
+      // Determinar company_id baseado no tipo de usuário
+      let companyId: string
+      let userCompanies: any[] = []
+      let company: Company | null = null
+      
+      if (profile?.is_client_admin) {
+        // Se for Client Admin, buscar company_id da tabela client_admins
+        const { data: clientAdmin } = await supabase
+          .from('client_admins')
+          .select('company_id')
+          .eq('id', user.id)
+          .single()
+        
+        if (!clientAdmin?.company_id) {
+          throw new Error('Client Admin não tem empresa associada')
+        }
+        
+        companyId = clientAdmin.company_id
+        
+        console.log('🔍 [useClientData] Client Admin detectado, tenant_id:', companyId)
+      } else {
+        // Usuário normal: buscar em user_companies
+        const { data: userCompaniesData, error: userCompaniesError } = await supabase
+          .from("user_companies")
+          .select(`
             id,
-            name,
-            logo_url,
-            has_hour_package,
-            contracted_hours
-          )
-        `)
-        .eq("user_id", user.id)
+            user_id,
+            company_id,
+            companies (
+              id,
+              name,
+              logo_url,
+              has_hour_package,
+              contracted_hours,
+              tenant_id
+            )
+          `)
+          .eq("user_id", user.id)
 
-      if (userCompaniesError) throw userCompaniesError
+        if (userCompaniesError) throw userCompaniesError
 
-      // Depois buscar projetos da empresa
-      const companyId = userCompanies?.[0]?.company_id
-      const { data: projects, error: projectsError } = await supabase
+        companyId = userCompaniesData?.[0]?.company_id
+        userCompanies = userCompaniesData || []
+        company = userCompanies?.[0]?.companies || null
+        
+        if (!companyId) {
+          throw new Error('Usuário não tem empresa associada')
+        }
+        
+        console.log('🔍 [useClientData] Usuário normal, company_id:', companyId, 'tenant_id:', company?.tenant_id)
+      }
+
+      // Buscar projetos baseado no tipo de usuário
+      let projectsQuery = supabase
         .from("projects")
         .select(`
           id,
@@ -133,17 +173,25 @@ export function useClientData() {
           created_at,
           company_id
         `)
-        .eq("company_id", companyId || '')
+
+      if (profile?.is_client_admin) {
+        // Client Admin: filtrar por tenant_id
+        projectsQuery = projectsQuery.eq('tenant_id', companyId)
+      } else {
+        // Usuário normal (client company): filtrar APENAS por company_id
+        // Client companies só veem projetos da SUA empresa, não de todo o tenant
+        projectsQuery = projectsQuery.eq("company_id", companyId)
+      }
+
+      const { data: projects, error: projectsError } = await projectsQuery
         .order("start_date", { ascending: true, nullsFirst: false })
 
       if (projectsError) throw projectsError
 
-      const company = userCompanies?.[0]?.companies || null
-
       const newData: ClientData = {
-        projects,
+        projects: projects || [],
         company,
-        userCompanies,
+        userCompanies: userCompanies || [],
         isLoading: false,
         error: null
       }
@@ -155,6 +203,7 @@ export function useClientData() {
         userId: user.id
       }
 
+      console.log('✅ [useClientData] Projetos carregados:', projects?.length || 0)
       setData(newData)
     } catch (error) {
       console.error('❌ [useClientData] Error:', error)

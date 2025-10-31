@@ -95,8 +95,9 @@ export async function GET(
       // Client Admin: apenas projetos do seu tenant
       projectQuery = projectQuery.eq('tenant_id', companyId)
     } else {
-      // Usuário normal: apenas projetos sem tenant_id (criados por Admin Master/Normal)
-      projectQuery = projectQuery.is('tenant_id', null).eq("company_id", companyId)
+      // Usuário normal (client company): apenas projetos da SUA empresa
+      // Client companies só veem projetos da SUA empresa, não de todo o tenant
+      projectQuery = projectQuery.eq("company_id", companyId)
     }
     
     const { data: project, error: projectError } = await projectQuery.single()
