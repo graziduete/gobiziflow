@@ -201,7 +201,7 @@ export default function ProjectsPage() {
           `id, name, description, status, priority, project_type, category, start_date, end_date, budget, created_at, company_id, tenant_id`,
           { count: "exact" }
         )
-        .order("start_date", { ascending: true, nullsFirst: false })
+        .order("created_at", { ascending: false })
 
       // Se for Client Admin, filtrar por tenant_id
       if (profile?.is_client_admin) {
