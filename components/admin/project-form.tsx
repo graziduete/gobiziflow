@@ -105,6 +105,9 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
   
   // Cache global para empresas - evita recarregamento
   const [globalCompaniesCache, setGlobalCompaniesCache] = useState<any[]>([])
+  
+  // Estado para rastrear qual campo foi calculado automaticamente
+  const [calculatedField, setCalculatedField] = useState<'budget' | 'hourly_rate' | 'estimated_hours' | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [invalidTasks, setInvalidTasks] = useState<Set<string>>(new Set())
@@ -271,24 +274,50 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
     fetchTasks()
   }, [project?.id])
 
-  // Calcular orçamento automaticamente quando horas estimadas ou valor hora mudarem
-  useEffect(() => {
+  // Função inteligente para calcular campo faltante
+  const calculateMissingField = (changedField: 'budget' | 'hourly_rate' | 'estimated_hours') => {
     const hoursValue = formData.estimated_hours ? parseFloat(formData.estimated_hours) : 0
     const rateValue = formData.hourly_rate ? parseFloat(formData.hourly_rate.replace(/\./g, '').replace(',', '.')) : 0
+    const budgetValue = formData.budget ? parseFloat(formData.budget.replace(/\./g, '').replace(',', '.')) : 0
     
-    if (hoursValue > 0 && rateValue > 0) {
+    // Cenário 1: Mudou Horas ou Valor Hora → Calcular Orçamento
+    if ((changedField === 'estimated_hours' || changedField === 'hourly_rate') && hoursValue > 0 && rateValue > 0) {
       const calculatedBudget = hoursValue * rateValue
       const formattedBudget = calculatedBudget.toLocaleString('pt-BR', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       })
       
-      // Só atualizar se o valor calculado for diferente do atual
       if (formData.budget !== formattedBudget) {
         setFormData(prev => ({ ...prev, budget: formattedBudget }))
+        setCalculatedField('budget')
       }
     }
-  }, [formData.estimated_hours, formData.hourly_rate])
+    
+    // Cenário 2: Mudou Orçamento ou Horas → Calcular Valor Hora
+    else if ((changedField === 'budget' || changedField === 'estimated_hours') && budgetValue > 0 && hoursValue > 0 && changedField !== 'hourly_rate') {
+      const calculatedRate = budgetValue / hoursValue
+      const formattedRate = calculatedRate.toLocaleString('pt-BR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })
+      
+      if (formData.hourly_rate !== formattedRate) {
+        setFormData(prev => ({ ...prev, hourly_rate: formattedRate }))
+        setCalculatedField('hourly_rate')
+      }
+    }
+    
+    // Cenário 3: Mudou Orçamento ou Valor Hora → Calcular Horas
+    else if ((changedField === 'budget' || changedField === 'hourly_rate') && budgetValue > 0 && rateValue > 0 && changedField !== 'estimated_hours') {
+      const calculatedHours = Math.round(budgetValue / rateValue)
+      
+      if (formData.estimated_hours !== calculatedHours.toString()) {
+        setFormData(prev => ({ ...prev, estimated_hours: calculatedHours.toString() }))
+        setCalculatedField('estimated_hours')
+      }
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -975,46 +1004,138 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
               </CardHeader>
               <CardContent className="pt-0">
                 <div className="grid grid-cols-1 gap-4">
-                  {/* Primeira linha: Orçamento (calculado automaticamente) - apenas para admin */}
+                  {/* Primeira linha: Orçamento (inteligente) - apenas para admin */}
                   {userRole !== 'admin_operacional' && (
                     <div className="space-y-2">
-                      <Label htmlFor="budget">Orçamento (R$) - Calculado Automaticamente</Label>
+                      <Label htmlFor="budget" className="flex items-center justify-between">
+                        <span>Orçamento (R$)</span>
+                        {calculatedField === 'budget' && (
+                          <span className="text-xs font-normal text-blue-600 flex items-center gap-1">
+                            🤖 Calculado automaticamente
+                          </span>
+                        )}
+                        {calculatedField !== 'budget' && formData.budget && (
+                          <span className="text-xs font-normal text-slate-600 flex items-center gap-1">
+                            ✏️ Manual
+                          </span>
+                        )}
+                      </Label>
                       <Input
                         id="budget"
                         type="text"
                         inputMode="decimal"
                         value={formData.budget}
-                        readOnly
-                        disabled
+                        onChange={(e) => {
+                          const value = e.target.value
+                          const cleanValue = value.replace(/[^\d.,]/g, '')
+                          
+                          const hasComma = cleanValue.includes(',')
+                          const hasDot = cleanValue.includes('.')
+                          let finalValue = cleanValue
+                          
+                          if (hasComma && hasDot) {
+                            const lastComma = cleanValue.lastIndexOf(',')
+                            const lastDot = cleanValue.lastIndexOf('.')
+                            if (lastComma > lastDot) {
+                              finalValue = cleanValue.replace(/\./g, '')
+                            } else {
+                              finalValue = cleanValue.replace(/,/g, '')
+                            }
+                          } else if (hasComma) {
+                            finalValue = cleanValue
+                          }
+                          
+                          handleChange("budget", finalValue)
+                          setCalculatedField(null) // Marca como editado manualmente
+                        }}
+                        onBlur={(e) => {
+                          const value = e.target.value
+                          if (value) {
+                            const numericString = value.replace(/[.,]/g, '')
+                            
+                            if (!isNaN(Number(numericString)) && numericString.length > 0) {
+                              const numValue = Number(numericString) / 100
+                              const formattedValue = numValue.toLocaleString('pt-BR', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                              })
+                              
+                              handleChange("budget", formattedValue)
+                            }
+                          }
+                          // Calcular campo faltante após formatar
+                          calculateMissingField('budget')
+                        }}
                         placeholder="0,00"
-                        className="w-full h-10 bg-slate-100 border-slate-300 text-slate-700 cursor-not-allowed"
+                        className={`w-full h-10 border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200 ${
+                          calculatedField === 'budget' ? 'bg-blue-50 border-blue-300' : 'bg-white'
+                        }`}
                       />
-                      <p className="text-xs text-emerald-600 font-medium">
-                        💡 Valor calculado: Horas Estimadas × Valor Hora Praticado
-                      </p>
+                      {calculatedField === 'budget' && (
+                        <p className="text-xs text-blue-600 font-medium">
+                          💡 Calculado: {formData.estimated_hours}h × R$ {formData.hourly_rate}/h
+                        </p>
+                      )}
                     </div>
                   )}
 
                   {/* Segunda linha: Horas Estimadas e Valor Hora Praticado lado a lado */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="estimated_hours" className="flex items-center gap-2">
-                        <Clock className="w-4 h-4" />
-                        Horas Estimadas
+                      <Label htmlFor="estimated_hours" className="flex items-center justify-between">
+                        <span className="flex items-center gap-2">
+                          <Clock className="w-4 h-4" />
+                          Horas Estimadas
+                        </span>
+                        {calculatedField === 'estimated_hours' && (
+                          <span className="text-xs font-normal text-blue-600 flex items-center gap-1">
+                            🤖 Calculado
+                          </span>
+                        )}
+                        {calculatedField !== 'estimated_hours' && formData.estimated_hours && (
+                          <span className="text-xs font-normal text-slate-600 flex items-center gap-1">
+                            ✏️ Manual
+                          </span>
+                        )}
                       </Label>
                       <Input
                         id="estimated_hours"
                         type="number"
                         min="1"
                         value={formData.estimated_hours}
-                        onChange={(e) => handleChange("estimated_hours", e.target.value)}
+                        onChange={(e) => {
+                          handleChange("estimated_hours", e.target.value)
+                          setCalculatedField(null) // Marca como editado manualmente
+                        }}
+                        onBlur={() => {
+                          calculateMissingField('estimated_hours')
+                        }}
                         placeholder="Ex: 100"
-                        className="w-full h-10 bg-white border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
+                        className={`w-full h-10 border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200 ${
+                          calculatedField === 'estimated_hours' ? 'bg-blue-50 border-blue-300' : 'bg-white'
+                        }`}
                       />
+                      {calculatedField === 'estimated_hours' && (
+                        <p className="text-xs text-blue-600 font-medium">
+                          💡 Calculado: R$ {formData.budget} ÷ R$ {formData.hourly_rate}/h
+                        </p>
+                      )}
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="hourly_rate">Valor Hora Praticado (R$)</Label>
+                      <Label htmlFor="hourly_rate" className="flex items-center justify-between">
+                        <span>Valor Hora Praticado (R$)</span>
+                        {calculatedField === 'hourly_rate' && (
+                          <span className="text-xs font-normal text-blue-600 flex items-center gap-1">
+                            🤖 Calculado
+                          </span>
+                        )}
+                        {calculatedField !== 'hourly_rate' && formData.hourly_rate && (
+                          <span className="text-xs font-normal text-slate-600 flex items-center gap-1">
+                            ✏️ Manual
+                          </span>
+                        )}
+                      </Label>
                       <Input
                         id="hourly_rate"
                         type="text"
@@ -1041,6 +1162,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                           }
                           
                           handleChange("hourly_rate", finalValue)
+                          setCalculatedField(null) // Marca como editado manualmente
                         }}
                         onBlur={(e) => {
                           const value = e.target.value
@@ -1057,13 +1179,23 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                               handleChange("hourly_rate", formattedValue)
                             }
                           }
+                          // Calcular campo faltante após formatar
+                          calculateMissingField('hourly_rate')
                         }}
                         placeholder="0,00"
-                        className="w-full h-10 bg-white border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
+                        className={`w-full h-10 border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200 ${
+                          calculatedField === 'hourly_rate' ? 'bg-blue-50 border-blue-300' : 'bg-white'
+                        }`}
                       />
-                      <p className="text-xs text-muted-foreground">
-                        Digite o valor (ex: 15000 para R$ 150,00)
-                      </p>
+                      {calculatedField === 'hourly_rate' ? (
+                        <p className="text-xs text-blue-600 font-medium">
+                          💡 Calculado: R$ {formData.budget} ÷ {formData.estimated_hours}h
+                        </p>
+                      ) : (
+                        <p className="text-xs text-muted-foreground">
+                          Digite o valor (ex: 15000 para R$ 150,00)
+                        </p>
+                      )}
                     </div>
                   </div>
 
