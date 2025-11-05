@@ -19,6 +19,9 @@ import { formatDateBrazil } from "@/lib/utils/status-translation"
 
 // Removidos os mocks - usando apenas dados reais
 
+// ID da Copersucar para campos condicionais
+const COPERSUCAR_ID = '443a6a0e-768f-48e4-a9ea-0cd972375a30'
+
 interface Task {
   id: string
   name: string
@@ -52,6 +55,8 @@ interface ProjectFormProps {
     technical_responsible?: string
     key_user?: string
     estimated_hours?: number
+    hourly_rate?: number
+    safra?: string
   }
   onSuccess?: () => void
   preloadedCompanies?: any[]
@@ -86,6 +91,8 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
     technical_responsible: getSafeValue(project?.technical_responsible, ""),
     key_user: getSafeValue(project?.key_user, ""),
     estimated_hours: getSafeValue(project?.estimated_hours, ""),
+    hourly_rate: getSafeValue(project?.hourly_rate, ""),
+    safra: getSafeValue(project?.safra, ""),
   })
 
   // Debug: verificar estado inicial
@@ -264,6 +271,25 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
     fetchTasks()
   }, [project?.id])
 
+  // Calcular orçamento automaticamente quando horas estimadas ou valor hora mudarem
+  useEffect(() => {
+    const hoursValue = formData.estimated_hours ? parseFloat(formData.estimated_hours) : 0
+    const rateValue = formData.hourly_rate ? parseFloat(formData.hourly_rate.replace(/\./g, '').replace(',', '.')) : 0
+    
+    if (hoursValue > 0 && rateValue > 0) {
+      const calculatedBudget = hoursValue * rateValue
+      const formattedBudget = calculatedBudget.toLocaleString('pt-BR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })
+      
+      // Só atualizar se o valor calculado for diferente do atual
+      if (formData.budget !== formattedBudget) {
+        setFormData(prev => ({ ...prev, budget: formattedBudget }))
+      }
+    }
+  }, [formData.estimated_hours, formData.hourly_rate])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
@@ -327,6 +353,8 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
         technical_responsible: formData.technical_responsible || null,
         key_user: formData.key_user || null,
         estimated_hours: formData.estimated_hours ? Number.parseInt(formData.estimated_hours) : null,
+        hourly_rate: formData.hourly_rate ? parseFloat(formData.hourly_rate.replace(/\./g, '').replace(',', '.')) : null,
+        safra: formData.safra || null,
         created_by: user.id,
         tenant_id: tenantId, // Auto-preencher tenant_id se for Client Admin
       }
@@ -946,113 +974,142 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                 </div>
               </CardHeader>
               <CardContent className="pt-0">
-                <div className={`grid grid-cols-1 gap-4 ${userRole !== 'admin_operacional' ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
-              {/* Campo Orçamento - apenas para admin */}
-              {userRole !== 'admin_operacional' && (
-                <div className="space-y-2">
-                <Label htmlFor="budget">Orçamento (R$)</Label>
-                <Input
-                  id="budget"
-                  type="text"
-                  inputMode="decimal"
-                  value={formData.budget}
-                  onChange={(e) => {
-                    const value = e.target.value
-                    
-                    // Permitir apenas números, vírgulas e pontos
-                    const cleanValue = value.replace(/[^\d.,]/g, '')
-                    
-                    // Verificar se já tem vírgula ou ponto
-                    const hasComma = cleanValue.includes(',')
-                    const hasDot = cleanValue.includes('.')
-                    
-                    let finalValue = cleanValue
-                    
-                    if (hasComma && hasDot) {
-                      // Se tem ambos, manter apenas o último separador
-                      const lastComma = cleanValue.lastIndexOf(',')
-                      const lastDot = cleanValue.lastIndexOf('.')
-                      if (lastComma > lastDot) {
-                        // Vírgula é o último separador, remover pontos
-                        finalValue = cleanValue.replace(/\./g, '')
-                      } else {
-                        // Ponto é o último separador, remover vírgulas
-                        finalValue = cleanValue.replace(/,/g, '')
-                      }
-                    } else if (hasComma) {
-                      // Se só tem vírgula, manter como está para formatação visual
-                      finalValue = cleanValue
-                    }
-                    
-                    handleChange("budget", finalValue)
-                  }}
-                  onBlur={(e) => {
-                    // Ao sair do campo, formatar o valor monetário
-                    const value = e.target.value
-                    if (value) {
-                      // Remover todos os pontos e vírgulas para obter apenas números
-                      const numericString = value.replace(/[.,]/g, '')
-                      
-                      if (!isNaN(Number(numericString)) && numericString.length > 0) {
-                        // Converter para número e dividir por 100 para considerar os centavos
-                        const numValue = Number(numericString) / 100
-                        
-                        // Formatar com separadores de milhares e vírgula decimal
-                        const formattedValue = numValue.toLocaleString('pt-BR', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2
-                        })
-                        
-                        handleChange("budget", formattedValue)
-                      }
-                    }
-                  }}
-                  placeholder="0,00"
-                  className="w-full h-10 bg-white border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Digite o valor (ex: 3059015 para R$ 30.590,15)
-                </p>
-              </div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="estimated_hours" className="flex items-center gap-2">
-                <Clock className="w-4 h-4" />
-                Horas Estimadas
-              </Label>
-              <Input
-                id="estimated_hours"
-                type="number"
-                min="1"
-                value={formData.estimated_hours}
-                onChange={(e) => handleChange("estimated_hours", e.target.value)}
-                placeholder="Ex: 100"
-                className="w-full h-10 bg-white border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="start_date">Data de Início Prevista</Label>
-              <Input
-                id="start_date"
-                type="date"
-                value={formData.start_date}
-                onChange={(e) => handleChange("start_date", e.target.value)}
-                className="w-full h-10 bg-white border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="end_date">Data de Término Prevista</Label>
-              <Input
-                id="end_date"
-                type="date"
-                value={formData.end_date}
-                onChange={(e) => handleChange("end_date", e.target.value)}
-                className="w-full h-10 bg-white border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
-              />
+                <div className="grid grid-cols-1 gap-4">
+                  {/* Primeira linha: Orçamento (calculado automaticamente) - apenas para admin */}
+                  {userRole !== 'admin_operacional' && (
+                    <div className="space-y-2">
+                      <Label htmlFor="budget">Orçamento (R$) - Calculado Automaticamente</Label>
+                      <Input
+                        id="budget"
+                        type="text"
+                        inputMode="decimal"
+                        value={formData.budget}
+                        readOnly
+                        disabled
+                        placeholder="0,00"
+                        className="w-full h-10 bg-slate-100 border-slate-300 text-slate-700 cursor-not-allowed"
+                      />
+                      <p className="text-xs text-emerald-600 font-medium">
+                        💡 Valor calculado: Horas Estimadas × Valor Hora Praticado
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Segunda linha: Horas Estimadas e Valor Hora Praticado lado a lado */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="estimated_hours" className="flex items-center gap-2">
+                        <Clock className="w-4 h-4" />
+                        Horas Estimadas
+                      </Label>
+                      <Input
+                        id="estimated_hours"
+                        type="number"
+                        min="1"
+                        value={formData.estimated_hours}
+                        onChange={(e) => handleChange("estimated_hours", e.target.value)}
+                        placeholder="Ex: 100"
+                        className="w-full h-10 bg-white border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="hourly_rate">Valor Hora Praticado (R$)</Label>
+                      <Input
+                        id="hourly_rate"
+                        type="text"
+                        inputMode="decimal"
+                        value={formData.hourly_rate}
+                        onChange={(e) => {
+                          const value = e.target.value
+                          const cleanValue = value.replace(/[^\d.,]/g, '')
+                          
+                          const hasComma = cleanValue.includes(',')
+                          const hasDot = cleanValue.includes('.')
+                          let finalValue = cleanValue
+                          
+                          if (hasComma && hasDot) {
+                            const lastComma = cleanValue.lastIndexOf(',')
+                            const lastDot = cleanValue.lastIndexOf('.')
+                            if (lastComma > lastDot) {
+                              finalValue = cleanValue.replace(/\./g, '')
+                            } else {
+                              finalValue = cleanValue.replace(/,/g, '')
+                            }
+                          } else if (hasComma) {
+                            finalValue = cleanValue
+                          }
+                          
+                          handleChange("hourly_rate", finalValue)
+                        }}
+                        onBlur={(e) => {
+                          const value = e.target.value
+                          if (value) {
+                            const numericString = value.replace(/[.,]/g, '')
+                            
+                            if (!isNaN(Number(numericString)) && numericString.length > 0) {
+                              const numValue = Number(numericString) / 100
+                              const formattedValue = numValue.toLocaleString('pt-BR', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                              })
+                              
+                              handleChange("hourly_rate", formattedValue)
+                            }
+                          }
+                        }}
+                        placeholder="0,00"
+                        className="w-full h-10 bg-white border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Digite o valor (ex: 15000 para R$ 150,00)
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Terceira linha: Campo Safra (apenas para Copersucar) */}
+                  {formData.company_id === COPERSUCAR_ID && (
+                    <div className="space-y-2">
+                      <Label htmlFor="safra" className="text-sm font-medium text-slate-600">Safra</Label>
+                      <Select value={formData.safra} onValueChange={(value) => handleChange("safra", value)}>
+                        <SelectTrigger className="w-full h-10 border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20">
+                          <SelectValue placeholder="Selecione a safra" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="2025/26">2025/26</SelectItem>
+                          <SelectItem value="2026/27">2026/27</SelectItem>
+                          <SelectItem value="2027/28">2027/28</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+
+                  {/* Quarta linha: Datas Previstas */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="start_date">Data de Início Prevista</Label>
+                      <Input
+                        id="start_date"
+                        type="date"
+                        value={formData.start_date}
+                        onChange={(e) => handleChange("start_date", e.target.value)}
+                        className="w-full h-10 bg-white border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="end_date">Data de Término Prevista</Label>
+                      <Input
+                        id="end_date"
+                        type="date"
+                        value={formData.end_date}
+                        onChange={(e) => handleChange("end_date", e.target.value)}
+                        className="w-full h-10 bg-white border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
+                      />
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
           )}
 
           {/* Responsáveis - Card */}
