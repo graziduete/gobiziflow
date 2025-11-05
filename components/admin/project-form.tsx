@@ -108,6 +108,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
   
   // Estado para rastrear qual campo foi calculado automaticamente
   const [calculatedField, setCalculatedField] = useState<'budget' | 'hourly_rate' | 'estimated_hours' | null>(null)
+  const [lastEditedField, setLastEditedField] = useState<'budget' | 'hourly_rate' | 'estimated_hours' | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [invalidTasks, setInvalidTasks] = useState<Set<string>>(new Set())
@@ -274,49 +275,87 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
     fetchTasks()
   }, [project?.id])
 
-  // Função inteligente para calcular campo faltante
-  const calculateMissingField = (changedField: 'budget' | 'hourly_rate' | 'estimated_hours') => {
+  // Função inteligente bidirecional: calcula o campo faltante baseado nos outros dois
+  const calculateMissingField = (editedField: 'budget' | 'hourly_rate' | 'estimated_hours') => {
     const hoursValue = formData.estimated_hours ? parseFloat(formData.estimated_hours) : 0
     const rateValue = formData.hourly_rate ? parseFloat(formData.hourly_rate.replace(/\./g, '').replace(',', '.')) : 0
     const budgetValue = formData.budget ? parseFloat(formData.budget.replace(/\./g, '').replace(',', '.')) : 0
     
-    // Cenário 1: Mudou Horas ou Valor Hora → Calcular Orçamento
-    if ((changedField === 'estimated_hours' || changedField === 'hourly_rate') && hoursValue > 0 && rateValue > 0) {
-      const calculatedBudget = hoursValue * rateValue
-      const formattedBudget = calculatedBudget.toLocaleString('pt-BR', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      })
-      
-      if (formData.budget !== formattedBudget) {
+    console.log('🧮 Campo editado:', editedField, { hoursValue, rateValue, budgetValue })
+    
+    // Determinar qual campo calcular (o que NÃO foi editado e está vazio/zero)
+    const hasHours = hoursValue > 0
+    const hasRate = rateValue > 0
+    const hasBudget = budgetValue > 0
+    
+    // Cenário 1: Editou HORAS → Calcular baseado no que existe
+    if (editedField === 'estimated_hours') {
+      if (hasHours && hasRate) {
+        // Tem Horas + Valor Hora → Calcular Orçamento
+        const calculatedBudget = hoursValue * rateValue
+        const formattedBudget = calculatedBudget.toLocaleString('pt-BR', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        })
         setFormData(prev => ({ ...prev, budget: formattedBudget }))
         setCalculatedField('budget')
-      }
-    }
-    
-    // Cenário 2: Mudou Orçamento ou Horas → Calcular Valor Hora
-    else if ((changedField === 'budget' || changedField === 'estimated_hours') && budgetValue > 0 && hoursValue > 0 && changedField !== 'hourly_rate') {
-      const calculatedRate = budgetValue / hoursValue
-      const formattedRate = calculatedRate.toLocaleString('pt-BR', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      })
-      
-      if (formData.hourly_rate !== formattedRate) {
+        console.log('💰 Calculado Orçamento:', formattedBudget)
+      } else if (hasHours && hasBudget) {
+        // Tem Horas + Orçamento → Calcular Valor Hora
+        const calculatedRate = budgetValue / hoursValue
+        const formattedRate = calculatedRate.toLocaleString('pt-BR', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        })
         setFormData(prev => ({ ...prev, hourly_rate: formattedRate }))
         setCalculatedField('hourly_rate')
+        console.log('💵 Calculado Valor Hora:', formattedRate)
       }
     }
     
-    // Cenário 3: Mudou Orçamento ou Valor Hora → Calcular Horas
-    else if ((changedField === 'budget' || changedField === 'hourly_rate') && budgetValue > 0 && rateValue > 0 && changedField !== 'estimated_hours') {
-      const calculatedHours = Math.round(budgetValue / rateValue)
-      
-      if (formData.estimated_hours !== calculatedHours.toString()) {
+    // Cenário 2: Editou VALOR HORA → Calcular baseado no que existe
+    else if (editedField === 'hourly_rate') {
+      if (hasRate && hasHours) {
+        // Tem Valor Hora + Horas → Calcular Orçamento
+        const calculatedBudget = hoursValue * rateValue
+        const formattedBudget = calculatedBudget.toLocaleString('pt-BR', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        })
+        setFormData(prev => ({ ...prev, budget: formattedBudget }))
+        setCalculatedField('budget')
+        console.log('💰 Calculado Orçamento:', formattedBudget)
+      } else if (hasRate && hasBudget) {
+        // Tem Valor Hora + Orçamento → Calcular Horas
+        const calculatedHours = Math.round(budgetValue / rateValue)
         setFormData(prev => ({ ...prev, estimated_hours: calculatedHours.toString() }))
         setCalculatedField('estimated_hours')
+        console.log('⏰ Calculado Horas:', calculatedHours)
       }
     }
+    
+    // Cenário 3: Editou ORÇAMENTO → Calcular baseado no que existe
+    else if (editedField === 'budget') {
+      if (hasBudget && hasHours) {
+        // Tem Orçamento + Horas → Calcular Valor Hora
+        const calculatedRate = budgetValue / hoursValue
+        const formattedRate = calculatedRate.toLocaleString('pt-BR', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        })
+        setFormData(prev => ({ ...prev, hourly_rate: formattedRate }))
+        setCalculatedField('hourly_rate')
+        console.log('💵 Calculado Valor Hora:', formattedRate)
+      } else if (hasBudget && hasRate) {
+        // Tem Orçamento + Valor Hora → Calcular Horas
+        const calculatedHours = Math.round(budgetValue / rateValue)
+        setFormData(prev => ({ ...prev, estimated_hours: calculatedHours.toString() }))
+        setCalculatedField('estimated_hours')
+        console.log('⏰ Calculado Horas:', calculatedHours)
+      }
+    }
+    
+    setLastEditedField(editedField)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
