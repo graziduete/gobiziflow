@@ -1119,7 +1119,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                   )}
 
                   {/* Segunda linha: Horas Estimadas e Valor Hora Praticado lado a lado */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className={`grid grid-cols-1 gap-4 ${userRole !== 'admin_operacional' ? 'md:grid-cols-2' : ''}`}>
                     <div className="space-y-2">
                       <Label htmlFor="estimated_hours" className="flex items-center justify-between">
                         <span className="flex items-center gap-2">
@@ -1161,81 +1161,84 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                       )}
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="hourly_rate" className="flex items-center justify-between">
-                        <span>Valor Hora Praticado (R$)</span>
-                        {calculatedField === 'hourly_rate' && (
-                          <span className="text-xs font-normal text-blue-600 flex items-center gap-1">
-                            🤖 Calculado
-                          </span>
-                        )}
-                        {calculatedField !== 'hourly_rate' && formData.hourly_rate && (
-                          <span className="text-xs font-normal text-slate-600 flex items-center gap-1">
-                            ✏️ Manual
-                          </span>
-                        )}
-                      </Label>
-                      <Input
-                        id="hourly_rate"
-                        type="text"
-                        inputMode="decimal"
-                        value={formData.hourly_rate}
-                        onChange={(e) => {
-                          const value = e.target.value
-                          const cleanValue = value.replace(/[^\d.,]/g, '')
-                          
-                          const hasComma = cleanValue.includes(',')
-                          const hasDot = cleanValue.includes('.')
-                          let finalValue = cleanValue
-                          
-                          if (hasComma && hasDot) {
-                            const lastComma = cleanValue.lastIndexOf(',')
-                            const lastDot = cleanValue.lastIndexOf('.')
-                            if (lastComma > lastDot) {
-                              finalValue = cleanValue.replace(/\./g, '')
-                            } else {
-                              finalValue = cleanValue.replace(/,/g, '')
-                            }
-                          } else if (hasComma) {
-                            finalValue = cleanValue
-                          }
-                          
-                          handleChange("hourly_rate", finalValue)
-                          setCalculatedField(null) // Marca como editado manualmente
-                        }}
-                        onBlur={(e) => {
-                          const value = e.target.value
-                          if (value) {
-                            const numericString = value.replace(/[.,]/g, '')
+                    {/* Campo Valor Hora - apenas para admin (não mostrar para admin_operacional) */}
+                    {userRole !== 'admin_operacional' && (
+                      <div className="space-y-2">
+                        <Label htmlFor="hourly_rate" className="flex items-center justify-between">
+                          <span>Valor Hora Praticado (R$)</span>
+                          {calculatedField === 'hourly_rate' && (
+                            <span className="text-xs font-normal text-blue-600 flex items-center gap-1">
+                              🤖 Calculado
+                            </span>
+                          )}
+                          {calculatedField !== 'hourly_rate' && formData.hourly_rate && (
+                            <span className="text-xs font-normal text-slate-600 flex items-center gap-1">
+                              ✏️ Manual
+                            </span>
+                          )}
+                        </Label>
+                        <Input
+                          id="hourly_rate"
+                          type="text"
+                          inputMode="decimal"
+                          value={formData.hourly_rate}
+                          onChange={(e) => {
+                            const value = e.target.value
+                            const cleanValue = value.replace(/[^\d.,]/g, '')
                             
-                            if (!isNaN(Number(numericString)) && numericString.length > 0) {
-                              const numValue = Number(numericString) / 100
-                              const formattedValue = numValue.toLocaleString('pt-BR', {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2
-                              })
-                              
-                              handleChange("hourly_rate", formattedValue)
+                            const hasComma = cleanValue.includes(',')
+                            const hasDot = cleanValue.includes('.')
+                            let finalValue = cleanValue
+                            
+                            if (hasComma && hasDot) {
+                              const lastComma = cleanValue.lastIndexOf(',')
+                              const lastDot = cleanValue.lastIndexOf('.')
+                              if (lastComma > lastDot) {
+                                finalValue = cleanValue.replace(/\./g, '')
+                              } else {
+                                finalValue = cleanValue.replace(/,/g, '')
+                              }
+                            } else if (hasComma) {
+                              finalValue = cleanValue
                             }
-                          }
-                          // Calcular campo faltante após formatar
-                          calculateMissingField('hourly_rate')
-                        }}
-                        placeholder="0,00"
-                        className={`w-full h-10 border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200 ${
-                          calculatedField === 'hourly_rate' ? 'bg-blue-50 border-blue-300' : 'bg-white'
-                        }`}
-                      />
-                      {calculatedField === 'hourly_rate' ? (
-                        <p className="text-xs text-blue-600 font-medium">
-                          💡 Calculado: R$ {formData.budget} ÷ {formData.estimated_hours}h
-                        </p>
-                      ) : (
-                        <p className="text-xs text-muted-foreground">
-                          Digite o valor (ex: 15000 para R$ 150,00)
-                        </p>
-                      )}
-                    </div>
+                            
+                            handleChange("hourly_rate", finalValue)
+                            setCalculatedField(null) // Marca como editado manualmente
+                          }}
+                          onBlur={(e) => {
+                            const value = e.target.value
+                            if (value) {
+                              const numericString = value.replace(/[.,]/g, '')
+                              
+                              if (!isNaN(Number(numericString)) && numericString.length > 0) {
+                                const numValue = Number(numericString) / 100
+                                const formattedValue = numValue.toLocaleString('pt-BR', {
+                                  minimumFractionDigits: 2,
+                                  maximumFractionDigits: 2
+                                })
+                                
+                                handleChange("hourly_rate", formattedValue)
+                              }
+                            }
+                            // Calcular campo faltante após formatar
+                            calculateMissingField('hourly_rate')
+                          }}
+                          placeholder="0,00"
+                          className={`w-full h-10 border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200 ${
+                            calculatedField === 'hourly_rate' ? 'bg-blue-50 border-blue-300' : 'bg-white'
+                          }`}
+                        />
+                        {calculatedField === 'hourly_rate' ? (
+                          <p className="text-xs text-blue-600 font-medium">
+                            💡 Calculado: R$ {formData.budget} ÷ {formData.estimated_hours}h
+                          </p>
+                        ) : (
+                          <p className="text-xs text-muted-foreground">
+                            Digite o valor (ex: 15000 para R$ 150,00)
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {/* Terceira linha: Safra (Copersucar) + Datas Previstas */}
