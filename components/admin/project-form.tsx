@@ -281,8 +281,6 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
     const rateValue = formData.hourly_rate ? parseFloat(formData.hourly_rate.replace(/\./g, '').replace(',', '.')) : 0
     const budgetValue = formData.budget ? parseFloat(formData.budget.replace(/\./g, '').replace(',', '.')) : 0
     
-    console.log('🧮 Campo editado:', editedField, { hoursValue, rateValue, budgetValue })
-    
     // Determinar qual campo calcular (o que NÃO foi editado e está vazio/zero)
     const hasHours = hoursValue > 0
     const hasRate = rateValue > 0
@@ -299,7 +297,6 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
         })
         setFormData(prev => ({ ...prev, budget: formattedBudget }))
         setCalculatedField('budget')
-        console.log('💰 Calculado Orçamento:', formattedBudget)
       } else if (hasHours && hasBudget) {
         // Tem Horas + Orçamento → Calcular Valor Hora
         const calculatedRate = budgetValue / hoursValue
@@ -309,7 +306,6 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
         })
         setFormData(prev => ({ ...prev, hourly_rate: formattedRate }))
         setCalculatedField('hourly_rate')
-        console.log('💵 Calculado Valor Hora:', formattedRate)
       }
     }
     
@@ -324,13 +320,11 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
         })
         setFormData(prev => ({ ...prev, budget: formattedBudget }))
         setCalculatedField('budget')
-        console.log('💰 Calculado Orçamento:', formattedBudget)
       } else if (hasRate && hasBudget) {
         // Tem Valor Hora + Orçamento → Calcular Horas
         const calculatedHours = Math.round(budgetValue / rateValue)
         setFormData(prev => ({ ...prev, estimated_hours: calculatedHours.toString() }))
         setCalculatedField('estimated_hours')
-        console.log('⏰ Calculado Horas:', calculatedHours)
       }
     }
     
@@ -345,13 +339,11 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
         })
         setFormData(prev => ({ ...prev, hourly_rate: formattedRate }))
         setCalculatedField('hourly_rate')
-        console.log('💵 Calculado Valor Hora:', formattedRate)
       } else if (hasBudget && hasRate) {
         // Tem Orçamento + Valor Hora → Calcular Horas
         const calculatedHours = Math.round(budgetValue / rateValue)
         setFormData(prev => ({ ...prev, estimated_hours: calculatedHours.toString() }))
         setCalculatedField('estimated_hours')
-        console.log('⏰ Calculado Horas:', calculatedHours)
       }
     }
     
@@ -364,8 +356,6 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
     setError(null)
 
     try {
-      console.log("[v0] Starting project submission...")
-
       let user = null
 
       try {
@@ -378,7 +368,6 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
         if (authError) throw authError
         if (realUser) user = realUser
       } catch (authError: any) {
-        console.log("[v0] Auth failed:", authError.message)
         throw new Error('Usuário não autenticado')
       }
 
@@ -403,7 +392,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
             tenantId = clientAdmin?.company_id
           }
         } catch (error) {
-          console.log('Erro ao buscar tenant_id:', error)
+          console.error('Erro ao buscar tenant_id:', error)
         }
       }
 
@@ -427,9 +416,6 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
         tenant_id: tenantId, // Auto-preencher tenant_id se for Client Admin
       }
 
-      console.log("🚀 DEBUG - Status sendo enviado:", formData.status)
-      console.log("🚀 DEBUG - ProjectData completo:", projectData)
-
       // Validação final das datas das tarefas antes de salvar
       const invalidTasks = tasks.filter(task => {
         if (task.start_date && task.end_date) {
@@ -446,9 +432,6 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
         return
       }
 
-      console.log("[v0] Project data prepared:", projectData)
-      console.log("[v0] Tasks to save:", tasks)
-
       let savedProjectId: string | null = null
       try {
         const supabase = createClient()
@@ -461,17 +444,12 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
           }
 
           if (result.error) throw result.error
-          console.log("[v0] Project saved successfully:", result.data)
-          console.log("🚀 DEBUG - Status salvo no banco:", result.data.status)
-          console.log("🚀 DEBUG - Updated_at no banco:", result.data.updated_at)
 
           // Salvar as tarefas após o projeto ser criado/atualizado
           const projectId = result.data.id
           savedProjectId = projectId
           
           if (tasks.length > 0) {
-            console.log("[v0] Saving tasks for project:", projectId)
-            
             // Preparar dados das tarefas
             const tasksData = tasks.map(task => ({
               name: task.name,
@@ -491,74 +469,6 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
               delay_created_by: task.delay_created_by || null,
             }))
 
-            console.log("[v0] Tasks data prepared:", tasksData)
-
-            // ===== NOTIFICAÇÕES ANTES DE SALVAR =====
-            // Se for um projeto novo (não tem ID), notificar todas as tarefas
-            const isNewProject = !project?.id
-            
-            if (isNewProject) {
-              console.log(`[v0] Projeto novo - notificando todas as tarefas`)
-              await notifyTasksByResponsible(tasks, formData.name, projectId, supabase)
-            } else {
-              // Projeto existente - verificar apenas tarefas novas ou alteradas
-              console.log(`[v0] Projeto existente - verificando tarefas alteradas`)
-              console.log(`[v0] Tarefas atuais:`, tasks.map(t => ({ id: t.id, name: t.name, responsible: t.responsible })))
-              
-              // Buscar tarefas existentes no banco ANTES de salvar
-              const { data: existingTasks, error: existingTasksError } = await supabase
-                .from('tasks')
-                .select('id, name, responsible')
-                .eq('project_id', projectId)
-
-              if (existingTasksError) {
-                console.error(`[v0] Erro ao buscar tarefas existentes:`, existingTasksError)
-              } else {
-                console.log(`[v0] Tarefas existentes no banco:`, existingTasks?.map(t => ({ id: t.id, name: t.name, responsible: t.responsible })))
-                
-                // Coletar tarefas que precisam de notificação
-                const tasksToNotify = []
-                for (const task of tasks) {
-                  if (task.responsible) {
-                    const existingTask = existingTasks?.find(et => et.id === task.id)
-                    
-                    // Notificar se:
-                    // 1. É uma tarefa nova (não existe no banco)
-                    // 2. É uma tarefa existente mas o responsável mudou
-                    const isNewTask = !existingTask
-                    const responsibleChanged = existingTask && existingTask.responsible !== task.responsible
-                    const shouldNotify = isNewTask || responsibleChanged
-                    
-                    console.log(`[v0] Análise da tarefa ${task.name}:`, {
-                      taskId: task.id,
-                      existingTask: existingTask ? { id: existingTask.id, responsible: existingTask.responsible } : null,
-                      currentResponsible: task.responsible,
-                      isNew: isNewTask,
-                      responsibleChanged: responsibleChanged,
-                      shouldNotify
-                    })
-                    
-                    if (shouldNotify) {
-                      console.log(`[v0] ✅ Tarefa ${task.name} precisa de notificação:`, {
-                        isNew: isNewTask,
-                        responsibleChanged: responsibleChanged,
-                        oldResponsible: existingTask?.responsible,
-                        newResponsible: task.responsible
-                      })
-                      tasksToNotify.push(task)
-                    } else {
-                      console.log(`[v0] ❌ Tarefa ${task.name} não precisa de notificação (sem alterações)`)
-                    }
-                  }
-                }
-
-                // Notificar tarefas agrupadas por responsável
-                if (tasksToNotify.length > 0) {
-                  await notifyTasksByResponsible(tasksToNotify, formData.name, projectId, supabase)
-                }
-              }
-            }
-
             // Se for edição, deletar tarefas antigas primeiro
             if (project?.id) {
               const { error: deleteError } = await supabase
@@ -566,11 +476,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                 .delete()
                 .eq("project_id", projectId)
               
-              if (deleteError) {
-                console.log("[v0] Error deleting old tasks:", deleteError)
-                throw deleteError
-              }
-              console.log("[v0] Old tasks deleted successfully")
+              if (deleteError) throw deleteError
             }
 
             // Inserir novas tarefas
@@ -579,36 +485,63 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
               .insert(tasksData)
               .select()
 
-            if (tasksError) {
-              console.log("[v0] Error saving tasks:", tasksError)
-              throw tasksError
+            if (tasksError) throw tasksError
+            
+            // ===== ENVIAR NOTIFICAÇÕES DE FORMA ASSÍNCRONA (NÃO BLOQUEANTE) =====
+            // Agora que tudo foi salvo, enviar notificações em background
+            const isNewProject = !project?.id
+            
+            if (isNewProject) {
+              // Projeto novo - notificar todas as tarefas (async, não espera)
+              notifyTasksByResponsible(tasks, formData.name, projectId, supabase).catch(err => {
+                console.error('[v0] Erro ao enviar notificações (não bloqueante):', err)
+              })
+            } else {
+              // Projeto existente - buscar tarefas antigas e notificar apenas alterações
+              supabase
+                .from('tasks')
+                .select('id, name, responsible')
+                .eq('project_id', projectId)
+                .then(({ data: existingTasks }) => {
+                  if (existingTasks) {
+                    // Identificar tarefas que precisam de notificação
+                    const tasksToNotify = tasks.filter(task => {
+                      if (!task.responsible) return false
+                      const existingTask = existingTasks.find(et => et.id === task.id)
+                      const isNewTask = !existingTask
+                      const responsibleChanged = existingTask && existingTask.responsible !== task.responsible
+                      return isNewTask || responsibleChanged
+                    })
+                    
+                    if (tasksToNotify.length > 0) {
+                      notifyTasksByResponsible(tasksToNotify, formData.name, projectId, supabase).catch(err => {
+                        console.error('[v0] Erro ao enviar notificações (não bloqueante):', err)
+                      })
+                    }
+                  }
+                })
+                .catch(err => console.error('[v0] Erro ao verificar tarefas antigas:', err))
             }
-
-            console.log("[v0] Tasks saved successfully:", tasksResult)
-          } else {
-            console.log("[v0] No tasks to save")
           }
 
         } catch (dbError: any) {
-          console.log("[v0] Database operation failed:", dbError.message)
+          console.error("[v0] Database operation failed:", dbError.message)
           throw dbError
         }
 
+      // ===== NOTIFICAÇÃO DE PROJETO CRIADO (ASSÍNCRONA) =====
       if (!project?.id && savedProjectId) {
-        try {
-          await fetch("/api/notifications/project-created", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              projectId: savedProjectId,
-              createdById: user.id,
-            }),
-          })
-        } catch (notificationError) {
-          console.log("[v0] Notification failed (expected in offline mode):", notificationError)
-        }
+        // Enviar em background, não espera
+        fetch("/api/notifications/project-created", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            projectId: savedProjectId,
+            createdById: user.id,
+          }),
+        }).catch(err => console.error('[v0] Erro ao notificar projeto criado:', err))
       }
 
       // Após criar um novo projeto, levar para a tela de edição para anexar documentos
@@ -625,7 +558,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
         router.refresh()
       }
     } catch (error: any) {
-      console.log("[v0] Project submission error:", error.message)
+      console.error("[v0] Project submission error:", error.message)
       setError(error.message)
     } finally {
       setIsLoading(false)
@@ -660,8 +593,6 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
   // Função auxiliar para notificar tarefas agrupadas por responsável
   const notifyTasksByResponsible = async (tasks: any[], projectName: string, projectId: string, supabaseClient: any) => {
     try {
-      console.log(`[v0] 🔔 NOTIFICAÇÃO AGRUPADA INICIADA para ${tasks.length} tarefas`)
-      
       // Agrupar tarefas por responsável
       const tasksByResponsible = new Map<string, any[]>()
       
@@ -673,12 +604,6 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
           tasksByResponsible.get(task.responsible)!.push(task)
         }
       }
-
-      console.log(`[v0] Tarefas agrupadas por responsável:`, Array.from(tasksByResponsible.entries()).map(([responsible, tasks]) => ({
-        responsible,
-        taskCount: tasks.length,
-        tasks: tasks.map(t => ({ name: t.name, start_date: t.start_date, end_date: t.end_date }))
-      })))
 
       // Notificar cada responsável com suas tarefas
       for (const [responsibleName, responsibleTasks] of tasksByResponsible) {
@@ -692,8 +617,6 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
   // Função auxiliar para notificar um responsável com múltiplas tarefas
   const notifyResponsibleWithTasks = async (responsibleName: string, tasks: any[], projectName: string, projectId: string, supabaseClient: any) => {
     try {
-      console.log(`[v0] 🔔 NOTIFICANDO RESPONSÁVEL: ${responsibleName} com ${tasks.length} tarefas`)
-      
       // Buscar ID do responsável pelo nome
       const { data: responsavel, error: responsavelError } = await supabaseClient
         .from('responsaveis')
@@ -707,7 +630,6 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
       }
 
       if (responsavel) {
-        console.log(`[v0] Responsável encontrado:`, responsavel)
         
         // Criar mensagem com todas as tarefas
         const taskDetails = tasks.map(task => ({
@@ -739,9 +661,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
           })
         })
 
-        if (response.ok) {
-          console.log(`[v0] ✅ Notificação enviada com sucesso para ${responsibleName}`)
-        } else {
+        if (!response.ok) {
           const errorData = await response.json()
           console.error(`[v0] ❌ Erro ao enviar notificação para ${responsibleName}:`, errorData)
         }
@@ -754,8 +674,6 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
   // Função auxiliar para notificar responsável de uma tarefa (mantida para compatibilidade)
   const notifyTaskResponsible = async (task: any, projectName: string, projectId: string, supabaseClient: any) => {
     try {
-      console.log(`[v0] 🔔 NOTIFICAÇÃO INICIADA para tarefa: ${task.name} (${task.id}) - Responsável: ${task.responsible}`)
-      
       // Buscar ID do responsável pelo nome
       const { data: responsavel, error: responsavelError } = await supabaseClient
         .from('responsaveis')
@@ -769,9 +687,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
       }
 
       if (responsavel) {
-        console.log(`[v0] Responsável encontrado:`, responsavel)
-        
-            // Notificar responsável sobre nova tarefa atribuída
+        // Notificar responsável sobre nova tarefa atribuída
             const response = await fetch('/api/notifications/responsaveis', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -784,11 +700,8 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                 taskId: undefined // Não passar taskId para tarefas novas (ainda não salvas no banco)
               })
             })
-        
-        const result = await response.json()
-        console.log(`[v0] Resultado da notificação para ${task.responsible}:`, result)
       } else {
-        console.log(`[v0] Responsável não encontrado: ${task.responsible}`)
+        console.error(`[v0] Responsável não encontrado: ${task.responsible}`)
       }
     } catch (notificationError) {
       console.error(`[v0] Erro ao notificar responsável ${task.responsible}:`, notificationError)
