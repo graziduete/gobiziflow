@@ -10,6 +10,9 @@ import Link from "next/link"
 import { ProjectFilters } from "@/components/admin/project-filters"
 import { createClient } from "@/lib/supabase/client"
 
+// ID da Copersucar para exibir campo Safra
+const COPERSUCAR_ID = '443a6a0e-768f-48e4-a9ea-0cd972375a30'
+
 interface Project {
   id: string
   name: string
@@ -23,6 +26,8 @@ interface Project {
   budget: number | null
   created_at: string
   company_id: string
+  hourly_rate: number | null
+  safra: string | null
 }
 
 interface Company {
@@ -198,7 +203,7 @@ export default function ProjectsPage() {
       let query = supabase
         .from("projects")
         .select(
-          `id, name, description, status, priority, project_type, category, start_date, end_date, budget, created_at, company_id, tenant_id`,
+          `id, name, description, status, priority, project_type, category, start_date, end_date, budget, created_at, company_id, tenant_id, hourly_rate, safra`,
           { count: "exact" }
         )
         .order("created_at", { ascending: false })
@@ -572,6 +577,9 @@ export default function ProjectsPage() {
                       {userRole !== 'admin_operacional' && project.budget && (
                         <span>Orçamento: R$ {Number(project.budget).toLocaleString("pt-BR")}</span>
                       )}
+                      {project.company_id === COPERSUCAR_ID && project.safra && (
+                        <span>Safra: {project.safra}</span>
+                      )}
                       {project.start_date && (
                         <span>Início: {formatDateUTC(project.start_date)}</span>
                       )}
@@ -636,6 +644,13 @@ export default function ProjectsPage() {
                           <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
                           <span className="font-medium">Orçamento:</span>
                           <span className="text-green-700 font-semibold">R$ {Number(project.budget).toLocaleString("pt-BR")}</span>
+                        </div>
+                      )}
+                      {project.company_id === COPERSUCAR_ID && project.safra && (
+                        <div className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+                          <span className="font-medium">Safra:</span>
+                          <span className="text-purple-700 font-semibold">{project.safra}</span>
                         </div>
                       )}
                       {project.start_date && (
