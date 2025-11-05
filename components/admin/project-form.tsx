@@ -1238,46 +1238,68 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                     </div>
                   </div>
 
-                  {/* Terceira linha: Campo Safra (apenas para Copersucar) */}
-                  {formData.company_id === COPERSUCAR_ID && (
-                    <div className="space-y-2">
-                      <Label htmlFor="safra" className="text-sm font-medium text-slate-600">Safra</Label>
-                      <Select value={formData.safra} onValueChange={(value) => handleChange("safra", value)}>
-                        <SelectTrigger className="w-full h-10 border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20">
-                          <SelectValue placeholder="Selecione a safra" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="2025/26">2025/26</SelectItem>
-                          <SelectItem value="2026/27">2026/27</SelectItem>
-                          <SelectItem value="2027/28">2027/28</SelectItem>
-                        </SelectContent>
-                      </Select>
+                  {/* Terceira linha: Safra (Copersucar) + Datas Previstas */}
+                  {formData.company_id === COPERSUCAR_ID ? (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="safra" className="text-sm font-medium text-slate-600">Safra</Label>
+                        <Select value={formData.safra} onValueChange={(value) => handleChange("safra", value)}>
+                          <SelectTrigger className="w-full h-10 border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20">
+                            <SelectValue placeholder="Selecione" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="2025/26">2025/26</SelectItem>
+                            <SelectItem value="2026/27">2026/27</SelectItem>
+                            <SelectItem value="2027/28">2027/28</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="start_date">Data de Início Prevista</Label>
+                        <Input
+                          id="start_date"
+                          type="date"
+                          value={formData.start_date}
+                          onChange={(e) => handleChange("start_date", e.target.value)}
+                          className="w-full h-10 bg-white border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="end_date">Data de Término Prevista</Label>
+                        <Input
+                          id="end_date"
+                          type="date"
+                          value={formData.end_date}
+                          onChange={(e) => handleChange("end_date", e.target.value)}
+                          className="w-full h-10 bg-white border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    // Para outras empresas: apenas as datas (sem Safra)
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="start_date">Data de Início Prevista</Label>
+                        <Input
+                          id="start_date"
+                          type="date"
+                          value={formData.start_date}
+                          onChange={(e) => handleChange("start_date", e.target.value)}
+                          className="w-full h-10 bg-white border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="end_date">Data de Término Prevista</Label>
+                        <Input
+                          id="end_date"
+                          type="date"
+                          value={formData.end_date}
+                          onChange={(e) => handleChange("end_date", e.target.value)}
+                          className="w-full h-10 bg-white border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
+                        />
+                      </div>
                     </div>
                   )}
-
-                  {/* Quarta linha: Datas Previstas */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="start_date">Data de Início Prevista</Label>
-                      <Input
-                        id="start_date"
-                        type="date"
-                        value={formData.start_date}
-                        onChange={(e) => handleChange("start_date", e.target.value)}
-                        className="w-full h-10 bg-white border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="end_date">Data de Término Prevista</Label>
-                      <Input
-                        id="end_date"
-                        type="date"
-                        value={formData.end_date}
-                        onChange={(e) => handleChange("end_date", e.target.value)}
-                        className="w-full h-10 bg-white border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
-                      />
-                    </div>
-                  </div>
                 </div>
               </CardContent>
             </Card>
