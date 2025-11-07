@@ -703,7 +703,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                     <div 
                       className="absolute w-1 bg-gradient-to-b from-emerald-400 via-emerald-500 to-emerald-600 z-10 pointer-events-none rounded-full"
                       style={{
-                        left: `calc(280px + ${currentDateLinePosition * 120}px)`,
+                        left: `calc(280px + ${currentDateLinePosition * weekWidth}px)`,
                         top: '0px',
                         height: `${validTasks.length * 80}px`, // Altura baseada no número de tarefas
                         boxShadow: '0 0 8px rgba(16, 185, 129, 0.4), 0 0 16px rgba(16, 185, 129, 0.2)'
@@ -968,7 +968,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
         <div className="overflow-x-auto">
           <div id="gantt-chart-content" className="min-w-[900px]">
             {/* Cabeçalho dos meses (gradiente, separadores e realce do mês atual) */}
-            <div className="grid sticky top-0 z-10" style={{ gridTemplateColumns: `280px repeat(${weeks.length}, 120px)` }}>
+            <div className="grid sticky top-0 z-10" style={{ gridTemplateColumns: `280px repeat(${weeks.length}, ${weekWidth}px)` }}>
               <div className="h-12 bg-gradient-to-r from-slate-100 to-slate-200 border-r border-slate-300" />
               {Object.values(monthsWithWeeks).map((month, monthIndex) => {
                 const isCurrentMonth = (() => {
@@ -1005,7 +1005,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
             </div>
 
             {/* Cabeçalho das semanas */}
-            <div className="grid" style={{ gridTemplateColumns: `280px repeat(${weeks.length}, 120px)` }}>
+            <div className="grid" style={{ gridTemplateColumns: `280px repeat(${weeks.length}, ${weekWidth}px)` }}>
               <div className="h-18 bg-gradient-to-br from-slate-100 via-slate-50 to-slate-100 border-r border-slate-300 flex items-center justify-center shadow-sm">
                 <div className="text-center">
                   <div className="font-bold text-slate-800 text-xs tracking-wide uppercase">TAREFAS</div>
@@ -1032,7 +1032,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                 <div 
                   className="absolute w-1 bg-gradient-to-b from-emerald-400 via-emerald-500 to-emerald-600 z-10 pointer-events-none rounded-full"
                   style={{
-                    left: `calc(280px + ${currentDateLinePosition * 120}px)`,
+                    left: `calc(280px + ${currentDateLinePosition * weekWidth}px)`,
                     top: '0px',
                     height: `${validTasks.length * 80}px`, // Altura baseada no número de tarefas
                     boxShadow: '0 0 8px rgba(16, 185, 129, 0.4), 0 0 16px rgba(16, 185, 129, 0.2)'
