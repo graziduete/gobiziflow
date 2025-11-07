@@ -197,31 +197,31 @@ function SortableTaskItem({ task, index, responsaveis, allTasks, onUpdateTask, o
       </td>
 
       {/* Data de início */}
-      <td className="p-4">
+      <td className="p-2">
         <Input
           type="date"
           value={task.start_date || ''}
           onChange={(e) => onUpdateTask(task.id, "start_date", e.target.value)}
-          className={`border-0 bg-transparent p-0 text-sm focus:ring-0 w-full ${invalidDateClass}`}
+          className={`border-0 bg-transparent p-0 text-xs focus:ring-0 w-full ${invalidDateClass}`}
         />
       </td>
 
       {/* Data de fim planejada */}
-      <td className="p-4">
+      <td className="p-2">
         <Input
           type="date"
           value={task.end_date || ''}
           onChange={(e) => onUpdateTask(task.id, "end_date", e.target.value)}
-          className={`border-0 bg-transparent p-0 text-sm focus:ring-0 w-full ${invalidDateClass}`}
+          className={`border-0 bg-transparent p-0 text-xs focus:ring-0 w-full ${invalidDateClass}`}
         />
       </td>
 
       {/* Data Início Real (read-only) */}
-      <td className="p-4">
-        <div className="flex items-center gap-2 text-sm text-slate-600">
+      <td className="p-2">
+        <div className="flex items-center gap-1 text-xs text-slate-600">
           {task.actual_start_date ? (
-            <div className="flex items-center gap-1 bg-blue-50 px-2 py-1 rounded">
-              <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
+            <div className="flex items-center gap-1 bg-blue-50 px-1.5 py-0.5 rounded">
+              <CheckCircle2 className="w-3 h-3 text-blue-600" />
               <span className="font-medium">{formatDate(task.actual_start_date)}</span>
             </div>
           ) : (
@@ -231,11 +231,11 @@ function SortableTaskItem({ task, index, responsaveis, allTasks, onUpdateTask, o
       </td>
 
       {/* Data Fim Prevista (read-only) */}
-      <td className="p-4">
-        <div className="flex items-center gap-2 text-sm text-slate-600">
+      <td className="p-2">
+        <div className="flex items-center gap-1 text-xs text-slate-600">
           {task.predicted_end_date ? (
-            <div className="flex items-center gap-1 bg-amber-50 px-2 py-1 rounded">
-              <Calendar className="w-3.5 h-3.5 text-amber-600" />
+            <div className="flex items-center gap-1 bg-amber-50 px-1.5 py-0.5 rounded">
+              <Calendar className="w-3 h-3 text-amber-600" />
               <span className="font-medium">{formatDate(task.predicted_end_date)}</span>
             </div>
           ) : (
@@ -245,11 +245,11 @@ function SortableTaskItem({ task, index, responsaveis, allTasks, onUpdateTask, o
       </td>
 
       {/* Data Fim Real (read-only) */}
-      <td className="p-4">
-        <div className="flex items-center gap-2 text-sm text-slate-600">
+      <td className="p-2">
+        <div className="flex items-center gap-1 text-xs text-slate-600">
           {task.actual_end_date ? (
-            <div className="flex items-center gap-1 bg-green-50 px-2 py-1 rounded">
-              <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
+            <div className="flex items-center gap-1 bg-green-50 px-1.5 py-0.5 rounded">
+              <CheckCircle2 className="w-3 h-3 text-green-600" />
               <span className="font-medium">{formatDate(task.actual_end_date)}</span>
             </div>
           ) : (
@@ -524,31 +524,31 @@ export function DraggableTaskList({ tasks, onUpdateTask, onRemoveTask, onReorder
             <tr className="border-b bg-gray-50">
               <th className="text-center p-4 font-medium text-sm w-8">⋮⋮</th>
               <th className="text-left p-4 font-medium text-sm">Tarefa</th>
-              <th className="text-left p-4 font-medium text-sm whitespace-nowrap">
+              <th className="text-left p-2 font-medium text-sm whitespace-nowrap">
                 <div className="flex items-center gap-1">
                   <Calendar className="w-3.5 h-3.5 text-slate-500" />
                   Data Início<br/>Planejada
                 </div>
               </th>
-              <th className="text-left p-4 font-medium text-sm whitespace-nowrap">
+              <th className="text-left p-2 font-medium text-sm whitespace-nowrap">
                 <div className="flex items-center gap-1">
                   <Calendar className="w-3.5 h-3.5 text-slate-500" />
                   Data Fim<br/>Planejada
                 </div>
               </th>
-              <th className="text-left p-4 font-medium text-sm whitespace-nowrap bg-blue-50">
+              <th className="text-left p-2 font-medium text-sm whitespace-nowrap bg-blue-50">
                 <div className="flex items-center gap-1">
                   <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
                   Data Início<br/>Real
                 </div>
               </th>
-              <th className="text-left p-4 font-medium text-sm whitespace-nowrap bg-amber-50">
+              <th className="text-left p-2 font-medium text-sm whitespace-nowrap bg-amber-50">
                 <div className="flex items-center gap-1">
                   <Calendar className="w-3.5 h-3.5 text-amber-600" />
                   Data Fim<br/>Prevista
                 </div>
               </th>
-              <th className="text-left p-4 font-medium text-sm whitespace-nowrap bg-green-50">
+              <th className="text-left p-2 font-medium text-sm whitespace-nowrap bg-green-50">
                 <div className="flex items-center gap-1">
                   <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
                   Data Fim<br/>Real
