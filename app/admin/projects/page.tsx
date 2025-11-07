@@ -587,7 +587,7 @@ export default function ProjectsPage() {
           <CardDescription>
             {(filters.company_id !== "all" || filters.status !== "all" || filters.priority !== "all" || filters.search) ? (
               <>
-                Projetos filtrados • {totalCount} resultado{totalCount !== 1 ? 's' : ''}
+                Projetos filtrados • {filteredProjects.length} resultado{filteredProjects.length !== 1 ? 's' : ''}
                 {totalPages > 1 && (
                   <span className="ml-2 text-blue-600">
                     • Página {currentPage} de {totalPages}
@@ -759,10 +759,10 @@ export default function ProjectsPage() {
           )}
 
           {/* Paginação */}
-          {totalCount > 0 && (
+          {filteredProjects.length > 0 && (
             <div className="flex items-center justify-between mt-6 pt-6 border-t">
               <div className="text-sm text-muted-foreground">
-                Mostrando {startIndex + 1} a {Math.min(endIndex, totalCount)} de {totalCount} projetos
+                Mostrando {startIndex + 1} a {Math.min(endIndex, filteredProjects.length)} de {filteredProjects.length} projetos
               </div>
               <div className="flex items-center gap-2">
                 <Button
