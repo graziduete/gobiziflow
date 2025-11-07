@@ -313,8 +313,32 @@ export default function ClientProjectsPage() {
         </div>
       </div>
 
-      {/* Controles de Visualização */}
-      <div className="flex items-center justify-between">
+      {/* Barra de Busca e Controles de Visualização */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+        {/* Barra de Busca Rápida */}
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Input
+            placeholder="Buscar projetos por nome..."
+            value={filters.search}
+            onChange={(e) => {
+              setFilters(prev => ({ ...prev, search: e.target.value }))
+              setCurrentPage(1) // Resetar para primeira página ao buscar
+            }}
+            className="pl-10 pr-10 h-10 bg-white border-slate-300 focus:border-cyan-500 focus:ring-cyan-500/20 transition-all"
+          />
+          {filters.search && (
+            <button
+              onClick={() => setFilters(prev => ({ ...prev, search: "" }))}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+              title="Limpar busca"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+
+        {/* Controles de Visualização */}
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-gray-700">Visualização:</span>
           <div className="flex items-center border-2 border-slate-200 rounded-lg overflow-hidden">
