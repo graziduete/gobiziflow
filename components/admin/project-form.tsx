@@ -1681,13 +1681,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                     onClick={() => {
                       setShowWeekendWarning(false)
                       setWeekendWarningInfo(null)
-                      // Foca no campo de data para o usuário corrigir
-                      setTimeout(() => {
-                        const taskElement = document.querySelector(`[data-task-id="${weekendWarningInfo.taskId}"]`)
-                        if (taskElement) {
-                          taskElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                        }
-                      }, 100)
+                      // Apenas fecha o modal, usuário já sabe onde corrigir
                     }}
                     className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium"
                   >
