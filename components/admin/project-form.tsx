@@ -456,18 +456,29 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
           const projectId = result.data.id
           savedProjectId = projectId
           
-          if (tasks.length > 0) {
-            // ===== BUSCAR TAREFAS ANTIGAS ANTES DE DELETAR (para comparação) =====
-            let existingTasksForComparison: any[] = []
-            if (project?.id) {
-              const { data: oldTasks } = await supabase
-                .from('tasks')
-                .select('id, name, responsible')
-                .eq('project_id', projectId)
-              
-              existingTasksForComparison = oldTasks || []
-            }
+          // ===== BUSCAR TAREFAS ANTIGAS ANTES DE DELETAR (para comparação) =====
+          let existingTasksForComparison: any[] = []
+          if (project?.id) {
+            const { data: oldTasks } = await supabase
+              .from('tasks')
+              .select('id, name, responsible')
+              .eq('project_id', projectId)
             
+            existingTasksForComparison = oldTasks || []
+          }
+          
+          // Se for edição, deletar TODAS as tarefas antigas primeiro (independente se há novas ou não)
+          if (project?.id) {
+            const { error: deleteError } = await supabase
+              .from("tasks")
+              .delete()
+              .eq("project_id", projectId)
+            
+            if (deleteError) throw deleteError
+          }
+
+          // Inserir novas tarefas SOMENTE se houver tarefas no array
+          if (tasks.length > 0) {
             // Preparar dados das tarefas
             const tasksData = tasks.map(task => ({
               name: task.name,
@@ -492,16 +503,6 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
               dependency_type: task.dependency_type || 'independent',
               predecessor_task_id: task.predecessor_task_id || null,
             }))
-
-            // Se for edição, deletar tarefas antigas primeiro
-            if (project?.id) {
-              const { error: deleteError } = await supabase
-                .from("tasks")
-                .delete()
-                .eq("project_id", projectId)
-              
-              if (deleteError) throw deleteError
-            }
 
             // Inserir novas tarefas
             const { data: tasksResult, error: tasksError } = await supabase
