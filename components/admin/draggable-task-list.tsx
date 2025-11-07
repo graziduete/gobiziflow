@@ -308,10 +308,10 @@ function SortableTaskItem({ task, index, responsaveis, allTasks, onUpdateTask, o
                          <div className="max-w-xs">
                            <p className="font-medium text-white mb-1">Tarefa com atraso justificado</p>
                            <p className="text-sm text-gray-200 mb-2">
-                             <strong>Data planejada:</strong> {new Date(task.original_end_date + 'T12:00:00').toLocaleDateString('pt-BR')}
+                             <strong>Data planejada:</strong> {new Date(task.original_end_date + 'T12:00:00').toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
                            </p>
                            <p className="text-sm text-gray-200 mb-2">
-                             <strong>Data real:</strong> {new Date(task.actual_end_date + 'T12:00:00').toLocaleDateString('pt-BR')}
+                             <strong>Data real:</strong> {new Date(task.actual_end_date + 'T12:00:00').toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
                            </p>
                            <p className="text-sm text-gray-200">
                              <strong>Justificativa:</strong> {task.delay_justification}

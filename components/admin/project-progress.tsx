@@ -133,13 +133,13 @@ export function ProjectProgress({ project, tasks }: ProjectProgressProps) {
             {project.start_date && (
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Início:</span>
-                <span>{new Date(project.start_date).toLocaleDateString("pt-BR")}</span>
+                <span>{new Date(project.start_date + 'T12:00:00').toLocaleDateString("pt-BR", { timeZone: 'UTC' })}</span>
               </div>
             )}
             {project.end_date && (
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Término:</span>
-                <span>{new Date(project.end_date).toLocaleDateString("pt-BR")}</span>
+                <span>{new Date(project.end_date + 'T12:00:00').toLocaleDateString("pt-BR", { timeZone: 'UTC' })}</span>
               </div>
             )}
             {project.budget && (
