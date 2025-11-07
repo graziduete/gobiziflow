@@ -64,6 +64,7 @@ interface ProjectFormProps {
     estimated_hours?: number
     hourly_rate?: number
     safra?: string
+    use_business_days?: boolean
   }
   onSuccess?: () => void
   preloadedCompanies?: any[]
@@ -100,6 +101,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
     estimated_hours: getSafeValue(project?.estimated_hours, ""),
     hourly_rate: getSafeValue(project?.hourly_rate, ""),
     safra: getSafeValue(project?.safra, ""),
+    use_business_days: project?.use_business_days !== undefined ? project.use_business_days : true,
   })
 
   // Debug: verificar estado inicial
@@ -432,6 +434,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
         estimated_hours: formData.estimated_hours ? Number.parseInt(formData.estimated_hours) : null,
         hourly_rate: formData.hourly_rate ? parseFloat(formData.hourly_rate.replace(/\./g, '').replace(',', '.')) : null,
         safra: formData.safra || null,
+        use_business_days: formData.use_business_days, // Controle de dias úteis vs corridos
         created_by: user.id,
         tenant_id: tenantId, // Auto-preencher tenant_id se for Client Admin
       }
@@ -644,7 +647,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
     }
   }
 
-  const handleChange = (field: string, value: string) => {
+  const handleChange = (field: string, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
@@ -938,8 +941,27 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
     }
   }
 
-  // Calcular duração em dias entre duas datas
-  const calculateDuration = (startDate: string, endDate: string): number => {
+  // Contar apenas dias úteis (segunda a sexta) entre duas datas
+  const countBusinessDays = (startDate: string, endDate: string): number => {
+    const start = new Date(startDate + 'T12:00:00')
+    const end = new Date(endDate + 'T12:00:00')
+    let count = 0
+    const current = new Date(start)
+    
+    while (current <= end) {
+      const dayOfWeek = current.getDay()
+      // 0 = domingo, 6 = sábado
+      if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+        count++
+      }
+      current.setDate(current.getDate() + 1)
+    }
+    
+    return count
+  }
+
+  // Contar todos os dias (incluindo fins de semana)
+  const countCalendarDays = (startDate: string, endDate: string): number => {
     const start = new Date(startDate + 'T12:00:00')
     const end = new Date(endDate + 'T12:00:00')
     const diffTime = Math.abs(end.getTime() - start.getTime())
@@ -947,11 +969,46 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
     return diffDays
   }
 
-  // Adicionar dias a uma data
-  const addDays = (date: string, days: number): string => {
-    const result = new Date(date + 'T12:00:00')
+  // Calcular duração em dias entre duas datas (usa toggle do projeto)
+  const calculateDuration = (startDate: string, endDate: string): number => {
+    if (formData.use_business_days) {
+      return countBusinessDays(startDate, endDate)
+    } else {
+      return countCalendarDays(startDate, endDate)
+    }
+  }
+
+  // Adicionar apenas dias úteis a uma data
+  const addBusinessDays = (dateString: string, daysToAdd: number): string => {
+    const date = new Date(dateString + 'T12:00:00')
+    let addedDays = 0
+    
+    while (addedDays < daysToAdd) {
+      date.setDate(date.getDate() + 1)
+      const dayOfWeek = date.getDay()
+      // Pula fins de semana
+      if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+        addedDays++
+      }
+    }
+    
+    return date.toISOString().split('T')[0]
+  }
+
+  // Adicionar todos os dias (incluindo fins de semana)
+  const addCalendarDays = (dateString: string, days: number): string => {
+    const result = new Date(dateString + 'T12:00:00')
     result.setDate(result.getDate() + days)
     return result.toISOString().split('T')[0]
+  }
+
+  // Adicionar dias a uma data (usa toggle do projeto)
+  const addDays = (date: string, days: number): string => {
+    if (formData.use_business_days) {
+      return addBusinessDays(date, days)
+    } else {
+      return addCalendarDays(date, days)
+    }
   }
 
   // Calcular datas automaticamente quando status mudar
@@ -1535,6 +1592,43 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
               </div>
             </CardHeader>
             <CardContent>
+              {/* Toggle de Dias Úteis */}
+              <div className="mb-4 pb-4 border-b border-slate-200">
+                <div className="flex items-start gap-3">
+                  <div className="flex items-center h-5">
+                    <input
+                      id="use_business_days"
+                      type="checkbox"
+                      checked={formData.use_business_days}
+                      onChange={(e) => handleChange("use_business_days", e.target.checked)}
+                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label htmlFor="use_business_days" className="text-sm font-medium text-gray-900 cursor-pointer">
+                      Usar apenas dias úteis (segunda a sexta)
+                    </label>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {formData.use_business_days ? (
+                        <>
+                          <span className="inline-flex items-center gap-1">
+                            <span className="text-blue-600 font-medium">✓ Ativo:</span>
+                            Cálculos de duração e datas previstas excluem sábados e domingos
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="inline-flex items-center gap-1">
+                            <span className="text-slate-600 font-medium">○ Desativado:</span>
+                            Cálculos consideram todos os dias da semana (incluindo fins de semana)
+                          </span>
+                        </>
+                      )}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               {tasks.length > 0 ? (
                 <DraggableTaskList
                   tasks={tasks}
