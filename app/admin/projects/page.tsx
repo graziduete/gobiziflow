@@ -121,9 +121,10 @@ export default function ProjectsPage() {
   }
 
   // Buscar projetos com filtros no backend (exceto busca por nome)
+  // Não incluir currentPage pois paginação agora é no frontend
   useEffect(() => {
     fetchProjects()
-  }, [filters.company_id, filters.status, filters.priority, filters.category, currentPage, projectsPerPage])
+  }, [filters.company_id, filters.status, filters.priority, filters.category])
 
   // Resetar página quando busca mudar
   useEffect(() => {
@@ -212,15 +213,10 @@ export default function ProjectsPage() {
         .eq('id', user.id)
         .single()
 
-      const start = (currentPage - 1) * projectsPerPage
-      const end = start + projectsPerPage - 1
-
+      // Buscar TODOS os projetos (paginação será feita no frontend)
       let query = supabase
         .from("projects")
-        .select(
-          `id, name, description, status, priority, project_type, category, start_date, end_date, budget, created_at, company_id, tenant_id, hourly_rate, safra`,
-          { count: "exact" }
-        )
+        .select(`id, name, description, status, priority, project_type, category, start_date, end_date, budget, created_at, company_id, tenant_id, hourly_rate, safra`)
         .order("created_at", { ascending: false })
 
       // Se for Client Admin, filtrar por tenant_id
@@ -256,10 +252,9 @@ export default function ProjectsPage() {
       }
       // Busca por nome agora é feita no frontend (instantânea)
 
-      const { data, error, count } = await query.range(start, end)
+      const { data, error } = await query
       if (error) throw error
       setProjects(data || [])
-      // Total será calculado dos projetos filtrados no frontend
     } catch (error) {
       console.error("Erro ao buscar projetos:", error)
     } finally {
