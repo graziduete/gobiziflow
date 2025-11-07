@@ -12,7 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
-import { Plus, Trash2, Calendar, Clock, User, Users, FileText, AlertTriangle } from "lucide-react"
+import { Plus, Trash2, Calendar, Clock, User, Users, FileText, AlertTriangle, Lock } from "lucide-react"
 import { GanttChart } from "./gantt-chart"
 import { DraggableTaskList } from "./draggable-task-list"
 import { formatDateBrazil } from "@/lib/utils/status-translation"
@@ -120,6 +120,12 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
   const [error, setError] = useState<string | null>(null)
   const [invalidTasks, setInvalidTasks] = useState<Set<string>>(new Set())
   const [showDateValidationModal, setShowDateValidationModal] = useState(false)
+  const [showDependencyBlockModal, setShowDependencyBlockModal] = useState(false)
+  const [blockedTaskInfo, setBlockedTaskInfo] = useState<{
+    taskName: string
+    predecessorName: string
+    predecessorStatus: string
+  } | null>(null)
   // Removido isOffline - não usando mais mocks
   const router = useRouter()
 
@@ -784,11 +790,13 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
           const isPredecessorCompleted = predecessorTask.status === 'completed' || predecessorTask.status === 'completed_delayed'
           
           if (!isPredecessorCompleted) {
-            // Mostrar alerta e não permitir mudança
-            alert(`⚠️ Não é possível iniciar esta tarefa!\n\n` +
-                  `Esta tarefa depende da conclusão de "${predecessorTask.name}".\n\n` +
-                  `Status atual da predecessora: ${getStatusText(predecessorTask.status)}\n\n` +
-                  `Por favor, conclua a tarefa predecessora primeiro.`)
+            // Mostrar modal customizado ao invés de alert
+            setBlockedTaskInfo({
+              taskName: task.name,
+              predecessorName: predecessorTask.name,
+              predecessorStatus: getStatusText(predecessorTask.status)
+            })
+            setShowDependencyBlockModal(true)
             return // Não atualizar o status
           }
         }
@@ -1513,6 +1521,64 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                     className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
                   >
                     Entendi, vou corrigir
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Modal de Dependência Bloqueada */}
+          {showDependencyBlockModal && blockedTaskInfo && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4">
+              <div className="bg-white rounded-lg p-6 max-w-md w-full shadow-xl transform scale-100 transition-transform duration-300 animate-in fade-in zoom-in">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-amber-100 rounded-full">
+                    <Lock className="w-6 h-6 text-amber-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Tarefa Bloqueada por Dependência
+                  </h3>
+                </div>
+                
+                <div className="space-y-4 mb-6">
+                  <p className="text-gray-700 font-medium">
+                    Não é possível iniciar a tarefa "{blockedTaskInfo.taskName}"
+                  </p>
+                  
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 space-y-2">
+                    <div className="flex items-start gap-2">
+                      <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                      <div className="space-y-2 text-sm">
+                        <p className="text-amber-900 font-medium">
+                          Esta tarefa depende da conclusão de:
+                        </p>
+                        <p className="text-amber-800 font-semibold">
+                          📋 {blockedTaskInfo.predecessorName}
+                        </p>
+                        <div className="flex items-center gap-2 text-amber-700">
+                          <span className="font-medium">Status atual:</span>
+                          <span className="px-2 py-0.5 bg-amber-100 rounded text-xs font-medium">
+                            {blockedTaskInfo.predecessorStatus}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <p className="text-gray-600 text-sm">
+                    Por favor, conclua a tarefa predecessora antes de iniciar esta tarefa.
+                  </p>
+                </div>
+
+                <div className="flex gap-3 justify-end">
+                  <Button
+                    onClick={() => {
+                      setShowDependencyBlockModal(false)
+                      setBlockedTaskInfo(null)
+                    }}
+                    className="px-6 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition-colors font-medium"
+                  >
+                    Entendi
                   </Button>
                 </div>
               </div>
