@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Calendar, Clock, TrendingUp, Users, Maximize2, Minimize2, Download, FileImage, FileText, Circle, PlayCircle, PauseCircle, CheckCircle, AlertTriangle } from "lucide-react"
+import { Calendar, Clock, TrendingUp, Users, Maximize2, Minimize2, Download, FileImage, FileText, Circle, PlayCircle, PauseCircle, CheckCircle, AlertTriangle, ZoomIn, ZoomOut, RotateCcw } from "lucide-react"
 import { useGanttDownload } from "@/hooks/use-gantt-download"
 
 interface Task {
@@ -38,6 +38,26 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
   // Evitar hydration mismatch ao destacar mês atual
   const [currentYM, setCurrentYM] = React.useState<{ y: number; m: number } | null>(null)
   
+  // Estado para controlar o nível de zoom (50%, 75%, 100%, 125%, 150%)
+  const [zoomLevel, setZoomLevel] = React.useState(100)
+  
+  // Largura base de uma semana (120px padrão × zoom)
+  const weekWidth = React.useMemo(() => {
+    return 120 * (zoomLevel / 100)
+  }, [zoomLevel])
+  
+  // Funções de zoom
+  const zoomIn = () => {
+    setZoomLevel(prev => Math.min(prev + 25, 150)) // Máximo 150%
+  }
+  
+  const zoomOut = () => {
+    setZoomLevel(prev => Math.max(prev - 25, 50)) // Mínimo 50%
+  }
+  
+  const resetZoom = () => {
+    setZoomLevel(100)
+  }
   
   // Hook para download
   const { downloadAsImage } = useGanttDownload()
@@ -291,8 +311,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
       const taskStartOffset = Math.max(0, (taskStart.getTime() - projectStart.getTime()) / (24 * 60 * 60 * 1000))
       const taskDuration = Math.ceil((taskEnd.getTime() - taskStart.getTime()) / (24 * 60 * 60 * 1000)) + 1
       
-      // Calcular largura de cada semana (mais flexível)
-      const weekWidth = 120 // Largura mais generosa para cada semana
+      // Usar largura dinâmica baseada no zoom
       const totalWeeksWidth = weeks.length * weekWidth
       
       // Calcular posição e largura em pixels com posicionamento correto
@@ -308,7 +327,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
       console.error("Erro ao calcular estilo da barra:", error)
       return {}
     }
-  }, [weeks])
+  }, [weeks, weekWidth])
 
   // CORREÇÃO: Função para obter cor baseada no status real da tarefa
   const getTaskColor = (status: string) => {
@@ -547,6 +566,37 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
               {/* Botões de ação */}
               {!hideControls && (
                 <div className="flex items-center gap-2 bg-white/60 border border-slate-200 rounded-lg p-1.5 shadow-sm">
+                  {/* Controles de Zoom */}
+                  <div className="flex items-center gap-1 border-r border-slate-300 pr-2 mr-1">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="p-2 hover:scale-105 transition-transform disabled:opacity-50"
+                      onClick={zoomOut}
+                      disabled={zoomLevel <= 50}
+                      title="Diminuir zoom"
+                    >
+                      <ZoomOut className="w-4 h-4" />
+                    </Button>
+                    <button
+                      onClick={resetZoom}
+                      className="px-2 py-1 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                      title="Resetar zoom (100%)"
+                    >
+                      {zoomLevel}%
+                    </button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="p-2 hover:scale-105 transition-transform disabled:opacity-50"
+                      onClick={zoomIn}
+                      disabled={zoomLevel >= 150}
+                      title="Aumentar zoom"
+                    >
+                      <ZoomIn className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  
                   {/* Botão de download */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -589,7 +639,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
             <div className="overflow-x-auto">
               <div id="gantt-chart-content-expanded" className="min-w-[900px]">
                 {/* Cabeçalho dos meses (gradiente, separadores e realce do mês atual) */}
-                <div className="grid sticky top-0 z-10" style={{ gridTemplateColumns: `280px repeat(${weeks.length}, 120px)` }}>
+                <div className="grid sticky top-0 z-10" style={{ gridTemplateColumns: `280px repeat(${weeks.length}, ${weekWidth}px)` }}>
                   <div className="h-12 bg-gradient-to-r from-slate-100 to-slate-200 border-r border-slate-300" />
                   {Object.values(monthsWithWeeks).map((month, monthIndex) => {
                     const isCurrentMonth = (() => {
@@ -626,7 +676,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                 </div>
 
                 {/* Cabeçalho das semanas */}
-                <div className="grid" style={{ gridTemplateColumns: `280px repeat(${weeks.length}, 120px)` }}>
+                <div className="grid" style={{ gridTemplateColumns: `280px repeat(${weeks.length}, ${weekWidth}px)` }}>
                   <div className="h-18 bg-gradient-to-br from-slate-100 via-slate-50 to-slate-100 border-r border-slate-300 flex items-center justify-center shadow-sm">
                     <div className="text-center">
                       <div className="font-bold text-slate-800 text-xs tracking-wide uppercase">TAREFAS</div>
@@ -673,7 +723,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                       key={task.id}
                       data-task-id={task.id}
                       className={`grid hover:bg-slate-50 transition-colors duration-200 relative ${hasDelayJustification ? 'bg-orange-50/30' : ''}`}
-                      style={{ gridTemplateColumns: `280px repeat(${weeks.length}, 120px)` }}
+                      style={{ gridTemplateColumns: `280px repeat(${weeks.length}, ${weekWidth}px)` }}
                     >
                     {/* Informações da tarefa */}
                     <div className="h-20 border-r border-slate-200 bg-white px-3 py-2.5 flex flex-col justify-center">
@@ -844,7 +894,38 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
           
           {/* Botões de ação */}
           {!hideControls && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 bg-white/60 border border-slate-200 rounded-lg p-1.5 shadow-sm">
+              {/* Controles de Zoom */}
+              <div className="flex items-center gap-1 border-r border-slate-300 pr-2 mr-1">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="p-2 hover:scale-105 transition-transform disabled:opacity-50"
+                  onClick={zoomOut}
+                  disabled={zoomLevel <= 50}
+                  title="Diminuir zoom"
+                >
+                  <ZoomOut className="w-4 h-4" />
+                </Button>
+                <button
+                  onClick={resetZoom}
+                  className="px-2 py-1 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                  title="Resetar zoom (100%)"
+                >
+                  {zoomLevel}%
+                </button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="p-2 hover:scale-105 transition-transform disabled:opacity-50"
+                  onClick={zoomIn}
+                  disabled={zoomLevel >= 150}
+                  title="Aumentar zoom"
+                >
+                  <ZoomIn className="w-4 h-4" />
+                </Button>
+              </div>
+              
               {/* Botão de download */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -971,7 +1052,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                   key={task.id}
                   data-task-id={task.id}
                   className={`grid hover:bg-slate-50 transition-colors duration-200 relative ${hasDelayJustification ? 'bg-orange-50/30' : ''}`}
-                  style={{ gridTemplateColumns: `280px repeat(${weeks.length}, 120px)` }}
+                  style={{ gridTemplateColumns: `280px repeat(${weeks.length}, ${weekWidth}px)` }}
                 >
                 {/* Informações da tarefa */}
                 <div className="h-20 border-r border-slate-200 bg-white px-3 py-2.5 flex flex-col justify-center">
