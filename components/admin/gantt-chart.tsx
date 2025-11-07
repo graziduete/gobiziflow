@@ -569,6 +569,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                   {/* Controles de Zoom */}
                   <div className="flex items-center gap-1 border-r border-slate-300 pr-2 mr-1">
                     <Button 
+                      type="button"
                       variant="outline" 
                       size="sm" 
                       className="p-2 hover:scale-105 transition-transform disabled:opacity-50"
@@ -579,6 +580,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                       <ZoomOut className="w-4 h-4" />
                     </Button>
                     <button
+                      type="button"
                       onClick={resetZoom}
                       className="px-2 py-1 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
                       title="Resetar zoom (100%)"
@@ -586,6 +588,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                       {zoomLevel}%
                     </button>
                     <Button 
+                      type="button"
                       variant="outline" 
                       size="sm" 
                       className="p-2 hover:scale-105 transition-transform disabled:opacity-50"
@@ -898,6 +901,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
               {/* Controles de Zoom */}
               <div className="flex items-center gap-1 border-r border-slate-300 pr-2 mr-1">
                 <Button 
+                  type="button"
                   variant="outline" 
                   size="sm" 
                   className="p-2 hover:scale-105 transition-transform disabled:opacity-50"
@@ -908,6 +912,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                   <ZoomOut className="w-4 h-4" />
                 </Button>
                 <button
+                  type="button"
                   onClick={resetZoom}
                   className="px-2 py-1 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
                   title="Resetar zoom (100%)"
@@ -915,6 +920,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                   {zoomLevel}%
                 </button>
                 <Button 
+                  type="button"
                   variant="outline" 
                   size="sm" 
                   className="p-2 hover:scale-105 transition-transform disabled:opacity-50"
