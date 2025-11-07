@@ -729,6 +729,26 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
   }
 
   const updateTask = async (taskId: string, field: keyof Task, value: string) => {
+    // Validar dependências antes de mudar status para "Em Andamento"
+    if (field === 'status' && value === 'in_progress') {
+      const task = tasks.find(t => t.id === taskId)
+      if (task && task.dependency_type === 'finish_to_start' && task.predecessor_task_id) {
+        const predecessorTask = tasks.find(t => t.id === task.predecessor_task_id)
+        if (predecessorTask) {
+          const isPredecessorCompleted = predecessorTask.status === 'completed' || predecessorTask.status === 'completed_delayed'
+          
+          if (!isPredecessorCompleted) {
+            // Mostrar alerta e não permitir mudança
+            alert(`⚠️ Não é possível iniciar esta tarefa!\n\n` +
+                  `Esta tarefa depende da conclusão de "${predecessorTask.name}".\n\n` +
+                  `Status atual da predecessora: ${getStatusText(predecessorTask.status)}\n\n` +
+                  `Por favor, conclua a tarefa predecessora primeiro.`)
+            return // Não atualizar o status
+          }
+        }
+      }
+    }
+
     // SEMPRE atualiza a tarefa primeiro para permitir digitação
     const updatedTasks = tasks.map((task: Task) => 
       task.id === taskId ? { ...task, [field]: value } : task
