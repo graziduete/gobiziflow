@@ -26,6 +26,7 @@ interface Project {
   budget: number | null
   created_at: string
   company_id: string
+  safra?: string | null
 }
 
 interface ProjectFilters {

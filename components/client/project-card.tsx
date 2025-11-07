@@ -6,6 +6,9 @@ import { StatusBadge } from "@/components/shared/status-badge"
 import { PriorityBadge } from "@/components/shared/priority-badge"
 import { calculateProjectProgress, getProgressStats } from "@/lib/calculate-progress"
 
+// ID da Copersucar para exibir campo Safra
+const COPERSUCAR_ID = '443a6a0e-768f-48e4-a9ea-0cd972375a30'
+
 interface ProjectCardProps {
   project: {
     id: string
@@ -16,6 +19,8 @@ interface ProjectCardProps {
     start_date?: string
     end_date?: string
     budget?: number
+    safra?: string | null
+    company_id?: string
     companies?: {
       name: string
     }
@@ -100,6 +105,16 @@ export function ProjectCard({ project, tasks }: ProjectCardProps) {
             </div>
           )}
         </div>
+        
+        {/* Safra - apenas para Copersucar */}
+        {project.company_id === COPERSUCAR_ID && project.safra && (
+          <div className="pt-2 border-t border-border/50 mt-2">
+            <div className="flex items-center gap-1.5 text-sm">
+              <span className="text-muted-foreground">Safra:</span>
+              <span className="font-semibold text-purple-700">{project.safra}</span>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   )

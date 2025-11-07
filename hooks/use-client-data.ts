@@ -16,6 +16,7 @@ interface Project {
   estimated_hours: number | null
   created_at: string
   company_id: string
+  safra?: string | null
 }
 
 interface Company {
@@ -171,7 +172,8 @@ export function useClientData() {
           estimated_hours,
           budget,
           created_at,
-          company_id
+          company_id,
+          safra
         `)
 
       if (profile?.is_client_admin) {

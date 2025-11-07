@@ -7,6 +7,9 @@ import { GanttChart } from "@/components/admin/gantt-chart"
 import { ProjectDocsList } from "@/components/client/project-docs-list"
 import { createClient } from "@/lib/supabase/client"
 
+// ID da Copersucar para exibir campo Safra
+const COPERSUCAR_ID = '443a6a0e-768f-48e4-a9ea-0cd972375a30'
+
 interface Project {
   id: string
   name: string
@@ -21,6 +24,7 @@ interface Project {
   consumed_hours: number | null
   created_at: string
   company_id: string
+  safra?: string | null
   companies?: {
     id: string
     name: string
@@ -238,6 +242,16 @@ export function ClientProjectDetail({ project }: ClientProjectDetailProps) {
                 {project.budget ? `R$ ${project.budget.toLocaleString('pt-BR')}` : 'Não definido'}
               </div>
             </div>
+
+            {/* Safra - apenas para Copersucar */}
+            {project.company_id === COPERSUCAR_ID && project.safra && (
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium text-muted-foreground">Safra</h4>
+                <div className="text-lg font-semibold text-purple-700">
+                  {project.safra}
+                </div>
+              </div>
+            )}
 
             {/* Horas Estimadas */}
             <div className="space-y-2">
