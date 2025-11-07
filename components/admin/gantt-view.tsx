@@ -863,7 +863,7 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
                             projectEndDate={project.end_date}
                             projectName={project.name}
                             defaultExpanded={false}
-                            hideControls={true} // Esconder ícones na visão unificada
+                            hideControls={false} // Mostrar controles (incluindo zoom)
                           />
                           )}
                         </div>
