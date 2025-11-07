@@ -261,11 +261,6 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
 
       if (data) {
         console.log("[v0] Tasks fetched successfully:", data.length)
-        console.log("[DEBUG] Tasks com dependências:", data.map(t => ({
-          name: t.name,
-          dependency_type: t.dependency_type,
-          predecessor_task_id: t.predecessor_task_id
-        })))
         // Adicionar ordem para tarefas existentes que não têm ordem
         const tasksWithOrder = data.map((task: any, index: number) => ({
           ...task,
