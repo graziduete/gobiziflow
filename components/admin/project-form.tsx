@@ -450,6 +450,17 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
           savedProjectId = projectId
           
           if (tasks.length > 0) {
+            // ===== BUSCAR TAREFAS ANTIGAS ANTES DE DELETAR (para comparação) =====
+            let existingTasksForComparison: any[] = []
+            if (project?.id) {
+              const { data: oldTasks } = await supabase
+                .from('tasks')
+                .select('id, name, responsible')
+                .eq('project_id', projectId)
+              
+              existingTasksForComparison = oldTasks || []
+            }
+            
             // Preparar dados das tarefas
             const tasksData = tasks.map(task => ({
               name: task.name,
@@ -492,35 +503,31 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
             const isNewProject = !project?.id
             
             if (isNewProject) {
-              // Projeto novo - notificar todas as tarefas (async, não espera)
-              notifyTasksByResponsible(tasks, formData.name, projectId, supabase).catch(err => {
-                console.error('[v0] Erro ao enviar notificações (não bloqueante):', err)
-              })
-            } else {
-              // Projeto existente - buscar tarefas antigas e notificar apenas alterações
-              supabase
-                .from('tasks')
-                .select('id, name, responsible')
-                .eq('project_id', projectId)
-                .then(({ data: existingTasks }) => {
-                  if (existingTasks) {
-                    // Identificar tarefas que precisam de notificação
-                    const tasksToNotify = tasks.filter(task => {
-                      if (!task.responsible) return false
-                      const existingTask = existingTasks.find(et => et.id === task.id)
-                      const isNewTask = !existingTask
-                      const responsibleChanged = existingTask && existingTask.responsible !== task.responsible
-                      return isNewTask || responsibleChanged
-                    })
-                    
-                    if (tasksToNotify.length > 0) {
-                      notifyTasksByResponsible(tasksToNotify, formData.name, projectId, supabase).catch(err => {
-                        console.error('[v0] Erro ao enviar notificações (não bloqueante):', err)
-                      })
-                    }
-                  }
+              // Projeto novo - notificar todas as tarefas com responsável
+              const tasksWithResponsible = tasks.filter(task => task.responsible && task.responsible.trim() !== '')
+              if (tasksWithResponsible.length > 0) {
+                notifyTasksByResponsible(tasksWithResponsible, formData.name, projectId, supabase).catch(err => {
+                  console.error('[v0] Erro ao enviar notificações (não bloqueante):', err)
                 })
-                .catch(err => console.error('[v0] Erro ao verificar tarefas antigas:', err))
+              }
+            } else {
+              // Projeto existente - comparar com tarefas antigas
+              const tasksToNotify = tasks.filter(task => {
+                // Ignorar tarefas sem responsável
+                if (!task.responsible || task.responsible.trim() === '') return false
+                
+                const existingTask = existingTasksForComparison.find(et => et.id === task.id)
+                const isNewTask = !existingTask
+                const responsibleChanged = existingTask && existingTask.responsible !== task.responsible
+                
+                return isNewTask || responsibleChanged
+              })
+              
+              if (tasksToNotify.length > 0) {
+                notifyTasksByResponsible(tasksToNotify, formData.name, projectId, supabase).catch(err => {
+                  console.error('[v0] Erro ao enviar notificações (não bloqueante):', err)
+                })
+              }
             }
           }
 
