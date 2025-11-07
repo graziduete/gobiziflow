@@ -79,7 +79,8 @@ export function TaskDependencyModal({
 
   const formatDate = (date?: string) => {
     if (!date) return "Não definida"
-    return new Date(date).toLocaleDateString("pt-BR")
+    // Adicionar T12:00:00 para evitar problemas de timezone
+    return new Date(date + 'T12:00:00').toLocaleDateString("pt-BR", { timeZone: 'UTC' })
   }
 
   const getStatusBadge = (status: string) => {
