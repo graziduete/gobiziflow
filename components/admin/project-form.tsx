@@ -261,6 +261,11 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
 
       if (data) {
         console.log("[v0] Tasks fetched successfully:", data.length)
+        console.log("[DEBUG] Tasks com dependências:", data.map(t => ({
+          name: t.name,
+          dependency_type: t.dependency_type,
+          predecessor_task_id: t.predecessor_task_id
+        })))
         // Adicionar ordem para tarefas existentes que não têm ordem
         const tasksWithOrder = data.map((task: any, index: number) => ({
           ...task,
@@ -479,7 +484,10 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
 
           // Inserir novas tarefas SOMENTE se houver tarefas no array
           if (tasks.length > 0) {
-            // Preparar dados das tarefas
+            // Mapear IDs antigos para índices (ordem) para resolver dependências depois
+            const oldIdToIndex = new Map(tasks.map((task, index) => [task.id, index]))
+            
+            // Preparar dados das tarefas SEM predecessor_task_id ainda
             const tasksData = tasks.map(task => ({
               name: task.name,
               description: task.description || null,
@@ -499,9 +507,9 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
               // Preservar campos de datas reais e previstas
               actual_start_date: task.actual_start_date || null,
               predicted_end_date: task.predicted_end_date || null,
-              // Preservar campos de dependência
+              // Preservar campos de dependência (dependency_type, mas SEM predecessor_task_id ainda)
               dependency_type: task.dependency_type || 'independent',
-              predecessor_task_id: task.predecessor_task_id || null,
+              predecessor_task_id: null, // Será atualizado depois
             }))
 
             // Inserir novas tarefas
@@ -511,6 +519,48 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
               .select()
 
             if (tasksError) throw tasksError
+            
+            // Mapear novos IDs: criar mapa de índice -> novo ID
+            const indexToNewId = new Map(
+              tasksResult.map((newTask: any, index: number) => [index, newTask.id])
+            )
+            
+            // Atualizar predecessor_task_id com os novos IDs
+            const tasksToUpdate = tasks
+              .map((task, index) => {
+                // Se tem dependência e predecessor antigo
+                if (task.dependency_type === 'finish_to_start' && task.predecessor_task_id) {
+                  // Encontrar índice da tarefa predecessora
+                  const predecessorIndex = oldIdToIndex.get(task.predecessor_task_id)
+                  if (predecessorIndex !== undefined) {
+                    // Pegar novo ID da predecessora
+                    const newPredecessorId = indexToNewId.get(predecessorIndex)
+                    const newTaskId = indexToNewId.get(index)
+                    if (newPredecessorId && newTaskId) {
+                      return {
+                        id: newTaskId,
+                        predecessor_task_id: newPredecessorId
+                      }
+                    }
+                  }
+                }
+                return null
+              })
+              .filter(Boolean)
+            
+            // Atualizar tarefas com dependências em batch
+            if (tasksToUpdate.length > 0) {
+              for (const taskUpdate of tasksToUpdate) {
+                const { error: updateError } = await supabase
+                  .from('tasks')
+                  .update({ predecessor_task_id: taskUpdate.predecessor_task_id })
+                  .eq('id', taskUpdate.id)
+                
+                if (updateError) {
+                  console.error('[v0] Erro ao atualizar predecessor_task_id:', updateError)
+                }
+              }
+            }
             
             // ===== ENVIAR NOTIFICAÇÕES DE FORMA ASSÍNCRONA (NÃO BLOQUEANTE) =====
             // Agora que tudo foi salvo, enviar notificações em background
