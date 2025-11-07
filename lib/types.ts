@@ -110,6 +110,12 @@ export interface Task {
   actual_end_date?: string
   delay_created_at?: string
   delay_created_by?: string
+  // Campos de datas reais e previstas (sincronizados com banco)
+  actual_start_date?: string
+  predicted_end_date?: string
+  // Campos de dependência entre tarefas
+  dependency_type?: string
+  predecessor_task_id?: string
 }
 
 export interface DashboardStats {

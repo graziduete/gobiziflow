@@ -31,12 +31,19 @@ interface Task {
   responsible: string
   description?: string
   order?: number
-  project_id?: string // ← ADICIONAR project_id!
+  project_id?: string
+  // Campos de justificativa de atraso
   delay_justification?: string
   original_end_date?: string
   actual_end_date?: string
   delay_created_at?: string
   delay_created_by?: string
+  // Campos de datas reais e previstas
+  actual_start_date?: string
+  predicted_end_date?: string
+  // Campos de dependência entre tarefas
+  dependency_type?: string
+  predecessor_task_id?: string
 }
 
 interface ProjectFormProps {
@@ -246,7 +253,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
       const supabase = createClient()
       const { data, error } = await supabase
         .from("tasks")
-        .select("id, name, description, start_date, end_date, status, responsible, \"order\", delay_justification, original_end_date, actual_end_date, delay_created_at, delay_created_by")
+        .select("id, name, description, start_date, end_date, status, responsible, \"order\", delay_justification, original_end_date, actual_end_date, delay_created_at, delay_created_by, actual_start_date, predicted_end_date, dependency_type, predecessor_task_id")
         .eq("project_id", project.id)
         .order("\"order\"", { ascending: true })
 
@@ -471,13 +478,19 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
               responsible: task.responsible || null,
               project_id: projectId,
               created_by: user.id,
-              order: task.order || 0, // Incluir campo order
+              order: task.order || 0,
               // Preservar campos de justificativa de atraso
               delay_justification: task.delay_justification || null,
               original_end_date: task.original_end_date || null,
               actual_end_date: task.actual_end_date || null,
               delay_created_at: task.delay_created_at || null,
               delay_created_by: task.delay_created_by || null,
+              // Preservar campos de datas reais e previstas
+              actual_start_date: task.actual_start_date || null,
+              predicted_end_date: task.predicted_end_date || null,
+              // Preservar campos de dependência
+              dependency_type: task.dependency_type || 'independent',
+              predecessor_task_id: task.predecessor_task_id || null,
             }))
 
             // Se for edição, deletar tarefas antigas primeiro
