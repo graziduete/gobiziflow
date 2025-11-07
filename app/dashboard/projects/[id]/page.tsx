@@ -21,6 +21,7 @@ interface Project {
   consumed_hours: number | null
   created_at: string
   company_id: string
+  safra?: string | null
   companies?: {
     id: string
     name: string

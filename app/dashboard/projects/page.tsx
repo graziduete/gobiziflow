@@ -13,6 +13,9 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { X, Search } from "lucide-react"
 
+// ID da Copersucar para exibir campo Safra
+const COPERSUCAR_ID = '443a6a0e-768f-48e4-a9ea-0cd972375a30'
+
 interface Project {
   id: string
   name: string
@@ -483,6 +486,13 @@ export default function ClientProjectsPage() {
                           <span className="text-green-700 font-semibold">R$ {Number(project.budget).toLocaleString("pt-BR")}</span>
                         </div>
                       )}
+                      {project.company_id === COPERSUCAR_ID && project.safra && (
+                        <div className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+                          <span className="font-medium">Safra:</span>
+                          <span className="text-purple-700 font-semibold">{project.safra}</span>
+                        </div>
+                      )}
                       {project.start_date && (
                         <div className="flex items-center gap-2">
                           <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
@@ -531,6 +541,7 @@ export default function ClientProjectsPage() {
                     <div className="flex items-center gap-4 text-xs text-muted-foreground">
                       <span>Empresa: {company?.name || "Carregando..."}</span>
                       {project.budget && <span>Orçamento: R$ {Number(project.budget).toLocaleString("pt-BR")}</span>}
+                      {project.company_id === COPERSUCAR_ID && project.safra && <span className="text-purple-700 font-semibold">Safra: {project.safra}</span>}
                       {project.start_date && (
                         <span>Início: {new Date(project.start_date).toLocaleDateString("pt-BR", { timeZone: 'UTC' })}</span>
                       )}
