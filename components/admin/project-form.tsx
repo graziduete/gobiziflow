@@ -126,6 +126,13 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
     predecessorName: string
     predecessorStatus: string
   } | null>(null)
+  const [showWeekendWarning, setShowWeekendWarning] = useState(false)
+  const [weekendWarningInfo, setWeekendWarningInfo] = useState<{
+    taskName: string
+    taskId: string
+    weekendDates: { date: string, dayName: string, isStart: boolean }[]
+    suggestedDates: { friday: string, monday: string }
+  } | null>(null)
   // Removido isOffline - não usando mais mocks
   const router = useRouter()
 
@@ -843,6 +850,9 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                 newSet.delete(taskId)
                 return newSet
               })
+              
+              // Verificar se há datas em finais de semana
+              checkWeekendDates(taskId, newStartDate, newEndDate, updatedTask.name)
             }
           } catch (dateError) {
             // Ignorar erros de data durante digitação
@@ -858,6 +868,74 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
 
   const removeTask = (taskId: string) => {
     setTasks(tasks.filter(task => task.id !== taskId))
+  }
+
+  // Funções para validação de finais de semana
+  const isWeekend = (dateString: string): boolean => {
+    if (!dateString) return false
+    const date = new Date(dateString + 'T12:00:00')
+    const day = date.getDay() // 0=domingo, 6=sábado
+    return day === 0 || day === 6
+  }
+
+  const getDayName = (dateString: string): string => {
+    const date = new Date(dateString + 'T12:00:00')
+    const days = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado']
+    return days[date.getDay()]
+  }
+
+  const getAlternativeDates = (dateString: string): { friday: string, monday: string } => {
+    const date = new Date(dateString + 'T12:00:00')
+    const day = date.getDay()
+    
+    // Se é sábado (6), sexta é -1 dia, segunda é +2 dias
+    // Se é domingo (0), sexta é -2 dias, segunda é +1 dia
+    const fridayOffset = day === 6 ? -1 : -2
+    const mondayOffset = day === 6 ? 2 : 1
+    
+    const friday = new Date(date)
+    friday.setDate(date.getDate() + fridayOffset)
+    
+    const monday = new Date(date)
+    monday.setDate(date.getDate() + mondayOffset)
+    
+    return {
+      friday: friday.toISOString().split('T')[0],
+      monday: monday.toISOString().split('T')[0]
+    }
+  }
+
+  const checkWeekendDates = (taskId: string, startDate: string, endDate: string, taskName: string) => {
+    const weekendDates: { date: string, dayName: string, isStart: boolean }[] = []
+    
+    if (startDate && isWeekend(startDate)) {
+      weekendDates.push({
+        date: startDate,
+        dayName: getDayName(startDate),
+        isStart: true
+      })
+    }
+    
+    if (endDate && isWeekend(endDate)) {
+      weekendDates.push({
+        date: endDate,
+        dayName: getDayName(endDate),
+        isStart: false
+      })
+    }
+    
+    if (weekendDates.length > 0) {
+      // Pega o primeiro fim de semana encontrado para sugerir alternativas
+      const alternatives = getAlternativeDates(weekendDates[0].date)
+      
+      setWeekendWarningInfo({
+        taskName,
+        taskId,
+        weekendDates,
+        suggestedDates: alternatives
+      })
+      setShowWeekendWarning(true)
+    }
   }
 
   // Calcular duração em dias entre duas datas
@@ -1521,6 +1599,99 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                     className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
                   >
                     Entendi, vou corrigir
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Modal de Aviso de Fim de Semana */}
+          {showWeekendWarning && weekendWarningInfo && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4">
+              <div className="bg-white rounded-lg p-6 max-w-md w-full shadow-xl transform scale-100 transition-transform duration-300 animate-in fade-in zoom-in">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-yellow-100 rounded-full">
+                    <AlertTriangle className="w-6 h-6 text-yellow-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Data em Fim de Semana
+                  </h3>
+                </div>
+                
+                <div className="space-y-4 mb-6">
+                  <p className="text-gray-700">
+                    A tarefa "<strong>{weekendWarningInfo.taskName}</strong>" está planejada para fim de semana:
+                  </p>
+                  
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 space-y-2">
+                    {weekendWarningInfo.weekendDates.map((item, index) => (
+                      <div key={index} className="flex items-center gap-2 text-sm">
+                        <Calendar className="w-4 h-4 text-yellow-600" />
+                        <span className="font-medium text-yellow-900">
+                          {item.isStart ? 'Data Início' : 'Data Fim'}:
+                        </span>
+                        <span className="text-yellow-800">
+                          {new Date(item.date + 'T12:00:00').toLocaleDateString('pt-BR', { timeZone: 'UTC' })} ({item.dayName})
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-2">
+                    <p className="text-sm font-medium text-blue-900 mb-2">
+                      💡 Sugestões de datas alternativas:
+                    </p>
+                    <div className="space-y-1 text-sm text-blue-800">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">•</span>
+                        <span>
+                          {new Date(weekendWarningInfo.suggestedDates.friday + 'T12:00:00').toLocaleDateString('pt-BR', { timeZone: 'UTC' })} 
+                          ({getDayName(weekendWarningInfo.suggestedDates.friday)})
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">•</span>
+                        <span>
+                          {new Date(weekendWarningInfo.suggestedDates.monday + 'T12:00:00').toLocaleDateString('pt-BR', { timeZone: 'UTC' })} 
+                          ({getDayName(weekendWarningInfo.suggestedDates.monday)})
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <p className="text-gray-600 text-sm">
+                    Deseja continuar com esta data ou corrigir?
+                  </p>
+                </div>
+
+                <div className="flex gap-3 justify-end">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setShowWeekendWarning(false)
+                      setWeekendWarningInfo(null)
+                    }}
+                    className="px-4 py-2 border-gray-300 hover:bg-gray-50"
+                  >
+                    Continuar Mesmo Assim
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      setShowWeekendWarning(false)
+                      setWeekendWarningInfo(null)
+                      // Foca no campo de data para o usuário corrigir
+                      setTimeout(() => {
+                        const taskElement = document.querySelector(`[data-task-id="${weekendWarningInfo.taskId}"]`)
+                        if (taskElement) {
+                          taskElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                        }
+                      }, 100)
+                    }}
+                    className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium"
+                  >
+                    Corrigir Data
                   </Button>
                 </div>
               </div>
