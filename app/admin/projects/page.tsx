@@ -5,7 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Edit, Calendar, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Filter, List, Grid3X3, Kanban } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Plus, Edit, Calendar, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Filter, List, Grid3X3, Kanban, Search, X } from "lucide-react"
 import Link from "next/link"
 import { ProjectFilters } from "@/components/admin/project-filters"
 import { createClient } from "@/lib/supabase/client"
@@ -503,10 +504,35 @@ export default function ProjectsPage() {
         </div>
       </div>
 
-      {/* Botões de visualização */}
-      <div className="flex items-center gap-2">
-        <span className="text-sm text-muted-foreground">Visualização:</span>
-        <div className="flex items-center border-2 border-slate-200 rounded-lg overflow-hidden">
+      {/* Barra de Busca e Controles de Visualização */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+        {/* Barra de Busca Rápida */}
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Input
+            placeholder="Buscar projetos por nome..."
+            value={filters.search}
+            onChange={(e) => {
+              setFilters(prev => ({ ...prev, search: e.target.value }))
+              setCurrentPage(1) // Resetar para primeira página ao buscar
+            }}
+            className="pl-10 pr-10 h-10 bg-white border-slate-300 focus:border-blue-500 focus:ring-blue-500/20 transition-all"
+          />
+          {filters.search && (
+            <button
+              onClick={() => setFilters(prev => ({ ...prev, search: "" }))}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+              title="Limpar busca"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+
+        {/* Controles de Visualização */}
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">Visualização:</span>
+          <div className="flex items-center border-2 border-slate-200 rounded-lg overflow-hidden">
           <Button
             variant={viewMode === 'list' ? 'default' : 'ghost'}
             size="sm"
