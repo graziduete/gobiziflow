@@ -56,11 +56,21 @@ export default function ProjectsPage() {
     category: "all",
     search: ""
   })
-  // Quando buscar do backend já aplicando filtros, não precisamos manter uma cópia filtrada
-  const [totalCount, setTotalCount] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [showFilters, setShowFilters] = useState(false)
   const [viewMode, setViewMode] = useState<'list' | 'cards'>('cards')
+  
+  // Filtrar projetos por busca no FRONTEND (instantâneo)
+  const filteredProjects = useMemo(() => {
+    if (!filters.search) return projects
+    
+    const searchLower = filters.search.toLowerCase()
+    return projects.filter(project => 
+      project.name.toLowerCase().includes(searchLower) ||
+      (project.description && project.description.toLowerCase().includes(searchLower))
+    )
+  }, [projects, filters.search])
+  
   const activeFiltersCount = useMemo(() => {
     let count = 0
     if (filters.company_id && filters.company_id !== "all") count++
@@ -110,13 +120,17 @@ export default function ProjectsPage() {
     }
   }
 
-  // Buscar projetos com filtros e paginação no backend (debounced para busca)
+  // Buscar projetos com filtros no backend (exceto busca por nome)
   useEffect(() => {
-    const handler = setTimeout(() => {
-      fetchProjects()
-    }, filters.search ? 200 : 0)
-    return () => clearTimeout(handler)
-  }, [filters, currentPage, projectsPerPage])
+    fetchProjects()
+  }, [filters.company_id, filters.status, filters.priority, filters.category, currentPage, projectsPerPage])
+
+  // Resetar página quando busca mudar
+  useEffect(() => {
+    if (filters.search) {
+      setCurrentPage(1)
+    }
+  }, [filters.search])
 
   const fetchCompanies = async () => {
     try {
@@ -240,16 +254,12 @@ export default function ProjectsPage() {
       if (filters.category && filters.category !== "all") {
         query = query.eq("category", filters.category)
       }
-      if (filters.search) {
-        const s = filters.search.trim()
-        // name ILIKE OR description ILIKE
-        query = query.or(`name.ilike.%${s}%,description.ilike.%${s}%`)
-      }
+      // Busca por nome agora é feita no frontend (instantânea)
 
       const { data, error, count } = await query.range(start, end)
       if (error) throw error
       setProjects(data || [])
-      setTotalCount(count || 0)
+      // Total será calculado dos projetos filtrados no frontend
     } catch (error) {
       console.error("Erro ao buscar projetos:", error)
     } finally {
@@ -257,11 +267,17 @@ export default function ProjectsPage() {
     }
   }
 
-  // Cálculos de paginação
-  const totalPages = Math.ceil((totalCount || 0) / projectsPerPage) || 1
-  const startIndex = (currentPage - 1) * projectsPerPage
-  const endIndex = startIndex + projectsPerPage
-  const currentProjects = projects
+  // Cálculos de paginação baseados em projetos filtrados
+  const paginationData = useMemo(() => {
+    const totalPages = Math.ceil(filteredProjects.length / projectsPerPage) || 1
+    const startIndex = (currentPage - 1) * projectsPerPage
+    const endIndex = startIndex + projectsPerPage
+    const currentProjects = filteredProjects.slice(startIndex, endIndex)
+    
+    return { totalPages, startIndex, endIndex, currentProjects }
+  }, [filteredProjects, currentPage, projectsPerPage])
+  
+  const { totalPages, startIndex, endIndex, currentProjects } = paginationData
 
   // Funções de navegação
   const goToPage = (page: number) => {
@@ -477,7 +493,11 @@ export default function ProjectsPage() {
           <h2 className="text-3xl font-bold tracking-tight">Projetos</h2>
           <p className="text-muted-foreground">
             Gerencie todos os projetos do sistema
-            <span className="ml-2 text-blue-600">• {totalCount} projeto{totalCount !== 1 ? 's' : ''}</span>
+            {filters.search ? (
+              <span className="ml-2 text-blue-600">• {filteredProjects.length} de {projects.length} projetos</span>
+            ) : (
+              <span className="ml-2 text-blue-600">• {projects.length} projetos</span>
+            )}
           </p>
         </div>
         <div className="flex items-center gap-2">
