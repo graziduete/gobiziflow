@@ -20,12 +20,14 @@ import {
   useSortable,
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-import { GripVertical, Trash2, AlertTriangle } from "lucide-react"
+import { GripVertical, Trash2, AlertTriangle, Link2, Lock, Unlock, Calendar, CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Badge } from "@/components/ui/badge"
 import { createClient } from "@/lib/supabase/client"
 import { DelayJustificationModal } from "@/components/admin/delay-justification-modal"
+import { TaskDependencyModal } from "@/components/admin/task-dependency-modal"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 interface Task {
@@ -42,6 +44,11 @@ interface Task {
   actual_end_date?: string
   delay_created_at?: string
   delay_created_by?: string
+  // Novos campos de datas e dependências
+  actual_start_date?: string
+  predicted_end_date?: string
+  dependency_type?: string
+  predecessor_task_id?: string
 }
 
 interface Responsavel {
@@ -58,19 +65,22 @@ interface DraggableTaskListProps {
   onReorderTasks: (oldIndex: number, newIndex: number) => void
   onRefreshTasks?: () => void
   invalidTasks?: Set<string>
+  onSaveDependency?: (taskId: string, dependencyType: string, predecessorId: string | null) => void
 }
 
 interface SortableTaskItemProps {
   task: Task
   index: number
   responsaveis: Responsavel[]
+  allTasks: Task[]
   onUpdateTask: (taskId: string, field: keyof Task, value: string) => void
   onRemoveTask: (taskId: string) => void
   onStatusChange: (taskId: string, newStatus: string) => void
+  onOpenDependencyModal: (task: Task) => void
   invalidTasks?: Set<string>
 }
 
-function SortableTaskItem({ task, index, responsaveis, onUpdateTask, onRemoveTask, onStatusChange, invalidTasks = new Set() }: SortableTaskItemProps) {
+function SortableTaskItem({ task, index, responsaveis, allTasks, onUpdateTask, onRemoveTask, onStatusChange, onOpenDependencyModal, invalidTasks = new Set() }: SortableTaskItemProps) {
   const {
     attributes,
     listeners,
@@ -103,6 +113,22 @@ function SortableTaskItem({ task, index, responsaveis, onUpdateTask, onRemoveTas
 
   const hasDelayJustification = task.delay_justification && task.status === 'completed_delayed'
 
+  // Encontrar tarefa predecessora
+  const predecessorTask = task.predecessor_task_id 
+    ? allTasks.find(t => t.id === task.predecessor_task_id)
+    : null
+
+  // Verificar se predecessora foi concluída
+  const isPredecessorCompleted = predecessorTask 
+    ? predecessorTask.status === 'completed' || predecessorTask.status === 'completed_delayed'
+    : true
+
+  // Formatar datas
+  const formatDate = (date?: string) => {
+    if (!date) return '-'
+    return new Date(date + 'T12:00:00').toLocaleDateString('pt-BR', { timeZone: 'UTC' })
+  }
+
   return (
     <tr 
       ref={setNodeRef}
@@ -121,14 +147,53 @@ function SortableTaskItem({ task, index, responsaveis, onUpdateTask, onRemoveTas
         </div>
       </td>
 
-      {/* Nome da tarefa */}
+      {/* Nome da tarefa com badges */}
       <td className="p-4">
-        <Input
-          value={task.name || ''}
-          onChange={(e) => onUpdateTask(task.id, "name", e.target.value)}
-          placeholder="Nome da tarefa"
-          className="border-0 bg-transparent p-0 text-sm focus:ring-0 w-full"
-        />
+        <div className="space-y-2">
+          <Input
+            value={task.name || ''}
+            onChange={(e) => onUpdateTask(task.id, "name", e.target.value)}
+            placeholder="Nome da tarefa"
+            className="border-0 bg-transparent p-0 text-sm focus:ring-0 w-full"
+          />
+          {/* Badges de dependência */}
+          {task.dependency_type === 'finish_to_start' && predecessorTask && (
+            <div className="flex items-center gap-1">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge 
+                      variant="outline" 
+                      className={`text-xs flex items-center gap-1 ${
+                        isPredecessorCompleted 
+                          ? 'bg-green-50 text-green-700 border-green-200' 
+                          : 'bg-amber-50 text-amber-700 border-amber-200'
+                      }`}
+                    >
+                      {isPredecessorCompleted ? (
+                        <Unlock className="w-3 h-3" />
+                      ) : (
+                        <Lock className="w-3 h-3" />
+                      )}
+                      Depende de {predecessorTask.name}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <div className="text-xs space-y-1">
+                      <p><strong>Predecessora:</strong> {predecessorTask.name}</p>
+                      <p><strong>Status:</strong> {getStatusText(predecessorTask.status)}</p>
+                      {isPredecessorCompleted ? (
+                        <p className="text-green-600 font-medium">✓ Pode iniciar</p>
+                      ) : (
+                        <p className="text-amber-600 font-medium">⏳ Aguardando conclusão</p>
+                      )}
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          )}
+        </div>
       </td>
 
       {/* Data de início */}
@@ -141,7 +206,7 @@ function SortableTaskItem({ task, index, responsaveis, onUpdateTask, onRemoveTas
         />
       </td>
 
-      {/* Data de fim */}
+      {/* Data de fim planejada */}
       <td className="p-4">
         <Input
           type="date"
@@ -149,6 +214,48 @@ function SortableTaskItem({ task, index, responsaveis, onUpdateTask, onRemoveTas
           onChange={(e) => onUpdateTask(task.id, "end_date", e.target.value)}
           className={`border-0 bg-transparent p-0 text-sm focus:ring-0 w-full ${invalidDateClass}`}
         />
+      </td>
+
+      {/* Data Início Real (read-only) */}
+      <td className="p-4">
+        <div className="flex items-center gap-2 text-sm text-slate-600">
+          {task.actual_start_date ? (
+            <div className="flex items-center gap-1 bg-blue-50 px-2 py-1 rounded">
+              <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
+              <span className="font-medium">{formatDate(task.actual_start_date)}</span>
+            </div>
+          ) : (
+            <span className="text-slate-400">-</span>
+          )}
+        </div>
+      </td>
+
+      {/* Data Fim Prevista (read-only) */}
+      <td className="p-4">
+        <div className="flex items-center gap-2 text-sm text-slate-600">
+          {task.predicted_end_date ? (
+            <div className="flex items-center gap-1 bg-amber-50 px-2 py-1 rounded">
+              <Calendar className="w-3.5 h-3.5 text-amber-600" />
+              <span className="font-medium">{formatDate(task.predicted_end_date)}</span>
+            </div>
+          ) : (
+            <span className="text-slate-400">-</span>
+          )}
+        </div>
+      </td>
+
+      {/* Data Fim Real (read-only) */}
+      <td className="p-4">
+        <div className="flex items-center gap-2 text-sm text-slate-600">
+          {task.actual_end_date ? (
+            <div className="flex items-center gap-1 bg-green-50 px-2 py-1 rounded">
+              <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
+              <span className="font-medium">{formatDate(task.actual_end_date)}</span>
+            </div>
+          ) : (
+            <span className="text-slate-400">-</span>
+          )}
+        </div>
       </td>
 
       {/* Responsável */}
@@ -218,25 +325,62 @@ function SortableTaskItem({ task, index, responsaveis, onUpdateTask, onRemoveTas
       </td>
 
       {/* Ações */}
-      <td className="p-4 text-center">
-        <Button
-          type="button"
-          variant="destructive"
-          size="sm"
-          onClick={() => onRemoveTask(task.id)}
-          className="h-6 w-6 p-0"
-        >
-          <Trash2 className="w-3 h-3" />
-        </Button>
+      <td className="p-4">
+        <div className="flex items-center justify-center gap-1">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onOpenDependencyModal(task)}
+                  className="h-7 w-7 p-0 relative"
+                >
+                  <Link2 className="w-3.5 h-3.5" />
+                  {task.dependency_type === 'finish_to_start' && (
+                    <span className="absolute -top-1 -right-1 h-3 w-3 bg-blue-500 rounded-full flex items-center justify-center text-[8px] text-white font-bold">
+                      1
+                    </span>
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-xs">Configurar dependência</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => onRemoveTask(task.id)}
+                  className="h-7 w-7 p-0"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-xs">Excluir tarefa</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </td>
     </tr>
   )
 }
 
-export function DraggableTaskList({ tasks, onUpdateTask, onRemoveTask, onReorderTasks, onRefreshTasks, invalidTasks = new Set() }: DraggableTaskListProps) {
+export function DraggableTaskList({ tasks, onUpdateTask, onRemoveTask, onReorderTasks, onRefreshTasks, invalidTasks = new Set(), onSaveDependency }: DraggableTaskListProps) {
   const [responsaveis, setResponsaveis] = useState<Responsavel[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
+  const [isDependencyModalOpen, setIsDependencyModalOpen] = useState(false)
+  const [selectedDependencyTask, setSelectedDependencyTask] = useState<Task | null>(null)
   
   // Removidas as funções de máscara complexa - usando inputs nativos de data
   
@@ -352,6 +496,19 @@ export function DraggableTaskList({ tasks, onUpdateTask, onRemoveTask, onReorder
     setSelectedTask(null)
   }
 
+  const handleOpenDependencyModal = (task: Task) => {
+    setSelectedDependencyTask(task)
+    setIsDependencyModalOpen(true)
+  }
+
+  const handleSaveDependency = (taskId: string, dependencyType: string, predecessorId: string | null) => {
+    if (onSaveDependency) {
+      onSaveDependency(taskId, dependencyType, predecessorId)
+    }
+    setIsDependencyModalOpen(false)
+    setSelectedDependencyTask(null)
+  }
+
   // Ordenar tarefas por ordem
   const sortedTasks = [...tasks].sort((a, b) => (a.order || 0) - (b.order || 0))
 
@@ -366,12 +523,40 @@ export function DraggableTaskList({ tasks, onUpdateTask, onRemoveTask, onReorder
           <thead>
             <tr className="border-b bg-gray-50">
               <th className="text-center p-4 font-medium text-sm w-8">⋮⋮</th>
-              <th className="text-left p-4 font-medium text-sm w-1/3">Tarefa</th>
-              <th className="text-left p-4 font-medium text-sm w-1/6">Data Início</th>
-              <th className="text-left p-4 font-medium text-sm w-1/6">Data Fim</th>
-              <th className="text-left p-4 font-medium text-sm w-1/6">Responsável</th>
-              <th className="text-left p-4 font-medium text-sm w-1/6">Status</th>
-              <th className="text-center p-4 font-medium text-sm w-1/12">Ações</th>
+              <th className="text-left p-4 font-medium text-sm">Tarefa</th>
+              <th className="text-left p-4 font-medium text-sm whitespace-nowrap">
+                <div className="flex items-center gap-1">
+                  <Calendar className="w-3.5 h-3.5 text-slate-500" />
+                  Data Início<br/>Planejada
+                </div>
+              </th>
+              <th className="text-left p-4 font-medium text-sm whitespace-nowrap">
+                <div className="flex items-center gap-1">
+                  <Calendar className="w-3.5 h-3.5 text-slate-500" />
+                  Data Fim<br/>Planejada
+                </div>
+              </th>
+              <th className="text-left p-4 font-medium text-sm whitespace-nowrap bg-blue-50">
+                <div className="flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
+                  Data Início<br/>Real
+                </div>
+              </th>
+              <th className="text-left p-4 font-medium text-sm whitespace-nowrap bg-amber-50">
+                <div className="flex items-center gap-1">
+                  <Calendar className="w-3.5 h-3.5 text-amber-600" />
+                  Data Fim<br/>Prevista
+                </div>
+              </th>
+              <th className="text-left p-4 font-medium text-sm whitespace-nowrap bg-green-50">
+                <div className="flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
+                  Data Fim<br/>Real
+                </div>
+              </th>
+              <th className="text-left p-4 font-medium text-sm">Responsável</th>
+              <th className="text-left p-4 font-medium text-sm">Status</th>
+              <th className="text-center p-4 font-medium text-sm">Ações</th>
             </tr>
           </thead>
           <tbody>
@@ -382,9 +567,11 @@ export function DraggableTaskList({ tasks, onUpdateTask, onRemoveTask, onReorder
                   task={task}
                   index={index}
                   responsaveis={responsaveis}
+                  allTasks={tasks}
                   onUpdateTask={onUpdateTask}
                   onRemoveTask={onRemoveTask}
                   onStatusChange={handleStatusChange}
+                  onOpenDependencyModal={handleOpenDependencyModal}
                   invalidTasks={invalidTasks}
                 />
               ))}
@@ -400,6 +587,17 @@ export function DraggableTaskList({ tasks, onUpdateTask, onRemoveTask, onReorder
           onClose={handleModalClose}
           task={selectedTask}
           onSuccess={handleModalSuccess}
+        />
+      )}
+
+      {/* Modal de Dependências */}
+      {selectedDependencyTask && (
+        <TaskDependencyModal
+          open={isDependencyModalOpen}
+          onOpenChange={setIsDependencyModalOpen}
+          task={selectedDependencyTask}
+          allTasks={tasks}
+          onSave={handleSaveDependency}
         />
       )}
     </div>

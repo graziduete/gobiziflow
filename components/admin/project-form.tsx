@@ -735,6 +735,11 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
     )
     setTasks(updatedTasks)
     
+    // Calcular datas automaticamente quando status mudar
+    if (field === 'status') {
+      calculateAutomaticDates(taskId, value)
+    }
+    
     // Validação básica de datas APÓS atualizar (não bloqueia digitação)
     if (field === 'start_date' || field === 'end_date') {
       const updatedTask = updatedTasks.find(t => t.id === taskId)
@@ -779,6 +784,71 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
 
   const removeTask = (taskId: string) => {
     setTasks(tasks.filter(task => task.id !== taskId))
+  }
+
+  // Calcular duração em dias entre duas datas
+  const calculateDuration = (startDate: string, endDate: string): number => {
+    const start = new Date(startDate + 'T12:00:00')
+    const end = new Date(endDate + 'T12:00:00')
+    const diffTime = Math.abs(end.getTime() - start.getTime())
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    return diffDays
+  }
+
+  // Adicionar dias a uma data
+  const addDays = (date: string, days: number): string => {
+    const result = new Date(date + 'T12:00:00')
+    result.setDate(result.getDate() + days)
+    return result.toISOString().split('T')[0]
+  }
+
+  // Calcular datas automaticamente quando status mudar
+  const calculateAutomaticDates = (taskId: string, newStatus: string) => {
+    const task = tasks.find(t => t.id === taskId)
+    if (!task) return
+
+    const today = new Date().toISOString().split('T')[0]
+    let updates: Partial<Task> = {}
+
+    // Se mudar para "Em Andamento" e ainda não tem data início real
+    if (newStatus === 'in_progress' && !task.actual_start_date) {
+      updates.actual_start_date = today
+      
+      // Calcular data fim prevista baseada na duração planejada
+      if (task.start_date && task.end_date) {
+        const duration = calculateDuration(task.start_date, task.end_date)
+        updates.predicted_end_date = addDays(today, duration)
+      }
+    }
+
+    // Se mudar para "Concluído" ou "Concluído com Atraso" e ainda não tem data fim real
+    if ((newStatus === 'completed' || newStatus === 'completed_delayed') && !task.actual_end_date) {
+      updates.actual_end_date = today
+    }
+
+    // Atualizar tarefa se houver mudanças
+    if (Object.keys(updates).length > 0) {
+      setTasks(prevTasks => 
+        prevTasks.map(t => 
+          t.id === taskId ? { ...t, ...updates } : t
+        )
+      )
+    }
+  }
+
+  // Salvar dependência de tarefa
+  const handleSaveDependency = (taskId: string, dependencyType: string, predecessorId: string | null) => {
+    setTasks(prevTasks =>
+      prevTasks.map(task =>
+        task.id === taskId
+          ? {
+              ...task,
+              dependency_type: dependencyType,
+              predecessor_task_id: predecessorId,
+            }
+          : task
+      )
+    )
   }
 
   const reorderTasks = (oldIndex: number, newIndex: number) => {
@@ -1320,6 +1390,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                   onRemoveTask={removeTask}
                   onReorderTasks={reorderTasks}
                   onRefreshTasks={fetchTasks}
+                  onSaveDependency={handleSaveDependency}
                   invalidTasks={invalidTasks}
                 />
               ) : (
