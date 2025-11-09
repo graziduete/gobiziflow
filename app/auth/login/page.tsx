@@ -82,31 +82,17 @@ export default function LoginPage() {
           return
         }
 
-        // Debug: Log das flags do usuário
-        console.log("🔍 [Login] Flags do usuário:", {
-          email: profile.email,
-          role: profile.role,
-          is_client_admin: profile.is_client_admin,
-          first_login_completed: profile.first_login_completed,
-          is_first_login: profile.is_first_login
-        })
-
         // Se não completou primeiro login, redirecionar para redefinição
         if (!profile.first_login_completed) {
-          console.log("🔄 [Login] Primeiro login não completado, redirecionando...")
           // Se é client_admin, vai para página específica
           if (profile.is_client_admin) {
-            console.log("🔄 [Login] Redirecionando client_admin para /admin/first-login")
             router.push("/admin/first-login")
           } else {
             // Se é usuário normal, vai para redefinição padrão
-            console.log("🔄 [Login] Redirecionando usuário normal para /auth/reset-password")
             router.push("/auth/reset-password?first_login=true")
           }
           return
         }
-
-        console.log("✅ [Login] Primeiro login já completado, prosseguindo com redirecionamento normal")
 
         // Redirecionamento baseado no role
         if (profile.role === "admin" || profile.role === "admin_operacional" || profile.role === "admin_master") {
@@ -129,13 +115,12 @@ export default function LoginPage() {
 
   return (
     <div className="relative flex min-h-svh w-full items-center justify-center p-6 md:p-10 overflow-hidden">
-      {/* Fundo animado com gradiente */}
+      {/* Fundo com gradiente otimizado (sem blur pesado) */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-green-50">
-        {/* Círculos animados */}
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
-        <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-green-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000"></div>
-        <div className="absolute -bottom-8 left-1/3 w-64 h-64 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000"></div>
-        <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-green-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-6000"></div>
+        {/* Círculos estáticos - muito mais leves */}
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-200/20 rounded-full"></div>
+        <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-green-200/20 rounded-full"></div>
+        <div className="absolute -bottom-8 left-1/3 w-64 h-64 bg-blue-300/20 rounded-full"></div>
       </div>
       
       {/* Conteúdo principal */}
@@ -149,6 +134,7 @@ export default function LoginPage() {
               width={200}
               height={80}
               className="object-contain"
+              priority
               style={{ 
                 maxWidth: '200px', 
                 maxHeight: '80px', 
