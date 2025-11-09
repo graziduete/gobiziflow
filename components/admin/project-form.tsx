@@ -115,7 +115,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
     safra: getSafeValue(project?.safra, ""),
     use_business_days: project?.use_business_days !== undefined ? project.use_business_days : true,
   })
-
+  
   const [tasks, setTasks] = useState<Task[]>([])
   const [companies, setCompanies] = useState<any[]>([])
   const [isLoadingCompanies, setIsLoadingCompanies] = useState(true)
@@ -624,14 +624,14 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
       if (!project?.id && savedProjectId) {
         // Enviar em background, não espera
         fetch("/api/notifications/project-created", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            projectId: savedProjectId,
-            createdById: user.id,
-          }),
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              projectId: savedProjectId,
+              createdById: user.id,
+            }),
         }).catch(err => console.error('[v0] Erro ao notificar projeto criado:', err))
       }
 
@@ -778,7 +778,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
       }
 
       if (responsavel) {
-        // Notificar responsável sobre nova tarefa atribuída
+            // Notificar responsável sobre nova tarefa atribuída
             const response = await fetch('/api/notifications/responsaveis', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -1017,6 +1017,54 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
       return addBusinessDays(date, days)
     } else {
       return addCalendarDays(date, days)
+    }
+  }
+
+  // Calcular métricas de desempenho das tarefas
+  const calculateTaskMetrics = () => {
+    const completedTasks = tasks.filter(t => t.status === 'completed' && t.end_date && t.actual_end_date)
+    
+    if (completedTasks.length === 0) {
+      return {
+        total: 0,
+        onTime: 0,
+        delayed: 0,
+        early: 0,
+        totalDeviation: 0
+      }
+    }
+
+    let onTime = 0
+    let delayed = 0
+    let early = 0
+    let totalDeviation = 0
+
+    completedTasks.forEach(task => {
+      const planned = new Date(task.end_date + 'T12:00:00')
+      const actual = new Date(task.actual_end_date! + 'T12:00:00')
+      const diffTime = actual.getTime() - planned.getTime()
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+      if (diffDays === 0) {
+        onTime++
+      } else if (diffDays > 0) {
+        delayed++
+        totalDeviation += diffDays
+      } else {
+        early++
+        totalDeviation += diffDays
+      }
+    })
+
+    return {
+      total: completedTasks.length,
+      onTime,
+      delayed,
+      early,
+      totalDeviation,
+      onTimePercentage: Math.round((onTime / completedTasks.length) * 100),
+      delayedPercentage: Math.round((delayed / completedTasks.length) * 100),
+      earlyPercentage: Math.round((early / completedTasks.length) * 100)
     }
   }
 
@@ -1265,8 +1313,8 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
               <CardContent className="pt-0">
                 <div className="grid grid-cols-1 gap-4">
                   {/* Primeira linha: Orçamento (inteligente) - apenas para admin */}
-                  {userRole !== 'admin_operacional' && (
-                    <div className="space-y-2">
+              {userRole !== 'admin_operacional' && (
+                <div className="space-y-2">
                       <Label htmlFor="budget" className="flex items-center justify-between">
                         <span>Orçamento (R$)</span>
                         {calculatedField === 'budget' && (
@@ -1280,72 +1328,72 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                           </span>
                         )}
                       </Label>
-                      <Input
-                        id="budget"
-                        type="text"
-                        inputMode="decimal"
-                        value={formData.budget}
-                        onChange={(e) => {
-                          const value = e.target.value
-                          const cleanValue = value.replace(/[^\d.,]/g, '')
-                          
-                          const hasComma = cleanValue.includes(',')
-                          const hasDot = cleanValue.includes('.')
-                          let finalValue = cleanValue
-                          
-                          if (hasComma && hasDot) {
-                            const lastComma = cleanValue.lastIndexOf(',')
-                            const lastDot = cleanValue.lastIndexOf('.')
-                            if (lastComma > lastDot) {
-                              finalValue = cleanValue.replace(/\./g, '')
-                            } else {
-                              finalValue = cleanValue.replace(/,/g, '')
-                            }
-                          } else if (hasComma) {
-                            finalValue = cleanValue
-                          }
-                          
-                          handleChange("budget", finalValue)
+                <Input
+                  id="budget"
+                  type="text"
+                  inputMode="decimal"
+                  value={formData.budget}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    const cleanValue = value.replace(/[^\d.,]/g, '')
+                    
+                    const hasComma = cleanValue.includes(',')
+                    const hasDot = cleanValue.includes('.')
+                    let finalValue = cleanValue
+                    
+                    if (hasComma && hasDot) {
+                      const lastComma = cleanValue.lastIndexOf(',')
+                      const lastDot = cleanValue.lastIndexOf('.')
+                      if (lastComma > lastDot) {
+                        finalValue = cleanValue.replace(/\./g, '')
+                      } else {
+                        finalValue = cleanValue.replace(/,/g, '')
+                      }
+                    } else if (hasComma) {
+                      finalValue = cleanValue
+                    }
+                    
+                    handleChange("budget", finalValue)
                           setCalculatedField(null) // Marca como editado manualmente
-                        }}
-                        onBlur={(e) => {
-                          const value = e.target.value
-                          if (value) {
-                            const numericString = value.replace(/[.,]/g, '')
-                            
-                            if (!isNaN(Number(numericString)) && numericString.length > 0) {
-                              const numValue = Number(numericString) / 100
-                              const formattedValue = numValue.toLocaleString('pt-BR', {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2
-                              })
-                              
-                              handleChange("budget", formattedValue)
-                            }
-                          }
+                  }}
+                  onBlur={(e) => {
+                    const value = e.target.value
+                    if (value) {
+                      const numericString = value.replace(/[.,]/g, '')
+                      
+                      if (!isNaN(Number(numericString)) && numericString.length > 0) {
+                        const numValue = Number(numericString) / 100
+                        const formattedValue = numValue.toLocaleString('pt-BR', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        })
+                        
+                        handleChange("budget", formattedValue)
+                      }
+                    }
                           // Calcular campo faltante após formatar
                           calculateMissingField('budget')
-                        }}
-                        placeholder="0,00"
+                  }}
+                  placeholder="0,00"
                         className={`w-full h-10 border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200 ${
                           calculatedField === 'budget' ? 'bg-blue-50 border-blue-300' : 'bg-white'
                         }`}
-                      />
+                />
                       {calculatedField === 'budget' && (
                         <p className="text-xs text-blue-600 font-medium">
                           💡 Calculado: {formData.estimated_hours}h × R$ {formData.hourly_rate}/h
-                        </p>
+                </p>
                       )}
-                    </div>
-                  )}
+              </div>
+            )}
 
                   {/* Segunda linha: Horas Estimadas e Valor Hora Praticado lado a lado */}
                   <div className={`grid grid-cols-1 gap-4 ${userRole !== 'admin_operacional' ? 'md:grid-cols-2' : ''}`}>
-                    <div className="space-y-2">
+            <div className="space-y-2">
                       <Label htmlFor="estimated_hours" className="flex items-center justify-between">
                         <span className="flex items-center gap-2">
-                          <Clock className="w-4 h-4" />
-                          Horas Estimadas
+                <Clock className="w-4 h-4" />
+                Horas Estimadas
                         </span>
                         {calculatedField === 'estimated_hours' && (
                           <span className="text-xs font-normal text-blue-600 flex items-center gap-1">
@@ -1357,12 +1405,12 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                             ✏️ Manual
                           </span>
                         )}
-                      </Label>
-                      <Input
-                        id="estimated_hours"
-                        type="number"
-                        min="1"
-                        value={formData.estimated_hours}
+              </Label>
+              <Input
+                id="estimated_hours"
+                type="number"
+                min="1"
+                value={formData.estimated_hours}
                         onChange={(e) => {
                           handleChange("estimated_hours", e.target.value)
                           setCalculatedField(null) // Marca como editado manualmente
@@ -1370,7 +1418,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                         onBlur={() => {
                           calculateMissingField('estimated_hours')
                         }}
-                        placeholder="Ex: 100"
+                placeholder="Ex: 100"
                         className={`w-full h-10 border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200 ${
                           calculatedField === 'estimated_hours' ? 'bg-blue-50 border-blue-300' : 'bg-white'
                         }`}
@@ -1485,9 +1533,9 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                           type="date"
                           value={formData.start_date}
                           onChange={(e) => handleChange("start_date", e.target.value)}
-                          className="w-full h-10 bg-white border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
-                        />
-                      </div>
+                className="w-full h-10 bg-white border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
+              />
+            </div>
                       <div className="space-y-2">
                         <Label htmlFor="end_date">Data de Término Prevista</Label>
                         <Input
@@ -1502,31 +1550,31 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                   ) : (
                     // Para outras empresas: apenas as datas (sem Safra)
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="start_date">Data de Início Prevista</Label>
-                        <Input
-                          id="start_date"
-                          type="date"
-                          value={formData.start_date}
-                          onChange={(e) => handleChange("start_date", e.target.value)}
-                          className="w-full h-10 bg-white border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="end_date">Data de Término Prevista</Label>
-                        <Input
-                          id="end_date"
-                          type="date"
-                          value={formData.end_date}
-                          onChange={(e) => handleChange("end_date", e.target.value)}
-                          className="w-full h-10 bg-white border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
-                        />
-                      </div>
+            <div className="space-y-2">
+              <Label htmlFor="start_date">Data de Início Prevista</Label>
+              <Input
+                id="start_date"
+                type="date"
+                value={formData.start_date}
+                onChange={(e) => handleChange("start_date", e.target.value)}
+                className="w-full h-10 bg-white border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="end_date">Data de Término Prevista</Label>
+              <Input
+                id="end_date"
+                type="date"
+                value={formData.end_date}
+                onChange={(e) => handleChange("end_date", e.target.value)}
+                className="w-full h-10 bg-white border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
+              />
+                </div>
                     </div>
                   )}
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+            </CardContent>
+          </Card>
           )}
 
           {/* Responsáveis - Card */}
@@ -1637,6 +1685,78 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                   </div>
                 </div>
               </div>
+
+              {/* Card de Métricas de Desempenho */}
+              {(() => {
+                const metrics = calculateTaskMetrics()
+                if (metrics.total === 0) return null
+                
+                return (
+                  <div className="mb-4 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-200/60 shadow-sm">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="p-1.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-md">
+                        <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                      </div>
+                      <h4 className="text-sm font-semibold text-slate-700">Resumo de Desempenho</h4>
+                      <Badge variant="outline" className="ml-auto text-xs bg-white/50">
+                        {metrics.total} {metrics.total === 1 ? 'tarefa concluída' : 'tarefas concluídas'}
+                      </Badge>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {/* No Prazo */}
+                      <div className="bg-white/70 rounded-lg p-3 border border-green-200/50 hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-2xl">✅</span>
+                          <span className="text-xs font-medium text-green-600 bg-green-100 px-2 py-0.5 rounded-full">
+                            {metrics.onTimePercentage}%
+                          </span>
+                        </div>
+                        <div className="text-2xl font-bold text-green-600">{metrics.onTime}</div>
+                        <div className="text-xs text-gray-600">No Prazo</div>
+                      </div>
+                      
+                      {/* Atrasadas */}
+                      <div className="bg-white/70 rounded-lg p-3 border border-red-200/50 hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-2xl">⚠️</span>
+                          <span className="text-xs font-medium text-red-600 bg-red-100 px-2 py-0.5 rounded-full">
+                            {metrics.delayedPercentage}%
+                          </span>
+                        </div>
+                        <div className="text-2xl font-bold text-red-600">{metrics.delayed}</div>
+                        <div className="text-xs text-gray-600">Atrasadas</div>
+                      </div>
+                      
+                      {/* Adiantadas */}
+                      <div className="bg-white/70 rounded-lg p-3 border border-blue-200/50 hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-2xl">🎉</span>
+                          <span className="text-xs font-medium text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full">
+                            {metrics.earlyPercentage}%
+                          </span>
+                        </div>
+                        <div className="text-2xl font-bold text-blue-600">{metrics.early}</div>
+                        <div className="text-xs text-gray-600">Adiantadas</div>
+                      </div>
+                      
+                      {/* Desvio Total */}
+                      <div className="bg-white/70 rounded-lg p-3 border border-amber-200/50 hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-2xl">⏱️</span>
+                          <span className="text-xs font-medium text-gray-500">Total</span>
+                        </div>
+                        <div className={`text-2xl font-bold ${metrics.totalDeviation > 0 ? 'text-red-600' : metrics.totalDeviation < 0 ? 'text-green-600' : 'text-gray-600'}`}>
+                          {metrics.totalDeviation > 0 ? '+' : ''}{metrics.totalDeviation}
+                        </div>
+                        <div className="text-xs text-gray-600">Desvio (dias)</div>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })()}
 
               {tasks.length > 0 ? (
                 <DraggableTaskList
