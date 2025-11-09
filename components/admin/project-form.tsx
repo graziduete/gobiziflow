@@ -71,9 +71,6 @@ interface ProjectFormProps {
 }
 
 export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectFormProps) {
-  // Debug: verificar dados recebidos
-  console.log("ProjectForm received project:", project)
-  
   // Estado para controlar o perfil do usuário
   const [userRole, setUserRole] = useState<string | null>(null)
   
@@ -85,6 +82,21 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
     return defaultValue
   }
   
+  // Função para formatar valores monetários para exibição
+  const formatMoneyDisplay = (value: number | string | null | undefined): string => {
+    if (value === null || value === undefined || value === "") return ""
+    
+    // Converter para número se for string
+    const numValue = typeof value === "string" ? parseFloat(value) : value
+    if (isNaN(numValue)) return ""
+    
+    // Formatar para padrão brasileiro: 22000 → 22.000,00
+    return numValue.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })
+  }
+  
   const [formData, setFormData] = useState({
     name: getSafeValue(project?.name, ""),
     description: getSafeValue(project?.description, ""),
@@ -94,19 +106,16 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
     category: getSafeValue(project?.category, ""),
     start_date: getSafeValue(project?.start_date, ""),
     end_date: getSafeValue(project?.end_date, ""),
-    budget: getSafeValue(project?.budget, ""),
+    budget: formatMoneyDisplay(project?.budget), // Formatar para exibição
     company_id: getSafeValue(project?.company_id, ""),
     technical_responsible: getSafeValue(project?.technical_responsible, ""),
     key_user: getSafeValue(project?.key_user, ""),
     estimated_hours: getSafeValue(project?.estimated_hours, ""),
-    hourly_rate: getSafeValue(project?.hourly_rate, ""),
+    hourly_rate: formatMoneyDisplay(project?.hourly_rate), // Formatar para exibição
     safra: getSafeValue(project?.safra, ""),
     use_business_days: project?.use_business_days !== undefined ? project.use_business_days : true,
   })
 
-  // Debug: verificar estado inicial
-  console.log("Initial formData:", formData)
-  
   const [tasks, setTasks] = useState<Task[]>([])
   const [companies, setCompanies] = useState<any[]>([])
   const [isLoadingCompanies, setIsLoadingCompanies] = useState(true)
