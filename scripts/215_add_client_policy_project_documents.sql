@@ -43,9 +43,9 @@ USING (
   )
   AND EXISTS (
     SELECT 1 FROM projects pr
-    INNER JOIN profiles pf ON pf.company_id = pr.company_id
+    INNER JOIN user_companies uc ON uc.company_id = pr.company_id
     WHERE pr.id = project_documents.project_id
-    AND pf.id = auth.uid()
+    AND uc.user_id = auth.uid()
   )
 );
 
