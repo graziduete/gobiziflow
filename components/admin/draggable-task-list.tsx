@@ -415,6 +415,23 @@ const SortableTaskItem = React.memo(function SortableTaskItem({ task, index, res
       </td>
     </tr>
   )
+}, (prevProps, nextProps) => {
+  // Comparação customizada para React.memo - só re-renderiza se realmente mudou
+  return (
+    prevProps.task.id === nextProps.task.id &&
+    prevProps.task.name === nextProps.task.name &&
+    prevProps.task.status === nextProps.task.status &&
+    prevProps.task.start_date === nextProps.task.start_date &&
+    prevProps.task.end_date === nextProps.task.end_date &&
+    prevProps.task.responsible === nextProps.task.responsible &&
+    prevProps.task.actual_start_date === nextProps.task.actual_start_date &&
+    prevProps.task.actual_end_date === nextProps.task.actual_end_date &&
+    prevProps.task.predicted_end_date === nextProps.task.predicted_end_date &&
+    prevProps.task.dependency_type === nextProps.task.dependency_type &&
+    prevProps.task.predecessor_task_id === nextProps.task.predecessor_task_id &&
+    prevProps.index === nextProps.index
+    // NÃO comparar callbacks (onUpdateTask, etc) para permitir drag and drop
+  )
 })
 
 export function DraggableTaskList({ tasks, onUpdateTask, onRemoveTask, onReorderTasks, onRefreshTasks, invalidTasks = new Set(), onSaveDependency }: DraggableTaskListProps) {
