@@ -80,7 +80,7 @@ interface SortableTaskItemProps {
   invalidTasks?: Set<string>
 }
 
-function SortableTaskItem({ task, index, responsaveis, allTasks, onUpdateTask, onRemoveTask, onStatusChange, onOpenDependencyModal, invalidTasks = new Set() }: SortableTaskItemProps) {
+const SortableTaskItem = React.memo(function SortableTaskItem({ task, index, responsaveis, allTasks, onUpdateTask, onRemoveTask, onStatusChange, onOpenDependencyModal, invalidTasks = new Set() }: SortableTaskItemProps) {
   const {
     attributes,
     listeners,
@@ -415,7 +415,7 @@ function SortableTaskItem({ task, index, responsaveis, allTasks, onUpdateTask, o
       </td>
     </tr>
   )
-}
+})
 
 export function DraggableTaskList({ tasks, onUpdateTask, onRemoveTask, onReorderTasks, onRefreshTasks, invalidTasks = new Set(), onSaveDependency }: DraggableTaskListProps) {
   const [responsaveis, setResponsaveis] = useState<Responsavel[]>([])
