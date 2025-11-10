@@ -12,7 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
-import { Plus, Trash2, Calendar, Clock, User, Users, FileText, AlertTriangle, Lock, CheckCircle, TrendingUp, TrendingDown, BarChart3 } from "lucide-react"
+import { Plus, Trash2, Calendar, Clock, User, Users, FileText, AlertTriangle, Lock, CheckCircle, TrendingUp, TrendingDown, BarChart3, CalendarCheck2, Target, CheckCircle2 } from "lucide-react"
 import { GanttChart } from "./gantt-chart"
 import { DraggableTaskList } from "./draggable-task-list"
 import { DelayJustificationCompleteModal } from "./delay-justification-complete-modal"
@@ -1638,8 +1638,9 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                         </Select>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="start_date" className="flex items-center gap-1">
-                          📋 Data de Início Planejada
+                        <Label htmlFor="start_date" className="flex items-center gap-1.5">
+                          <Calendar className="w-3.5 h-3.5 text-slate-600" />
+                          Data de Início Planejada
                         </Label>
                         <Input
                           id="start_date"
@@ -1650,8 +1651,9 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
               />
             </div>
                       <div className="space-y-2">
-                        <Label htmlFor="end_date" className="flex items-center gap-1">
-                          📋 Data de Término Planejada
+                        <Label htmlFor="end_date" className="flex items-center gap-1.5">
+                          <Calendar className="w-3.5 h-3.5 text-slate-600" />
+                          Data de Término Planejada
                         </Label>
                         <Input
                           id="end_date"
@@ -1666,8 +1668,9 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                     // Para outras empresas: apenas as datas planejadas (sem Safra)
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="start_date" className="flex items-center gap-1">
-                📋 Data de Início Planejada
+              <Label htmlFor="start_date" className="flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5 text-slate-600" />
+                Data de Início Planejada
               </Label>
               <Input
                 id="start_date"
@@ -1678,8 +1681,9 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="end_date" className="flex items-center gap-1">
-                📋 Data de Término Planejada
+              <Label htmlFor="end_date" className="flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5 text-slate-600" />
+                Data de Término Planejada
               </Label>
               <Input
                 id="end_date"
@@ -1695,14 +1699,15 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                   {/* Quarta linha: Datas Reais (Acordadas/Realizadas) */}
                   <div className="mt-4 pt-4 border-t border-emerald-200">
                     <div className="flex items-center gap-2 mb-3">
-                      <CheckCircle className="w-4 h-4 text-emerald-600" />
+                      <CalendarCheck2 className="w-4 h-4 text-emerald-600" />
                       <h4 className="text-sm font-semibold text-emerald-700">Datas Reais (Acordadas/Realizadas)</h4>
                       <span className="text-xs text-slate-500 ml-auto">Opcional - preencha quando houver acordo com cliente</span>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="actual_start_date" className="flex items-center gap-1">
-                          ✅ Data de Início Real
+                        <Label htmlFor="actual_start_date" className="flex items-center gap-1.5">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                          Data de Início Real
                         </Label>
                         <Input
                           id="actual_start_date"
@@ -1716,8 +1721,9 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                         </p>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="actual_end_date" className="flex items-center gap-1">
-                          🎯 Data de Término Real
+                        <Label htmlFor="actual_end_date" className="flex items-center gap-1.5">
+                          <Target className="w-3.5 h-3.5 text-emerald-600" />
+                          Data de Término Real
                         </Label>
                         <Input
                           id="actual_end_date"
