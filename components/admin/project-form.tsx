@@ -163,7 +163,6 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
   useEffect(() => {
     // PRIORIDADE MÁXIMA: Se temos empresas pré-carregadas do servidor, usar IMEDIATAMENTE
     if (preloadedCompanies && preloadedCompanies.length > 0) {
-      console.log("[v0] Using PRELOADED companies from server:", preloadedCompanies.length)
       setCompanies(preloadedCompanies)
       setGlobalCompaniesCache(preloadedCompanies) // Cache global também
       setIsLoadingCompanies(false)
@@ -173,7 +172,6 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
 
     // Se já temos cache global, usar imediatamente
     if (globalCompaniesCache.length > 0) {
-      console.log("[v0] Using global companies cache:", globalCompaniesCache.length)
       setCompanies(globalCompaniesCache)
       setIsLoadingCompanies(false)
       setCompaniesLoaded(true)
@@ -189,7 +187,6 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
     // Carregar empresas com MÁXIMA PRIORIDADE
     const fetchCompaniesImmediately = async () => {
       try {
-        console.log("[v0] Fetching companies IMMEDIATELY...")
         const supabase = createClient()
         
         // Query ultra otimizada - buscar empresas primeiro, sem filtros complexos
@@ -235,12 +232,10 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
         const cleanCompanies = filteredCompanies.map(c => ({ id: c.id, name: c.name }))
 
         if (cleanCompanies.length > 0) {
-          console.log("[v0] Companies loaded IMMEDIATELY:", cleanCompanies.length)
           setCompanies(cleanCompanies)
           setGlobalCompaniesCache(cleanCompanies) // Cache global
           setCompaniesLoaded(true)
         } else {
-          console.log("[v0] No companies found")
           setCompanies([])
         }
       } catch (error: any) {
@@ -285,7 +280,6 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
     if (!project?.id) return
 
     try {
-      console.log("[v0] Fetching tasks for project:", project.id)
       const supabase = createClient()
       const { data, error } = await supabase
         .from("tasks")
@@ -296,7 +290,6 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
       if (error) throw error
 
       if (data) {
-        console.log("[v0] Tasks fetched successfully:", data.length)
         // Adicionar ordem para tarefas existentes que não têm ordem
         const tasksWithOrder = data.map((task: any, index: number) => ({
           ...task,
@@ -304,11 +297,9 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
         }))
         setTasks(tasksWithOrder)
       } else {
-        console.log("[v0] No tasks found for project")
         setTasks([])
       }
     } catch (error: any) {
-      console.log("[v0] Tasks fetch failed:", error.message)
       setTasks([])
     }
   }
@@ -907,7 +898,6 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
             }
           } catch (dateError) {
             // Ignorar erros de data durante digitação
-            console.log('Data ainda sendo digitada:', dateError)
           }
         }
       }
