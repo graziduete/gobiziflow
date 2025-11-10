@@ -1856,16 +1856,38 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                         <div className="text-xs text-gray-600">Adiantadas</div>
                       </div>
                       
-                      {/* Desvio Total */}
-                      <div className="bg-white/70 rounded-lg p-3 border border-amber-200/50 hover:shadow-md transition-shadow">
+                      {/* Impacto no Prazo */}
+                      <div className="bg-white/70 rounded-lg p-3 border border-amber-200/50 hover:shadow-md transition-shadow group/impact relative">
                         <div className="flex items-center justify-between mb-1">
                           <Calendar className="w-5 h-5 text-amber-600" />
-                          <span className="text-xs font-medium text-gray-500">Total</span>
+                          <button 
+                            type="button"
+                            className="text-xs font-medium text-gray-500 hover:text-blue-600 cursor-help"
+                            title="Clique para mais informações"
+                          >
+                            ℹ️
+                          </button>
                         </div>
                         <div className={`text-2xl font-bold ${taskMetrics.totalDeviation > 0 ? 'text-red-600' : taskMetrics.totalDeviation < 0 ? 'text-green-600' : 'text-gray-600'}`}>
                           {taskMetrics.totalDeviation > 0 ? '+' : ''}{taskMetrics.totalDeviation}
                         </div>
-                        <div className="text-xs text-gray-600">Desvio (dias)</div>
+                        <div className="text-xs text-gray-600">Impacto no Prazo</div>
+                        
+                        {/* Tooltip Explicativo */}
+                        <div className="invisible group-hover/impact:visible absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl z-50 pointer-events-none">
+                          <p className="font-semibold mb-2">📊 Impacto Total no Prazo</p>
+                          <p className="mb-2">Soma de todos os dias de desvio, incluindo:</p>
+                          <ul className="list-disc list-inside space-y-1 text-gray-300">
+                            <li>Atrasos de execução</li>
+                            <li>Bloqueios externos</li>
+                            <li>Esperas de aprovações</li>
+                            <li>Problemas de acesso/infraestrutura</li>
+                          </ul>
+                          <p className="mt-2 text-gray-400 text-[10px]">
+                            Reflete o impacto real no prazo inicial do projeto
+                          </p>
+                          <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                        </div>
                       </div>
                     </div>
                   </div>
