@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { GanttChart } from "@/components/admin/gantt-chart"
+import { TaskMetricsCard } from "@/components/admin/task-metrics-card"
 import { ProjectDocsList } from "@/components/client/project-docs-list"
 import { createClient } from "@/lib/supabase/client"
 
@@ -74,12 +75,16 @@ export function ClientProjectDetail({ project }: ClientProjectDetailProps) {
           responsible,
           delay_justification,
           original_end_date,
+          actual_start_date,
           actual_end_date,
+          predicted_end_date,
           delay_created_at,
-          delay_created_by
+          delay_created_by,
+          order
         `)
         .eq("project_id", project.id)
-        .order("start_date", { ascending: true })
+        .order("order", { nullsFirst: false })
+        .order("created_at")
 
       console.log("📊 [fetchTasks] Resultado da query:", { tasksData, tasksError })
 
@@ -91,7 +96,7 @@ export function ClientProjectDetail({ project }: ClientProjectDetailProps) {
         return d.toISOString().slice(0, 10)
       }
 
-      // Transformar dados para o formato esperado pelo GanttChart (espelho do Admin)
+      // Transformar dados para o formato esperado pelo GanttChart e Métricas
       const formattedTasks = (tasksData || [])
         .map((task: any) => ({
           id: task.id,
@@ -103,11 +108,12 @@ export function ClientProjectDetail({ project }: ClientProjectDetailProps) {
           description: task.description || '',
           delay_justification: task.delay_justification,
           original_end_date: task.original_end_date,
+          actual_start_date: task.actual_start_date,
           actual_end_date: task.actual_end_date,
+          predicted_end_date: task.predicted_end_date,
           delay_created_at: task.delay_created_at,
           delay_created_by: task.delay_created_by
         }))
-        .filter((t: any) => !!t.start_date && !!t.end_date)
 
       console.log("🧩 [fetchTasks] Tarefas formatadas: ", formattedTasks)
       setTasks(formattedTasks)
@@ -264,6 +270,9 @@ export function ClientProjectDetail({ project }: ClientProjectDetailProps) {
         </CardContent>
       </Card>
 
+      {/* Card de Métricas de Desempenho */}
+      {!isLoadingTasks && tasks.length > 0 && <TaskMetricsCard tasks={tasks} />}
+
       {/* Cronograma do Projeto */}
       <Card>
         <CardHeader>
@@ -293,7 +302,7 @@ export function ClientProjectDetail({ project }: ClientProjectDetailProps) {
             </div>
           ) : (
             <GanttChart 
-              tasks={tasks}
+              tasks={tasks.filter((t: any) => !!t.start_date && !!t.end_date)}
               projectStartDate={project.start_date || undefined}
               projectEndDate={project.end_date || undefined}
               projectName={project.name}
