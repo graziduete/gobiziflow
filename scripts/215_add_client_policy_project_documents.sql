@@ -43,13 +43,9 @@ USING (
   )
   AND EXISTS (
     SELECT 1 FROM projects pr
+    INNER JOIN profiles pf ON pf.company_id = pr.company_id
     WHERE pr.id = project_documents.project_id
-    AND pr.company_id = (
-      -- Buscar company_id do usuário
-      SELECT p2.company_id 
-      FROM profiles p2 
-      WHERE p2.id = auth.uid()
-    )
+    AND pf.id = auth.uid()
   )
 );
 
