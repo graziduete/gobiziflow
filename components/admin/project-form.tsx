@@ -58,6 +58,8 @@ interface ProjectFormProps {
     category?: string
     start_date?: string
     end_date?: string
+    actual_start_date?: string
+    actual_end_date?: string
     budget?: number
     company_id: string
     technical_responsible?: string
@@ -107,6 +109,8 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
     category: getSafeValue(project?.category, ""),
     start_date: getSafeValue(project?.start_date, ""),
     end_date: getSafeValue(project?.end_date, ""),
+    actual_start_date: getSafeValue(project?.actual_start_date, ""),
+    actual_end_date: getSafeValue(project?.actual_end_date, ""),
     budget: formatMoneyDisplay(project?.budget), // Formatar para exibição
     company_id: getSafeValue(project?.company_id, ""),
     technical_responsible: getSafeValue(project?.technical_responsible, ""),
@@ -439,6 +443,8 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
         category: formData.category || "project",
         start_date: formData.start_date || null,
         end_date: formData.end_date || null,
+        actual_start_date: formData.actual_start_date || null,
+        actual_end_date: formData.actual_end_date || null,
         budget: formData.budget ? parseFloat(formData.budget.replace(/\./g, '').replace(',', '.')) : null,
         company_id: formData.company_id,
         technical_responsible: formData.technical_responsible || null,
@@ -1615,7 +1621,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                     )}
                   </div>
 
-                  {/* Terceira linha: Safra (Copersucar) + Datas Previstas */}
+                  {/* Terceira linha: Safra (Copersucar) + Datas Planejadas */}
                   {formData.company_id === COPERSUCAR_ID ? (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="space-y-2">
@@ -1632,7 +1638,9 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                         </Select>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="start_date">Data de Início Planejada</Label>
+                        <Label htmlFor="start_date" className="flex items-center gap-1">
+                          📋 Data de Início Planejada
+                        </Label>
                         <Input
                           id="start_date"
                           type="date"
@@ -1642,7 +1650,9 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
               />
             </div>
                       <div className="space-y-2">
-                        <Label htmlFor="end_date">Data de Término Planejada</Label>
+                        <Label htmlFor="end_date" className="flex items-center gap-1">
+                          📋 Data de Término Planejada
+                        </Label>
                         <Input
                           id="end_date"
                           type="date"
@@ -1653,10 +1663,12 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                       </div>
                     </div>
                   ) : (
-                    // Para outras empresas: apenas as datas (sem Safra)
+                    // Para outras empresas: apenas as datas planejadas (sem Safra)
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="start_date">Data de Início Planejada</Label>
+              <Label htmlFor="start_date" className="flex items-center gap-1">
+                📋 Data de Início Planejada
+              </Label>
               <Input
                 id="start_date"
                 type="date"
@@ -1666,7 +1678,9 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="end_date">Data de Término Planejada</Label>
+              <Label htmlFor="end_date" className="flex items-center gap-1">
+                📋 Data de Término Planejada
+              </Label>
               <Input
                 id="end_date"
                 type="date"
@@ -1677,6 +1691,47 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                 </div>
                     </div>
                   )}
+
+                  {/* Quarta linha: Datas Reais (Acordadas/Realizadas) */}
+                  <div className="mt-4 pt-4 border-t border-emerald-200">
+                    <div className="flex items-center gap-2 mb-3">
+                      <CheckCircle className="w-4 h-4 text-emerald-600" />
+                      <h4 className="text-sm font-semibold text-emerald-700">Datas Reais (Acordadas/Realizadas)</h4>
+                      <span className="text-xs text-slate-500 ml-auto">Opcional - preencha quando houver acordo com cliente</span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="actual_start_date" className="flex items-center gap-1">
+                          ✅ Data de Início Real
+                        </Label>
+                        <Input
+                          id="actual_start_date"
+                          type="date"
+                          value={formData.actual_start_date}
+                          onChange={(e) => handleChange("actual_start_date", e.target.value)}
+                          className="w-full h-10 bg-emerald-50/50 border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
+                        />
+                        <p className="text-xs text-slate-500">
+                          Quando o projeto realmente começou (pode ser diferente do planejado)
+                        </p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="actual_end_date" className="flex items-center gap-1">
+                          🎯 Data de Término Real
+                        </Label>
+                        <Input
+                          id="actual_end_date"
+                          type="date"
+                          value={formData.actual_end_date}
+                          onChange={(e) => handleChange("actual_end_date", e.target.value)}
+                          className="w-full h-10 bg-emerald-50/50 border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
+                        />
+                        <p className="text-xs text-slate-500">
+                          Prazo real acordado com o cliente ou data de conclusão efetiva
+                        </p>
+                      </div>
+                    </div>
+                  </div>
               </div>
             </CardContent>
           </Card>
