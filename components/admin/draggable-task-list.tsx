@@ -96,6 +96,40 @@ function SortableTaskItem({ task, index, responsaveis, allTasks, onUpdateTask, o
     opacity: isDragging ? 0.5 : 1,
   }
 
+  // Estado local para o nome da tarefa (evita re-render do pai)
+  const [localTaskName, setLocalTaskName] = useState(task.name || '')
+  const [nameDebounceTimer, setNameDebounceTimer] = useState<NodeJS.Timeout | null>(null)
+  
+  // Atualizar estado local quando task mudar (ex: ao salvar projeto)
+  useEffect(() => {
+    setLocalTaskName(task.name || '')
+  }, [task.name])
+  
+  // Handler otimizado para nome da tarefa
+  const handleNameChange = (newName: string) => {
+    setLocalTaskName(newName)
+    
+    // Limpar timer anterior
+    if (nameDebounceTimer) {
+      clearTimeout(nameDebounceTimer)
+    }
+    
+    // Atualizar pai após 500ms sem digitar
+    const timer = setTimeout(() => {
+      onUpdateTask(task.id, "name", newName)
+    }, 500)
+    
+    setNameDebounceTimer(timer)
+  }
+  
+  // Atualizar imediatamente ao sair do campo
+  const handleNameBlur = () => {
+    if (nameDebounceTimer) {
+      clearTimeout(nameDebounceTimer)
+    }
+    onUpdateTask(task.id, "name", localTaskName)
+  }
+
   // Verificar se esta tarefa tem datas inválidas
   const isTaskInvalid = invalidTasks.has(task.id)
   const invalidDateClass = isTaskInvalid ? "!border-red-500 !border-2 focus:!border-red-500 focus:!ring-red-500/20" : ""
@@ -151,8 +185,9 @@ function SortableTaskItem({ task, index, responsaveis, allTasks, onUpdateTask, o
       <td className="p-4">
         <div className="space-y-2">
           <Input
-            value={task.name || ''}
-            onChange={(e) => onUpdateTask(task.id, "name", e.target.value)}
+            value={localTaskName}
+            onChange={(e) => handleNameChange(e.target.value)}
+            onBlur={handleNameBlur}
             placeholder="Nome da tarefa"
             className="border-0 bg-transparent p-0 text-sm focus:ring-0 w-full"
           />
