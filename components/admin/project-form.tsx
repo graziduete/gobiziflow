@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -1106,8 +1106,8 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
     }
   }
 
-  // Calcular métricas de desempenho das tarefas
-  const calculateTaskMetrics = () => {
+  // Calcular métricas de desempenho das tarefas (memoizado para performance)
+  const taskMetrics = useMemo(() => {
     // Tarefas concluídas (completed ou completed_delayed)
     const completedTasks = tasks.filter(t => 
       (t.status === 'completed' || t.status === 'completed_delayed') && 
@@ -1188,7 +1188,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
       inProgressDelayedPercentage: totalAnalyzed > 0 ? Math.round((inProgressDelayed / totalAnalyzed) * 100) : 0,
       earlyPercentage: totalAnalyzed > 0 ? Math.round((early / totalAnalyzed) * 100) : 0
     }
-  }
+  }, [tasks]) // Recalcula apenas quando tasks mudar
 
   // Calcular datas automaticamente quando status mudar
   const calculateAutomaticDates = (taskId: string, newStatus: string) => {
@@ -1810,8 +1810,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
 
               {/* Card de Métricas de Desempenho */}
               {(() => {
-                const metrics = calculateTaskMetrics()
-                if (metrics.total === 0 && metrics.inProgressDelayed === 0) return null
+                if (taskMetrics.total === 0 && taskMetrics.inProgressDelayed === 0) return null
                 
                 return (
                   <div className="mb-4 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-200/60 shadow-sm">
@@ -1821,7 +1820,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                       </div>
                       <h4 className="text-sm font-semibold text-slate-700">Resumo de Desempenho</h4>
                       <Badge variant="outline" className="ml-auto text-xs bg-white/50">
-                        {metrics.total} {metrics.total === 1 ? 'tarefa analisada' : 'tarefas analisadas'}
+                        {taskMetrics.total} {taskMetrics.total === 1 ? 'tarefa analisada' : 'tarefas analisadas'}
                       </Badge>
                     </div>
                     
@@ -1831,10 +1830,10 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                         <div className="flex items-center justify-between mb-1">
                           <CheckCircle className="w-5 h-5 text-green-600" />
                           <span className="text-xs font-medium text-green-600 bg-green-100 px-2 py-0.5 rounded-full">
-                            {metrics.onTimePercentage}%
+                            {taskMetrics.onTimePercentage}%
                           </span>
                         </div>
-                        <div className="text-2xl font-bold text-green-600">{metrics.onTime}</div>
+                        <div className="text-2xl font-bold text-green-600">{taskMetrics.onTime}</div>
                         <div className="text-xs text-gray-600">No Prazo</div>
                       </div>
                       
@@ -1843,10 +1842,10 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                         <div className="flex items-center justify-between mb-1">
                           <Clock className="w-5 h-5 text-orange-600" />
                           <span className="text-xs font-medium text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full">
-                            {metrics.completedDelayedPercentage}%
+                            {taskMetrics.completedDelayedPercentage}%
                           </span>
                         </div>
-                        <div className="text-2xl font-bold text-orange-600">{metrics.completedDelayed}</div>
+                        <div className="text-2xl font-bold text-orange-600">{taskMetrics.completedDelayed}</div>
                         <div className="text-xs text-gray-600">Concl. Atrasado</div>
                       </div>
                       
@@ -1855,10 +1854,10 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                         <div className="flex items-center justify-between mb-1">
                           <AlertTriangle className="w-5 h-5 text-red-600" />
                           <span className="text-xs font-medium text-red-600 bg-red-100 px-2 py-0.5 rounded-full">
-                            {metrics.inProgressDelayedPercentage}%
+                            {taskMetrics.inProgressDelayedPercentage}%
                           </span>
                         </div>
-                        <div className="text-2xl font-bold text-red-600">{metrics.inProgressDelayed}</div>
+                        <div className="text-2xl font-bold text-red-600">{taskMetrics.inProgressDelayed}</div>
                         <div className="text-xs text-gray-600">Em Atraso</div>
                       </div>
                       
@@ -1867,10 +1866,10 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                         <div className="flex items-center justify-between mb-1">
                           <TrendingUp className="w-5 h-5 text-blue-600" />
                           <span className="text-xs font-medium text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full">
-                            {metrics.earlyPercentage}%
+                            {taskMetrics.earlyPercentage}%
                           </span>
                         </div>
-                        <div className="text-2xl font-bold text-blue-600">{metrics.early}</div>
+                        <div className="text-2xl font-bold text-blue-600">{taskMetrics.early}</div>
                         <div className="text-xs text-gray-600">Adiantadas</div>
                       </div>
                       
@@ -1880,8 +1879,8 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                           <Calendar className="w-5 h-5 text-amber-600" />
                           <span className="text-xs font-medium text-gray-500">Total</span>
                         </div>
-                        <div className={`text-2xl font-bold ${metrics.totalDeviation > 0 ? 'text-red-600' : metrics.totalDeviation < 0 ? 'text-green-600' : 'text-gray-600'}`}>
-                          {metrics.totalDeviation > 0 ? '+' : ''}{metrics.totalDeviation}
+                        <div className={`text-2xl font-bold ${taskMetrics.totalDeviation > 0 ? 'text-red-600' : taskMetrics.totalDeviation < 0 ? 'text-green-600' : 'text-gray-600'}`}>
+                          {taskMetrics.totalDeviation > 0 ? '+' : ''}{taskMetrics.totalDeviation}
                         </div>
                         <div className="text-xs text-gray-600">Desvio (dias)</div>
                       </div>
