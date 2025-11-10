@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useCallback, useRef } from "react"
 import {
   DndContext,
   closestCenter,
@@ -98,37 +98,44 @@ function SortableTaskItem({ task, index, responsaveis, allTasks, onUpdateTask, o
 
   // Estado local para o nome da tarefa (evita re-render do pai)
   const [localTaskName, setLocalTaskName] = useState(task.name || '')
-  const [nameDebounceTimer, setNameDebounceTimer] = useState<NodeJS.Timeout | null>(null)
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
   
   // Atualizar estado local quando task mudar (ex: ao salvar projeto)
   useEffect(() => {
     setLocalTaskName(task.name || '')
   }, [task.name])
   
-  // Handler otimizado para nome da tarefa
-  const handleNameChange = (newName: string) => {
+  // Handler otimizado com useCallback para evitar recriação
+  const handleNameChange = useCallback((newName: string) => {
     setLocalTaskName(newName)
     
     // Limpar timer anterior
-    if (nameDebounceTimer) {
-      clearTimeout(nameDebounceTimer)
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
     }
     
-    // Atualizar pai após 500ms sem digitar
-    const timer = setTimeout(() => {
+    // Atualizar pai após 150ms sem digitar (reduzido de 500ms)
+    debounceTimerRef.current = setTimeout(() => {
       onUpdateTask(task.id, "name", newName)
-    }, 500)
-    
-    setNameDebounceTimer(timer)
-  }
+    }, 150)
+  }, [task.id, onUpdateTask])
   
   // Atualizar imediatamente ao sair do campo
-  const handleNameBlur = () => {
-    if (nameDebounceTimer) {
-      clearTimeout(nameDebounceTimer)
+  const handleNameBlur = useCallback(() => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
     }
     onUpdateTask(task.id, "name", localTaskName)
-  }
+  }, [task.id, localTaskName, onUpdateTask])
+  
+  // Cleanup do timer ao desmontar
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
+      }
+    }
+  }, [])
 
   // Verificar se esta tarefa tem datas inválidas
   const isTaskInvalid = invalidTasks.has(task.id)
