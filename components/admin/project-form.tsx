@@ -1029,9 +1029,9 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
       t.actual_end_date
     )
     
-    // Tarefas ainda em andamento
+    // Tarefas em andamento OU atrasadas (delayed)
     const inProgressTasks = tasks.filter(t => 
-      t.status === 'in_progress' && 
+      (t.status === 'in_progress' || t.status === 'delayed') && 
       t.end_date
     )
     
@@ -1075,10 +1075,12 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
       }
     })
 
-    // Processar tarefas em andamento atrasadas
+    // Processar tarefas em andamento ou com status "delayed"
     inProgressTasks.forEach(task => {
       const planned = new Date(task.end_date + 'T12:00:00')
-      if (today > planned) {
+      
+      // Se status é "delayed" OU se passou do prazo
+      if (task.status === 'delayed' || today > planned) {
         inProgressDelayed++
         const diffTime = today.getTime() - planned.getTime()
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
