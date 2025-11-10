@@ -1111,7 +1111,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
         completedDelayed: 0,
         inProgressDelayed: 0,
         early: 0,
-        totalDeviation: 0
+        hasLongDelays: false
       }
     }
 
@@ -1119,7 +1119,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
     let completedDelayed = 0
     let inProgressDelayed = 0
     let early = 0
-    let totalDeviation = 0
+    let hasLongDelays = false
     const today = new Date()
     today.setHours(12, 0, 0, 0)
 
@@ -1132,15 +1132,14 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
 
       if (task.status === 'completed_delayed') {
         completedDelayed++
-        totalDeviation += diffDays
+        if (diffDays > 30) hasLongDelays = true
       } else if (diffDays === 0) {
         onTime++
       } else if (diffDays > 0) {
         completedDelayed++ // Mesmo se status é 'completed', se atrasou conta aqui
-        totalDeviation += diffDays
+        if (diffDays > 30) hasLongDelays = true
       } else {
         early++
-        totalDeviation += diffDays
       }
     })
 
@@ -1153,7 +1152,8 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
         inProgressDelayed++
         const diffTime = today.getTime() - planned.getTime()
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-        totalDeviation += diffDays
+        
+        if (diffDays > 30) hasLongDelays = true
       }
     })
 
@@ -1165,7 +1165,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
       completedDelayed,
       inProgressDelayed,
       early,
-      totalDeviation,
+      hasLongDelays,
       onTimePercentage: totalAnalyzed > 0 ? Math.round((onTime / totalAnalyzed) * 100) : 0,
       completedDelayedPercentage: totalAnalyzed > 0 ? Math.round((completedDelayed / totalAnalyzed) * 100) : 0,
       inProgressDelayedPercentage: totalAnalyzed > 0 ? Math.round((inProgressDelayed / totalAnalyzed) * 100) : 0,
@@ -1807,7 +1807,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                       </Badge>
                     </div>
                     
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       {/* No Prazo */}
                       <div className="bg-white/70 rounded-lg p-3 border border-green-200/50 hover:shadow-md transition-shadow">
                         <div className="flex items-center justify-between mb-1">
@@ -1855,41 +1855,29 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                         <div className="text-2xl font-bold text-blue-600">{taskMetrics.early}</div>
                         <div className="text-xs text-gray-600">Adiantadas</div>
                       </div>
-                      
-                      {/* Impacto no Prazo */}
-                      <div className="bg-white/70 rounded-lg p-3 border border-amber-200/50 hover:shadow-md transition-shadow group/impact relative">
-                        <div className="flex items-center justify-between mb-1">
-                          <Calendar className="w-5 h-5 text-amber-600" />
-                          <button 
-                            type="button"
-                            className="text-xs font-medium text-gray-500 hover:text-blue-600 cursor-help"
-                            title="Clique para mais informações"
-                          >
-                            ℹ️
-                          </button>
-                        </div>
-                        <div className={`text-2xl font-bold ${taskMetrics.totalDeviation > 0 ? 'text-red-600' : taskMetrics.totalDeviation < 0 ? 'text-green-600' : 'text-gray-600'}`}>
-                          {taskMetrics.totalDeviation > 0 ? '+' : ''}{taskMetrics.totalDeviation}
-                        </div>
-                        <div className="text-xs text-gray-600">Impacto no Prazo</div>
-                        
-                        {/* Tooltip Explicativo */}
-                        <div className="invisible group-hover/impact:visible absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl z-50 pointer-events-none">
-                          <p className="font-semibold mb-2">📊 Impacto Total no Prazo</p>
-                          <p className="mb-2">Soma de todos os dias de desvio, incluindo:</p>
-                          <ul className="list-disc list-inside space-y-1 text-gray-300">
-                            <li>Atrasos de execução</li>
-                            <li>Bloqueios externos</li>
-                            <li>Esperas de aprovações</li>
-                            <li>Problemas de acesso/infraestrutura</li>
-                          </ul>
-                          <p className="mt-2 text-gray-400 text-[10px]">
-                            Reflete o impacto real no prazo inicial do projeto
-                          </p>
-                          <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                    </div>
+                    
+                    {/* Alerta Contextual para Projetos Complexos */}
+                    {taskMetrics.hasLongDelays && (
+                      <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                        <div className="flex items-start gap-2">
+                          <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                          <div className="flex-1">
+                            <p className="text-xs font-semibold text-amber-900 mb-1">
+                              ⚠️ Projeto Complexo Detectado
+                            </p>
+                            <p className="text-xs text-amber-800 mb-2">
+                              Este projeto possui tarefas com longos períodos de espera ou múltiplos bloqueios externos.
+                            </p>
+                            <p className="text-[10px] text-amber-700">
+                              💡 <strong>Recomendação:</strong> Documente os impedimentos em cada tarefa usando 
+                              <strong> "Justificativa de Atraso"</strong> para manter histórico claro dos bloqueios, 
+                              esperas de aprovações e problemas de infraestrutura.
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 )
               })()}
