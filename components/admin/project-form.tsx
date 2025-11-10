@@ -923,7 +923,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
   }
   
   // Confirmar conclusão com atraso e salvar justificativa
-  const handleConfirmDelayedCompletion = () => {
+  const handleConfirmDelayedCompletion = async () => {
     if (!delayJustificationData) return
     
     if (!delayJustificationText.trim()) {
@@ -933,6 +933,10 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
     
     const { taskId, actualEndDate } = delayJustificationData
     const today = new Date().toISOString()
+    
+    // Obter usuário atual
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
     
     setTasks(tasks.map(task => {
       if (task.id === taskId) {
