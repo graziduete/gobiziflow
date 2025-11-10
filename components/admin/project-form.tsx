@@ -12,7 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
-import { Plus, Trash2, Calendar, Clock, User, Users, FileText, AlertTriangle, Lock, CheckCircle, TrendingUp, TrendingDown, BarChart3, CalendarCheck2, Target, CheckCircle2 } from "lucide-react"
+import { Plus, Trash2, Calendar, Clock, User, Users, FileText, AlertTriangle, Lock, CheckCircle, TrendingUp, TrendingDown, BarChart3, CalendarCheck2, Target, CheckCircle2, CalendarClock } from "lucide-react"
 import { GanttChart } from "./gantt-chart"
 import { DraggableTaskList } from "./draggable-task-list"
 import { DelayJustificationCompleteModal } from "./delay-justification-complete-modal"
@@ -58,6 +58,8 @@ interface ProjectFormProps {
     category?: string
     start_date?: string
     end_date?: string
+    predicted_start_date?: string
+    predicted_end_date?: string
     actual_start_date?: string
     actual_end_date?: string
     budget?: number
@@ -109,6 +111,8 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
     category: getSafeValue(project?.category, ""),
     start_date: getSafeValue(project?.start_date, ""),
     end_date: getSafeValue(project?.end_date, ""),
+    predicted_start_date: getSafeValue(project?.predicted_start_date, ""),
+    predicted_end_date: getSafeValue(project?.predicted_end_date, ""),
     actual_start_date: getSafeValue(project?.actual_start_date, ""),
     actual_end_date: getSafeValue(project?.actual_end_date, ""),
     budget: formatMoneyDisplay(project?.budget), // Formatar para exibição
@@ -443,6 +447,8 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
         category: formData.category || "project",
         start_date: formData.start_date || null,
         end_date: formData.end_date || null,
+        predicted_start_date: formData.predicted_start_date || null,
+        predicted_end_date: formData.predicted_end_date || null,
         actual_start_date: formData.actual_start_date || null,
         actual_end_date: formData.actual_end_date || null,
         budget: formData.budget ? parseFloat(formData.budget.replace(/\./g, '').replace(',', '.')) : null,
@@ -1696,12 +1702,55 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                     </div>
                   )}
 
-                  {/* Quarta linha: Datas Reais (Acordadas/Realizadas) */}
+                  {/* Quarta linha: Datas Previstas (Projeção Atual) */}
+                  <div className="mt-4 pt-4 border-t border-blue-200">
+                    <div className="flex items-center gap-2 mb-3">
+                      <CalendarClock className="w-4 h-4 text-blue-600" />
+                      <h4 className="text-sm font-semibold text-blue-700">Datas Previstas (Projeção Atual)</h4>
+                      <span className="text-xs text-slate-500 ml-auto">Atualize conforme mudanças no projeto</span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="predicted_start_date" className="flex items-center gap-1.5">
+                          <CalendarClock className="w-3.5 h-3.5 text-blue-600" />
+                          Data de Início Prevista
+                        </Label>
+                        <Input
+                          id="predicted_start_date"
+                          type="date"
+                          value={formData.predicted_start_date}
+                          onChange={(e) => handleChange("predicted_start_date", e.target.value)}
+                          className="w-full h-10 bg-blue-50/50 border-blue-300 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                        />
+                        <p className="text-xs text-slate-500">
+                          Projeção atual de quando o projeto vai/começou (pode ser atualizada)
+                        </p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="predicted_end_date" className="flex items-center gap-1.5">
+                          <Target className="w-3.5 h-3.5 text-blue-600" />
+                          Data de Término Prevista
+                        </Label>
+                        <Input
+                          id="predicted_end_date"
+                          type="date"
+                          value={formData.predicted_end_date}
+                          onChange={(e) => handleChange("predicted_end_date", e.target.value)}
+                          className="w-full h-10 bg-blue-50/50 border-blue-300 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                        />
+                        <p className="text-xs text-slate-500">
+                          Prazo atual acordado com cliente (responda: "quando termina?")
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Quinta linha: Datas Reais (Quando Aconteceu) */}
                   <div className="mt-4 pt-4 border-t border-emerald-200">
                     <div className="flex items-center gap-2 mb-3">
                       <CalendarCheck2 className="w-4 h-4 text-emerald-600" />
-                      <h4 className="text-sm font-semibold text-emerald-700">Datas Reais (Acordadas/Realizadas)</h4>
-                      <span className="text-xs text-slate-500 ml-auto">Opcional - preencha quando houver acordo com cliente</span>
+                      <h4 className="text-sm font-semibold text-emerald-700">Datas Reais (Quando Aconteceu)</h4>
+                      <span className="text-xs text-slate-500 ml-auto">Preencha apenas quando realmente acontecer</span>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
@@ -1717,12 +1766,12 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                           className="w-full h-10 bg-emerald-50/50 border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
                         />
                         <p className="text-xs text-slate-500">
-                          Quando o projeto realmente começou (pode ser diferente do planejado)
+                          Quando o projeto realmente começou (definitivo)
                         </p>
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="actual_end_date" className="flex items-center gap-1.5">
-                          <Target className="w-3.5 h-3.5 text-emerald-600" />
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                           Data de Término Real
                         </Label>
                         <Input
@@ -1733,7 +1782,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                           className="w-full h-10 bg-emerald-50/50 border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200"
                         />
                         <p className="text-xs text-slate-500">
-                          Prazo real acordado com o cliente ou data de conclusão efetiva
+                          Quando o projeto realmente terminou (definitivo, para métricas)
                         </p>
                       </div>
                     </div>
