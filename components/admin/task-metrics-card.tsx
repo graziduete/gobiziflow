@@ -42,6 +42,7 @@ export function TaskMetricsCard({ tasks }: TaskMetricsCardProps) {
     let inProgressDelayed = 0
     let early = 0
     let totalDeviation = 0
+    let largestDelay = { taskName: '', days: 0 }
     const today = new Date()
     today.setHours(12, 0, 0, 0)
 
@@ -76,6 +77,11 @@ export function TaskMetricsCard({ tasks }: TaskMetricsCardProps) {
         const diffTime = today.getTime() - planned.getTime()
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
         totalDeviation += diffDays
+        
+        // Rastrear maior atraso individual
+        if (diffDays > largestDelay.days) {
+          largestDelay = { taskName: task.name, days: diffDays }
+        }
       }
     })
 
@@ -88,6 +94,7 @@ export function TaskMetricsCard({ tasks }: TaskMetricsCardProps) {
       inProgressDelayed,
       early,
       totalDeviation,
+      largestDelay,
       onTimePercentage: totalAnalyzed > 0 ? Math.round((onTime / totalAnalyzed) * 100) : 0,
       completedDelayedPercentage: totalAnalyzed > 0 ? Math.round((completedDelayed / totalAnalyzed) * 100) : 0,
       inProgressDelayedPercentage: totalAnalyzed > 0 ? Math.round((inProgressDelayed / totalAnalyzed) * 100) : 0,
@@ -195,6 +202,28 @@ export function TaskMetricsCard({ tasks }: TaskMetricsCardProps) {
             </div>
           </div>
         </div>
+        
+        {/* Alerta de Tarefa Crítica com Maior Impacto */}
+        {taskMetrics.largestDelay.days > 30 && (
+          <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <div className="flex items-start gap-2">
+              <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-xs font-semibold text-amber-900 mb-1">
+                  Tarefa com Maior Impacto no Prazo:
+                </p>
+                <p className="text-xs text-amber-800">
+                  <span className="font-semibold">"{taskMetrics.largestDelay.taskName}"</span>
+                  {' '}está com <span className="font-bold text-red-600">+{taskMetrics.largestDelay.days} dias</span> desde a data planejada
+                </p>
+                <p className="text-[10px] text-amber-700 mt-1">
+                  💡 Este atraso pode incluir bloqueios externos, esperas de aprovação ou problemas de infraestrutura. 
+                  Configure dependências para visualizar a cascata de impactos.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   )
