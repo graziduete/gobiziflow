@@ -93,9 +93,11 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
       actual_end_date,
       predicted_end_date,
       delay_created_at,
-      delay_created_by
+      delay_created_by,
+      order
     `)
     .eq("project_id", id)
+    .order("order", { nullsFirst: false })
     .order("created_at")
 
 
