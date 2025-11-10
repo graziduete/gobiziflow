@@ -1632,7 +1632,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                         </Select>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="start_date">Data de Início Prevista</Label>
+                        <Label htmlFor="start_date">Data de Início Planejada</Label>
                         <Input
                           id="start_date"
                           type="date"
@@ -1642,7 +1642,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
               />
             </div>
                       <div className="space-y-2">
-                        <Label htmlFor="end_date">Data de Término Prevista</Label>
+                        <Label htmlFor="end_date">Data de Término Planejada</Label>
                         <Input
                           id="end_date"
                           type="date"
@@ -1656,7 +1656,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                     // Para outras empresas: apenas as datas (sem Safra)
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="start_date">Data de Início Prevista</Label>
+              <Label htmlFor="start_date">Data de Início Planejada</Label>
               <Input
                 id="start_date"
                 type="date"
@@ -1666,7 +1666,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="end_date">Data de Término Prevista</Label>
+              <Label htmlFor="end_date">Data de Término Planejada</Label>
               <Input
                 id="end_date"
                 type="date"
