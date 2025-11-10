@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { GanttChart } from "@/components/admin/gantt-chart"
+import { TaskMetricsCard } from "@/components/admin/task-metrics-card"
 import { notFound } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
@@ -88,7 +89,9 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
       responsible,
       delay_justification,
       original_end_date,
+      actual_start_date,
       actual_end_date,
+      predicted_end_date,
       delay_created_at,
       delay_created_by
     `)
@@ -157,6 +160,9 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           </div>
         </div>
       </div>
+
+      {/* Card de Métricas de Desempenho */}
+      <TaskMetricsCard tasks={tasks || []} />
 
       {/* Gantt Chart Expandido */}
       <div className="mt-8">
