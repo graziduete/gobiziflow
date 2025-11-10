@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useCallback, useRef } from "react"
+import React, { useState, useEffect } from "react"
 import {
   DndContext,
   closestCenter,
@@ -80,7 +80,7 @@ interface SortableTaskItemProps {
   invalidTasks?: Set<string>
 }
 
-const SortableTaskItem = React.memo(function SortableTaskItem({ task, index, responsaveis, allTasks, onUpdateTask, onRemoveTask, onStatusChange, onOpenDependencyModal, invalidTasks = new Set() }: SortableTaskItemProps) {
+function SortableTaskItem({ task, index, responsaveis, allTasks, onUpdateTask, onRemoveTask, onStatusChange, onOpenDependencyModal, invalidTasks = new Set() }: SortableTaskItemProps) {
   const {
     attributes,
     listeners,
@@ -95,47 +95,6 @@ const SortableTaskItem = React.memo(function SortableTaskItem({ task, index, res
     transition,
     opacity: isDragging ? 0.5 : 1,
   }
-
-  // Estado local para o nome da tarefa (evita re-render do pai)
-  const [localTaskName, setLocalTaskName] = useState(task.name || '')
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
-  
-  // Atualizar estado local quando task mudar (ex: ao salvar projeto)
-  useEffect(() => {
-    setLocalTaskName(task.name || '')
-  }, [task.name])
-  
-  // Handler otimizado com useCallback para evitar recriação
-  const handleNameChange = useCallback((newName: string) => {
-    setLocalTaskName(newName)
-    
-    // Limpar timer anterior
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current)
-    }
-    
-    // Atualizar pai após 50ms sem digitar (ultra-responsivo)
-    debounceTimerRef.current = setTimeout(() => {
-      onUpdateTask(task.id, "name", newName)
-    }, 50)
-  }, [task.id, onUpdateTask])
-  
-  // Atualizar imediatamente ao sair do campo
-  const handleNameBlur = useCallback(() => {
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current)
-    }
-    onUpdateTask(task.id, "name", localTaskName)
-  }, [task.id, localTaskName, onUpdateTask])
-  
-  // Cleanup do timer ao desmontar
-  useEffect(() => {
-    return () => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current)
-      }
-    }
-  }, [])
 
   // Verificar se esta tarefa tem datas inválidas
   const isTaskInvalid = invalidTasks.has(task.id)
@@ -192,9 +151,8 @@ const SortableTaskItem = React.memo(function SortableTaskItem({ task, index, res
       <td className="p-4">
         <div className="space-y-2">
           <Input
-            value={localTaskName}
-            onChange={(e) => handleNameChange(e.target.value)}
-            onBlur={handleNameBlur}
+            value={task.name || ''}
+            onChange={(e) => onUpdateTask(task.id, "name", e.target.value)}
             placeholder="Nome da tarefa"
             className="border-0 bg-transparent p-0 text-sm focus:ring-0 w-full"
           />
@@ -415,24 +373,7 @@ const SortableTaskItem = React.memo(function SortableTaskItem({ task, index, res
       </td>
     </tr>
   )
-}, (prevProps, nextProps) => {
-  // Comparação customizada para React.memo - só re-renderiza se realmente mudou
-  return (
-    prevProps.task.id === nextProps.task.id &&
-    prevProps.task.name === nextProps.task.name &&
-    prevProps.task.status === nextProps.task.status &&
-    prevProps.task.start_date === nextProps.task.start_date &&
-    prevProps.task.end_date === nextProps.task.end_date &&
-    prevProps.task.responsible === nextProps.task.responsible &&
-    prevProps.task.actual_start_date === nextProps.task.actual_start_date &&
-    prevProps.task.actual_end_date === nextProps.task.actual_end_date &&
-    prevProps.task.predicted_end_date === nextProps.task.predicted_end_date &&
-    prevProps.task.dependency_type === nextProps.task.dependency_type &&
-    prevProps.task.predecessor_task_id === nextProps.task.predecessor_task_id &&
-    prevProps.index === nextProps.index
-    // NÃO comparar callbacks (onUpdateTask, etc) para permitir drag and drop
-  )
-})
+}
 
 export function DraggableTaskList({ tasks, onUpdateTask, onRemoveTask, onReorderTasks, onRefreshTasks, invalidTasks = new Set(), onSaveDependency }: DraggableTaskListProps) {
   const [responsaveis, setResponsaveis] = useState<Responsavel[]>([])
