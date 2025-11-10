@@ -144,6 +144,18 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
     weekendDates: { date: string, dayName: string, isStart: boolean }[]
     suggestedDates: { friday: string, monday: string }
   } | null>(null)
+  
+  // Estado para modal de justificativa de atraso ao concluir
+  const [showDelayJustificationOnComplete, setShowDelayJustificationOnComplete] = useState(false)
+  const [delayJustificationData, setDelayJustificationData] = useState<{
+    taskId: string
+    taskName: string
+    plannedEndDate: string
+    actualEndDate: string
+    delayDays: number
+  } | null>(null)
+  const [delayJustificationText, setDelayJustificationText] = useState("")
+  
   // Removido isOffline - não usando mais mocks
   const router = useRouter()
 
@@ -821,6 +833,34 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
         }
       }
     }
+    
+    // Verificar se está mudando para "Concluído" e se está atrasado
+    if (field === 'status' && value === 'completed') {
+      const task = tasks.find(t => t.id === taskId)
+      if (task && task.end_date) {
+        const today = new Date().toISOString().split('T')[0]
+        const plannedEnd = new Date(task.end_date + 'T12:00:00')
+        const actualEnd = new Date(today + 'T12:00:00')
+        
+        // Se concluir depois do planejado = atrasado!
+        if (actualEnd > plannedEnd) {
+          const diffTime = actualEnd.getTime() - plannedEnd.getTime()
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+          
+          // Mostrar modal de justificativa
+          setDelayJustificationData({
+            taskId: task.id,
+            taskName: task.name,
+            plannedEndDate: task.end_date,
+            actualEndDate: today,
+            delayDays: diffDays
+          })
+          setDelayJustificationText("")
+          setShowDelayJustificationOnComplete(true)
+          return // Não atualizar ainda, espera justificativa
+        }
+      }
+    }
 
     // SEMPRE atualiza a tarefa primeiro para permitir digitação
     const updatedTasks = tasks.map((task: Task) => 
@@ -880,6 +920,41 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
 
   const removeTask = (taskId: string) => {
     setTasks(tasks.filter(task => task.id !== taskId))
+  }
+  
+  // Confirmar conclusão com atraso e salvar justificativa
+  const handleConfirmDelayedCompletion = () => {
+    if (!delayJustificationData) return
+    
+    if (!delayJustificationText.trim()) {
+      alert("Por favor, preencha a justificativa do atraso.")
+      return
+    }
+    
+    const { taskId, actualEndDate } = delayJustificationData
+    const today = new Date().toISOString()
+    
+    setTasks(tasks.map(task => {
+      if (task.id === taskId) {
+        return {
+          ...task,
+          status: 'completed_delayed',
+          actual_end_date: actualEndDate,
+          delay_justification: delayJustificationText,
+          delay_created_at: today,
+          delay_created_by: user?.id || null
+        }
+      }
+      return task
+    }))
+    
+    // Calcular datas automaticamente
+    calculateAutomaticDates(taskId, 'completed_delayed')
+    
+    // Fechar modal
+    setShowDelayJustificationOnComplete(false)
+    setDelayJustificationData(null)
+    setDelayJustificationText("")
   }
 
   // Funções para validação de finais de semana
@@ -2020,6 +2095,102 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                     className="px-6 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition-colors font-medium"
                   >
                     Entendi
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Modal de Justificativa de Atraso ao Concluir */}
+          {showDelayJustificationOnComplete && delayJustificationData && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4">
+              <div className="bg-white rounded-lg p-6 max-w-lg w-full shadow-xl transform scale-100 transition-transform duration-300 animate-in fade-in zoom-in">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-orange-100 rounded-full">
+                    <Clock className="w-6 h-6 text-orange-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Tarefa Concluída com Atraso
+                  </h3>
+                </div>
+                
+                <div className="space-y-4 mb-6">
+                  <p className="text-gray-700">
+                    A tarefa <span className="font-semibold">"{delayJustificationData.taskName}"</span> foi concluída com atraso.
+                  </p>
+                  
+                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 space-y-3">
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="text-gray-600 mb-1">Data Fim Planejada:</p>
+                        <p className="font-semibold text-gray-900">
+                          {new Date(delayJustificationData.plannedEndDate + 'T12:00:00').toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600 mb-1">Data Fim Real:</p>
+                        <p className="font-semibold text-orange-600">
+                          {new Date(delayJustificationData.actualEndDate + 'T12:00:00').toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="pt-3 border-t border-orange-200">
+                      <div className="flex items-center gap-2">
+                        <AlertTriangle className="w-5 h-5 text-orange-600" />
+                        <p className="font-bold text-orange-600">
+                          Atraso: +{delayJustificationData.delayDays} {delayJustificationData.delayDays === 1 ? 'dia' : 'dias'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="delay_justification" className="text-sm font-medium text-gray-900">
+                      Justificativa do Atraso <span className="text-red-500">*</span>
+                    </Label>
+                    <Textarea
+                      id="delay_justification"
+                      value={delayJustificationText}
+                      onChange={(e) => setDelayJustificationText(e.target.value)}
+                      placeholder="Explique o motivo do atraso desta tarefa..."
+                      className="min-h-[100px] border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                      autoFocus
+                    />
+                    <p className="text-xs text-gray-500">
+                      Esta justificativa será salva junto com o registro de atraso.
+                    </p>
+                  </div>
+                  
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
+                    <p className="font-medium mb-1">ℹ️ O que acontecerá:</p>
+                    <ul className="list-disc list-inside space-y-1 text-xs">
+                      <li>Status será alterado para "Concluído com Atraso"</li>
+                      <li>Justificativa será registrada</li>
+                      <li>Data e responsável serão salvos automaticamente</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 justify-end">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setShowDelayJustificationOnComplete(false)
+                      setDelayJustificationData(null)
+                      setDelayJustificationText("")
+                    }}
+                    className="px-6 py-2 border-gray-300 hover:border-gray-400"
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={handleConfirmDelayedCompletion}
+                    className="px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium"
+                  >
+                    Confirmar e Salvar
                   </Button>
                 </div>
               </div>
