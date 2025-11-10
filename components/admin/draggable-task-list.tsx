@@ -114,10 +114,10 @@ const SortableTaskItem = React.memo(function SortableTaskItem({ task, index, res
       clearTimeout(debounceTimerRef.current)
     }
     
-    // Atualizar pai após 150ms sem digitar (reduzido de 500ms)
+    // Atualizar pai após 50ms sem digitar (ultra-responsivo)
     debounceTimerRef.current = setTimeout(() => {
       onUpdateTask(task.id, "name", newName)
-    }, 150)
+    }, 50)
   }, [task.id, onUpdateTask])
   
   // Atualizar imediatamente ao sair do campo
