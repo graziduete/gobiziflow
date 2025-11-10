@@ -992,6 +992,13 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
     const date = new Date(dateString + 'T12:00:00')
     let addedDays = 0
     
+    // Verificar se o dia inicial é útil
+    const initialDayOfWeek = date.getDay()
+    if (initialDayOfWeek !== 0 && initialDayOfWeek !== 6) {
+      addedDays = 1  // Conta o dia inicial como dia 1
+    }
+    
+    // Adicionar os dias restantes
     while (addedDays < daysToAdd) {
       date.setDate(date.getDate() + 1)
       const dayOfWeek = date.getDay()
