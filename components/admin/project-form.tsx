@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation"
 import { Plus, Trash2, Calendar, Clock, User, Users, FileText, AlertTriangle, Lock, CheckCircle, TrendingUp, TrendingDown, BarChart3 } from "lucide-react"
 import { GanttChart } from "./gantt-chart"
 import { DraggableTaskList } from "./draggable-task-list"
+import { DelayJustificationCompleteModal } from "./delay-justification-complete-modal"
 import { formatDateBrazil } from "@/lib/utils/status-translation"
 
 // Removidos os mocks - usando apenas dados reais
@@ -154,7 +155,6 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
     actualEndDate: string
     delayDays: number
   } | null>(null)
-  const [delayJustificationText, setDelayJustificationText] = useState("")
   
   // Removido isOffline - não usando mais mocks
   const router = useRouter()
@@ -855,7 +855,6 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
             actualEndDate: today,
             delayDays: diffDays
           })
-          setDelayJustificationText("")
           setShowDelayJustificationOnComplete(true)
           return // Não atualizar ainda, espera justificativa
         }
@@ -923,13 +922,8 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
   }
   
   // Confirmar conclusão com atraso e salvar justificativa
-  const handleConfirmDelayedCompletion = async () => {
+  const handleConfirmDelayedCompletion = async (justificationText: string) => {
     if (!delayJustificationData) return
-    
-    if (!delayJustificationText.trim()) {
-      alert("Por favor, preencha a justificativa do atraso.")
-      return
-    }
     
     const { taskId, actualEndDate } = delayJustificationData
     const today = new Date().toISOString()
@@ -944,7 +938,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
           ...task,
           status: 'completed_delayed',
           actual_end_date: actualEndDate,
-          delay_justification: delayJustificationText,
+          delay_justification: justificationText,
           delay_created_at: today,
           delay_created_by: user?.id || null
         }
@@ -958,7 +952,6 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
     // Fechar modal
     setShowDelayJustificationOnComplete(false)
     setDelayJustificationData(null)
-    setDelayJustificationText("")
   }
 
   // Funções para validação de finais de semana
@@ -2105,99 +2098,19 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
           )}
 
           {/* Modal de Justificativa de Atraso ao Concluir */}
-          {showDelayJustificationOnComplete && delayJustificationData && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4">
-              <div className="bg-white rounded-lg p-6 max-w-lg w-full shadow-xl transform scale-100 transition-transform duration-300 animate-in fade-in zoom-in">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-orange-100 rounded-full">
-                    <Clock className="w-6 h-6 text-orange-600" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Tarefa Concluída com Atraso
-                  </h3>
-                </div>
-                
-                <div className="space-y-4 mb-6">
-                  <p className="text-gray-700">
-                    A tarefa <span className="font-semibold">"{delayJustificationData.taskName}"</span> foi concluída com atraso.
-                  </p>
-                  
-                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 space-y-3">
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <p className="text-gray-600 mb-1">Data Fim Planejada:</p>
-                        <p className="font-semibold text-gray-900">
-                          {new Date(delayJustificationData.plannedEndDate + 'T12:00:00').toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-gray-600 mb-1">Data Fim Real:</p>
-                        <p className="font-semibold text-orange-600">
-                          {new Date(delayJustificationData.actualEndDate + 'T12:00:00').toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="pt-3 border-t border-orange-200">
-                      <div className="flex items-center gap-2">
-                        <AlertTriangle className="w-5 h-5 text-orange-600" />
-                        <p className="font-bold text-orange-600">
-                          Atraso: +{delayJustificationData.delayDays} {delayJustificationData.delayDays === 1 ? 'dia' : 'dias'}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="delay_justification" className="text-sm font-medium text-gray-900">
-                      Justificativa do Atraso <span className="text-red-500">*</span>
-                    </Label>
-                    <Textarea
-                      id="delay_justification"
-                      value={delayJustificationText}
-                      onChange={(e) => setDelayJustificationText(e.target.value)}
-                      placeholder="Explique o motivo do atraso desta tarefa..."
-                      className="min-h-[100px] border-gray-300 focus:border-orange-500 focus:ring-orange-500"
-                      autoFocus
-                    />
-                    <p className="text-xs text-gray-500">
-                      Esta justificativa será salva junto com o registro de atraso.
-                    </p>
-                  </div>
-                  
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
-                    <p className="font-medium mb-1">ℹ️ O que acontecerá:</p>
-                    <ul className="list-disc list-inside space-y-1 text-xs">
-                      <li>Status será alterado para "Concluído com Atraso"</li>
-                      <li>Justificativa será registrada</li>
-                      <li>Data e responsável serão salvos automaticamente</li>
-                    </ul>
-                  </div>
-                </div>
-
-                <div className="flex gap-3 justify-end">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      setShowDelayJustificationOnComplete(false)
-                      setDelayJustificationData(null)
-                      setDelayJustificationText("")
-                    }}
-                    className="px-6 py-2 border-gray-300 hover:border-gray-400"
-                  >
-                    Cancelar
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={handleConfirmDelayedCompletion}
-                    className="px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium"
-                  >
-                    Confirmar e Salvar
-                  </Button>
-                </div>
-              </div>
-            </div>
+          {delayJustificationData && (
+            <DelayJustificationCompleteModal
+              isOpen={showDelayJustificationOnComplete}
+              taskName={delayJustificationData.taskName}
+              plannedEndDate={delayJustificationData.plannedEndDate}
+              actualEndDate={delayJustificationData.actualEndDate}
+              delayDays={delayJustificationData.delayDays}
+              onConfirm={handleConfirmDelayedCompletion}
+              onCancel={() => {
+                setShowDelayJustificationOnComplete(false)
+                setDelayJustificationData(null)
+              }}
+            />
           )}
 
           {/* Botões de Ação - Card */}
