@@ -41,8 +41,7 @@ export function TaskMetricsCard({ tasks }: TaskMetricsCardProps) {
     let completedDelayed = 0
     let inProgressDelayed = 0
     let early = 0
-    let totalDeviation = 0
-    let largestDelay = { taskName: '', days: 0 }
+    let hasLongDelays = false
     const today = new Date()
     today.setHours(12, 0, 0, 0)
 
@@ -76,12 +75,8 @@ export function TaskMetricsCard({ tasks }: TaskMetricsCardProps) {
         inProgressDelayed++
         const diffTime = today.getTime() - planned.getTime()
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-        totalDeviation += diffDays
         
-        // Rastrear maior atraso individual
-        if (diffDays > largestDelay.days) {
-          largestDelay = { taskName: task.name, days: diffDays }
-        }
+        if (diffDays > 30) hasLongDelays = true
       }
     })
 
@@ -93,8 +88,7 @@ export function TaskMetricsCard({ tasks }: TaskMetricsCardProps) {
       completedDelayed,
       inProgressDelayed,
       early,
-      totalDeviation,
-      largestDelay,
+      hasLongDelays,
       onTimePercentage: totalAnalyzed > 0 ? Math.round((onTime / totalAnalyzed) * 100) : 0,
       completedDelayedPercentage: totalAnalyzed > 0 ? Math.round((completedDelayed / totalAnalyzed) * 100) : 0,
       inProgressDelayedPercentage: totalAnalyzed > 0 ? Math.round((inProgressDelayed / totalAnalyzed) * 100) : 0,
