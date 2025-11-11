@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Calendar, Clock, TrendingUp, Users, Maximize2, Minimize2, Download, FileImage, FileText, Circle, PlayCircle, PauseCircle, CheckCircle, AlertTriangle, ZoomIn, ZoomOut, RotateCcw } from "lucide-react"
+import { Calendar, Clock, TrendingUp, Users, Maximize2, Minimize2, Download, FileImage, FileText, Circle, PlayCircle, PauseCircle, CheckCircle, AlertTriangle, ZoomIn, ZoomOut, RotateCcw, ClipboardList, CheckCircle2 } from "lucide-react"
 import { useGanttDownload } from "@/hooks/use-gantt-download"
 
 interface Task {
@@ -724,19 +724,21 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                       type="button"
                       variant={viewMode === 'planned' ? 'default' : 'outline'}
                       size="sm"
-                      className="text-xs h-7 px-3"
+                      className="text-xs h-7 px-3 flex items-center gap-1.5"
                       onClick={() => setViewMode('planned')}
                     >
-                      📋 Planejado
+                      <ClipboardList className="w-3.5 h-3.5" />
+                      Planejado
                     </Button>
                     <Button
                       type="button"
                       variant={viewMode === 'actual' ? 'default' : 'outline'}
                       size="sm"
-                      className="text-xs h-7 px-3"
+                      className="text-xs h-7 px-3 flex items-center gap-1.5"
                       onClick={() => setViewMode('actual')}
                     >
-                      ✅ Real
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      Real
                     </Button>
                   </div>
                   
@@ -1096,19 +1098,21 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                   type="button"
                   variant={viewMode === 'planned' ? 'default' : 'outline'}
                   size="sm"
-                  className="text-xs h-7 px-3"
+                  className="text-xs h-7 px-3 flex items-center gap-1.5"
                   onClick={() => setViewMode('planned')}
                 >
-                  📋 Planejado
+                  <ClipboardList className="w-3.5 h-3.5" />
+                  Planejado
                 </Button>
                 <Button
                   type="button"
                   variant={viewMode === 'actual' ? 'default' : 'outline'}
                   size="sm"
-                  className="text-xs h-7 px-3"
+                  className="text-xs h-7 px-3 flex items-center gap-1.5"
                   onClick={() => setViewMode('actual')}
                 >
-                  ✅ Real
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  Real
                 </Button>
               </div>
               
