@@ -46,6 +46,16 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
   
   // Estado para controlar o modo de visualização (planejado vs real)
   const [viewMode, setViewMode] = React.useState<'planned' | 'actual'>('planned')
+  // Estado para controlar transição (evita tooltips piscando)
+  const [isTransitioning, setIsTransitioning] = React.useState(false)
+  
+  // Função para trocar de modo com transição suave
+  const handleViewModeChange = React.useCallback((newMode: 'planned' | 'actual') => {
+    if (newMode === viewMode) return
+    setIsTransitioning(true)
+    setViewMode(newMode)
+    setTimeout(() => setIsTransitioning(false), 150)
+  }, [viewMode])
   
   // Largura base de uma semana (120px padrão × zoom)
   const weekWidth = React.useMemo(() => {
@@ -817,7 +827,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                       variant={viewMode === 'planned' ? 'default' : 'outline'}
                       size="sm"
                       className="text-xs h-7 px-3 flex items-center gap-1.5"
-                      onClick={() => setViewMode('planned')}
+                      onClick={() => handleViewModeChange('planned')}
                     >
                       <ClipboardList className="w-3.5 h-3.5" />
                       Planejado
@@ -827,7 +837,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                       variant={viewMode === 'actual' ? 'default' : 'outline'}
                       size="sm"
                       className="text-xs h-7 px-3 flex items-center gap-1.5"
-                      onClick={() => setViewMode('actual')}
+                      onClick={() => handleViewModeChange('actual')}
                     >
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       Real
@@ -1043,7 +1053,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                             ))}
                             
                             {/* Tooltip Rico (único para todos os segmentos) */}
-                            <div className="pointer-events-none absolute -top-3 left-1/2 -translate-x-1/2 -translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50">
+                            <div className={`pointer-events-none absolute -top-3 left-1/2 -translate-x-1/2 -translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50 ${isTransitioning ? '!opacity-0 !hidden' : ''}`}>
                               <div className="min-w-[280px] max-w-[320px] px-4 py-3 rounded-xl border border-slate-300 bg-white shadow-xl">
                                 <div className="text-xs font-bold text-slate-900 mb-2">{task.name}</div>
                                 
@@ -1142,7 +1152,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                           <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-white/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                           {/* Tooltip moderno */}
-                          <div className="pointer-events-none absolute -top-3 left-1/2 -translate-x-1/2 -translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                          <div className={`pointer-events-none absolute -top-3 left-1/2 -translate-x-1/2 -translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${isTransitioning ? '!opacity-0 !hidden' : ''}`}>
                           <div className="min-w-[220px] max-w-[280px] px-3 py-2 rounded-xl border border-white/30 bg-white/70 backdrop-blur-md shadow-lg">
                             <div className="text-[11px] font-semibold text-slate-900 line-clamp-1">{task.name}</div>
                             <div className="mt-1 grid grid-cols-2 gap-2 text-[11px] text-slate-700">
@@ -1279,7 +1289,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                   variant={viewMode === 'planned' ? 'default' : 'outline'}
                   size="sm"
                   className="text-xs h-7 px-3 flex items-center gap-1.5"
-                  onClick={() => setViewMode('planned')}
+                  onClick={() => handleViewModeChange('planned')}
                 >
                   <ClipboardList className="w-3.5 h-3.5" />
                   Planejado
@@ -1289,7 +1299,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                   variant={viewMode === 'actual' ? 'default' : 'outline'}
                   size="sm"
                   className="text-xs h-7 px-3 flex items-center gap-1.5"
-                  onClick={() => setViewMode('actual')}
+                  onClick={() => handleViewModeChange('actual')}
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   Real
@@ -1505,7 +1515,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                         ))}
                         
                         {/* Tooltip Rico (único para todos os segmentos) */}
-                        <div className="pointer-events-none absolute -top-3 left-1/2 -translate-x-1/2 -translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50">
+                        <div className={`pointer-events-none absolute -top-3 left-1/2 -translate-x-1/2 -translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50 ${isTransitioning ? '!opacity-0 !hidden' : ''}`}>
                           <div className="min-w-[280px] max-w-[320px] px-4 py-3 rounded-xl border border-slate-300 bg-white shadow-xl">
                             <div className="text-xs font-bold text-slate-900 mb-2">{task.name}</div>
                             
@@ -1614,7 +1624,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                       </div>
 
                       {/* Tooltip moderno */}
-                      <div className="pointer-events-none absolute -top-3 left-1/2 -translate-x-1/2 -translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      <div className={`pointer-events-none absolute -top-3 left-1/2 -translate-x-1/2 -translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${isTransitioning ? '!opacity-0 !hidden' : ''}`}>
                       <div className="min-w-[220px] max-w-[280px] px-3 py-2 rounded-xl border border-white/30 bg-white/70 backdrop-blur-md shadow-lg">
                         <div className="text-[11px] font-semibold text-slate-900 line-clamp-1">{task.name}</div>
                         <div className="mt-1 grid grid-cols-2 gap-2 text-[11px] text-slate-700">
