@@ -153,11 +153,14 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
           start = new Date(today.getFullYear(), today.getMonth(), 1)
           end = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), 0)
         } else {
-          // Calcular período real baseado nas tarefas
-          const taskDates = validTasks.flatMap(task => [
-            new Date(task.start_date), 
-            new Date(task.end_date)
-          ]).filter(date => !isNaN(date.getTime()))
+          // Calcular período real baseado nas tarefas E no modo de visualização
+          const taskDates = validTasks.flatMap(task => {
+            const { startDate, endDate } = getTaskDates(task)
+            return [
+              new Date(startDate), 
+              new Date(endDate)
+            ]
+          }).filter(date => !isNaN(date.getTime()))
           
           if (taskDates.length === 0) {
             const today = new Date()
@@ -253,7 +256,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
         }
       ]
     }
-  }, [tasks])
+  }, [tasks, viewMode, getTaskDates])
 
   // Calcular posição da linha da data atual
   const currentDateLinePosition = React.useMemo(() => {
