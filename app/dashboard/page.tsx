@@ -11,6 +11,7 @@ import { useClientData } from "@/hooks/use-client-data"
 import { useState, useEffect, useMemo } from "react"
 import { GanttView } from "@/components/admin/gantt-view"
 import { DashboardLoadingSkeleton } from "@/components/shared/loading-skeleton"
+import { formatDecimalToHHMM } from "@/lib/utils/hours"
 
 export default function ClientDashboard() {
   const { projects, company, isLoading, error, stats } = useClientData()
@@ -144,19 +145,19 @@ export default function ClientDashboard() {
         />
         <StatsCard
           title="Total de Horas Contratadas"
-          value={dashboardHourStats.totalContractedHours.toString()}
+          value={formatDecimalToHHMM(dashboardHourStats.totalContractedHours)}
           description="Horas"
           icon={Clock}
         />
         <StatsCard
           title="Total de Horas Consumidas"
-          value={dashboardHourStats.totalConsumedHours.toString()}
+          value={formatDecimalToHHMM(dashboardHourStats.totalConsumedHours)}
           description="Horas utilizadas"
           icon={TrendingUp}
         />
         <StatsCard
           title="Total de Horas Restantes"
-          value={dashboardHourStats.totalRemainingHours.toString()}
+          value={formatDecimalToHHMM(dashboardHourStats.totalRemainingHours)}
           description="Horas disponíveis"
           icon={Clock}
         />

@@ -12,6 +12,7 @@ import { HourService } from "@/lib/hour-service"
 // ForecastService REMOVIDO - Agora usa apenas payment_metrics
 import { DashboardService } from "@/lib/dashboard-service"
 import { CompanyHourStats } from "@/lib/types"
+import { formatDecimalToHHMM } from "@/lib/utils/hours"
 
 export default function AdminDashboard() {
   const [companies, setCompanies] = useState<any[]>([])
@@ -1062,21 +1063,21 @@ export default function AdminDashboard() {
         <StatsCard
           key={`contracted-${cardsKey}`}
           title="Total de Horas Contratadas" 
-          value={totalContractedHours} 
+          value={formatDecimalToHHMM(totalContractedHours)} 
           description="Horas" 
           icon={Clock} 
         />
         <StatsCard
           key={`consumed-${cardsKey}`}
           title="Total de Horas Consumidas"
-          value={totalConsumedHours}
+          value={formatDecimalToHHMM(totalConsumedHours)}
           description="Horas utilizadas"
           icon={TrendingUp}
         />
         <StatsCard
           key={`remaining-${cardsKey}`}
           title="Total de Horas Restantes"
-          value={totalRemainingHours}
+          value={formatDecimalToHHMM(totalRemainingHours)}
           description="Horas disponíveis"
           icon={Clock}
         />
@@ -1308,7 +1309,7 @@ export default function AdminDashboard() {
                   </div>
                   <span className="text-sm font-semibold text-slate-700">Horas Restantes</span>
                 </div>
-                <span className="text-lg font-bold bg-gradient-to-r from-green-700 to-emerald-700 bg-clip-text text-transparent">{totalContractedHours - totalConsumedHours}h</span>
+                <span className="text-lg font-bold bg-gradient-to-r from-green-700 to-emerald-700 bg-clip-text text-transparent">{formatDecimalToHHMM(totalContractedHours - totalConsumedHours)}</span>
               </div>
             </div>
           </CardContent>
