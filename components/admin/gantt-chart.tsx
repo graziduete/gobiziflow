@@ -938,10 +938,10 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                         return segments.map((segment: any, segIdx: number) => (
                           <div
                             key={`segment-${segIdx}`}
-                            className={`absolute top-6 bottom-6 ${segment.color} ${segment.opacity} shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer group ${segment.dashed ? 'border-2 border-dashed border-slate-400' : 'rounded-lg'} ${segment.pulse ? 'animate-pulse' : ''}`}
+                            className={`absolute top-6 bottom-6 rounded-lg ${segment.color} ${segment.opacity} shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer group ${segment.dashed ? 'border-2 border-dashed border-slate-400' : ''} ${segment.pulse ? 'animate-pulse' : ''}`}
                             style={{ left: segment.left, width: segment.width, position: 'absolute' }}
                           >
-                            <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                            <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-white/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                           </div>
                         ))
                       }
@@ -1310,11 +1310,11 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                     return segments.map((segment: any, segIdx: number) => (
                       <div
                         key={`segment-exp-${segIdx}`}
-                        className={`absolute top-6 bottom-6 ${segment.color} ${segment.opacity} shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer group ${segment.dashed ? 'border-2 border-dashed border-slate-400' : 'rounded-lg'} ${segment.pulse ? 'animate-pulse' : ''}`}
+                        className={`absolute top-6 bottom-6 rounded-lg ${segment.color} ${segment.opacity} shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer group ${segment.dashed ? 'border-2 border-dashed border-slate-400' : ''} ${segment.pulse ? 'animate-pulse' : ''}`}
                         style={{ left: segment.left, width: segment.width, position: 'absolute' }}
                         title={`${task.name}: Segmento ${segment.type}`}
                       >
-                        <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-white/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       </div>
                     ))
                   }
