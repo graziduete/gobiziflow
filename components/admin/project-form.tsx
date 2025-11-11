@@ -455,7 +455,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
         company_id: formData.company_id,
         technical_responsible: formData.technical_responsible || null,
         key_user: formData.key_user || null,
-        estimated_hours: formData.estimated_hours ? Number.parseInt(formData.estimated_hours) : null,
+        estimated_hours: formData.estimated_hours ? parseFloat(formData.estimated_hours) : null,
         hourly_rate: formData.hourly_rate ? parseFloat(formData.hourly_rate.replace(/\./g, '').replace(',', '.')) : null,
         safra: formData.safra || null,
         use_business_days: formData.use_business_days, // Controle de dias úteis vs corridos
@@ -1526,7 +1526,8 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
               <Input
                 id="estimated_hours"
                 type="number"
-                min="1"
+                min="0"
+                step="0.5"
                 value={formData.estimated_hours}
                         onChange={(e) => {
                           handleChange("estimated_hours", e.target.value)
@@ -1535,7 +1536,7 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                         onBlur={() => {
                           calculateMissingField('estimated_hours')
                         }}
-                placeholder="Ex: 100"
+                placeholder="Ex: 33.5"
                         className={`w-full h-10 border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200 ${
                           calculatedField === 'estimated_hours' ? 'bg-blue-50 border-blue-300' : 'bg-white'
                         }`}
