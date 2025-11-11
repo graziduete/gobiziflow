@@ -41,6 +41,12 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
     type: "all",
     status: ["planning", "in_progress"] // Padrão inteligente: Planejamento + Em Andamento
   })
+  
+  // Filtros para a view normal (não expandida)
+  const [normalFilters, setNormalFilters] = useState({
+    search: "",
+    company: "all"
+  })
 
 
   // Debug: verificar dados dos projetos
@@ -307,12 +313,29 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
     return filtered
   }
 
-  // Ordenação para a lista principal (não expandida)
-  const sortedMainProjects = [...projects].sort((a, b) => {
-    const ad = a?.start_date ? new Date(a.start_date).getTime() : Infinity
-    const bd = b?.start_date ? new Date(b.start_date).getTime() : Infinity
-    return ad - bd
-  })
+  // Filtrar e ordenar projetos para a lista principal (não expandida)
+  const sortedMainProjects = (() => {
+    let filtered = [...projects]
+    
+    // Aplicar filtro de busca
+    if (normalFilters.search && normalFilters.search.trim() !== '') {
+      filtered = filtered.filter(project =>
+        project.name.toLowerCase().includes(normalFilters.search.toLowerCase())
+      )
+    }
+    
+    // Aplicar filtro de empresa
+    if (normalFilters.company && normalFilters.company !== 'all') {
+      filtered = filtered.filter(project => project.company_id === normalFilters.company)
+    }
+    
+    // Ordenar por data de início
+    return filtered.sort((a, b) => {
+      const ad = a?.start_date ? new Date(a.start_date).getTime() : Infinity
+      const bd = b?.start_date ? new Date(b.start_date).getTime() : Infinity
+      return ad - bd
+    })
+  })()
 
   const clearExpandedFilters = () => {
     setExpandedFilters({
@@ -440,10 +463,17 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
   // Carregar tarefas de todos os projetos para cálculo de progresso
   useEffect(() => {
     // Carregar tasks de todos os projetos visíveis para cálculo de progresso
-    getFilteredProjects().forEach(project => {
-      fetchProjectTasks(project.id)
-    })
-  }, [projects, expandedFilters])
+    if (isExpanded) {
+      getFilteredProjects().forEach(project => {
+        fetchProjectTasks(project.id)
+      })
+    } else {
+      // Na view normal, carregar tasks dos projetos filtrados
+      sortedMainProjects.forEach(project => {
+        fetchProjectTasks(project.id)
+      })
+    }
+  }, [projects, expandedFilters, normalFilters, isExpanded])
 
   // Carregar tarefas quando a visão Gantt for ativada (mantido para compatibilidade)
   useEffect(() => {
@@ -472,10 +502,89 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
           </div>
         </div>
       </CardHeader>
+      
+      {/* Barra de Filtros - View Normal */}
+      <div className="px-6 pb-4 space-y-3 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {/* Busca por Nome */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Input
+              placeholder="Buscar projeto por nome..."
+              value={normalFilters.search}
+              onChange={(e) => setNormalFilters(prev => ({ ...prev, search: e.target.value }))}
+              className="pl-10 h-10 border-slate-300 focus:border-blue-500 focus:ring-blue-500/20 transition-all"
+            />
+            {normalFilters.search && (
+              <button
+                onClick={() => setNormalFilters(prev => ({ ...prev, search: "" }))}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+          
+          {/* Filtro por Empresa */}
+          <div className="relative">
+            <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 z-10 pointer-events-none" />
+            <Select
+              value={normalFilters.company}
+              onValueChange={(value) => setNormalFilters(prev => ({ ...prev, company: value }))}
+            >
+              <SelectTrigger className="pl-10 h-10 border-slate-300 focus:border-blue-500 focus:ring-blue-500/20 transition-all">
+                <SelectValue placeholder="Filtrar por empresa" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas as Empresas</SelectItem>
+                {companies.map((company) => (
+                  <SelectItem key={company.id} value={company.id}>
+                    {company.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        
+        {/* Contador de Resultados */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Activity className="w-4 h-4 text-blue-600" />
+            <span className="text-sm font-medium text-slate-700">
+              {sortedMainProjects.length} projeto{sortedMainProjects.length !== 1 ? 's' : ''} encontrado{sortedMainProjects.length !== 1 ? 's' : ''}
+              {(normalFilters.search || normalFilters.company !== 'all') && (
+                <span className="text-slate-500"> (filtrado{sortedMainProjects.length !== projects.length ? ` de ${projects.length}` : ''})</span>
+              )}
+            </span>
+          </div>
+          
+          {/* Botão Limpar Filtros */}
+          {(normalFilters.search || normalFilters.company !== 'all') && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setNormalFilters({ search: "", company: "all" })}
+              className="text-xs h-7 text-slate-600 hover:text-slate-900"
+            >
+              Limpar filtros
+            </Button>
+          )}
+        </div>
+      </div>
+      
       <CardContent>
         <div className="space-y-4">
-          {projects.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">Nenhum projeto encontrado</p>
+          {sortedMainProjects.length === 0 ? (
+            <div className="text-center py-12">
+              <Search className="w-12 h-12 mx-auto mb-3 text-slate-300" />
+              <p className="text-slate-600 font-medium">Nenhum projeto encontrado</p>
+              <p className="text-sm text-slate-500 mt-1">
+                {normalFilters.search || normalFilters.company !== 'all' 
+                  ? 'Tente ajustar os filtros' 
+                  : 'Adicione projetos para visualizar'}
+              </p>
+            </div>
           ) : (
             sortedMainProjects.map((project) => (
               <div key={project.id} className="relative overflow-hidden border-0 bg-gradient-to-br from-white to-slate-50/50 rounded-xl p-5 hover:shadow-lg transition-all duration-300 group shadow-sm">
