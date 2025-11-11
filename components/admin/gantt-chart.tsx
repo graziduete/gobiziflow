@@ -578,7 +578,21 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
         })
       }
 
-      return segments.length > 0 ? segments : null
+      if (segments.length === 0) return null
+      
+      // CORREÇÃO: Converter posições absolutas para relativas ao primeiro segmento
+      // O container terá left=containerLeft, então os segmentos internos devem ser relativos
+      const firstSegmentLeft = parseFloat(segments[0].left)
+      const adjustedSegments = segments.map(seg => ({
+        ...seg,
+        left: `${parseFloat(seg.left) - firstSegmentLeft}px`
+      }))
+      
+      // Retornar segmentos ajustados + posição do container
+      return {
+        containerLeft: `${firstSegmentLeft}px`,
+        segments: adjustedSegments
+      }
     } catch (error) {
       console.error("Erro ao calcular segmentos:", error)
       return null
@@ -1011,14 +1025,14 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
 
                     {/* V2: Barras com segmentos no modo Real */}
                     {(() => {
-                      const segments = getTaskSegments(task)
+                      const segmentData = getTaskSegments(task)
                       
-                      if (segments) {
+                      if (segmentData) {
                         // Modo Real: Renderizar segmentos divididos com tooltip rico
                         return (
-                          <div className="absolute top-6 bottom-6 group" style={{ left: segments[0].left, right: 0 }}>
+                          <div className="absolute top-6 bottom-6 group" style={{ left: segmentData.containerLeft, right: 0 }}>
                             {/* Segmentos visuais */}
-                            {segments.map((segment: any, segIdx: number) => (
+                            {segmentData.segments.map((segment: any, segIdx: number) => (
                               <div
                                 key={`segment-${segIdx}`}
                                 className={`absolute top-0 bottom-0 rounded-lg ${segment.color} ${segment.opacity} shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer ${segment.dashed ? 'border-2 border-dashed border-slate-400' : ''} ${segment.pulse ? 'animate-pulse' : ''}`}
@@ -1473,14 +1487,14 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
 
                 {/* V2: Barras com segmentos no modo Real (View Expandida) */}
                 {(() => {
-                  const segments = getTaskSegments(task)
+                  const segmentData = getTaskSegments(task)
                   
-                  if (segments) {
+                  if (segmentData) {
                     // Modo Real: Renderizar segmentos divididos com tooltip rico
                     return (
-                      <div className="absolute top-6 bottom-6 group" style={{ left: segments[0].left, right: 0 }}>
+                      <div className="absolute top-6 bottom-6 group" style={{ left: segmentData.containerLeft, right: 0 }}>
                         {/* Segmentos visuais */}
-                        {segments.map((segment: any, segIdx: number) => (
+                        {segmentData.segments.map((segment: any, segIdx: number) => (
                           <div
                             key={`segment-exp-${segIdx}`}
                             className={`absolute top-0 bottom-0 rounded-lg ${segment.color} ${segment.opacity} shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer ${segment.dashed ? 'border-2 border-dashed border-slate-400' : ''} ${segment.pulse ? 'animate-pulse' : ''}`}
