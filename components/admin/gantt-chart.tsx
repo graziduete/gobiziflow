@@ -131,6 +131,19 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
       const startDate = task.actual_start_date || task.start_date
       const endDate = task.actual_end_date || task.predicted_end_date || task.end_date
       
+      // DEBUG: Verificar datas no modo Real
+      if (task.name.includes('Definição')) {
+        console.log(`📅 getTaskDates [REAL] "${task.name}":`, {
+          actual_start_date: task.actual_start_date,
+          start_date: task.start_date,
+          actual_end_date: task.actual_end_date,
+          predicted_end_date: task.predicted_end_date,
+          end_date: task.end_date,
+          '→ startDate USADO': startDate,
+          '→ endDate USADO': endDate
+        })
+      }
+      
       return {
         startDate,
         endDate
@@ -320,7 +333,25 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
 
   // SOLUÇÃO DEFINITIVA: Calcular posição das barras em pixels com posicionamento correto
   const getTaskBarStyle = React.useCallback((task: Task) => {
-    if (!task.start_date || !task.end_date || weeks.length === 0) return {}
+    // DEBUG: Verificar se função está sendo chamada no modo Real
+    if (task.name.includes('Definição')) {
+      console.log(`🎨 getTaskBarStyle CHAMADO [${viewMode.toUpperCase()}] "${task.name}"`, {
+        'task.start_date': task.start_date,
+        'task.end_date': task.end_date,
+        'weeks.length': weeks.length
+      })
+    }
+    
+    if (!task.start_date || !task.end_date || weeks.length === 0) {
+      if (task.name.includes('Definição')) {
+        console.log(`❌ getTaskBarStyle RETORNOU VAZIO - Motivo:`, {
+          'start_date existe?': !!task.start_date,
+          'end_date existe?': !!task.end_date,
+          'weeks.length > 0?': weeks.length > 0
+        })
+      }
+      return {}
+    }
     
     try {
       // Obter as datas corretas baseado no modo de visualização
