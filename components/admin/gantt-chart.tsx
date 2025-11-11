@@ -936,16 +936,104 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                       const segments = getTaskSegments(task)
                       
                       if (segments) {
-                        // Modo Real: Renderizar segmentos divididos
-                        return segments.map((segment: any, segIdx: number) => (
-                          <div
-                            key={`segment-${segIdx}`}
-                            className={`absolute top-6 bottom-6 rounded-lg ${segment.color} ${segment.opacity} shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer group ${segment.dashed ? 'border-2 border-dashed border-slate-400' : ''} ${segment.pulse ? 'animate-pulse' : ''}`}
-                            style={{ left: segment.left, width: segment.width, position: 'absolute' }}
-                          >
-                            <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-white/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        // Modo Real: Renderizar segmentos divididos com tooltip rico
+                        return (
+                          <div className="absolute top-6 bottom-6 group" style={{ left: segments[0].left, right: 0 }}>
+                            {/* Segmentos visuais */}
+                            {segments.map((segment: any, segIdx: number) => (
+                              <div
+                                key={`segment-${segIdx}`}
+                                className={`absolute top-0 bottom-0 rounded-lg ${segment.color} ${segment.opacity} shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer ${segment.dashed ? 'border-2 border-dashed border-slate-400' : ''} ${segment.pulse ? 'animate-pulse' : ''}`}
+                                style={{ left: segment.left, width: segment.width, position: 'absolute' }}
+                              >
+                                <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-white/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                              </div>
+                            ))}
+                            
+                            {/* Tooltip Rico (único para todos os segmentos) */}
+                            <div className="pointer-events-none absolute -top-3 left-1/2 -translate-x-1/2 -translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50">
+                              <div className="min-w-[280px] max-w-[320px] px-4 py-3 rounded-xl border border-slate-300 bg-white shadow-xl">
+                                <div className="text-xs font-bold text-slate-900 mb-2">{task.name}</div>
+                                
+                                {/* Planejado (Baseline) */}
+                                <div className="mb-2 pb-2 border-b border-slate-200">
+                                  <div className="text-[10px] font-semibold text-slate-700 mb-1 flex items-center gap-1">
+                                    <Calendar className="w-3 h-3 text-slate-600" /> PLANEJADO (Baseline)
+                                  </div>
+                                  <div className="text-[10px] text-slate-600 space-y-0.5">
+                                    <div>Início: {new Date(task.start_date + 'T12:00:00').toLocaleDateString('pt-BR')}</div>
+                                    <div>Término: {new Date(task.end_date + 'T12:00:00').toLocaleDateString('pt-BR')}</div>
+                                    <div className="text-blue-600 font-medium">Duração: {Math.ceil((new Date(task.end_date).getTime() - new Date(task.start_date).getTime()) / (24 * 60 * 60 * 1000))} dias</div>
+                                  </div>
+                                </div>
+                                
+                                {/* Realizado */}
+                                <div className="mb-2 pb-2 border-b border-slate-200">
+                                  <div className="text-[10px] font-semibold text-emerald-700 mb-1 flex items-center gap-1">
+                                    <CheckCircle2 className="w-3 h-3 text-emerald-600" /> REALIZADO
+                                  </div>
+                                  <div className="text-[10px] text-slate-600 space-y-0.5">
+                                    <div>Início: {task.actual_start_date ? new Date(task.actual_start_date + 'T12:00:00').toLocaleDateString('pt-BR') : new Date(task.start_date + 'T12:00:00').toLocaleDateString('pt-BR')} {task.actual_start_date ? '✓' : '(planejado)'}</div>
+                                    <div>Término: {task.actual_end_date ? new Date(task.actual_end_date + 'T12:00:00').toLocaleDateString('pt-BR') + ' ✓' : 'Em andamento'}</div>
+                                    {!task.actual_end_date && (
+                                      <div className="text-emerald-600 font-medium">
+                                        Executado até hoje: {Math.ceil((new Date().getTime() - new Date(task.actual_start_date || task.start_date).getTime()) / (24 * 60 * 60 * 1000))} dias
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                                
+                                {/* Previsão (se não terminou) */}
+                                {!task.actual_end_date && (task.predicted_end_date || task.end_date) && (
+                                  <div className="mb-2 pb-2 border-b border-slate-200">
+                                    <div className="text-[10px] font-semibold text-blue-700 mb-1 flex items-center gap-1">
+                                      <Clock className="w-3 h-3 text-blue-600" /> PREVISÃO DE TÉRMINO
+                                    </div>
+                                    <div className="text-[10px] text-slate-600 space-y-0.5">
+                                      <div>Data: {new Date((task.predicted_end_date || task.end_date) + 'T12:00:00').toLocaleDateString('pt-BR')}</div>
+                                      <div className="text-blue-600 font-medium">
+                                        Faltam: {Math.ceil((new Date(task.predicted_end_date || task.end_date).getTime() - new Date().getTime()) / (24 * 60 * 60 * 1000))} dias
+                                      </div>
+                                      <div className="text-slate-500">
+                                        Duração total: {Math.ceil((new Date(task.predicted_end_date || task.end_date).getTime() - new Date(task.actual_start_date || task.start_date).getTime()) / (24 * 60 * 60 * 1000))} dias
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                                
+                                {/* Análise */}
+                                <div className="mb-1">
+                                  <div className="text-[10px] font-semibold text-slate-700 mb-1 flex items-center gap-1">
+                                    <TrendingUp className="w-3 h-3 text-slate-600" /> ANÁLISE
+                                  </div>
+                                  <div className="text-[10px] text-slate-600 space-y-0.5">
+                                    {(() => {
+                                      const plannedEnd = new Date(task.end_date)
+                                      const actualOrPredicted = new Date(task.actual_end_date || task.predicted_end_date || task.end_date)
+                                      const deviation = Math.ceil((actualOrPredicted.getTime() - plannedEnd.getTime()) / (24 * 60 * 60 * 1000))
+                                      
+                                      return (
+                                        <>
+                                          <div className={`font-medium ${deviation > 0 ? 'text-red-600' : deviation < 0 ? 'text-green-600' : 'text-slate-600'}`}>
+                                            {deviation > 0 ? '🔴' : deviation < 0 ? '🟢' : '⚪'} Desvio: {deviation > 0 ? '+' : ''}{deviation} dias
+                                          </div>
+                                          <div>Status: {getStatusText(task.status)}</div>
+                                        </>
+                                      )
+                                    })()}
+                                  </div>
+                                </div>
+                                
+                                {/* Responsável */}
+                                <div className="mt-2 pt-2 border-t border-slate-200">
+                                  <div className="text-[10px] text-slate-600 flex items-center gap-1">
+                                    <Users className="w-3 h-3" /> {task.responsible}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                        ))
+                        )
                       }
                       
                       // Modo Planejado: Barra única (original)
@@ -1310,17 +1398,104 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                   const segments = getTaskSegments(task)
                   
                   if (segments) {
-                    // Modo Real: Renderizar segmentos divididos
-                    return segments.map((segment: any, segIdx: number) => (
-                      <div
-                        key={`segment-exp-${segIdx}`}
-                        className={`absolute top-6 bottom-6 rounded-lg ${segment.color} ${segment.opacity} shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer group ${segment.dashed ? 'border-2 border-dashed border-slate-400' : ''} ${segment.pulse ? 'animate-pulse' : ''}`}
-                        style={{ left: segment.left, width: segment.width, position: 'absolute' }}
-                        title={`${task.name}: Segmento ${segment.type}`}
-                      >
-                        <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-white/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    // Modo Real: Renderizar segmentos divididos com tooltip rico
+                    return (
+                      <div className="absolute top-6 bottom-6 group" style={{ left: segments[0].left, right: 0 }}>
+                        {/* Segmentos visuais */}
+                        {segments.map((segment: any, segIdx: number) => (
+                          <div
+                            key={`segment-exp-${segIdx}`}
+                            className={`absolute top-0 bottom-0 rounded-lg ${segment.color} ${segment.opacity} shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer ${segment.dashed ? 'border-2 border-dashed border-slate-400' : ''} ${segment.pulse ? 'animate-pulse' : ''}`}
+                            style={{ left: segment.left, width: segment.width, position: 'absolute' }}
+                          >
+                            <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-white/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                          </div>
+                        ))}
+                        
+                        {/* Tooltip Rico (único para todos os segmentos) */}
+                        <div className="pointer-events-none absolute -top-3 left-1/2 -translate-x-1/2 -translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50">
+                          <div className="min-w-[280px] max-w-[320px] px-4 py-3 rounded-xl border border-slate-300 bg-white shadow-xl">
+                            <div className="text-xs font-bold text-slate-900 mb-2">{task.name}</div>
+                            
+                            {/* Planejado (Baseline) */}
+                            <div className="mb-2 pb-2 border-b border-slate-200">
+                              <div className="text-[10px] font-semibold text-slate-700 mb-1 flex items-center gap-1">
+                                <Calendar className="w-3 h-3 text-slate-600" /> PLANEJADO (Baseline)
+                              </div>
+                              <div className="text-[10px] text-slate-600 space-y-0.5">
+                                <div>Início: {new Date(task.start_date + 'T12:00:00').toLocaleDateString('pt-BR')}</div>
+                                <div>Término: {new Date(task.end_date + 'T12:00:00').toLocaleDateString('pt-BR')}</div>
+                                <div className="text-blue-600 font-medium">Duração: {Math.ceil((new Date(task.end_date).getTime() - new Date(task.start_date).getTime()) / (24 * 60 * 60 * 1000))} dias</div>
+                              </div>
+                            </div>
+                            
+                            {/* Realizado */}
+                            <div className="mb-2 pb-2 border-b border-slate-200">
+                              <div className="text-[10px] font-semibold text-emerald-700 mb-1 flex items-center gap-1">
+                                <CheckCircle2 className="w-3 h-3 text-emerald-600" /> REALIZADO
+                              </div>
+                              <div className="text-[10px] text-slate-600 space-y-0.5">
+                                <div>Início: {task.actual_start_date ? new Date(task.actual_start_date + 'T12:00:00').toLocaleDateString('pt-BR') : new Date(task.start_date + 'T12:00:00').toLocaleDateString('pt-BR')} {task.actual_start_date ? '✓' : '(planejado)'}</div>
+                                <div>Término: {task.actual_end_date ? new Date(task.actual_end_date + 'T12:00:00').toLocaleDateString('pt-BR') + ' ✓' : 'Em andamento'}</div>
+                                {!task.actual_end_date && (
+                                  <div className="text-emerald-600 font-medium">
+                                    Executado até hoje: {Math.ceil((new Date().getTime() - new Date(task.actual_start_date || task.start_date).getTime()) / (24 * 60 * 60 * 1000))} dias
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            
+                            {/* Previsão (se não terminou) */}
+                            {!task.actual_end_date && (task.predicted_end_date || task.end_date) && (
+                              <div className="mb-2 pb-2 border-b border-slate-200">
+                                <div className="text-[10px] font-semibold text-blue-700 mb-1 flex items-center gap-1">
+                                  <Clock className="w-3 h-3 text-blue-600" /> PREVISÃO DE TÉRMINO
+                                </div>
+                                <div className="text-[10px] text-slate-600 space-y-0.5">
+                                  <div>Data: {new Date((task.predicted_end_date || task.end_date) + 'T12:00:00').toLocaleDateString('pt-BR')}</div>
+                                  <div className="text-blue-600 font-medium">
+                                    Faltam: {Math.ceil((new Date(task.predicted_end_date || task.end_date).getTime() - new Date().getTime()) / (24 * 60 * 60 * 1000))} dias
+                                  </div>
+                                  <div className="text-slate-500">
+                                    Duração total: {Math.ceil((new Date(task.predicted_end_date || task.end_date).getTime() - new Date(task.actual_start_date || task.start_date).getTime()) / (24 * 60 * 60 * 1000))} dias
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                            
+                            {/* Análise */}
+                            <div className="mb-1">
+                              <div className="text-[10px] font-semibold text-slate-700 mb-1 flex items-center gap-1">
+                                <TrendingUp className="w-3 h-3 text-slate-600" /> ANÁLISE
+                              </div>
+                              <div className="text-[10px] text-slate-600 space-y-0.5">
+                                {(() => {
+                                  const plannedEnd = new Date(task.end_date)
+                                  const actualOrPredicted = new Date(task.actual_end_date || task.predicted_end_date || task.end_date)
+                                  const deviation = Math.ceil((actualOrPredicted.getTime() - plannedEnd.getTime()) / (24 * 60 * 60 * 1000))
+                                  
+                                  return (
+                                    <>
+                                      <div className={`font-medium ${deviation > 0 ? 'text-red-600' : deviation < 0 ? 'text-green-600' : 'text-slate-600'}`}>
+                                        {deviation > 0 ? '🔴' : deviation < 0 ? '🟢' : '⚪'} Desvio: {deviation > 0 ? '+' : ''}{deviation} dias
+                                      </div>
+                                      <div>Status: {getStatusText(task.status)}</div>
+                                    </>
+                                  )
+                                })()}
+                              </div>
+                            </div>
+                            
+                            {/* Responsável */}
+                            <div className="mt-2 pt-2 border-t border-slate-200">
+                              <div className="text-[10px] text-slate-600 flex items-center gap-1">
+                                <Users className="w-3 h-3" /> {task.responsible}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                    ))
+                    )
                   }
                   
                   // Modo Planejado: Barra única (original)
