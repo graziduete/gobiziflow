@@ -118,6 +118,26 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
     setCurrentYM({ y: now.getFullYear(), m: now.getMonth() })
   }, [])
 
+  // Função helper para obter as datas corretas baseado no modo de visualização
+  const getTaskDates = React.useCallback((task: Task) => {
+    if (viewMode === 'planned') {
+      // Modo Planejado: usa baseline original
+      return {
+        startDate: task.start_date,
+        endDate: task.end_date
+      }
+    } else {
+      // Modo Real: usa datas reais ou previstas
+      const startDate = task.actual_start_date || task.start_date
+      const endDate = task.actual_end_date || task.predicted_end_date || task.end_date
+      
+      return {
+        startDate,
+        endDate
+      }
+    }
+  }, [viewMode])
+
   // Função para calcular semanas corretamente por mês/ano
   const weeks = React.useMemo(() => {
     try {
@@ -298,8 +318,10 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
     if (!task.start_date || !task.end_date || weeks.length === 0) return {}
     
     try {
-      const taskStart = new Date(task.start_date)
-      const taskEnd = new Date(task.end_date)
+      // Obter as datas corretas baseado no modo de visualização
+      const { startDate, endDate } = getTaskDates(task)
+      const taskStart = new Date(startDate)
+      const taskEnd = new Date(endDate)
       
       if (isNaN(taskStart.getTime()) || isNaN(taskEnd.getTime())) return {}
       
@@ -333,7 +355,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
       console.error("Erro ao calcular estilo da barra:", error)
       return {}
     }
-  }, [weeks, weekWidth])
+  }, [weeks, weekWidth, getTaskDates])
 
   // CORREÇÃO: Função para obter cor baseada no status real da tarefa
   const getTaskColor = (status: string) => {
@@ -572,6 +594,28 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
               {/* Botões de ação */}
               {!hideControls && (
                 <div className="flex items-center gap-2 bg-white/60 border border-slate-200 rounded-lg p-1.5 shadow-sm">
+                  {/* Toggle de Visualização */}
+                  <div className="flex items-center gap-1 border-r border-slate-300 pr-2 mr-1">
+                    <Button
+                      type="button"
+                      variant={viewMode === 'planned' ? 'default' : 'outline'}
+                      size="sm"
+                      className="text-xs h-7 px-3"
+                      onClick={() => setViewMode('planned')}
+                    >
+                      📋 Planejado
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={viewMode === 'actual' ? 'default' : 'outline'}
+                      size="sm"
+                      className="text-xs h-7 px-3"
+                      onClick={() => setViewMode('actual')}
+                    >
+                      ✅ Real
+                    </Button>
+                  </div>
+                  
                   {/* Controles de Zoom */}
                   <div className="flex items-center gap-1 border-r border-slate-300 pr-2 mr-1">
                     <Button 
@@ -904,6 +948,28 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
           {/* Botões de ação */}
           {!hideControls && (
             <div className="flex items-center gap-2 bg-white/60 border border-slate-200 rounded-lg p-1.5 shadow-sm">
+              {/* Toggle de Visualização */}
+              <div className="flex items-center gap-1 border-r border-slate-300 pr-2 mr-1">
+                <Button
+                  type="button"
+                  variant={viewMode === 'planned' ? 'default' : 'outline'}
+                  size="sm"
+                  className="text-xs h-7 px-3"
+                  onClick={() => setViewMode('planned')}
+                >
+                  📋 Planejado
+                </Button>
+                <Button
+                  type="button"
+                  variant={viewMode === 'actual' ? 'default' : 'outline'}
+                  size="sm"
+                  className="text-xs h-7 px-3"
+                  onClick={() => setViewMode('actual')}
+                >
+                  ✅ Real
+                </Button>
+              </div>
+              
               {/* Controles de Zoom */}
               <div className="flex items-center gap-1 border-r border-slate-300 pr-2 mr-1">
                 <Button 
