@@ -623,9 +623,9 @@ export default function ProjectsPage() {
                         <span>Safra: {project.safra}</span>
                       )}
                       {project.start_date && (
-                        <span>Início: {formatDateUTC(project.start_date)}</span>
+                        <span>Início Planejado: {formatDateUTC(project.start_date)}</span>
                       )}
-                      {project.end_date && <span>Término: {formatDateUTC(project.end_date)}</span>}
+                      {project.end_date && <span>Término Planejado: {formatDateUTC(project.end_date)}</span>}
                     </div>
                   </div>
                   <div className="flex items-center gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
@@ -698,14 +698,14 @@ export default function ProjectsPage() {
                       {project.start_date && (
                         <div className="flex items-center gap-2">
                           <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-                          <span className="font-medium">Início:</span>
+                          <span className="font-medium">Início Planejado:</span>
                           <span className="text-slate-600">{formatDateUTC(project.start_date)}</span>
                         </div>
                       )}
                       {project.end_date && (
                         <div className="flex items-center gap-2">
                           <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                          <span className="font-medium">Término:</span>
+                          <span className="font-medium">Término Planejado:</span>
                           <span className="text-slate-600">{formatDateUTC(project.end_date)}</span>
                         </div>
                       )}
