@@ -336,6 +336,18 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
       
       if (!projectStart || !projectEnd) return {}
       
+      // DEBUG: Log para verificar posicionamento
+      if (task.name.includes('Definição')) {
+        console.log(`🔍 [${viewMode.toUpperCase()}] "${task.name}":`, {
+          viewMode,
+          startDate,
+          endDate,
+          taskStart: taskStart.toLocaleDateString('pt-BR'),
+          projectStart: projectStart.toLocaleDateString('pt-BR'),
+          'weeks[0]': weeks[0]
+        })
+      }
+      
       // Calcular posição em pixels baseada em dias exatos
       const totalProjectDays = Math.ceil((projectEnd.getTime() - projectStart.getTime()) / (24 * 60 * 60 * 1000))
       if (totalProjectDays <= 0) return {}
