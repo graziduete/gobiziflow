@@ -386,6 +386,127 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
     }
   }
 
+  // NOVO: Calcular segmentos da barra no modo Real (passado/presente/futuro)
+  const getTaskSegments = React.useCallback((task: Task) => {
+    if (viewMode === 'planned' || !task.start_date || !task.end_date || weeks.length === 0) {
+      return null // Modo planejado usa barra única
+    }
+
+    try {
+      const { startDate, endDate } = getTaskDates(task)
+      const taskStart = new Date(startDate)
+      const taskEnd = new Date(endDate)
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+
+      const projectStart = weeks[0]?.start
+      const projectEnd = weeks[weeks.length - 1]?.end
+      if (!projectStart || !projectEnd) return null
+
+      const totalProjectDays = Math.ceil((projectEnd.getTime() - projectStart.getTime()) / (24 * 60 * 60 * 1000))
+      if (totalProjectDays <= 0) return null
+
+      const totalWeeksWidth = weeks.length * weekWidth
+      const baseLeft = 280
+
+      // Helper para calcular pixels
+      const calculatePixels = (date: Date) => {
+        const offset = Math.max(0, (date.getTime() - projectStart.getTime()) / (24 * 60 * 60 * 1000))
+        return baseLeft + (offset / totalProjectDays) * totalWeeksWidth
+      }
+
+      const segments = []
+
+      // Se a tarefa já terminou (tem actual_end_date)
+      if (task.actual_end_date) {
+        const actualEnd = new Date(task.actual_end_date)
+        const planned = new Date(task.end_date)
+        
+        // Barra única mostrando período executado
+        const leftPx = calculatePixels(taskStart)
+        const rightPx = calculatePixels(actualEnd)
+        
+        segments.push({
+          type: 'completed',
+          left: `${leftPx}px`,
+          width: `${rightPx - leftPx}px`,
+          color: task.status === 'completed_delayed' ? 'bg-gradient-to-r from-orange-500 to-orange-600' : 'bg-gradient-to-r from-emerald-500 to-emerald-600',
+          opacity: 'opacity-90'
+        })
+      } 
+      // Se está em andamento
+      else if (task.status === 'in_progress' || task.status === 'delayed') {
+        const plannedEnd = new Date(task.end_date)
+        
+        // Segmento 1: Do início até o fim planejado (ou hoje, o que vier primeiro)
+        const segment1End = today < plannedEnd ? today : plannedEnd
+        const leftPx1 = calculatePixels(taskStart)
+        const rightPx1 = calculatePixels(segment1End)
+        
+        if (rightPx1 > leftPx1) {
+          segments.push({
+            type: 'executed',
+            left: `${leftPx1}px`,
+            width: `${rightPx1 - leftPx1}px`,
+            color: 'bg-gradient-to-r from-emerald-500 to-emerald-600',
+            opacity: 'opacity-80'
+          })
+        }
+
+        // Segmento 2: Do fim planejado até hoje (período atrasado) - se passou do prazo
+        if (today > plannedEnd) {
+          const leftPx2 = calculatePixels(plannedEnd)
+          const rightPx2 = calculatePixels(today)
+          
+          if (rightPx2 > leftPx2) {
+            segments.push({
+              type: 'delayed',
+              left: `${leftPx2}px`,
+              width: `${rightPx2 - leftPx2}px`,
+              color: 'bg-gradient-to-r from-red-500 to-red-600',
+              opacity: 'opacity-90',
+              pulse: true
+            })
+          }
+        }
+
+        // Segmento 3: De hoje até a previsão de término (futuro)
+        const leftPx3 = calculatePixels(today)
+        const rightPx3 = calculatePixels(taskEnd)
+        
+        if (rightPx3 > leftPx3) {
+          segments.push({
+            type: 'predicted',
+            left: `${leftPx3}px`,
+            width: `${rightPx3 - leftPx3}px`,
+            color: 'bg-slate-300',
+            opacity: 'opacity-50',
+            dashed: true
+          })
+        }
+      }
+      // Se não iniciou ainda
+      else {
+        const leftPx = calculatePixels(taskStart)
+        const rightPx = calculatePixels(taskEnd)
+        
+        segments.push({
+          type: 'notstarted',
+          left: `${leftPx}px`,
+          width: `${rightPx - leftPx}px`,
+          color: 'bg-slate-200',
+          opacity: 'opacity-40',
+          dashed: true
+        })
+      }
+
+      return segments.length > 0 ? segments : null
+    } catch (error) {
+      console.error("Erro ao calcular segmentos:", error)
+      return null
+    }
+  }, [viewMode, weeks, weekWidth, getTaskDates])
+
   // Função para calcular progresso baseado no status
   const getTaskProgress = (task: Task) => {
     switch (task.status.toLowerCase()) {
@@ -808,21 +929,38 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                       />
                     ))}
 
-                    {/* SOLUÇÃO DEFINITIVA: Barra contínua posicionada absolutamente */}
-                    {task.start_date && task.end_date && (
-                      <div
-                        className={`absolute top-6 bottom-6 bg-gradient-to-r ${getTaskColor(task.status)} shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group rounded-xl border border-white/20 hover:border-white/40 hover:scale-[1.02] backdrop-blur-sm`}
-                        style={getTaskBarStyle(task)}
-                        data-progress-bar="true"
-                        data-start-date={task.start_date}
-                        data-end-date={task.end_date}
-                        data-progress={getTaskProgress(task)}
-                      >
-                        {/* Efeito de brilho interno */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-white/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    {/* V2: Barras com segmentos no modo Real */}
+                    {(() => {
+                      const segments = getTaskSegments(task)
+                      
+                      if (segments) {
+                        // Modo Real: Renderizar segmentos divididos
+                        return segments.map((segment: any, segIdx: number) => (
+                          <div
+                            key={`segment-${segIdx}`}
+                            className={`absolute top-6 bottom-6 ${segment.color} ${segment.opacity} shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer group ${segment.dashed ? 'border-2 border-dashed border-slate-400' : 'rounded-lg'} ${segment.pulse ? 'animate-pulse' : ''}`}
+                            style={{ left: segment.left, width: segment.width, position: 'absolute' }}
+                          >
+                            <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                          </div>
+                        ))
+                      }
+                      
+                      // Modo Planejado: Barra única (original)
+                      return task.start_date && task.end_date && (
+                        <div
+                          className={`absolute top-6 bottom-6 bg-gradient-to-r ${getTaskColor(task.status)} shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group rounded-xl border border-white/20 hover:border-white/40 hover:scale-[1.02] backdrop-blur-sm`}
+                          style={getTaskBarStyle(task)}
+                          data-progress-bar="true"
+                          data-start-date={task.start_date}
+                          data-end-date={task.end_date}
+                          data-progress={getTaskProgress(task)}
+                        >
+                          {/* Efeito de brilho interno */}
+                          <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-white/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-                        {/* Tooltip moderno */}
-                        <div className="pointer-events-none absolute -top-3 left-1/2 -translate-x-1/2 -translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                          {/* Tooltip moderno */}
+                          <div className="pointer-events-none absolute -top-3 left-1/2 -translate-x-1/2 -translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                           <div className="min-w-[220px] max-w-[280px] px-3 py-2 rounded-xl border border-white/30 bg-white/70 backdrop-blur-md shadow-lg">
                             <div className="text-[11px] font-semibold text-slate-900 line-clamp-1">{task.name}</div>
                             <div className="mt-1 grid grid-cols-2 gap-2 text-[11px] text-slate-700">
@@ -853,7 +991,8 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                           />
                         </div>
                       </div>
-                    )}
+                      )
+                    })()}
 
                     {/* Linha separadora entre tarefas (exceto na última) */}
                     {taskIndex < validTasks.length - 1 && (
@@ -1162,31 +1301,49 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                   />
                 ))}
 
-                {/* SOLUÇÃO DEFINITIVA: Barra contínua posicionada absolutamente */}
-                {task.start_date && task.end_date && (
-                  <div
-                    className={`absolute top-6 bottom-6 bg-gradient-to-r ${getTaskColor(task.status)} shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group rounded-xl border border-white/20 hover:border-white/40 hover:scale-[1.02] backdrop-blur-sm`}
-                    style={getTaskBarStyle(task)}
-                    title={`${task.name}: ${task.start_date} a ${task.end_date}`}
-                    data-progress-bar="true"
-                    data-start-date={task.start_date}
-                    data-end-date={task.end_date}
-                    data-progress={getTaskProgress(task)}
-                  >
-                    {/* Efeito de brilho interno */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-white/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    
-                    
-                    {/* Indicador de progresso sutil */}
-                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20 rounded-b-xl overflow-hidden">
-                      <div 
-                        className="h-full bg-white/40 transition-all duration-500 ease-out"
-                        style={{ width: `${getTaskProgress(task)}%` }}
-                      />
-                    </div>
+                {/* V2: Barras com segmentos no modo Real (View Expandida) */}
+                {(() => {
+                  const segments = getTaskSegments(task)
+                  
+                  if (segments) {
+                    // Modo Real: Renderizar segmentos divididos
+                    return segments.map((segment: any, segIdx: number) => (
+                      <div
+                        key={`segment-exp-${segIdx}`}
+                        className={`absolute top-6 bottom-6 ${segment.color} ${segment.opacity} shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer group ${segment.dashed ? 'border-2 border-dashed border-slate-400' : 'rounded-lg'} ${segment.pulse ? 'animate-pulse' : ''}`}
+                        style={{ left: segment.left, width: segment.width, position: 'absolute' }}
+                        title={`${task.name}: Segmento ${segment.type}`}
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      </div>
+                    ))
+                  }
+                  
+                  // Modo Planejado: Barra única (original)
+                  return task.start_date && task.end_date && (
+                    <div
+                      className={`absolute top-6 bottom-6 bg-gradient-to-r ${getTaskColor(task.status)} shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group rounded-xl border border-white/20 hover:border-white/40 hover:scale-[1.02] backdrop-blur-sm`}
+                      style={getTaskBarStyle(task)}
+                      title={`${task.name}: ${task.start_date} a ${task.end_date}`}
+                      data-progress-bar="true"
+                      data-start-date={task.start_date}
+                      data-end-date={task.end_date}
+                      data-progress={getTaskProgress(task)}
+                    >
+                      {/* Efeito de brilho interno */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-white/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      
+                      
+                      {/* Indicador de progresso sutil */}
+                      <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20 rounded-b-xl overflow-hidden">
+                        <div 
+                          className="h-full bg-white/40 transition-all duration-500 ease-out"
+                          style={{ width: `${getTaskProgress(task)}%` }}
+                        />
+                      </div>
 
-                    {/* Tooltip moderno */}
-                    <div className="pointer-events-none absolute -top-3 left-1/2 -translate-x-1/2 -translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      {/* Tooltip moderno */}
+                      <div className="pointer-events-none absolute -top-3 left-1/2 -translate-x-1/2 -translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                       <div className="min-w-[220px] max-w-[280px] px-3 py-2 rounded-xl border border-white/30 bg-white/70 backdrop-blur-md shadow-lg">
                         <div className="text-[11px] font-semibold text-slate-900 line-clamp-1">{task.name}</div>
                         <div className="mt-1 grid grid-cols-2 gap-2 text-[11px] text-slate-700">
@@ -1211,8 +1368,9 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                         )}
                       </div>
                     </div>
-                  </div>
-                )}
+                    </div>
+                  )
+                })()}
 
                 {/* Linha separadora entre tarefas (exceto na última) */}
                 {taskIndex < validTasks.length - 1 && (
