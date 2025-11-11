@@ -457,8 +457,10 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
 
     try {
       const { startDate, endDate } = getTaskDates(task)
-      const taskStart = new Date(startDate)
-      const taskEnd = new Date(endDate)
+      
+      // FIX: Adicionar T12:00:00 para evitar problemas de timezone
+      const taskStart = new Date(startDate + 'T12:00:00')
+      const taskEnd = new Date(endDate + 'T12:00:00')
       const today = new Date()
       today.setHours(0, 0, 0, 0)
 
@@ -495,8 +497,8 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
 
       // Se a tarefa já terminou (tem actual_end_date)
       if (task.actual_end_date) {
-        const actualEnd = new Date(task.actual_end_date)
-        const planned = new Date(task.end_date)
+        const actualEnd = new Date(task.actual_end_date + 'T12:00:00')
+        const planned = new Date(task.end_date + 'T12:00:00')
         
         // Barra única mostrando período executado
         const leftPx = calculatePixels(taskStart)
@@ -512,7 +514,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
       } 
       // Se está em andamento
       else if (task.status === 'in_progress' || task.status === 'delayed') {
-        const plannedEnd = new Date(task.end_date)
+        const plannedEnd = new Date(task.end_date + 'T12:00:00')
         
         // Segmento 1: Do início até o fim planejado (ou hoje, o que vier primeiro)
         const segment1End = today < plannedEnd ? today : plannedEnd
