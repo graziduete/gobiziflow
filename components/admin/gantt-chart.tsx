@@ -153,12 +153,14 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
           start = new Date(today.getFullYear(), today.getMonth(), 1)
           end = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), 0)
         } else {
-          // Calcular período real baseado nas tarefas E no modo de visualização
+          // IMPORTANTE: Timeline SEMPRE usa datas PLANEJADAS como referência
+          // Isso garante que a numeração das semanas seja consistente entre modos Planejado e Real
+          // Apenas as barras de tarefas mudam de posição no modo Real
           const taskDates = validTasks.flatMap(task => {
-            const { startDate, endDate } = getTaskDates(task)
+            // SEMPRE usar datas planejadas para calcular a timeline
             return [
-              new Date(startDate), 
-              new Date(endDate)
+              new Date(task.start_date), 
+              new Date(task.end_date)
             ]
           }).filter(date => !isNaN(date.getTime()))
           
@@ -256,7 +258,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
         }
       ]
     }
-  }, [tasks, viewMode, getTaskDates])
+  }, [tasks]) // Timeline sempre baseada nas datas planejadas, independente do viewMode
 
   // Calcular posição da linha da data atual
   const currentDateLinePosition = React.useMemo(() => {
