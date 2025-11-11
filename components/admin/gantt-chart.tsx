@@ -19,8 +19,11 @@ interface Task {
   delay_justification?: string
   original_end_date?: string
   actual_end_date?: string
+  actual_start_date?: string
+  predicted_end_date?: string
   delay_created_at?: string
   delay_created_by?: string
+  order?: number
 }
 
 interface GanttChartProps {
@@ -40,6 +43,9 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
   
   // Estado para controlar o nível de zoom (50%, 75%, 100%, 125%, 150%)
   const [zoomLevel, setZoomLevel] = React.useState(100)
+  
+  // Estado para controlar o modo de visualização (planejado vs real)
+  const [viewMode, setViewMode] = React.useState<'planned' | 'actual'>('planned')
   
   // Largura base de uma semana (120px padrão × zoom)
   const weekWidth = React.useMemo(() => {
