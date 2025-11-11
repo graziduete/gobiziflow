@@ -433,7 +433,25 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
 
   // NOVO: Calcular segmentos da barra no modo Real (passado/presente/futuro)
   const getTaskSegments = React.useCallback((task: Task) => {
+    // DEBUG: Verificar se função está sendo chamada
+    if (task.name.includes('Definição')) {
+      console.log(`🧩 getTaskSegments CHAMADO [${viewMode.toUpperCase()}] "${task.name}"`, {
+        viewMode,
+        'task.start_date': task.start_date,
+        'task.end_date': task.end_date,
+        'weeks.length': weeks.length
+      })
+    }
+    
     if (viewMode === 'planned' || !task.start_date || !task.end_date || weeks.length === 0) {
+      if (task.name.includes('Definição') && viewMode !== 'planned') {
+        console.log(`❌ getTaskSegments RETORNOU NULL - Motivo:`, {
+          'viewMode !== planned?': viewMode !== 'planned',
+          'start_date existe?': !!task.start_date,
+          'end_date existe?': !!task.end_date,
+          'weeks.length > 0?': weeks.length > 0
+        })
+      }
       return null // Modo planejado usa barra única
     }
 
@@ -446,6 +464,19 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
 
       const projectStart = weeks[0]?.start
       const projectEnd = weeks[weeks.length - 1]?.end
+      
+      // DEBUG: Verificar datas e posicionamento
+      if (task.name.includes('Definição')) {
+        console.log(`📍 getTaskSegments CALCULANDO "${task.name}":`, {
+          startDate,
+          endDate,
+          'taskStart': taskStart.toLocaleDateString('pt-BR'),
+          'projectStart': projectStart?.toLocaleDateString('pt-BR'),
+          'weeks[0]': weeks[0],
+          'segments serão calculados': true
+        })
+      }
+      
       if (!projectStart || !projectEnd) return null
 
       const totalProjectDays = Math.ceil((projectEnd.getTime() - projectStart.getTime()) / (24 * 60 * 60 * 1000))
