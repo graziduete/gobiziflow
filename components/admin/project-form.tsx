@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { Plus, Trash2, Calendar, Clock, User, Users, FileText, AlertTriangle, Lock, CheckCircle, TrendingUp, TrendingDown, BarChart3, CalendarCheck2, Target, CheckCircle2, CalendarClock } from "lucide-react"
@@ -153,6 +154,14 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
     weekendDates: { date: string, dayName: string, isStart: boolean }[]
     suggestedDates: { friday: string, monday: string }
   } | null>(null)
+  
+  // Estado para controlar accordions (seções expansíveis)
+  // Lógica: Criação = algumas abertas, Edição = fechadas (foco nas tarefas)
+  const [openSections, setOpenSections] = useState<string[]>(() => {
+    // Se está criando (não tem project), abre financeiro e responsáveis
+    // Se está editando, fecha tudo exceto básicas e tarefas
+    return !project ? ['financial', 'responsibles'] : []
+  })
   
   // Estado para modal de justificativa de atraso ao concluir
   const [showDelayJustificationOnComplete, setShowDelayJustificationOnComplete] = useState(false)
@@ -1416,18 +1425,21 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
 
 
 
-          {/* Informações Financeiras e Temporais - Card */}
+          {/* Informações Financeiras e Temporais - Accordion */}
           {userRole && (
-            <Card className="bg-gradient-to-br from-slate-50/80 to-emerald-50/50 border border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-200">
-              <CardHeader className="pb-4">
-                <div className="flex items-center gap-2">
-                  <div className="p-1.5 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-md">
-                    <Clock className="w-4 h-4 text-white" />
-                  </div>
-                  <CardTitle className="text-lg font-semibold text-slate-700">Informações Financeiras e Temporais</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-0">
+            <Accordion type="multiple" value={openSections} onValueChange={setOpenSections} className="space-y-0">
+              <AccordionItem value="financial" className="border-0">
+                <Card className="bg-gradient-to-br from-slate-50/80 to-emerald-50/50 border border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-200">
+                  <AccordionTrigger className="hover:no-underline px-6 py-4">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-md">
+                        <Clock className="w-4 h-4 text-white" />
+                      </div>
+                      <span className="text-lg font-semibold text-slate-700">Informações Financeiras e Temporais</span>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <CardContent className="pt-0">
                 <div className="grid grid-cols-1 gap-4">
                   {/* Primeira linha: Orçamento (inteligente) - apenas para admin */}
               {userRole !== 'admin_operacional' && (
@@ -1799,21 +1811,27 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                     </div>
                   </div>
               </div>
-            </CardContent>
-          </Card>
+                    </CardContent>
+                  </AccordionContent>
+                </Card>
+              </AccordionItem>
+            </Accordion>
           )}
 
-          {/* Responsáveis - Card */}
-          <Card className="bg-gradient-to-br from-slate-50/80 to-orange-50/50 border border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-200">
-            <CardHeader className="pb-4">
-              <div className="flex items-center gap-2">
-                <div className="p-1.5 bg-gradient-to-br from-orange-500 to-red-600 rounded-md">
-                  <Users className="w-4 h-4 text-white" />
-                </div>
-                <CardTitle className="text-lg font-semibold text-slate-700">Responsáveis pelo Projeto</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-0">
+          {/* Responsáveis - Accordion */}
+          <Accordion type="multiple" value={openSections} onValueChange={setOpenSections} className="space-y-0">
+            <AccordionItem value="responsibles" className="border-0">
+              <Card className="bg-gradient-to-br from-slate-50/80 to-orange-50/50 border border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-200">
+                <AccordionTrigger className="hover:no-underline px-6 py-4">
+                  <div className="flex items-center gap-2">
+                    <div className="p-1.5 bg-gradient-to-br from-orange-500 to-red-600 rounded-md">
+                      <Users className="w-4 h-4 text-white" />
+                    </div>
+                    <span className="text-lg font-semibold text-slate-700">Responsáveis pelo Projeto</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <CardContent className="pt-0">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="technical_responsible" className="text-sm font-medium text-slate-600 flex items-center gap-2">
@@ -1842,8 +1860,11 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                   />
                 </div>
               </div>
-            </CardContent>
-          </Card>
+                  </CardContent>
+                </AccordionContent>
+              </Card>
+            </AccordionItem>
+          </Accordion>
 
           {/* Seção de Tarefas - Card Modernizado */}
           <Card className="bg-gradient-to-br from-slate-50/80 to-cyan-50/50 border border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-200">
