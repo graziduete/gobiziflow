@@ -1525,18 +1525,23 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
               </Label>
               <Input
                 id="estimated_hours"
-                type="number"
-                min="0"
-                step="0.5"
+                type="text"
                 value={formData.estimated_hours}
                         onChange={(e) => {
                           handleChange("estimated_hours", e.target.value)
                           setCalculatedField(null) // Marca como editado manualmente
                         }}
-                        onBlur={() => {
+                        onBlur={(e) => {
+                          // Converter formato HH:MM para decimal
+                          const value = e.target.value.trim()
+                          if (value.includes(':')) {
+                            const [hours, minutes] = value.split(':').map(v => parseInt(v) || 0)
+                            const decimal = hours + (minutes / 60)
+                            handleChange("estimated_hours", decimal.toFixed(2))
+                          }
                           calculateMissingField('estimated_hours')
                         }}
-                placeholder="Ex: 33.5"
+                placeholder="Ex: 33:40 ou 33.5"
                         className={`w-full h-10 border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-200 ${
                           calculatedField === 'estimated_hours' ? 'bg-blue-50 border-blue-300' : 'bg-white'
                         }`}
@@ -1544,6 +1549,11 @@ export function ProjectForm({ project, onSuccess, preloadedCompanies }: ProjectF
                       {calculatedField === 'estimated_hours' && (
                         <p className="text-xs text-blue-600 font-medium">
                           💡 Calculado: R$ {formData.budget} ÷ R$ {formData.hourly_rate}/h
+                        </p>
+                      )}
+                      {!calculatedField && (
+                        <p className="text-xs text-slate-500">
+                          💡 Aceita: <span className="font-medium">33:40</span> (horas:minutos) ou <span className="font-medium">33.5</span> (decimal)
                         </p>
                       )}
                     </div>
