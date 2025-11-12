@@ -452,7 +452,11 @@ export default function ProjectsPage() {
         'Tipo de Projeto': getProjectTypeText(project.project_type),
         'Categoria': getCategoryText(project.category),
         'Status': getStatusText(project.status),
-        'Orçamento': project.budget ? `R$ ${Number(project.budget).toLocaleString('pt-BR')}` : 'Não informado',
+      }
+
+      // Orçamento - NÃO mostrar para Admin Operacional
+      if (userRole !== 'admin_operacional') {
+        row['Orçamento'] = project.budget ? `R$ ${Number(project.budget).toLocaleString('pt-BR')}` : 'Não informado'
       }
 
       // Safra apenas para projetos da Copersucar
@@ -498,14 +502,21 @@ export default function ProjectsPage() {
     const wb = XLSX.utils.book_new()
     const ws = XLSX.utils.json_to_sheet(exportData)
 
-    // Ajustar largura das colunas
+    // Ajustar largura das colunas (dinâmico baseado no perfil)
     const colWidths = [
       { wch: 30 }, // Nome do Projeto
       { wch: 25 }, // Empresa
       { wch: 25 }, // Tipo de Projeto
       { wch: 12 }, // Categoria
       { wch: 15 }, // Status
-      { wch: 15 }, // Orçamento
+    ]
+
+    // Orçamento - apenas para Admin e Admin Master
+    if (userRole !== 'admin_operacional') {
+      colWidths.push({ wch: 15 }) // Orçamento
+    }
+
+    colWidths.push(
       { wch: 12 }, // Safra (aparece em algumas linhas)
       { wch: 20 }, // Data Início Planejado
       { wch: 20 }, // Data Término Planejado
@@ -515,7 +526,7 @@ export default function ProjectsPage() {
       { wch: 20 }, // Data Término Real
       { wch: 25 }, // Responsável Técnico
       { wch: 25 }  // Key User
-    ]
+    )
 
     ws['!cols'] = colWidths
 
