@@ -37,6 +37,7 @@ interface ProjectFilters {
   priority: string
   category: string
   search: string
+  safra: string
 }
 
 export default function ClientProjectsPage() {
@@ -45,7 +46,8 @@ export default function ClientProjectsPage() {
     status: "all",
     priority: "all",
     category: "all",
-    search: ""
+    search: "",
+    safra: "all"
   })
   const [showFilters, setShowFilters] = useState(false)
   const [viewMode, setViewMode] = useState<'list' | 'cards'>('cards')
@@ -61,6 +63,7 @@ export default function ClientProjectsPage() {
     if (filters.priority !== "all") count++
     if (filters.category !== "all") count++
     if (filters.search.trim()) count++
+    if (filters.safra !== "all") count++
     return count
   }, [filters])
 
@@ -81,6 +84,11 @@ export default function ClientProjectsPage() {
     // Filtro por categoria
     if (filters.category && filters.category !== "all") {
       filtered = filtered.filter(project => project.category === filters.category)
+    }
+
+    // Filtro por safra (apenas para Copersucar)
+    if (filters.safra && filters.safra !== "all") {
+      filtered = filtered.filter(project => project.safra === filters.safra)
     }
 
     // Filtro por busca
@@ -287,7 +295,7 @@ export default function ClientProjectsPage() {
           <h2 className="text-3xl font-bold tracking-tight">Projetos</h2>
           <p className="text-muted-foreground">
             Projetos da empresa {company?.name || "Carregando..."}
-            {(filters.status !== "all" || filters.priority !== "all" || filters.search) ? (
+              {(filters.status !== "all" || filters.priority !== "all" || filters.category !== "all" || filters.safra !== "all" || filters.search) ? (
               <span className="ml-2 text-blue-600">
                 • {filteredProjects.length} de {projects.length} projetos
               </span>
@@ -435,10 +443,31 @@ export default function ClientProjectsPage() {
                   </SelectContent>
                 </Select>
               </div>
+              
+              {/* SAFRA - Apenas para Copersucar */}
+              {company?.id === COPERSUCAR_ID && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700 block flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                    Safra
+                  </label>
+                  <Select value={filters.safra} onValueChange={(value) => setFilters({ ...filters, safra: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Todas as safras" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todas as safras</SelectItem>
+                      <SelectItem value="2025/26">2025/26</SelectItem>
+                      <SelectItem value="2026/27">2026/27</SelectItem>
+                      <SelectItem value="2027/28">2027/28</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
           </div>
           <div className="flex justify-end gap-2 pt-4">
-            <Button variant="outline" onClick={() => setFilters({ status: "all", priority: "all", category: "all", search: "" })}>
+            <Button variant="outline" onClick={() => setFilters({ status: "all", priority: "all", category: "all", search: "", safra: "all" })}>
               <X className="h-4 w-4 mr-2" />
               Limpar
             </Button>
@@ -451,7 +480,7 @@ export default function ClientProjectsPage() {
         <CardHeader>
           <CardTitle>{viewMode === 'cards' ? 'Projetos em Cards' : 'Lista de Projetos'}</CardTitle>
           <CardDescription>
-            {(filters.status !== "all" || filters.priority !== "all" || filters.search) ? (
+            {(filters.status !== "all" || filters.priority !== "all" || filters.category !== "all" || filters.safra !== "all" || filters.search) ? (
               <>
                 Projetos filtrados • {filteredProjects.length} resultado{filteredProjects.length !== 1 ? 's' : ''}
                 {totalPages > 1 && (
@@ -587,14 +616,15 @@ export default function ClientProjectsPage() {
           
           {currentProjects.length === 0 && (
             <div className="text-center py-12">
-              {(filters.status !== "all" || filters.priority !== "all" || filters.category !== "all" || filters.search) ? (
+              {(filters.status !== "all" || filters.priority !== "all" || filters.category !== "all" || filters.safra !== "all" || filters.search) ? (
                 <div>
                   <p className="text-muted-foreground mb-2">Nenhum projeto encontrado com os filtros aplicados</p>
                   <Button variant="outline" onClick={() => setFilters({
                     status: "all",
                     priority: "all",
                     category: "all",
-                    search: ""
+                    search: "",
+                    safra: "all"
                   })}>
                     Limpar Filtros
                   </Button>
