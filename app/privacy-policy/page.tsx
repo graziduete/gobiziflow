@@ -203,9 +203,8 @@ export default function PrivacyPolicyPage() {
             </div>
             <div className="space-y-3 text-slate-600">
               <p className="text-sm">Dúvidas sobre privacidade ou quer exercer seus direitos?</p>
-              <div className="space-y-2 mt-4 text-sm">
-                <p><strong>📧 E-mail:</strong> privacidade@gobiziflow.com</p>
-                <p><strong>🛡️ Encarregado de Dados (DPO):</strong> dpo@gobiziflow.com</p>
+              <div className="mt-4 text-sm">
+                <p><strong>📧 Dúvidas sobre privacidade:</strong> projetos@gobi.consulting</p>
               </div>
               <p className="mt-4 text-xs">
                 <strong>Autoridade Nacional de Proteção de Dados (ANPD):</strong>{" "}
