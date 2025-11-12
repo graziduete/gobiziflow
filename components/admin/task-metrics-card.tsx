@@ -112,7 +112,7 @@ export function TaskMetricsCard({ tasks }: TaskMetricsCardProps) {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {/* No Prazo */}
           <div className="bg-white/70 rounded-lg p-3 border border-green-200/50 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between mb-1">
