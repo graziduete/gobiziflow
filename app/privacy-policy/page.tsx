@@ -40,13 +40,11 @@ export default function PrivacyPolicyPage() {
           <section>
             <div className="flex items-center gap-2 mb-4">
               <FileText className="w-5 h-5 text-blue-600" />
-              <h2 className="text-xl font-semibold text-slate-800">Introdução</h2>
+              <h2 className="text-xl font-semibold text-slate-800">Olá! 👋</h2>
             </div>
             <p className="text-slate-600 leading-relaxed">
-              Olá! 👋 Bem-vindo à Política de Privacidade do <strong>GobiZi Flow</strong>. 
-              Nós levamos sua privacidade muito a sério e queremos que você entenda exatamente 
-              como coletamos, usamos e protegemos seus dados. Esta política está em conformidade 
-              com a <strong>Lei Geral de Proteção de Dados (LGPD - Lei 13.709/2018)</strong>.
+              Queremos ser transparentes sobre como cuidamos dos seus dados no <strong>GobiZi Flow</strong>. 
+              Esta política está em conformidade com a <strong>Lei Geral de Proteção de Dados (LGPD - Lei 13.709/2018)</strong>.
             </p>
           </section>
 
@@ -58,34 +56,18 @@ export default function PrivacyPolicyPage() {
             </div>
             <div className="space-y-4 text-slate-600">
               <div>
-                <h3 className="font-semibold text-slate-700 mb-2">📧 Dados de Cadastro:</h3>
-                <ul className="list-disc list-inside space-y-1 ml-4">
-                  <li>Nome completo</li>
-                  <li>E-mail corporativo</li>
-                  <li>Cargo e função</li>
-                  <li>Empresa/Organização</li>
-                </ul>
+                <h3 className="font-semibold text-slate-700 mb-2">Dados de cadastro:</h3>
+                <p className="text-sm">Nome, e-mail, cargo, empresa e perfil de acesso.</p>
               </div>
 
               <div>
-                <h3 className="font-semibold text-slate-700 mb-2">📊 Dados de Uso da Plataforma:</h3>
-                <ul className="list-disc list-inside space-y-1 ml-4">
-                  <li>Projetos criados e gerenciados</li>
-                  <li>Tarefas e cronogramas</li>
-                  <li>Documentos e arquivos enviados</li>
-                  <li>Comentários e justificativas</li>
-                  <li>Logs de acesso e atividades</li>
-                </ul>
+                <h3 className="font-semibold text-slate-700 mb-2">Dados de uso:</h3>
+                <p className="text-sm">Projetos, tarefas, documentos, comentários e atividades na plataforma.</p>
               </div>
 
               <div>
-                <h3 className="font-semibold text-slate-700 mb-2">🔐 Dados Técnicos:</h3>
-                <ul className="list-disc list-inside space-y-1 ml-4">
-                  <li>Endereço IP</li>
-                  <li>Tipo de navegador e dispositivo</li>
-                  <li>Data e hora de acesso</li>
-                  <li>Cookies e tokens de sessão</li>
-                </ul>
+                <h3 className="font-semibold text-slate-700 mb-2">Dados técnicos:</h3>
+                <p className="text-sm">Endereço IP, navegador, data e hora de acesso para garantir a segurança.</p>
               </div>
             </div>
           </section>
@@ -96,14 +78,13 @@ export default function PrivacyPolicyPage() {
               <Users className="w-5 h-5 text-blue-600" />
               <h2 className="text-xl font-semibold text-slate-800">2. Como usamos seus dados?</h2>
             </div>
-            <div className="space-y-3 text-slate-600">
-              <p>Usamos seus dados exclusivamente para:</p>
-              <ul className="list-disc list-inside space-y-2 ml-4">
-                <li><strong>Fornecer o serviço:</strong> Autenticação, gestão de projetos, cronogramas e documentos</li>
-                <li><strong>Melhorar a plataforma:</strong> Análise de uso para identificar melhorias e bugs</li>
-                <li><strong>Comunicação:</strong> Notificações sobre projetos, atualizações e suporte técnico</li>
-                <li><strong>Segurança:</strong> Prevenção de fraudes, acessos não autorizados e proteção de dados</li>
-                <li><strong>Conformidade legal:</strong> Cumprimento de obrigações legais e regulatórias</li>
+            <div className="text-slate-600 space-y-2">
+              <p>Usamos seus dados para:</p>
+              <ul className="list-disc list-inside space-y-1 ml-4 text-sm">
+                <li>Fornecer e melhorar a plataforma</li>
+                <li>Garantir a segurança e prevenir fraudes</li>
+                <li>Enviar notificações importantes sobre seus projetos</li>
+                <li>Cumprir obrigações legais</li>
               </ul>
             </div>
           </section>
@@ -115,15 +96,16 @@ export default function PrivacyPolicyPage() {
               <h2 className="text-xl font-semibold text-slate-800">3. Compartilhamos seus dados?</h2>
             </div>
             <div className="space-y-3 text-slate-600">
-              <p>
-                <strong>NÃO vendemos seus dados</strong> para terceiros. Compartilhamos apenas quando estritamente necessário:
+              <p className="font-semibold text-slate-700">
+                NÃO vendemos seus dados. Nunca.
               </p>
-              <ul className="list-disc list-inside space-y-2 ml-4">
-                <li><strong>Com sua empresa:</strong> Administradores da sua organização podem acessar dados de projetos da empresa</li>
-                <li><strong>Provedores de infraestrutura:</strong> Supabase (banco de dados e autenticação) e Vercel (hospedagem)</li>
-                <li><strong>Por obrigação legal:</strong> Quando exigido por lei ou ordem judicial</li>
+              <p className="text-sm">Compartilhamos apenas quando necessário:</p>
+              <ul className="list-disc list-inside space-y-1 ml-4 text-sm">
+                <li>Com administradores da sua empresa (para gestão de projetos)</li>
+                <li>Com nossos provedores de infraestrutura (Supabase e Vercel)</li>
+                <li>Quando exigido por lei</li>
               </ul>
-              <p className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <p className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200 text-sm">
                 <strong>🔒 Isolamento de Dados:</strong> Garantimos que cada empresa tenha acesso apenas 
                 aos seus próprios dados. Suas informações estão isoladas e protegidas por múltiplas camadas 
                 de segurança.
@@ -135,17 +117,12 @@ export default function PrivacyPolicyPage() {
           <section>
             <div className="flex items-center gap-2 mb-4">
               <Cookie className="w-5 h-5 text-blue-600" />
-              <h2 className="text-xl font-semibold text-slate-800">4. Cookies e Tecnologias Similares</h2>
+              <h2 className="text-xl font-semibold text-slate-800">4. Sobre Cookies</h2>
             </div>
             <div className="space-y-3 text-slate-600">
-              <p>Utilizamos cookies para:</p>
-              <ul className="list-disc list-inside space-y-2 ml-4">
-                <li><strong>Cookies Essenciais:</strong> Autenticação e funcionamento básico da plataforma</li>
-                <li><strong>Cookies de Desempenho:</strong> Análise de uso e identificação de problemas técnicos</li>
-                <li><strong>Cookies de Preferências:</strong> Lembrar suas configurações (tema, idioma, etc.)</li>
-              </ul>
-              <p className="mt-4">
-                Você pode gerenciar suas preferências de cookies nas configurações do seu navegador.
+              <p className="text-sm">
+                Usamos apenas <strong>cookies essenciais</strong> para autenticação e segurança. 
+                Eles são necessários para o funcionamento da plataforma e não rastreiam seu comportamento.
               </p>
             </div>
           </section>
@@ -157,18 +134,16 @@ export default function PrivacyPolicyPage() {
               <h2 className="text-xl font-semibold text-slate-800">5. Seus Direitos (LGPD)</h2>
             </div>
             <div className="space-y-3 text-slate-600">
-              <p>Você tem os seguintes direitos sobre seus dados pessoais:</p>
-              <ul className="list-disc list-inside space-y-2 ml-4">
-                <li>✅ <strong>Confirmação e Acesso:</strong> Saber se processamos seus dados e solicitar cópia</li>
-                <li>✅ <strong>Correção:</strong> Atualizar dados incompletos, incorretos ou desatualizados</li>
-                <li>✅ <strong>Anonimização ou Exclusão:</strong> Solicitar remoção de dados desnecessários</li>
-                <li>✅ <strong>Portabilidade:</strong> Receber seus dados em formato estruturado</li>
-                <li>✅ <strong>Eliminação:</strong> Excluir dados tratados com seu consentimento</li>
-                <li>✅ <strong>Revogação:</strong> Retirar consentimento a qualquer momento</li>
-                <li>✅ <strong>Oposição:</strong> Opor-se ao tratamento de dados em certas circunstâncias</li>
+              <p className="text-sm">Você pode solicitar a qualquer momento:</p>
+              <ul className="list-disc list-inside space-y-1 ml-4 text-sm">
+                <li><strong>Confirmação e acesso:</strong> Saber quais dados temos sobre você</li>
+                <li><strong>Correção:</strong> Atualizar dados incorretos</li>
+                <li><strong>Exclusão:</strong> Deletar seus dados (quando aplicável)</li>
+                <li><strong>Portabilidade:</strong> Receber seus dados em formato estruturado</li>
+                <li><strong>Revogação:</strong> Retirar consentimento</li>
               </ul>
-              <p className="mt-4 font-medium">
-                Para exercer seus direitos, entre em contato conosco através do e-mail abaixo.
+              <p className="mt-4 font-medium text-sm">
+                Para exercer seus direitos, entre em contato através do e-mail abaixo.
               </p>
             </div>
           </section>
@@ -179,16 +154,13 @@ export default function PrivacyPolicyPage() {
               <Database className="w-5 h-5 text-blue-600" />
               <h2 className="text-xl font-semibold text-slate-800">6. Por quanto tempo guardamos seus dados?</h2>
             </div>
-            <div className="space-y-3 text-slate-600">
-              <ul className="list-disc list-inside space-y-2 ml-4">
-                <li><strong>Dados de conta:</strong> Enquanto sua conta estiver ativa</li>
-                <li><strong>Dados de projetos:</strong> Conforme definido pelo administrador da empresa</li>
-                <li><strong>Logs de acesso:</strong> 12 meses (fins de segurança)</li>
-                <li><strong>Dados fiscais:</strong> 5 anos (obrigação legal)</li>
+            <div className="text-slate-600">
+              <ul className="list-disc list-inside space-y-1 ml-4 text-sm">
+                <li>Dados de conta: Enquanto sua conta estiver ativa</li>
+                <li>Dados de projetos: Conforme definido pela sua empresa</li>
+                <li>Logs de segurança: 12 meses</li>
+                <li>Dados fiscais: 5 anos (obrigação legal)</li>
               </ul>
-              <p className="mt-4">
-                Após o período de retenção, os dados são anonimizados ou excluídos de forma segura.
-              </p>
             </div>
           </section>
 
@@ -198,15 +170,16 @@ export default function PrivacyPolicyPage() {
               <Lock className="w-5 h-5 text-blue-600" />
               <h2 className="text-xl font-semibold text-slate-800">7. Como protegemos seus dados?</h2>
             </div>
-            <div className="space-y-3 text-slate-600">
-              <p>Implementamos medidas de segurança robustas:</p>
-              <ul className="list-disc list-inside space-y-2 ml-4">
-                <li>🔐 Criptografia SSL/TLS em todas as comunicações</li>
-                <li>🔐 Senhas com hash e salt (bcrypt)</li>
-                <li>🔐 Row Level Security (RLS) no banco de dados</li>
-                <li>🔐 Autenticação de múltiplos fatores (quando disponível)</li>
-                <li>🔐 Monitoramento e logs de acesso</li>
-                <li>🔐 Backups automáticos e redundância</li>
+            <div className="text-slate-600">
+              <p className="text-sm mb-3">Implementamos medidas de segurança robustas:</p>
+              <ul className="list-disc list-inside space-y-1 ml-4 text-sm">
+                <li>Criptografia em todas as comunicações</li>
+                <li>Armazenamento seguro de senhas</li>
+                <li>Controle rigoroso de acesso aos dados</li>
+                <li>Autenticação de múltiplos fatores (quando disponível)</li>
+                <li>Monitoramento contínuo de atividades suspeitas</li>
+                <li>Backups automáticos e redundância</li>
+                <li>Atualizações regulares de segurança</li>
               </ul>
             </div>
           </section>
@@ -217,10 +190,9 @@ export default function PrivacyPolicyPage() {
               <FileText className="w-5 h-5 text-blue-600" />
               <h2 className="text-xl font-semibold text-slate-800">8. Alterações nesta Política</h2>
             </div>
-            <p className="text-slate-600 leading-relaxed">
-              Podemos atualizar esta política periodicamente. Quando houver mudanças significativas, 
-              notificaremos você por e-mail ou através de um aviso na plataforma. A data da última 
-              atualização está sempre indicada no topo desta página.
+            <p className="text-slate-600 text-sm leading-relaxed">
+              Podemos atualizar esta política periodicamente. Mudanças importantes serão comunicadas 
+              por e-mail ou através de um aviso na plataforma.
             </p>
           </section>
 
@@ -231,15 +203,12 @@ export default function PrivacyPolicyPage() {
               <h2 className="text-xl font-semibold text-slate-800">9. Entre em Contato</h2>
             </div>
             <div className="space-y-3 text-slate-600">
-              <p>
-                Dúvidas sobre esta política ou quer exercer seus direitos? Entre em contato:
-              </p>
-              <div className="space-y-2 mt-4">
+              <p className="text-sm">Dúvidas sobre privacidade ou quer exercer seus direitos?</p>
+              <div className="space-y-2 mt-4 text-sm">
                 <p><strong>📧 E-mail:</strong> privacidade@gobiziflow.com</p>
-                <p><strong>📍 Controlador de Dados:</strong> GobiZi Flow Tecnologia Ltda.</p>
-                <p><strong>🛡️ DPO (Encarregado de Dados):</strong> dpo@gobiziflow.com</p>
+                <p><strong>🛡️ Encarregado de Dados (DPO):</strong> dpo@gobiziflow.com</p>
               </div>
-              <p className="mt-4 text-sm">
+              <p className="mt-4 text-xs">
                 <strong>Autoridade Nacional de Proteção de Dados (ANPD):</strong>{" "}
                 <a 
                   href="https://www.gov.br/anpd" 
@@ -255,7 +224,7 @@ export default function PrivacyPolicyPage() {
 
           {/* Footer */}
           <div className="pt-6 border-t text-center">
-            <p className="text-sm text-slate-500">
+            <p className="text-xs text-slate-500">
               Esta política está em conformidade com a{" "}
               <strong>Lei Geral de Proteção de Dados (LGPD - Lei 13.709/2018)</strong>
             </p>
