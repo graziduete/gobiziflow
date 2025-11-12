@@ -16,6 +16,10 @@ interface Project {
   project_type: string | null
   start_date: string | null
   end_date: string | null
+  predicted_start_date?: string | null
+  predicted_end_date?: string | null
+  actual_start_date?: string | null
+  actual_end_date?: string | null
   budget: number | null
   estimated_hours: number | null
   consumed_hours: number | null
