@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visão Analítica - GobiZi Flow</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f8fafc;
+      min-height: 100vh;
+      padding: 24px;
+      color: #0f172a;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Background decorativo (igual ao dashboard) */
+    .bg-decorative {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.6;
+      animation: blob 20s infinite;
+    }
+
+    @keyframes blob {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -50px) scale(1.1); }
+      66% { transform: translate(-20px, 20px) scale(0.9); }
+    }
+
+    .blob-1 {
+      top: 0;
+      left: 25%;
+      width: 400px;
+      height: 400px;
+      background: linear-gradient(to bottom right, rgba(59, 130, 246, 0.05), rgba(99, 102, 241, 0.05));
+    }
+
+    .blob-2 {
+      top: 33%;
+      right: 25%;
+      width: 400px;
+      height: 400px;
+      background: linear-gradient(to bottom right, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05));
+      animation-delay: 2s;
+    }
+
+    .blob-3 {
+      bottom: 25%;
+      left: 33%;
+      width: 400px;
+      height: 400px;
+      background: linear-gradient(to bottom right, rgba(139, 92, 246, 0.05), rgba(59, 130, 246, 0.05));
+      animation-delay: 4s;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+      padding: 28px 32px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 20px 40px -12px rgba(0, 0, 0, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #3b82f6, #10b981);
+    }
+
+    .header-left h1 {
+      font-size: 32px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+
+    .header-left p {
+      font-size: 14px;
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border-radius: 12px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #475569;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-secondary:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      position: relative;
+      padding: 28px;
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      border: 1px solid #f1f5f9;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--color-1), var(--color-2));
+    }
+
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 120px;
+      height: 120px;
+      background: linear-gradient(to bottom right, var(--color-1), var(--color-2));
+      opacity: 0.05;
+      border-radius: 50%;
+      filter: blur(30px);
+      transition: all 0.4s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+      border-color: rgba(59, 130, 246, 0.2);
+    }
+
+    .stat-card:hover::after {
+      opacity: 0.15;
+      transform: scale(1.2);
+    }
+
+    .stat-card.total { --color-1: #3b82f6; --color-2: #2563eb; }
+    .stat-card.active { --color-1: #10b981; --color-2: #059669; }
+    .stat-card.delayed { --color-1: #ef4444; --color-2: #dc2626; }
+    .stat-card.paused { --color-1: #f59e0b; --color-2: #d97706; }
+    .stat-card.completed { --color-1: #8b5cf6; --color-2: #7c3aed; }
+
+    .stat-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, var(--color-1), var(--color-2));
+      box-shadow: 0 8px 16px -4px var(--color-1);
+      color: white;
+      position: relative;
+      z-index: 1;
+    }
+
+    .stat-value {
+      font-size: 42px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 8px;
+      line-height: 1;
+      position: relative;
+      z-index: 1;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: #64748b;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .stat-change {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      position: relative;
+      z-index: 1;
+    }
+
+    .stat-change.up {
+      background: rgba(16, 185, 129, 0.1);
+      color: #059669;
+    }
+
+    .stat-change.down {
+      background: rgba(239, 68, 68, 0.1);
+      color: #dc2626;
+    }
+
+    .stat-change.neutral {
+      background: rgba(100, 116, 139, 0.1);
+      color: #64748b;
+    }
+
+    /* Alerts */
+    .alerts-section {
+      margin-bottom: 32px;
+      padding: 24px;
+      background: linear-gradient(to bottom right, rgba(251, 191, 36, 0.05), rgba(245, 158, 11, 0.08));
+      border-radius: 16px;
+      border: 1px solid rgba(251, 191, 36, 0.2);
+    }
+
+    .alerts-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .alerts-icon {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: white;
+      box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+    }
+
+    .alerts-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #92400e;
+    }
+
+    .alert-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 20px;
+      background: white;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      border-left: 4px solid;
+      transition: all 0.3s;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .alert-item:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transform: translateX(4px);
+    }
+
+    .alert-item.danger { border-color: #ef4444; }
+    .alert-item.warning { border-color: #fbbf24; }
+    .alert-item.success { border-color: #10b981; }
+
+    .alert-item i {
+      font-size: 20px;
+    }
+
+    .alert-item.danger i { color: #ef4444; }
+    .alert-item.warning i { color: #fbbf24; }
+    .alert-item.success i { color: #10b981; }
+
+    .alert-item span {
+      color: #475569;
+      font-size: 14px;
+    }
+
+    /* Charts Grid */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .chart-card {
+      padding: 28px;
+      background: white;
+      border-radius: 16px;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      border: 1px solid #f1f5f9;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chart-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 150px;
+      height: 150px;
+      background: linear-gradient(to bottom right, rgba(59, 130, 246, 0.05), rgba(16, 185, 129, 0.05));
+      border-radius: 50%;
+      filter: blur(40px);
+    }
+
+    .chart-card:hover {
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+      border-color: rgba(59, 130, 246, 0.2);
+    }
+
+    .chart-card.col-6 { grid-column: span 6; }
+    .chart-card.col-12 { grid-column: span 12; }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .chart-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .chart-title i {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #3b82f6, #10b981);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      color: white;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .chart-subtitle {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    .chart-badge {
+      padding: 6px 14px;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(16, 185, 129, 0.1));
+      color: #3b82f6;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+
+    .chart-container {
+      position: relative;
+      height: 320px;
+      z-index: 1;
+    }
+
+    .chart-container.small {
+      height: 280px;
+    }
+
+    .chart-container.large {
+      height: 380px;
+    }
+
+    /* Export Section */
+    .export-section {
+      padding: 32px;
+      background: white;
+      border-radius: 16px;
+      text-align: center;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      border: 1px solid #f1f5f9;
+    }
+
+    .export-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 20px;
+    }
+
+    .export-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+    }
+
+    @media (max-width: 1024px) {
+      .chart-card.col-6 { grid-column: span 12; }
+      .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      }
+    }
+
+    @media (max-width: 768px) {
+      body { padding: 16px; }
+      
+      .header {
+        flex-direction: column;
+        gap: 20px;
+        padding: 20px;
+      }
+      
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .header-actions {
+        width: 100%;
+      }
+
+      .btn {
+        flex: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Background Decorativo -->
+  <div class="bg-decorative">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-left">
+        <h1>📊 Visão Analítica</h1>
+        <p>Panorama completo dos seus projetos em tempo real</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-secondary">
+          <i class="fas fa-filter"></i>
+          Filtros
+        </button>
+        <button class="btn btn-primary">
+          <i class="fas fa-download"></i>
+          Exportar
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-card total">
+        <div class="stat-icon">
+          <i class="fas fa-folder"></i>
+        </div>
+        <div class="stat-value">48</div>
+        <div class="stat-label">Total de Projetos</div>
+        <span class="stat-change up">
+          <i class="fas fa-arrow-up"></i>
+          +5 este mês
+        </span>
+      </div>
+
+      <div class="stat-card active">
+        <div class="stat-icon">
+          <i class="fas fa-rocket"></i>
+        </div>
+        <div class="stat-value">32</div>
+        <div class="stat-label">Em Andamento</div>
+        <span class="stat-change up">
+          <i class="fas fa-arrow-up"></i>
+          +3 vs anterior
+        </span>
+      </div>
+
+      <div class="stat-card delayed">
+        <div class="stat-icon">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="stat-value">12</div>
+        <div class="stat-label">Atrasados</div>
+        <span class="stat-change down">
+          <i class="fas fa-arrow-down"></i>
+          -2 vs anterior
+        </span>
+      </div>
+
+      <div class="stat-card paused">
+        <div class="stat-icon">
+          <i class="fas fa-pause-circle"></i>
+        </div>
+        <div class="stat-value">3</div>
+        <div class="stat-label">Pausados</div>
+        <span class="stat-change neutral">
+          <i class="fas fa-minus"></i>
+          Estável
+        </span>
+      </div>
+
+      <div class="stat-card completed">
+        <div class="stat-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-value">28</div>
+        <div class="stat-label">Concluídos</div>
+        <span class="stat-change up">
+          <i class="fas fa-arrow-up"></i>
+          +12 este mês
+        </span>
+      </div>
+    </div>
+
+    <!-- Alerts -->
+    <div class="alerts-section">
+      <div class="alerts-header">
+        <div class="alerts-icon">
+          <i class="fas fa-bell"></i>
+        </div>
+        <div class="alerts-title">Alertas Importantes</div>
+      </div>
+      <div class="alert-item danger">
+        <i class="fas fa-exclamation-circle"></i>
+        <span><strong>3 projetos</strong> com risco de atraso significativo</span>
+      </div>
+      <div class="alert-item warning">
+        <i class="fas fa-clock"></i>
+        <span><strong>5 projetos</strong> próximos da data de entrega (próximos 7 dias)</span>
+      </div>
+      <div class="alert-item success">
+        <i class="fas fa-check"></i>
+        <span><strong>2 projetos</strong> concluídos com sucesso esta semana</span>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-grid">
+      <!-- Status Distribution -->
+      <div class="chart-card col-6">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">
+              <i class="fas fa-chart-pie"></i>
+              Distribuição por Status
+            </div>
+            <div class="chart-subtitle">Visão geral do portfólio</div>
+          </div>
+          <span class="chart-badge">Atualizado agora</span>
+        </div>
+        <div class="chart-container small">
+          <canvas id="statusChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Type Distribution -->
+      <div class="chart-card col-6">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">
+              <i class="fas fa-layer-group"></i>
+              Distribuição por Tipo
+            </div>
+            <div class="chart-subtitle">Categorização dos projetos</div>
+          </div>
+        </div>
+        <div class="chart-container small">
+          <canvas id="typeChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Timeline Evolution -->
+      <div class="chart-card col-12">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">
+              <i class="fas fa-chart-line"></i>
+              Evolução Temporal
+            </div>
+            <div class="chart-subtitle">Últimos 6 meses - Iniciados, Concluídos e Atrasados</div>
+          </div>
+          <span class="chart-badge">Trending</span>
+        </div>
+        <div class="chart-container large">
+          <canvas id="timelineChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Projects by Company -->
+      <div class="chart-card col-6">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">
+              <i class="fas fa-building"></i>
+              Projetos por Empresa
+            </div>
+            <div class="chart-subtitle">Distribuição por cliente</div>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="companyChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Performance -->
+      <div class="chart-card col-6">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">
+              <i class="fas fa-bullseye"></i>
+              Planejado vs Realizado
+            </div>
+            <div class="chart-subtitle">Performance por trimestre</div>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="performanceChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Monthly Load -->
+      <div class="chart-card col-12">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">
+              <i class="fas fa-calendar-alt"></i>
+              Carga de Trabalho 2025
+            </div>
+            <div class="chart-subtitle">Projetos ativos por mês</div>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="heatmapChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Export -->
+    <div class="export-section">
+      <div class="export-title">Exportar Relatório Completo</div>
+      <div class="export-buttons">
+        <button class="btn btn-primary">
+          <i class="fas fa-file-pdf"></i>
+          Exportar PDF
+        </button>
+        <button class="btn btn-primary">
+          <i class="fas fa-file-excel"></i>
+          Exportar Excel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Chart.js Configuration
+    Chart.defaults.color = '#64748b';
+    Chart.defaults.font.family = 'Inter, sans-serif';
+    Chart.defaults.font.size = 12;
+    Chart.defaults.plugins.legend.labels.usePointStyle = true;
+    Chart.defaults.plugins.legend.labels.padding = 15;
+
+    const colors = {
+      primary: '#3b82f6',
+      success: '#10b981',
+      danger: '#ef4444',
+      warning: '#f59e0b',
+      purple: '#8b5cf6',
+      teal: '#14b8a6',
+      pink: '#ec4899',
+      indigo: '#6366f1',
+      slate: '#64748b'
+    };
+
+    const chartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            padding: 20,
+            font: { size: 13, weight: '600' }
+          }
+        }
+      }
+    };
+
+    // 1. Status Distribution
+    new Chart(document.getElementById('statusChart'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Em Andamento', 'Atrasados', 'Pausados', 'Concluídos'],
+        datasets: [{
+          data: [32, 12, 3, 28],
+          backgroundColor: [colors.success, colors.danger, colors.warning, colors.purple],
+          borderWidth: 0,
+          hoverOffset: 15
+        }]
+      },
+      options: chartOptions
+    });
+
+    // 2. Type Distribution
+    new Chart(document.getElementById('typeChart'), {
+      type: 'polarArea',
+      data: {
+        labels: ['Implementação', 'Manutenção', 'Desenvolvimento', 'Consultoria'],
+        datasets: [{
+          data: [19, 14, 10, 5],
+          backgroundColor: [
+            colors.primary + '80',
+            colors.teal + '80',
+            colors.purple + '80',
+            colors.pink + '80'
+          ],
+          borderWidth: 2,
+          borderColor: '#ffffff'
+        }]
+      },
+      options: chartOptions
+    });
+
+    // 3. Timeline Evolution
+    new Chart(document.getElementById('timelineChart'), {
+      type: 'line',
+      data: {
+        labels: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho'],
+        datasets: [
+          {
+            label: 'Iniciados',
+            data: [8, 12, 6, 10, 14, 9],
+            borderColor: colors.primary,
+            backgroundColor: colors.primary + '20',
+            tension: 0.4,
+            fill: true,
+            borderWidth: 3,
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            pointBackgroundColor: '#ffffff',
+            pointBorderWidth: 2
+          },
+          {
+            label: 'Concluídos',
+            data: [5, 8, 10, 7, 9, 12],
+            borderColor: colors.success,
+            backgroundColor: colors.success + '20',
+            tension: 0.4,
+            fill: true,
+            borderWidth: 3,
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            pointBackgroundColor: '#ffffff',
+            pointBorderWidth: 2
+          },
+          {
+            label: 'Atrasados',
+            data: [3, 4, 2, 5, 3, 2],
+            borderColor: colors.danger,
+            backgroundColor: colors.danger + '20',
+            tension: 0.4,
+            fill: true,
+            borderWidth: 3,
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            pointBackgroundColor: '#ffffff',
+            pointBorderWidth: 2
+          }
+        ]
+      },
+      options: {
+        ...chartOptions,
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: '#f1f5f9' },
+            ticks: { color: '#64748b' }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: '#64748b' }
+          }
+        }
+      }
+    });
+
+    // 4. Projects by Company
+    new Chart(document.getElementById('companyChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Copersucar', 'FTD Educação', 'I. Votorantim', 'Outros'],
+        datasets: [{
+          label: 'Projetos',
+          data: [18, 12, 8, 10],
+          backgroundColor: [
+            colors.primary,
+            colors.success,
+            colors.teal,
+            colors.purple
+          ],
+          borderRadius: 10,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        ...chartOptions,
+        indexAxis: 'y',
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          x: {
+            beginAtZero: true,
+            grid: { color: '#f1f5f9' },
+            ticks: { color: '#64748b' }
+          },
+          y: {
+            grid: { display: false },
+            ticks: { color: '#64748b' }
+          }
+        }
+      }
+    });
+
+    // 5. Performance
+    new Chart(document.getElementById('performanceChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+        datasets: [
+          {
+            label: 'Planejado',
+            data: [45, 38, 42, 50],
+            backgroundColor: colors.primary,
+            borderRadius: 10,
+            borderSkipped: false
+          },
+          {
+            label: 'Realizado',
+            data: [38, 35, 40, 0],
+            backgroundColor: colors.success,
+            borderRadius: 10,
+            borderSkipped: false
+          },
+          {
+            label: 'Previsto',
+            data: [0, 0, 0, 48],
+            backgroundColor: colors.warning,
+            borderRadius: 10,
+            borderSkipped: false
+          }
+        ]
+      },
+      options: {
+        ...chartOptions,
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: '#f1f5f9' },
+            ticks: { color: '#64748b' }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: '#64748b' }
+          }
+        }
+      }
+    });
+
+    // 6. Monthly Load
+    new Chart(document.getElementById('heatmapChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+        datasets: [{
+          label: 'Projetos Ativos',
+          data: [28, 32, 35, 30, 38, 42, 40, 38, 35, 0, 0, 0],
+          backgroundColor: (context) => {
+            const value = context.parsed.y;
+            if (value === 0) return colors.slate + '40';
+            if (value < 30) return colors.success + '80';
+            if (value < 35) return colors.warning + '80';
+            return colors.danger + '80';
+          },
+          borderRadius: 10,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        ...chartOptions,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 50,
+            grid: { color: '#f1f5f9' },
+            ticks: { color: '#64748b' }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: '#64748b' }
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
+
