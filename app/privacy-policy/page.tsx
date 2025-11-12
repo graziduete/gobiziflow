@@ -124,9 +124,9 @@ export default function PrivacyPolicyPage() {
                 <li><strong>Por obrigação legal:</strong> Quando exigido por lei ou ordem judicial</li>
               </ul>
               <p className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <strong>🔒 Multi-tenant e Segurança:</strong> Utilizamos <em>Row Level Security (RLS)</em> 
-                para garantir que cada empresa veja apenas seus próprios dados. Suas informações estão isoladas 
-                e protegidas por múltiplas camadas de segurança.
+                <strong>🔒 Isolamento de Dados:</strong> Garantimos que cada empresa tenha acesso apenas 
+                aos seus próprios dados. Suas informações estão isoladas e protegidas por múltiplas camadas 
+                de segurança.
               </p>
             </div>
           </section>
