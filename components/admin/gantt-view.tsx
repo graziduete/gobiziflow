@@ -285,17 +285,27 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
 
     // Regra adicional (Opção A): quando status inclui 'completed', incluir projetos
     // concluídos até o fim do mês/ano selecionado no Dashboard.
-    // Como o componente não recebe diretamente o mês/ano, usamos created_at/start/end
-    // para relaxar a regra caso o projeto não intersecte o mês já aplicado pelo container.
+    // IMPORTANTE: Respeitar o filtro de empresa se estiver ativo!
     if (expandedFilters.status.includes('completed')) {
       // Inclusão de concluídos até o fim do mês selecionado
       const baseYear = selectedYear ?? new Date().getFullYear()
       const baseMonth = (selectedMonth ?? (new Date().getMonth() + 1))
       const endOfMonth = new Date(baseYear, baseMonth, 0)
-      filtered = [
-        ...filtered,
-        ...((allProjects ?? projects).filter(p => p.status === 'completed' && p.end_date && new Date(p.end_date) <= endOfMonth && !filtered.some(f => f.id === p.id)))
-      ]
+      
+      // Filtrar projetos concluídos
+      let completedProjects = (allProjects ?? projects).filter(p => 
+        p.status === 'completed' && 
+        p.end_date && 
+        new Date(p.end_date) <= endOfMonth && 
+        !filtered.some(f => f.id === p.id)
+      )
+      
+      // CORREÇÃO: Aplicar filtro de empresa também nos projetos concluídos
+      if (expandedFilters.company && expandedFilters.company !== 'all') {
+        completedProjects = completedProjects.filter(p => p.company_id === expandedFilters.company)
+      }
+      
+      filtered = [...filtered, ...completedProjects]
     }
 
     console.log('🔍 Projetos filtrados finais:', filtered.length)
@@ -354,10 +364,21 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
       const baseYear = selectedYear ?? new Date().getFullYear()
       const baseMonth = (selectedMonth ?? (new Date().getMonth() + 1))
       const endOfMonth = new Date(baseYear, baseMonth, 0)
-      filtered = [
-        ...filtered,
-        ...((allProjects ?? projects).filter(p => p.status === 'completed' && p.end_date && new Date(p.end_date) <= endOfMonth && !filtered.some(f => f.id === p.id)))
-      ]
+      
+      // Filtrar projetos concluídos
+      let completedProjects = (allProjects ?? projects).filter(p => 
+        p.status === 'completed' && 
+        p.end_date && 
+        new Date(p.end_date) <= endOfMonth && 
+        !filtered.some(f => f.id === p.id)
+      )
+      
+      // CORREÇÃO: Aplicar filtro de empresa também nos projetos concluídos
+      if (expandedFilters.company && expandedFilters.company !== 'all') {
+        completedProjects = completedProjects.filter(p => p.company_id === expandedFilters.company)
+      }
+      
+      filtered = [...filtered, ...completedProjects]
     }
 
     const sortedProjects = filtered.sort((a, b) => {
