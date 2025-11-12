@@ -7,6 +7,7 @@ import { GanttChart } from "@/components/admin/gantt-chart"
 import { TaskMetricsCard } from "@/components/admin/task-metrics-card"
 import { ProjectDocsList } from "@/components/client/project-docs-list"
 import { createClient } from "@/lib/supabase/client"
+import { Calendar } from "lucide-react"
 
 // ID da Copersucar para exibir campo Safra
 const COPERSUCAR_ID = '443a6a0e-768f-48e4-a9ea-0cd972375a30'
@@ -234,7 +235,10 @@ export function ClientProjectDetail({ project }: ClientProjectDetailProps) {
 
             {/* Cronologia do Projeto */}
             <div className="space-y-3 md:col-span-2 lg:col-span-3">
-              <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">📅 Cronologia do Projeto</h4>
+              <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                Cronologia do Projeto
+              </h4>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* PLANEJADO (Baseline) */}
