@@ -12,10 +12,16 @@ interface Project {
   category: string
   start_date: string | null
   end_date: string | null
+  predicted_start_date: string | null
+  predicted_end_date: string | null
+  actual_start_date: string | null
+  actual_end_date: string | null
   budget: number | null
   estimated_hours: number | null
   created_at: string
   company_id: string
+  technical_responsible: string | null
+  key_user: string | null
   safra?: string | null
 }
 
@@ -169,10 +175,16 @@ export function useClientData() {
           category,
           start_date,
           end_date,
+          predicted_start_date,
+          predicted_end_date,
+          actual_start_date,
+          actual_end_date,
           estimated_hours,
           budget,
           created_at,
           company_id,
+          technical_responsible,
+          key_user,
           safra
         `)
 

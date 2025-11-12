@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useCallback } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Filter, List, Grid3X3 } from "lucide-react"
+import { Calendar, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Filter, List, Grid3X3, Download } from "lucide-react"
 import Link from "next/link"
 import { useClientData } from "@/hooks/use-client-data"
 import { ProjectsLoadingSkeleton } from "@/components/shared/loading-skeleton"
@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { X, Search } from "lucide-react"
+import * as XLSX from 'xlsx'
 
 // ID da Copersucar para exibir campo Safra
 const COPERSUCAR_ID = '443a6a0e-768f-48e4-a9ea-0cd972375a30'
@@ -26,9 +27,16 @@ interface Project {
   category: string
   start_date: string | null
   end_date: string | null
+  predicted_start_date: string | null
+  predicted_end_date: string | null
+  actual_start_date: string | null
+  actual_end_date: string | null
   budget: number | null
+  estimated_hours: number | null
   created_at: string
   company_id: string
+  technical_responsible: string | null
+  key_user: string | null
   safra?: string | null
 }
 
@@ -135,7 +143,7 @@ export default function ClientProjectsPage() {
   const goToPreviousPage = useCallback(() => goToPage(currentPage - 1), [goToPage, currentPage])
   const goToNextPage = useCallback(() => goToPage(currentPage + 1), [goToPage, currentPage])
 
-  // Funções de formatação memoizadas
+  // Funções de formatação memoizadas (MOVIDAS PARA ANTES da exportação)
   const getStatusColor = useCallback((status: string) => {
     switch (status) {
       case "completed":
@@ -284,6 +292,100 @@ export default function ClientProjectsPage() {
     }
   }, [])
 
+  // Função de exportação para Excel
+  const handleExportToExcel = useCallback(() => {
+    // Preparar dados para exportação (TODOS os projetos, não filtrados)
+    const exportData = projects.map(project => {
+      const row: any = {
+        'Nome do Projeto': project.name || 'Não informado',
+        'Empresa': company?.name || 'Não informado',
+        'Tipo de Projeto': getProjectTypeText(project.project_type),
+        'Categoria': getCategoryText(project.category),
+        'Status': getStatusText(project.status),
+        'Orçamento': project.budget ? `R$ ${Number(project.budget).toLocaleString('pt-BR')}` : 'Não informado',
+      }
+
+      // Safra apenas para Copersucar
+      if (company?.id === COPERSUCAR_ID) {
+        row['Safra'] = project.safra || 'Não informado'
+      }
+
+      // Datas Planejadas
+      row['Data Início Planejado'] = project.start_date 
+        ? new Date(project.start_date + 'T12:00:00').toLocaleDateString('pt-BR')
+        : 'Não informado'
+      
+      row['Data Término Planejado'] = project.end_date 
+        ? new Date(project.end_date + 'T12:00:00').toLocaleDateString('pt-BR')
+        : 'Não informado'
+
+      // Datas Previstas
+      row['Data Início Previsto'] = project.predicted_start_date 
+        ? new Date(project.predicted_start_date + 'T12:00:00').toLocaleDateString('pt-BR')
+        : 'Não informado'
+      
+      row['Data Término Previsto'] = project.predicted_end_date 
+        ? new Date(project.predicted_end_date + 'T12:00:00').toLocaleDateString('pt-BR')
+        : 'Não informado'
+
+      // Datas Reais
+      row['Data Início Real'] = project.actual_start_date 
+        ? new Date(project.actual_start_date + 'T12:00:00').toLocaleDateString('pt-BR')
+        : 'Não informado'
+      
+      row['Data Término Real'] = project.actual_end_date 
+        ? new Date(project.actual_end_date + 'T12:00:00').toLocaleDateString('pt-BR')
+        : 'Não informado'
+
+      // Responsáveis
+      row['Responsável Técnico'] = project.technical_responsible || 'Não informado'
+      row['Key User'] = project.key_user || 'Não informado'
+
+      return row
+    })
+
+    // Criar workbook e worksheet
+    const wb = XLSX.utils.book_new()
+    const ws = XLSX.utils.json_to_sheet(exportData)
+
+    // Ajustar largura das colunas
+    const colWidths = [
+      { wch: 30 }, // Nome do Projeto
+      { wch: 25 }, // Empresa
+      { wch: 25 }, // Tipo de Projeto
+      { wch: 12 }, // Categoria
+      { wch: 15 }, // Status
+      { wch: 15 }, // Orçamento
+    ]
+
+    if (company?.id === COPERSUCAR_ID) {
+      colWidths.push({ wch: 12 }) // Safra
+    }
+
+    colWidths.push(
+      { wch: 20 }, // Data Início Planejado
+      { wch: 20 }, // Data Término Planejado
+      { wch: 20 }, // Data Início Previsto
+      { wch: 20 }, // Data Término Previsto
+      { wch: 20 }, // Data Início Real
+      { wch: 20 }, // Data Término Real
+      { wch: 25 }, // Responsável Técnico
+      { wch: 25 }  // Key User
+    )
+
+    ws['!cols'] = colWidths
+
+    // Adicionar worksheet ao workbook
+    XLSX.utils.book_append_sheet(wb, ws, 'Projetos')
+
+    // Gerar nome do arquivo
+    const date = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')
+    const fileName = `Projetos_${company?.name || 'Empresa'}_${date}.xlsx`
+
+    // Download
+    XLSX.writeFile(wb, fileName)
+  }, [projects, company, getProjectTypeText, getCategoryText, getStatusText])
+
   if (isLoading) {
     return <ProjectsLoadingSkeleton />
   }
@@ -305,6 +407,15 @@ export default function ClientProjectsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            onClick={handleExportToExcel}
+            className="flex items-center gap-2"
+            title="Exportar todos os projetos para Excel"
+          >
+            <Download className="h-4 w-4" />
+            Excel
+          </Button>
           <Button 
             variant="outline" 
             onClick={() => setShowFilters(true)}
