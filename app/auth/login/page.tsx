@@ -110,41 +110,40 @@ export default function LoginPage() {
 
   return (
     <div className="relative flex min-h-svh w-full items-center justify-center p-6 md:p-10 overflow-hidden">
-      {/* Fundo otimizado - Mesh Gradient Moderno (Gobizi Colors) */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white via-blue-50 to-emerald-50">
-        {/* Mesh point 1 - Azul Gobizi (leve, sem blur!) */}
-        <div 
-          className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full opacity-40"
-          style={{
-            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%)',
-            animation: 'mesh-float-1 20s ease-in-out infinite',
-            willChange: 'transform'
-          }}
-        ></div>
+      {/* Fundo otimizado - Ondas SVG (Gobizi Colors) */}
+      <div className="absolute inset-0 bg-white">
+        {/* Ondas decorativas SVG - Azul e Verde Gobizi */}
+        <svg 
+          className="absolute w-full h-full" 
+          viewBox="0 0 1440 800" 
+          preserveAspectRatio="xMidYMid slice"
+          style={{ opacity: 1 }}
+        >
+          {/* Onda Azul Gobizi (fundo) */}
+          <path 
+            fill="#3b82f6" 
+            fillOpacity="0.06" 
+            d="M0,128L60,138.7C120,149,240,171,360,186.7C480,203,600,213,720,197.3C840,181,960,139,1080,133.3C1200,128,1320,160,1380,176L1440,192L1440,800L1380,800C1320,800,1200,800,1080,800C960,800,840,800,720,800C600,800,480,800,360,800C240,800,120,800,60,800L0,800Z"
+          />
+          
+          {/* Onda Verde Gobizi (meio) */}
+          <path 
+            fill="#10b981" 
+            fillOpacity="0.05" 
+            d="M0,256L60,266.7C120,277,240,299,360,293.3C480,288,600,256,720,234.7C840,213,960,203,1080,213.3C1200,224,1320,256,1380,272L1440,288L1440,800L1380,800C1320,800,1200,800,1080,800C960,800,840,800,720,800C600,800,480,800,360,800C240,800,120,800,60,800L0,800Z"
+          />
+          
+          {/* Onda Verde Limão (frente - mais sutil) */}
+          <path 
+            fill="#84cc16" 
+            fillOpacity="0.03" 
+            d="M0,384L60,405.3C120,427,240,469,360,474.7C480,480,600,448,720,421.3C840,395,960,373,1080,373.3C1200,373,1320,395,1380,405.3L1440,416L1440,800L1380,800C1320,800,1200,800,1080,800C960,800,840,800,720,800C600,800,480,800,360,800C240,800,120,800,60,800L0,800Z"
+          />
+        </svg>
         
-        {/* Mesh point 2 - Verde Gobizi (leve, sem blur!) */}
-        <div 
-          className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full opacity-40"
-          style={{
-            background: 'radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%)',
-            animation: 'mesh-float-2 18s ease-in-out infinite',
-            willChange: 'transform'
-          }}
-        ></div>
+        {/* Gradiente superior sutil para suavizar */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white/50 via-transparent to-transparent"></div>
       </div>
-      
-      {/* Animações CSS leves */}
-      <style jsx>{`
-        @keyframes mesh-float-1 {
-          0%, 100% { transform: translate(0, 0); }
-          50% { transform: translate(30px, -30px); }
-        }
-        
-        @keyframes mesh-float-2 {
-          0%, 100% { transform: translate(0, 0); }
-          50% { transform: translate(-25px, 25px); }
-        }
-      `}</style>
       
       {/* Conteúdo principal */}
       <div className="relative z-10 w-full max-w-sm">
