@@ -110,39 +110,144 @@ export default function LoginPage() {
 
   return (
     <div className="relative flex min-h-svh w-full items-center justify-center p-6 md:p-10 overflow-hidden">
-      {/* Fundo otimizado - Ondas SVG (Gobizi Colors) */}
-      <div className="absolute inset-0 bg-white">
-        {/* Ondas decorativas SVG - Azul e Verde Gobizi */}
+      {/* Fundo otimizado - Trilha do Sucesso com Foguete */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white via-blue-50/30 to-white">
+        <style jsx>{`
+          @keyframes confetti-explode-login {
+            0% { 
+              transform: translate(0, 0) rotate(0deg) scale(1); 
+              opacity: 0; 
+            }
+            90.9% {
+              transform: translate(0, 0) rotate(0deg) scale(1); 
+              opacity: 0; 
+            }
+            91% { 
+              transform: translate(0, 0) rotate(0deg) scale(1); 
+              opacity: 1; 
+            }
+            97% { 
+              transform: translate(var(--x), var(--y)) rotate(var(--rotate)) scale(0.3); 
+              opacity: 1; 
+            }
+            100% { 
+              transform: translate(var(--x), var(--y)) rotate(var(--rotate)) scale(0.3); 
+              opacity: 0; 
+            }
+          }
+          
+          .confetti-piece {
+            position: absolute;
+            animation: confetti-explode-login cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+            border-radius: 2px;
+          }
+        `}</style>
+        
+        {/* Trilha Ondulada do Sucesso */}
         <svg 
           className="absolute w-full h-full" 
-          viewBox="0 0 1440 800" 
+          viewBox="0 0 1920 1080"
           preserveAspectRatio="xMidYMid slice"
-          style={{ opacity: 1 }}
         >
-          {/* Onda Azul Gobizi (fundo) */}
+          <defs>
+            <linearGradient id="pathGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" style={{ stopColor: '#3b82f6', stopOpacity: 0.08 }} />
+              <stop offset="50%" style={{ stopColor: '#10b981', stopOpacity: 0.08 }} />
+              <stop offset="100%" style={{ stopColor: '#84cc16', stopOpacity: 0.08 }} />
+            </linearGradient>
+            
+            <linearGradient id="milestoneGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#3b82f6', stopOpacity: 0.15 }} />
+              <stop offset="100%" style={{ stopColor: '#10b981', stopOpacity: 0.15 }} />
+            </linearGradient>
+          </defs>
+          
+          {/* Trilha principal ondulada */}
           <path 
-            fill="#3b82f6" 
-            fillOpacity="0.06" 
-            d="M0,128L60,138.7C120,149,240,171,360,186.7C480,203,600,213,720,197.3C840,181,960,139,1080,133.3C1200,128,1320,160,1380,176L1440,192L1440,800L1380,800C1320,800,1200,800,1080,800C960,800,840,800,720,800C600,800,480,800,360,800C240,800,120,800,60,800L0,800Z"
+            id="successPath"
+            d="M 100 950 Q 200 900, 280 820 Q 350 750, 380 680 Q 410 610, 500 570 Q 600 530, 680 600 Q 750 660, 850 640 Q 950 620, 1020 550 Q 1090 480, 1180 520 Q 1270 560, 1340 480 Q 1410 400, 1500 380 Q 1590 360, 1660 300 Q 1730 240, 1820 150" 
+            fill="none" 
+            stroke="url(#pathGradient)" 
+            strokeWidth="120" 
+            strokeLinecap="round"
           />
           
-          {/* Onda Verde Gobizi (meio) */}
+          {/* Linha central pontilhada */}
           <path 
-            fill="#10b981" 
-            fillOpacity="0.05" 
-            d="M0,256L60,266.7C120,277,240,299,360,293.3C480,288,600,256,720,234.7C840,213,960,203,1080,213.3C1200,224,1320,256,1380,272L1440,288L1440,800L1380,800C1320,800,1200,800,1080,800C960,800,840,800,720,800C600,800,480,800,360,800C240,800,120,800,60,800L0,800Z"
+            d="M 100 950 Q 200 900, 280 820 Q 350 750, 380 680 Q 410 610, 500 570 Q 600 530, 680 600 Q 750 660, 850 640 Q 950 620, 1020 550 Q 1090 480, 1180 520 Q 1270 560, 1340 480 Q 1410 400, 1500 380 Q 1590 360, 1660 300 Q 1730 240, 1820 150" 
+            fill="none" 
+            stroke="url(#pathGradient)" 
+            strokeWidth="4" 
+            strokeLinecap="round"
+            opacity="0.3"
+            strokeDasharray="15,10"
           />
           
-          {/* Onda Verde Limão (frente - mais sutil) */}
-          <path 
-            fill="#84cc16" 
-            fillOpacity="0.03" 
-            d="M0,384L60,405.3C120,427,240,469,360,474.7C480,480,600,448,720,421.3C840,395,960,373,1080,373.3C1200,373,1320,395,1380,405.3L1440,416L1440,800L1380,800C1320,800,1200,800,1080,800C960,800,840,800,720,800C600,800,480,800,360,800C240,800,120,800,60,800L0,800Z"
-          />
+          {/* Marcos ao longo da trilha */}
+          <circle cx="100" cy="950" r="18" fill="url(#milestoneGradient)" opacity="0.2">
+            <animate attributeName="r" values="18;22;18" dur="3s" repeatCount="indefinite" />
+          </circle>
+          <circle cx="100" cy="950" r="8" fill="#3b82f6" opacity="0.3" />
+          
+          <circle cx="500" cy="570" r="16" fill="url(#milestoneGradient)" opacity="0.2">
+            <animate attributeName="r" values="16;20;16" dur="3s" begin="1s" repeatCount="indefinite" />
+          </circle>
+          <circle cx="500" cy="570" r="7" fill="#10b981" opacity="0.3" />
+          
+          <circle cx="1020" cy="550" r="16" fill="url(#milestoneGradient)" opacity="0.2">
+            <animate attributeName="r" values="16;20;16" dur="3s" begin="2s" repeatCount="indefinite" />
+          </circle>
+          <circle cx="1020" cy="550" r="7" fill="#10b981" opacity="0.3" />
+          
+          <circle cx="1500" cy="380" r="16" fill="url(#milestoneGradient)" opacity="0.2">
+            <animate attributeName="r" values="16;20;16" dur="3s" begin="3s" repeatCount="indefinite" />
+          </circle>
+          <circle cx="1500" cy="380" r="7" fill="#84cc16" opacity="0.3" />
+          
+          {/* Bolinha final - pulsa e brilha quando explode */}
+          <circle cx="1820" cy="150" r="22" fill="url(#milestoneGradient)">
+            <animate attributeName="r" values="22;28;22" dur="3s" repeatCount="indefinite" />
+            <animate attributeName="opacity" values="0.25;0.25;0.5;0.25" keyTimes="0;0.91;0.92;1" dur="15s" repeatCount="indefinite" />
+          </circle>
+          <circle cx="1820" cy="150" r="10" fill="#84cc16" opacity="0.4" />
+          
+          {/* Foguete percorrendo a trilha */}
+          <g filter="drop-shadow(0 3px 8px rgba(0,0,0,0.2))">
+            <g>
+              <g transform="translate(-12, -12)">
+                <path d="M4.5 16.5c-1.5 1.5-2 5-2 5s3.5-.5 5-2c.5-.5 1-1.5 1-2 0-1-.5-1.5-1-2-.5-.5-1.5-1-2-1-.5 0-1.5.5-2 1z" 
+                  fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" 
+                  fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" 
+                  fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" 
+                  fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </g>
+              <animate attributeName="opacity" values="1;1;0" keyTimes="0;0.91;1" dur="15s" repeatCount="indefinite" />
+            </g>
+            
+            <animateMotion dur="15s" repeatCount="indefinite">
+              <mpath href="#successPath"/>
+            </animateMotion>
+          </g>
         </svg>
         
-        {/* Gradiente superior sutil para suavizar */}
-        <div className="absolute inset-0 bg-gradient-to-b from-white/50 via-transparent to-transparent"></div>
+        {/* Confetes explodindo (top: 13.9%, left: 94.8%) */}
+        <div className="confetti-piece" style={{ top: '13.9%', left: '94.8%', width: '4px', height: '12px', background: '#3b82f6', '--x': '-60px', '--y': '-80px', '--rotate': '420deg', animationDuration: '15s', animationDelay: '0s' } as React.CSSProperties}></div>
+        <div className="confetti-piece" style={{ top: '13.9%', left: '94.8%', width: '6px', height: '10px', background: '#10b981', '--x': '-80px', '--y': '-50px', '--rotate': '380deg', animationDuration: '15s', animationDelay: '0.02s' } as React.CSSProperties}></div>
+        <div className="confetti-piece" style={{ top: '13.9%', left: '94.8%', width: '3px', height: '14px', background: '#84cc16', '--x': '-50px', '--y': '-100px', '--rotate': '520deg', animationDuration: '15s', animationDelay: '0.05s' } as React.CSSProperties}></div>
+        <div className="confetti-piece" style={{ top: '13.9%', left: '94.8%', width: '5px', height: '11px', background: '#f59e0b', '--x': '0px', '--y': '-120px', '--rotate': '600deg', animationDuration: '15s', animationDelay: '0.01s' } as React.CSSProperties}></div>
+        <div className="confetti-piece" style={{ top: '13.9%', left: '94.8%', width: '4px', height: '13px', background: '#8b5cf6', '--x': '-10px', '--y': '-110px', '--rotate': '480deg', animationDuration: '15s', animationDelay: '0.04s' } as React.CSSProperties}></div>
+        <div className="confetti-piece" style={{ top: '13.9%', left: '94.8%', width: '6px', height: '9px', background: '#3b82f6', '--x': '10px', '--y': '-115px', '--rotate': '540deg', animationDuration: '15s', animationDelay: '0.07s' } as React.CSSProperties}></div>
+        <div className="confetti-piece" style={{ top: '13.9%', left: '94.8%', width: '5px', height: '12px', background: '#10b981', '--x': '60px', '--y': '-90px', '--rotate': '460deg', animationDuration: '15s', animationDelay: '0.03s' } as React.CSSProperties}></div>
+        <div className="confetti-piece" style={{ top: '13.9%', left: '94.8%', width: '3px', height: '10px', background: '#84cc16', '--x': '70px', '--y': '-60px', '--rotate': '620deg', animationDuration: '15s', animationDelay: '0.06s' } as React.CSSProperties}></div>
+        <div className="confetti-piece" style={{ top: '13.9%', left: '94.8%', width: '4px', height: '14px', background: '#f59e0b', '--x': '50px', '--y': '-105px', '--rotate': '390deg', animationDuration: '15s', animationDelay: '0.09s' } as React.CSSProperties}></div>
+        <div className="confetti-piece" style={{ top: '13.9%', left: '94.8%', width: '6px', height: '11px', background: '#8b5cf6', '--x': '90px', '--y': '-30px', '--rotate': '500deg', animationDuration: '15s', animationDelay: '0.02s' } as React.CSSProperties}></div>
+        <div className="confetti-piece" style={{ top: '13.9%', left: '94.8%', width: '5px', height: '13px', background: '#3b82f6', '--x': '85px', '--y': '-20px', '--rotate': '440deg', animationDuration: '15s', animationDelay: '0.05s' } as React.CSSProperties}></div>
+        <div className="confetti-piece" style={{ top: '13.9%', left: '94.8%', width: '4px', height: '10px', background: '#10b981', '--x': '-90px', '--y': '-40px', '--rotate': '580deg', animationDuration: '15s', animationDelay: '0.04s' } as React.CSSProperties}></div>
+        <div className="confetti-piece" style={{ top: '13.9%', left: '94.8%', width: '5px', height: '12px', background: '#84cc16', '--x': '-75px', '--y': '-70px', '--rotate': '360deg', animationDuration: '15s', animationDelay: '0.07s' } as React.CSSProperties}></div>
+        <div className="confetti-piece" style={{ top: '13.9%', left: '94.8%', width: '3px', height: '11px', background: '#f59e0b', '--x': '-20px', '--y': '60px', '--rotate': '720deg', animationDuration: '15s', animationDelay: '0.01s' } as React.CSSProperties}></div>
       </div>
       
       {/* Conteúdo principal */}
