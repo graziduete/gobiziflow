@@ -94,16 +94,11 @@ export default function LoginPage() {
           return
         }
 
-        // Redirecionamento baseado no role
+        // Redirecionamento baseado no role (otimizado - sem reload)
         if (profile.role === "admin" || profile.role === "admin_operacional" || profile.role === "admin_master") {
-          // Se é client_admin (mesmo com role admin), vai para /admin
-          if (profile.is_client_admin) {
-            window.location.href = "/admin"
-          } else {
-            window.location.href = "/admin"
-          }
+          router.push("/admin")
         } else {
-          window.location.href = "/dashboard"
+          router.push("/dashboard")
         }
       }
     } catch (error: unknown) {
@@ -115,14 +110,41 @@ export default function LoginPage() {
 
   return (
     <div className="relative flex min-h-svh w-full items-center justify-center p-6 md:p-10 overflow-hidden">
-      {/* Fundo animado com gradiente */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-green-50">
-        {/* Círculos animados */}
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
-        <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-green-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000"></div>
-        <div className="absolute -bottom-8 left-1/3 w-64 h-64 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000"></div>
-        <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-green-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-6000"></div>
+      {/* Fundo otimizado - Mesh Gradient Moderno (Gobizi Colors) */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white via-blue-50 to-emerald-50">
+        {/* Mesh point 1 - Azul Gobizi (leve, sem blur!) */}
+        <div 
+          className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full opacity-40"
+          style={{
+            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%)',
+            animation: 'mesh-float-1 20s ease-in-out infinite',
+            willChange: 'transform'
+          }}
+        ></div>
+        
+        {/* Mesh point 2 - Verde Gobizi (leve, sem blur!) */}
+        <div 
+          className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full opacity-40"
+          style={{
+            background: 'radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%)',
+            animation: 'mesh-float-2 18s ease-in-out infinite',
+            willChange: 'transform'
+          }}
+        ></div>
       </div>
+      
+      {/* Animações CSS leves */}
+      <style jsx>{`
+        @keyframes mesh-float-1 {
+          0%, 100% { transform: translate(0, 0); }
+          50% { transform: translate(30px, -30px); }
+        }
+        
+        @keyframes mesh-float-2 {
+          0%, 100% { transform: translate(0, 0); }
+          50% { transform: translate(-25px, 25px); }
+        }
+      `}</style>
       
       {/* Conteúdo principal */}
       <div className="relative z-10 w-full max-w-sm">
