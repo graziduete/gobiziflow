@@ -37,12 +37,22 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
+  // Rotas públicas que não requerem autenticação
+  const publicRoutes = [
+    "/",
+    "/privacy-policy",
+    "/terms-of-service",
+  ]
+  
+  const isPublicRoute = publicRoutes.some(route => request.nextUrl.pathname === route)
+  const isAuthRoute = request.nextUrl.pathname.startsWith("/auth")
+  const isApiRoute = request.nextUrl.pathname.startsWith("/api")
+  
   if (
-    request.nextUrl.pathname !== "/" &&
     !user &&
-    !request.nextUrl.pathname.startsWith("/login") &&
-    !request.nextUrl.pathname.startsWith("/auth") &&
-    !request.nextUrl.pathname.startsWith("/api")
+    !isPublicRoute &&
+    !isAuthRoute &&
+    !isApiRoute
   ) {
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone()
