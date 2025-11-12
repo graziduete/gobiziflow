@@ -789,8 +789,8 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
           </div>
           
           <div className="flex h-[calc(100vh-80px)] relative z-10">
-            {/* Painel lateral de filtros */}
-            <aside className={`${isGanttView ? 'w-0 opacity-0' : 'w-[320px]'} border-r border-slate-200/60 bg-white/60 backdrop-blur-md p-6 overflow-y-auto shadow-sm transition-all duration-300`}>
+            {/* Painel lateral de filtros - SEMPRE VISÍVEL */}
+            <aside className="w-[320px] border-r border-slate-200/60 bg-white/60 backdrop-blur-md p-6 overflow-y-auto shadow-sm transition-all duration-300">
               <div className="space-y-5">
                 <div>
                   <h3 className="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wide">Filtros</h3>
