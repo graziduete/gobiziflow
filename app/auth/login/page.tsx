@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import Image from "next/image"
 import { Eye, EyeOff } from "lucide-react"
+import { CookieBanner } from "@/components/cookie-banner"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -332,8 +333,33 @@ export default function LoginPage() {
               </form>
             </CardContent>
           </Card>
+
+          {/* Rodapé com links para políticas */}
+          <div className="relative z-10 text-center text-xs text-slate-500 space-y-2">
+            <p>© 2025 GobiZi Flow. Todos os direitos reservados.</p>
+            <div className="flex items-center justify-center gap-3">
+              <Link 
+                href="/privacy-policy" 
+                className="hover:text-slate-700 underline underline-offset-2"
+                target="_blank"
+              >
+                Política de Privacidade
+              </Link>
+              <span>•</span>
+              <Link 
+                href="/terms-of-service" 
+                className="hover:text-slate-700 underline underline-offset-2"
+                target="_blank"
+              >
+                Termos de Uso
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Cookie Banner */}
+      <CookieBanner />
     </div>
   )
 }
