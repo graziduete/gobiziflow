@@ -1,6 +1,6 @@
 import { Metadata } from "next"
 import Link from "next/link"
-import { FileCheck, ArrowLeft, AlertTriangle, CheckCircle, XCircle, Scale, Shield } from "lucide-react"
+import { FileCheck, ArrowLeft, CheckCircle, XCircle, Shield } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export const metadata: Metadata = {
@@ -40,111 +40,67 @@ export default function TermsOfServicePage() {
           <section>
             <div className="flex items-center gap-2 mb-4">
               <FileCheck className="w-5 h-5 text-blue-600" />
-              <h2 className="text-xl font-semibold text-slate-800">Bem-vindo ao GobiZi Flow! 🚀</h2>
+              <h2 className="text-xl font-semibold text-slate-800">Bem-vindo! 🚀</h2>
             </div>
-            <p className="text-slate-600 leading-relaxed">
-              Estes Termos de Uso estabelecem as regras para o uso da plataforma <strong>GobiZi Flow</strong>. 
-              Ao criar uma conta e usar nossos serviços, você concorda com estes termos. 
-              Por favor, leia com atenção! 📝
+            <p className="text-slate-600 text-sm leading-relaxed">
+              Estes termos estabelecem as regras para uso do <strong>GobiZi Flow</strong>. 
+              Ao usar a plataforma, você concorda com estes termos.
             </p>
-          </section>
-
-          {/* Definições */}
-          <section>
-            <div className="flex items-center gap-2 mb-4">
-              <Scale className="w-5 h-5 text-blue-600" />
-              <h2 className="text-xl font-semibold text-slate-800">1. Definições</h2>
-            </div>
-            <div className="space-y-3 text-slate-600">
-              <p>Para facilitar a compreensão:</p>
-              <ul className="list-disc list-inside space-y-2 ml-4">
-                <li><strong>"Plataforma"</strong> ou <strong>"Serviço"</strong>: Refere-se ao GobiZi Flow e todas as suas funcionalidades</li>
-                <li><strong>"Usuário"</strong>: Você, a pessoa que acessa e utiliza a plataforma</li>
-                <li><strong>"Empresa"</strong>: A organização que contratou o serviço e gerencia os usuários</li>
-                <li><strong>"Administrador"</strong>: Usuário com permissões de gerenciamento da empresa</li>
-                <li><strong>"Dados"</strong>: Todas as informações inseridas, armazenadas e processadas na plataforma</li>
-              </ul>
-            </div>
           </section>
 
           {/* Aceite */}
           <section>
             <div className="flex items-center gap-2 mb-4">
               <CheckCircle className="w-5 h-5 text-blue-600" />
-              <h2 className="text-xl font-semibold text-slate-800">2. Aceite dos Termos</h2>
+              <h2 className="text-xl font-semibold text-slate-800">1. Aceite dos Termos</h2>
             </div>
-            <div className="space-y-3 text-slate-600">
+            <div className="text-slate-600 text-sm">
               <p>Ao usar o GobiZi Flow, você confirma que:</p>
-              <ul className="list-disc list-inside space-y-2 ml-4">
-                <li>✅ Leu, compreendeu e concorda com estes Termos de Uso</li>
-                <li>✅ Leu e concorda com nossa Política de Privacidade</li>
-                <li>✅ Tem capacidade legal para celebrar este acordo (maior de 18 anos)</li>
-                <li>✅ Tem autorização da sua empresa para usar a plataforma</li>
+              <ul className="list-disc list-inside space-y-1 ml-4 mt-2">
+                <li>Tem mais de 18 anos</li>
+                <li>Tem autorização da sua empresa</li>
+                <li>Concorda com estes termos e nossa Política de Privacidade</li>
               </ul>
-              <p className="mt-4 p-4 bg-amber-50 rounded-lg border border-amber-200">
-                <strong>⚠️ Importante:</strong> Se você não concorda com estes termos, 
-                não deve usar a plataforma.
-              </p>
             </div>
           </section>
 
           {/* Descrição do Serviço */}
           <section>
             <div className="flex items-center gap-2 mb-4">
-              <CheckCircle className="w-5 h-5 text-blue-600" />
-              <h2 className="text-xl font-semibold text-slate-800">3. O que é o GobiZi Flow?</h2>
+              <Shield className="w-5 h-5 text-blue-600" />
+              <h2 className="text-xl font-semibold text-slate-800">2. O que é o GobiZi Flow?</h2>
             </div>
-            <div className="space-y-3 text-slate-600">
-              <p>O GobiZi Flow é uma plataforma SaaS (Software as a Service) para:</p>
-              <ul className="list-disc list-inside space-y-2 ml-4">
-                <li>📊 Gestão de projetos e cronogramas</li>
-                <li>📋 Controle de tarefas e dependências</li>
-                <li>📈 Visualização de Gantt Charts</li>
-                <li>📁 Gerenciamento de documentos</li>
-                <li>👥 Colaboração entre equipes</li>
-                <li>📊 Relatórios e métricas de desempenho</li>
+            <div className="text-slate-600 text-sm">
+              <p>Plataforma para gestão de projetos, incluindo:</p>
+              <ul className="list-disc list-inside space-y-1 ml-4 mt-2">
+                <li>Projetos e cronogramas</li>
+                <li>Tarefas e dependências</li>
+                <li>Gráficos Gantt</li>
+                <li>Documentos e colaboração</li>
               </ul>
-              <p className="mt-4">
-                O serviço é fornecido "como está" e estamos sempre trabalhando para melhorá-lo! 🚀
-              </p>
             </div>
           </section>
 
-          {/* Conta e Acesso */}
+          {/* Conta e Segurança */}
           <section>
             <div className="flex items-center gap-2 mb-4">
               <Shield className="w-5 h-5 text-blue-600" />
-              <h2 className="text-xl font-semibold text-slate-800">4. Conta e Acesso</h2>
+              <h2 className="text-xl font-semibold text-slate-800">3. Sua Conta</h2>
             </div>
-            <div className="space-y-4 text-slate-600">
+            <div className="text-slate-600 text-sm space-y-3">
               <div>
-                <h3 className="font-semibold text-slate-700 mb-2">4.1. Criação de Conta</h3>
-                <ul className="list-disc list-inside space-y-1 ml-4">
-                  <li>Contas são criadas pelo administrador da sua empresa</li>
-                  <li>Você deve fornecer informações verdadeiras e atualizadas</li>
-                  <li>Cada usuário deve ter uma conta individual (não compartilhar credenciais)</li>
-                </ul>
+                <p className="font-semibold text-slate-700 mb-1">Criação:</p>
+                <p>Contas são criadas pelo administrador da sua empresa. Você deve fornecer informações verdadeiras.</p>
+              </div>
+              
+              <div>
+                <p className="font-semibold text-slate-700 mb-1">Segurança:</p>
+                <p>Você é responsável por manter sua senha segura. Não compartilhe suas credenciais.</p>
               </div>
 
               <div>
-                <h3 className="font-semibold text-slate-700 mb-2">4.2. Segurança da Conta</h3>
-                <ul className="list-disc list-inside space-y-1 ml-4">
-                  <li>Você é responsável por manter sua senha segura</li>
-                  <li>Não compartilhe suas credenciais com terceiros</li>
-                  <li>Notifique imediatamente sobre qualquer uso não autorizado</li>
-                  <li>Use senhas fortes (mínimo 8 caracteres, com letras e números)</li>
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-slate-700 mb-2">4.3. Suspensão e Encerramento</h3>
-                <p>Podemos suspender ou encerrar sua conta se:</p>
-                <ul className="list-disc list-inside space-y-1 ml-4">
-                  <li>Você violar estes Termos de Uso</li>
-                  <li>Houver atividade fraudulenta ou maliciosa</li>
-                  <li>Sua empresa encerrar o contrato com o GobiZi Flow</li>
-                  <li>Por solicitação do administrador da sua empresa</li>
-                </ul>
+                <p className="font-semibold text-slate-700 mb-1">Suspensão:</p>
+                <p>Podemos suspender sua conta em caso de violação destes termos ou atividades fraudulentas.</p>
               </div>
             </div>
           </section>
@@ -153,16 +109,15 @@ export default function TermsOfServicePage() {
           <section>
             <div className="flex items-center gap-2 mb-4">
               <CheckCircle className="w-5 h-5 text-emerald-600" />
-              <h2 className="text-xl font-semibold text-slate-800">5. Uso Permitido ✅</h2>
+              <h2 className="text-xl font-semibold text-slate-800">4. Uso Permitido ✅</h2>
             </div>
-            <div className="space-y-3 text-slate-600">
-              <p>Você PODE usar a plataforma para:</p>
-              <ul className="list-disc list-inside space-y-2 ml-4 text-emerald-700">
-                <li>✅ Gerenciar projetos e tarefas da sua empresa</li>
-                <li>✅ Colaborar com membros da equipe</li>
-                <li>✅ Armazenar documentos relacionados aos projetos</li>
-                <li>✅ Gerar relatórios e análises de desempenho</li>
-                <li>✅ Acessar recursos conforme seu nível de permissão</li>
+            <div className="text-slate-600 text-sm">
+              <p>Você pode usar a plataforma para:</p>
+              <ul className="list-disc list-inside space-y-1 ml-4 mt-2 text-emerald-700">
+                <li>Gerenciar projetos e tarefas da sua empresa</li>
+                <li>Colaborar com sua equipe</li>
+                <li>Armazenar documentos relacionados aos projetos</li>
+                <li>Gerar relatórios e análises</li>
               </ul>
             </div>
           </section>
@@ -171,138 +126,82 @@ export default function TermsOfServicePage() {
           <section className="bg-red-50 p-6 rounded-xl border border-red-200">
             <div className="flex items-center gap-2 mb-4">
               <XCircle className="w-5 h-5 text-red-600" />
-              <h2 className="text-xl font-semibold text-slate-800">6. Uso Proibido ❌</h2>
+              <h2 className="text-xl font-semibold text-slate-800">5. Uso Proibido ❌</h2>
             </div>
-            <div className="space-y-3 text-slate-600">
-              <p>Você NÃO PODE usar a plataforma para:</p>
-              <ul className="list-disc list-inside space-y-2 ml-4 text-red-700">
-                <li>❌ Violar leis, regulamentos ou direitos de terceiros</li>
-                <li>❌ Tentar acessar dados de outras empresas (burlar o RLS)</li>
-                <li>❌ Realizar engenharia reversa, descompilar ou modificar o código</li>
-                <li>❌ Enviar vírus, malware ou código malicioso</li>
-                <li>❌ Fazer scraping, mining ou extração automatizada de dados</li>
-                <li>❌ Sobrecarregar a infraestrutura (ataques DDoS)</li>
-                <li>❌ Revender, sublicenciar ou redistribuir o serviço</li>
-                <li>❌ Armazenar conteúdo ilegal, ofensivo ou inapropriado</li>
-                <li>❌ Usar para spam, phishing ou atividades fraudulentas</li>
+            <div className="text-slate-600 text-sm">
+              <p className="mb-2">Você NÃO pode:</p>
+              <ul className="list-disc list-inside space-y-1 ml-4 text-red-700">
+                <li>Violar leis ou direitos de terceiros</li>
+                <li>Tentar acessar dados de outras empresas</li>
+                <li>Enviar vírus ou código malicioso</li>
+                <li>Fazer scraping ou extração automatizada</li>
+                <li>Sobrecarregar a infraestrutura</li>
+                <li>Revender ou redistribuir o serviço</li>
+                <li>Armazenar conteúdo ilegal ou ofensivo</li>
               </ul>
             </div>
           </section>
 
-          {/* Propriedade Intelectual */}
+          {/* Propriedade */}
           <section>
             <div className="flex items-center gap-2 mb-4">
-              <Scale className="w-5 h-5 text-blue-600" />
-              <h2 className="text-xl font-semibold text-slate-800">7. Propriedade Intelectual</h2>
+              <Shield className="w-5 h-5 text-blue-600" />
+              <h2 className="text-xl font-semibold text-slate-800">6. Propriedade e Dados</h2>
             </div>
-            <div className="space-y-4 text-slate-600">
-              <div>
-                <h3 className="font-semibold text-slate-700 mb-2">7.1. Nossa Propriedade</h3>
-                <p>
-                  O GobiZi Flow, incluindo seu código-fonte, design, logotipos, marca e documentação, 
-                  são propriedade exclusiva da GobiZi Flow Tecnologia Ltda. e protegidos por leis de 
-                  direitos autorais e propriedade intelectual.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-slate-700 mb-2">7.2. Seus Dados</h3>
-                <p>
-                  Você mantém todos os direitos sobre os dados que insere na plataforma (projetos, tarefas, 
-                  documentos, etc.). Nós apenas processamos esses dados para fornecer o serviço.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-slate-700 mb-2">7.3. Licença de Uso</h3>
-                <p>
-                  Concedemos a você uma licença limitada, não exclusiva, intransferível e revogável 
-                  para acessar e usar a plataforma, conforme estes termos.
-                </p>
-              </div>
+            <div className="text-slate-600 text-sm space-y-2">
+              <p><strong>Nossa propriedade:</strong> O código, design e marca do GobiZi Flow são protegidos por leis de propriedade intelectual.</p>
+              <p><strong>Seus dados:</strong> Você mantém todos os direitos sobre seus dados (projetos, tarefas, documentos).</p>
             </div>
           </section>
 
           {/* Disponibilidade */}
           <section>
             <div className="flex items-center gap-2 mb-4">
-              <AlertTriangle className="w-5 h-5 text-amber-600" />
-              <h2 className="text-xl font-semibold text-slate-800">8. Disponibilidade e Manutenção</h2>
+              <Shield className="w-5 h-5 text-blue-600" />
+              <h2 className="text-xl font-semibold text-slate-800">7. Disponibilidade</h2>
             </div>
-            <div className="space-y-3 text-slate-600">
-              <p>
-                Nos esforçamos para manter a plataforma disponível 24/7, mas podem ocorrer:
-              </p>
-              <ul className="list-disc list-inside space-y-2 ml-4">
-                <li>🔧 Manutenções programadas (notificaremos com antecedência)</li>
-                <li>⚠️ Indisponibilidades temporárias por problemas técnicos</li>
-                <li>🔄 Atualizações e melhorias do sistema</li>
-              </ul>
-              <p className="mt-4 p-4 bg-amber-50 rounded-lg border border-amber-200">
-                <strong>⚠️ Importante:</strong> Não garantimos disponibilidade ininterrupta. 
-                Recomendamos manter backups dos seus dados críticos.
-              </p>
-            </div>
+            <p className="text-slate-600 text-sm">
+              Nos esforçamos para manter a plataforma disponível 24/7, mas podem ocorrer manutenções programadas 
+              ou indisponibilidades temporárias. Não garantimos disponibilidade ininterrupta.
+            </p>
           </section>
 
           {/* Limitação de Responsabilidade */}
           <section>
             <div className="flex items-center gap-2 mb-4">
-              <AlertTriangle className="w-5 h-5 text-amber-600" />
-              <h2 className="text-xl font-semibold text-slate-800">9. Limitação de Responsabilidade</h2>
+              <Shield className="w-5 h-5 text-blue-600" />
+              <h2 className="text-xl font-semibold text-slate-800">8. Limitação de Responsabilidade</h2>
             </div>
-            <div className="space-y-3 text-slate-600">
+            <div className="text-slate-600 text-sm">
               <p>Na extensão máxima permitida por lei:</p>
-              <ul className="list-disc list-inside space-y-2 ml-4">
+              <ul className="list-disc list-inside space-y-1 ml-4 mt-2">
                 <li>Não nos responsabilizamos por perda de dados causada por uso inadequado</li>
                 <li>Não garantimos que o serviço atenderá todas as suas necessidades específicas</li>
-                <li>Não nos responsabilizamos por danos indiretos, incidentais ou consequenciais</li>
                 <li>Nossa responsabilidade é limitada ao valor pago pela sua empresa nos últimos 12 meses</li>
               </ul>
             </div>
-          </section>
-
-          {/* Indenização */}
-          <section>
-            <div className="flex items-center gap-2 mb-4">
-              <Shield className="w-5 h-5 text-blue-600" />
-              <h2 className="text-xl font-semibold text-slate-800">10. Indenização</h2>
-            </div>
-            <p className="text-slate-600 leading-relaxed">
-              Você concorda em nos indenizar e isentar de responsabilidade por quaisquer reclamações, 
-              perdas, danos ou despesas (incluindo honorários advocatícios) decorrentes de:
-            </p>
-            <ul className="list-disc list-inside space-y-2 ml-4 text-slate-600 mt-3">
-              <li>Seu uso indevido da plataforma</li>
-              <li>Violação destes Termos de Uso</li>
-              <li>Violação de direitos de terceiros</li>
-              <li>Conteúdo ilegal ou inapropriado que você armazene na plataforma</li>
-            </ul>
           </section>
 
           {/* Modificações */}
           <section>
             <div className="flex items-center gap-2 mb-4">
               <FileCheck className="w-5 h-5 text-blue-600" />
-              <h2 className="text-xl font-semibold text-slate-800">11. Modificações dos Termos</h2>
+              <h2 className="text-xl font-semibold text-slate-800">9. Modificações dos Termos</h2>
             </div>
-            <p className="text-slate-600 leading-relaxed">
-              Podemos atualizar estes Termos de Uso periodicamente. Quando houver alterações significativas, 
-              notificaremos você por e-mail ou através de um aviso na plataforma. O uso continuado 
-              do serviço após as alterações constitui aceitação dos novos termos.
+            <p className="text-slate-600 text-sm">
+              Podemos atualizar estes termos periodicamente. Mudanças importantes serão comunicadas por e-mail. 
+              O uso continuado após as alterações constitui aceitação.
             </p>
           </section>
 
           {/* Lei Aplicável */}
           <section>
             <div className="flex items-center gap-2 mb-4">
-              <Scale className="w-5 h-5 text-blue-600" />
-              <h2 className="text-xl font-semibold text-slate-800">12. Lei Aplicável e Foro</h2>
+              <Shield className="w-5 h-5 text-blue-600" />
+              <h2 className="text-xl font-semibold text-slate-800">10. Lei Aplicável</h2>
             </div>
-            <p className="text-slate-600 leading-relaxed">
-              Estes Termos de Uso são regidos pelas leis da República Federativa do Brasil. 
-              Qualquer disputa será submetida ao foro da comarca de <strong>[Cidade/Estado]</strong>, 
-              com exclusão de qualquer outro, por mais privilegiado que seja.
+            <p className="text-slate-600 text-sm">
+              Estes termos são regidos pelas leis da República Federativa do Brasil.
             </p>
           </section>
 
@@ -310,23 +209,17 @@ export default function TermsOfServicePage() {
           <section className="bg-slate-50 p-6 rounded-xl border border-slate-200">
             <div className="flex items-center gap-2 mb-4">
               <FileCheck className="w-5 h-5 text-blue-600" />
-              <h2 className="text-xl font-semibold text-slate-800">13. Dúvidas?</h2>
+              <h2 className="text-xl font-semibold text-slate-800">11. Dúvidas?</h2>
             </div>
-            <div className="space-y-3 text-slate-600">
-              <p>
-                Se tiver dúvidas sobre estes Termos de Uso, entre em contato:
-              </p>
-              <div className="space-y-2 mt-4">
-                <p><strong>📧 E-mail:</strong> contato@gobiziflow.com</p>
-                <p><strong>🏢 Empresa:</strong> GobiZi Flow Tecnologia Ltda.</p>
-                <p><strong>📄 CNPJ:</strong> [Inserir CNPJ]</p>
-              </div>
+            <div className="text-slate-600 text-sm">
+              <p className="mb-3">Entre em contato:</p>
+              <p><strong>📧 E-mail:</strong> projetos@gobi.consulting</p>
             </div>
           </section>
 
           {/* Footer */}
           <div className="pt-6 border-t text-center">
-            <p className="text-sm text-slate-500">
+            <p className="text-xs text-slate-500">
               Ao usar o GobiZi Flow, você concorda com estes Termos de Uso e nossa Política de Privacidade.
             </p>
           </div>
@@ -345,4 +238,3 @@ export default function TermsOfServicePage() {
     </div>
   )
 }
-
