@@ -176,7 +176,6 @@ export default function PrivacyPolicyPage() {
                 <li>Criptografia em todas as comunicações</li>
                 <li>Armazenamento seguro de senhas</li>
                 <li>Controle rigoroso de acesso aos dados</li>
-                <li>Autenticação de múltiplos fatores (quando disponível)</li>
                 <li>Monitoramento contínuo de atividades suspeitas</li>
                 <li>Backups automáticos e redundância</li>
                 <li>Atualizações regulares de segurança</li>
