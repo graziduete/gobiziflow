@@ -118,15 +118,15 @@ export default function LoginPage() {
               transform: translate(0, 0) rotate(0deg) scale(1); 
               opacity: 0; 
             }
-            90.9% {
+            95.9% {
               transform: translate(0, 0) rotate(0deg) scale(1); 
               opacity: 0; 
             }
-            91% { 
+            96% { 
               transform: translate(0, 0) rotate(0deg) scale(1); 
               opacity: 1; 
             }
-            97% { 
+            99% { 
               transform: translate(var(--x), var(--y)) rotate(var(--rotate)) scale(0.3); 
               opacity: 1; 
             }
@@ -204,14 +204,14 @@ export default function LoginPage() {
           </circle>
           <circle cx="1500" cy="380" r="7" fill="#84cc16" opacity="0.3" />
           
-          {/* Bolinha final - pulsa e brilha quando explode */}
+          {/* Bolinha final - pulsa e brilha quando explode aos 96% */}
           <circle cx="1820" cy="150" r="22" fill="url(#milestoneGradient)">
             <animate attributeName="r" values="22;28;22" dur="3s" repeatCount="indefinite" />
-            <animate attributeName="opacity" values="0.25;0.25;0.5;0.25" keyTimes="0;0.91;0.92;1" dur="15s" repeatCount="indefinite" />
+            <animate attributeName="opacity" values="0.25;0.25;0.5;0.25" keyTimes="0;0.96;0.97;1" dur="15s" repeatCount="indefinite" />
           </circle>
           <circle cx="1820" cy="150" r="10" fill="#84cc16" opacity="0.4" />
           
-          {/* Foguete percorrendo a trilha */}
+          {/* Foguete percorrendo a trilha - desaparece aos 96% */}
           <g filter="drop-shadow(0 3px 8px rgba(0,0,0,0.2))">
             <g>
               <g transform="translate(-12, -12)">
@@ -224,7 +224,7 @@ export default function LoginPage() {
                 <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" 
                   fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
               </g>
-              <animate attributeName="opacity" values="1;1;0" keyTimes="0;0.91;1" dur="15s" repeatCount="indefinite" />
+              <animate attributeName="opacity" values="1;1;0" keyTimes="0;0.96;1" dur="15s" repeatCount="indefinite" />
             </g>
             
             <animateMotion dur="15s" repeatCount="indefinite">

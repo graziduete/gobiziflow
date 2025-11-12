@@ -3,7 +3,7 @@ import { GanttChart } from "@/components/admin/gantt-chart"
 import { TaskMetricsCard } from "@/components/admin/task-metrics-card"
 import { notFound } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Calendar } from "lucide-react"
 import Link from "next/link"
 import { StatusBadge } from "@/components/shared/status-badge"
 import { PriorityBadge } from "@/components/shared/priority-badge"
@@ -41,6 +41,10 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
       priority,
       start_date,
       end_date,
+      predicted_start_date,
+      predicted_end_date,
+      actual_start_date,
+      actual_end_date,
       budget,
       company_id,
       technical_responsible,
@@ -159,6 +163,109 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                 <p className="text-lg font-semibold">R$ {Number(project.budget).toLocaleString("pt-BR")}</p>
               </div>
             )}
+          </div>
+        </div>
+      </div>
+
+      {/* Cronologia do Projeto */}
+      <div className="bg-white border rounded-xl p-5 shadow-sm">
+        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2 mb-4">
+          <Calendar className="w-4 h-4" />
+          Cronologia do Projeto
+        </h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* PLANEJADO (Baseline) */}
+          <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
+            <div className="flex items-center gap-1.5 mb-3">
+              <div className="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
+              <span className="text-xs font-semibold text-slate-700 uppercase">Planejado (Baseline)</span>
+            </div>
+            <div className="space-y-2 text-sm">
+              <div>
+                <span className="text-muted-foreground">Início:</span>
+                <span className="ml-2 font-medium">{project.start_date ? new Date(project.start_date + 'T12:00:00').toLocaleDateString('pt-BR') : '—'}</span>
+              </div>
+              <div>
+                <span className="text-muted-foreground">Término:</span>
+                <span className="ml-2 font-medium">{project.end_date ? new Date(project.end_date + 'T12:00:00').toLocaleDateString('pt-BR') : '—'}</span>
+              </div>
+              {project.start_date && project.end_date && (
+                <div className="text-xs text-slate-500 mt-2 pt-2 border-t border-slate-200">
+                  Duração: {Math.ceil((new Date(project.end_date).getTime() - new Date(project.start_date).getTime()) / (24 * 60 * 60 * 1000))} dias
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* PREVISÃO ATUAL */}
+          <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+            <div className="flex items-center gap-1.5 mb-3">
+              <div className="w-1.5 h-1.5 rounded-full bg-blue-600"></div>
+              <span className="text-xs font-semibold text-blue-700 uppercase">Previsão Atual</span>
+            </div>
+            <div className="space-y-2 text-sm">
+              <div>
+                <span className="text-muted-foreground">Início:</span>
+                <span className="ml-2 font-medium">{project.predicted_start_date ? new Date(project.predicted_start_date + 'T12:00:00').toLocaleDateString('pt-BR') : (project.start_date ? new Date(project.start_date + 'T12:00:00').toLocaleDateString('pt-BR') : '—')}</span>
+              </div>
+              <div>
+                <span className="text-muted-foreground">Término:</span>
+                <span className="ml-2 font-medium">{project.predicted_end_date ? new Date(project.predicted_end_date + 'T12:00:00').toLocaleDateString('pt-BR') : (project.end_date ? new Date(project.end_date + 'T12:00:00').toLocaleDateString('pt-BR') : '—')}</span>
+              </div>
+              {project.end_date && (project.predicted_end_date || project.end_date) && (
+                <div className="text-xs mt-2 pt-2 border-t border-blue-200">
+                  {(() => {
+                    const planned = new Date(project.end_date)
+                    const predicted = new Date(project.predicted_end_date || project.end_date)
+                    const deviation = Math.ceil((predicted.getTime() - planned.getTime()) / (24 * 60 * 60 * 1000))
+                    
+                    if (deviation > 0) {
+                      return <span className="text-orange-600 font-medium">⚠️ +{deviation} dias após o planejado</span>
+                    } else if (deviation < 0) {
+                      return <span className="text-green-600 font-medium">✓ {Math.abs(deviation)} dias antes do planejado</span>
+                    } else {
+                      return <span className="text-slate-600">No prazo</span>
+                    }
+                  })()}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* REALIZADO */}
+          <div className="bg-emerald-50 rounded-lg p-4 border border-emerald-200">
+            <div className="flex items-center gap-1.5 mb-3">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-600"></div>
+              <span className="text-xs font-semibold text-emerald-700 uppercase">Realizado</span>
+            </div>
+            <div className="space-y-2 text-sm">
+              <div>
+                <span className="text-muted-foreground">Início:</span>
+                <span className="ml-2 font-medium">
+                  {project.actual_start_date ? (
+                    <>{new Date(project.actual_start_date + 'T12:00:00').toLocaleDateString('pt-BR')} ✓</>
+                  ) : (
+                    <span className="text-slate-400">Aguardando início</span>
+                  )}
+                </span>
+              </div>
+              <div>
+                <span className="text-muted-foreground">Término:</span>
+                <span className="ml-2 font-medium">
+                  {project.actual_end_date ? (
+                    <>{new Date(project.actual_end_date + 'T12:00:00').toLocaleDateString('pt-BR')} ✓</>
+                  ) : (
+                    <span className="text-blue-600 font-medium">Em conclusão...</span>
+                  )}
+                </span>
+              </div>
+              {project.actual_start_date && !project.actual_end_date && (
+                <div className="text-xs text-emerald-600 mt-2 pt-2 border-t border-emerald-200">
+                  Executado: {Math.ceil((new Date().getTime() - new Date(project.actual_start_date).getTime()) / (24 * 60 * 60 * 1000))} dias até hoje
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
