@@ -850,7 +850,17 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
                         <div className="bg-gradient-to-r from-slate-50 to-blue-50 px-6 py-4 border-b border-slate-200">
                           <div className="flex items-center justify-between">
                             <div>
-                              <h4 className="text-lg font-bold text-slate-900">{project.name}</h4>
+                              {/* Nome clicável para admin/admin_operacional */}
+                              {(userRole === 'admin' || userRole === 'admin_operacional') ? (
+                                <a 
+                                  href={`/admin/projects/${project.id}/edit`}
+                                  className="text-lg font-bold text-slate-900 hover:text-blue-600 hover:underline transition-all duration-200 cursor-pointer inline-block"
+                                >
+                                  {project.name}
+                                </a>
+                              ) : (
+                                <h4 className="text-lg font-bold text-slate-900">{project.name}</h4>
+                              )}
                               <div className="flex items-center gap-4 mt-2">
                                 <span className="text-sm text-slate-600">
                                   <strong>Empresa:</strong> {getCompanyName(project)}
@@ -925,7 +935,17 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
                       
                       <div className="flex items-center justify-between mb-4 relative z-10">
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-bold text-slate-900 text-lg mb-1 group-hover:text-blue-700 transition-colors truncate">{project.name}</h4>
+                          {/* Nome clicável para admin/admin_operacional */}
+                          {(userRole === 'admin' || userRole === 'admin_operacional') ? (
+                            <a 
+                              href={`/admin/projects/${project.id}/edit`}
+                              className="font-bold text-slate-900 text-lg mb-1 hover:text-blue-600 hover:underline transition-all duration-200 truncate block cursor-pointer"
+                            >
+                              {project.name}
+                            </a>
+                          ) : (
+                            <h4 className="font-bold text-slate-900 text-lg mb-1 truncate">{project.name}</h4>
+                          )}
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 text-xs font-medium border border-blue-100">
                               {getCompanyName(project)}
