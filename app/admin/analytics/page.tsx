@@ -555,7 +555,7 @@ export default function AnalyticsPage() {
             <CardContent className="p-6 relative z-10">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <p className="text-sm font-medium text-slate-600 mb-1">Em Execução</p>
+                  <p className="text-sm font-medium text-slate-600 mb-1">Em Andamento</p>
                   <p className="text-3xl font-bold text-green-700">{analyticsData.inProgress}</p>
                   {analyticsData.inProgressChange !== 0 && (
                     <div className={`flex items-center gap-1 mt-2 ${analyticsData.inProgressChange > 0 ? 'text-green-600' : 'text-red-600'}`}>
@@ -739,7 +739,7 @@ export default function AnalyticsPage() {
                 <p className="text-2xl font-bold text-purple-700">{analyticsData.commercialProposal}</p>
               </div>
               <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                <p className="text-sm text-slate-600 mb-1">Em Execução</p>
+                <p className="text-sm text-slate-600 mb-1">Em Andamento</p>
                 <p className="text-2xl font-bold text-green-700">{analyticsData.inProgress}</p>
               </div>
               <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">

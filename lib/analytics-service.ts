@@ -142,7 +142,7 @@ export class AnalyticsService {
 
       // 4. Distribuição por status
       const statusDistribution = [
-        { label: 'Em Execução', value: inProgress, color: '#10b981' },
+        { label: 'Em Andamento', value: inProgress, color: '#10b981' },
         { label: 'Atrasados', value: delayed, color: '#ef4444' },
         { label: 'Pausados', value: onHold, color: '#f59e0b' },
         { label: 'Proposta', value: commercialProposal, color: '#3b82f6' },
