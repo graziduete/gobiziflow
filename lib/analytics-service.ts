@@ -49,6 +49,9 @@ export interface AnalyticsData {
     planned: number
     realized: number
     predicted: number
+    plannedProjects?: string[]
+    realizedProjects?: string[]
+    predictedProjects?: string[]
   }[]
 
   // Carga mensal
@@ -265,28 +268,34 @@ export class AnalyticsService {
       quarterEnd.setHours(23, 59, 59, 999)
 
       // PLANEJADO: Projetos que deveriam ser concluídos no trimestre (end_date)
-      const planned = projects.filter(p => {
+      const plannedList = projects.filter(p => {
         if (!p.end_date) return false
         const endDate = new Date(p.end_date)
         return endDate >= quarterStart && endDate <= quarterEnd
-      }).length
+      })
+      const planned = plannedList.length
+      const plannedProjects = plannedList.map(p => p.name || 'Sem nome')
 
       // REALIZADO: Projetos realmente concluídos no trimestre (actual_end_date + status completed)
-      const realized = projects.filter(p => {
+      const realizedList = projects.filter(p => {
         if (p.status !== 'completed' || !p.actual_end_date) return false
         const actualEndDate = new Date(p.actual_end_date)
         return actualEndDate >= quarterStart && actualEndDate <= quarterEnd
-      }).length
+      })
+      const realized = realizedList.length
+      const realizedProjects = realizedList.map(p => p.name || 'Sem nome')
 
       // PREVISTO: Projetos em andamento/planejamento com predicted_end_date no trimestre
-      const predicted = projects.filter(p => {
+      const predictedList = projects.filter(p => {
         if (!p.predicted_end_date) return false
         if (p.status === 'completed' || p.status === 'cancelled') return false
         const predictedEndDate = new Date(p.predicted_end_date)
         return predictedEndDate >= quarterStart && predictedEndDate <= quarterEnd
-      }).length
+      })
+      const predicted = predictedList.length
+      const predictedProjects = predictedList.map(p => p.name || 'Sem nome')
 
-      return { quarter, planned, realized, predicted }
+      return { quarter, planned, realized, predicted, plannedProjects, realizedProjects, predictedProjects }
     })
   }
 

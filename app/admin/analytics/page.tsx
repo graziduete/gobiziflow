@@ -237,6 +237,41 @@ export default function AnalyticsPage() {
     }
   }
 
+  // Opções especiais para o gráfico de performance com tooltip customizado
+  const performanceChartOptions: ChartOptions<'bar'> = {
+    ...barChartOptions,
+    plugins: {
+      ...barChartOptions.plugins,
+      tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+        padding: 16,
+        titleFont: { size: 14, weight: 'bold' },
+        bodyFont: { size: 12 },
+        cornerRadius: 8,
+        callbacks: {
+          afterLabel: function(context) {
+            const dataIndex = context.dataIndex
+            const datasetIndex = context.datasetIndex
+            const performance = analyticsData.performance[dataIndex]
+            
+            let projects: string[] = []
+            if (datasetIndex === 0 && performance.plannedProjects) {
+              projects = performance.plannedProjects
+            } else if (datasetIndex === 1 && performance.realizedProjects) {
+              projects = performance.realizedProjects
+            } else if (datasetIndex === 2 && performance.predictedProjects) {
+              projects = performance.predictedProjects
+            }
+            
+            if (projects.length === 0) return ''
+            
+            return '\n' + projects.map((name, i) => `  ${i + 1}. ${name}`).join('\n')
+          }
+        }
+      }
+    }
+  }
+
   const doughnutOptions: ChartOptions<'doughnut'> = {
     responsive: true,
     maintainAspectRatio: false,
@@ -666,11 +701,11 @@ export default function AnalyticsPage() {
                 <TrendingUp className="w-5 h-5 text-orange-600" />
                 <CardTitle>Performance Trimestral</CardTitle>
               </div>
-              <CardDescription>Planejado vs Realizado</CardDescription>
+              <CardDescription>Planejado vs Realizado (passe o mouse para ver os projetos)</CardDescription>
             </CardHeader>
             <CardContent>
               <div style={{ height: '300px' }}>
-                <Bar data={performanceChartData} options={barChartOptions} />
+                <Bar data={performanceChartData} options={performanceChartOptions} />
               </div>
             </CardContent>
           </Card>
