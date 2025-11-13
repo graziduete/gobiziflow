@@ -406,25 +406,25 @@ export default function AnalyticsPage() {
 
       <div className="w-full space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-4xl font-bold text-slate-900 mb-2 tracking-tight flex items-center gap-3">
-              <div className="p-3 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg">
-                <Activity className="w-8 h-8 text-white" />
-              </div>
-              Analytics
-            </h1>
-            <p className="text-slate-600 text-base">Análise completa e visual dos seus projetos</p>
+        <div className="mb-8">
+          <div className="flex items-center gap-4 mb-2">
+            <button
+              onClick={() => router.push('/admin')}
+              className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+              aria-label="Voltar"
+            >
+              <ArrowLeft className="w-6 h-6 text-slate-700" />
+            </button>
+            <div className="p-3 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg">
+              <Activity className="w-8 h-8 text-white" />
+            </div>
+            <div>
+              <h1 className="text-4xl font-bold text-slate-900 tracking-tight">
+                Analytics
+              </h1>
+            </div>
           </div>
-          <Button 
-            onClick={() => router.push('/admin')}
-            variant="outline"
-            size="lg"
-            className="bg-white hover:bg-slate-50 border-2 shadow-md hover:shadow-lg transition-all"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Voltar ao Dashboard
-          </Button>
+          <p className="text-slate-600 text-base ml-[72px]">Análise completa e visual dos seus projetos</p>
         </div>
 
         {/* Alertas */}
