@@ -671,11 +671,11 @@ export function SustentacaoDashboard({
                     <Info className="h-4 w-4 text-slate-400" />
                   </div>
                 </TooltipTrigger>
-                <TooltipContent side="left" className="max-w-xs">
-                  <p className="text-sm">
+                <TooltipContent side="left" className="max-w-xs bg-slate-800 border-slate-700">
+                  <p className="text-sm text-white">
                     <strong>Ordem por criticidade:</strong> Bug → Ajuste → Falha Sistêmica → Solicitação → Processo
                   </p>
-                  <p className="text-xs text-slate-500 mt-1">
+                  <p className="text-xs text-slate-300 mt-1">
                     Clique em uma categoria para filtrar a lista abaixo
                   </p>
                 </TooltipContent>
@@ -754,13 +754,15 @@ export function SustentacaoDashboard({
                       )}
                     </div>
                   </TooltipTrigger>
-                  <TooltipContent>
+                  <TooltipContent className="bg-slate-800 border-slate-700">
                     <div className="text-sm">
-                      <p className="font-semibold">{categoria.emoji} {categoria.nome}</p>
-                      <p className="text-slate-500 text-xs mt-1">{categoria.descricao}</p>
+                      <p className="font-semibold text-white flex items-center gap-1">
+                        {categoria.emoji} {categoria.nome}
+                      </p>
+                      <p className="text-slate-300 text-xs mt-1">{categoria.descricao}</p>
                       {categoria.temChamados ? (
-                        <p className="text-xs text-green-600 mt-1 font-medium">
-                          {categoria.quantidade} chamado{categoria.quantidade !== 1 ? 's' : ''} neste período
+                        <p className="text-xs text-green-400 mt-1 font-medium">
+                          ✓ {categoria.quantidade} chamado{categoria.quantidade !== 1 ? 's' : ''} neste período
                         </p>
                       ) : (
                         <p className="text-xs text-slate-400 mt-1">
