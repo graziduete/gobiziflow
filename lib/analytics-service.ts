@@ -469,7 +469,12 @@ export class AnalyticsService {
       .filter(p => p.status === 'in_progress' || p.status === 'homologation' || p.status === 'delayed')
       .map(p => p.id)
     
-    if (activeProjectIds.length === 0) return []
+    console.log('🔍 [ComplexProjects] Projetos ativos para análise:', activeProjectIds.length)
+    
+    if (activeProjectIds.length === 0) {
+      console.log('⚠️ [ComplexProjects] Nenhum projeto ativo encontrado')
+      return []
+    }
 
     try {
       // Buscar tarefas desses projetos
@@ -477,11 +482,22 @@ export class AnalyticsService {
         .from('tasks')
         .select('id, project_id, status, planned_end_date, actual_end_date')
         .in('project_id', activeProjectIds)
-        .in('status', ['completed_delayed', 'delayed'])
+        .or('status.eq.completed_delayed,status.eq.delayed')
 
-      const { data: tasks } = await tasksQuery
+      console.log('🔍 [ComplexProjects] Buscando tarefas atrasadas...')
+      const { data: tasks, error: tasksError } = await tasksQuery
 
-      if (!tasks || tasks.length === 0) return []
+      if (tasksError) {
+        console.error('❌ [ComplexProjects] Erro ao buscar tarefas:', tasksError)
+        return []
+      }
+
+      console.log('🔍 [ComplexProjects] Tarefas atrasadas encontradas:', tasks?.length || 0)
+
+      if (!tasks || tasks.length === 0) {
+        console.log('⚠️ [ComplexProjects] Nenhuma tarefa atrasada encontrada')
+        return []
+      }
 
       // Agrupar tarefas por projeto e calcular atrasos
       const projectDelays = new Map<string, { maxDelay: number; count: number }>()
