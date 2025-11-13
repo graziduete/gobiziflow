@@ -171,12 +171,12 @@ export default function ClientDashboard() {
             Visão Geral dos Cronogramas
           </CardTitle>
           <CardDescription>
-            Cronograma de todos os projetos da empresa
+            Últimos 5 projetos da empresa
           </CardDescription>
         </CardHeader>
         <CardContent>
           <GanttView 
-            projects={filteredProjects} 
+            projects={filteredProjects.slice(0, 5)} 
             allProjects={projects}
             companies={company ? [company] : []} 
           />
