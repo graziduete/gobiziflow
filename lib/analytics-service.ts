@@ -492,7 +492,13 @@ export class AnalyticsService {
           .in('project_id', batch)
 
         if (batchError) {
-          console.error('❌ [ComplexProjects] Erro no lote:', batchError)
+          console.error('❌ [ComplexProjects] Erro no lote:', {
+            message: batchError.message,
+            details: batchError.details,
+            hint: batchError.hint,
+            code: batchError.code,
+            projectIds: batch
+          })
           continue // Pula este lote e continua com o próximo
         }
 
