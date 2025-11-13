@@ -429,19 +429,33 @@ export default function AnalyticsPage() {
 
         {/* Alertas */}
         {analyticsData.alerts.length > 0 && (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {analyticsData.alerts.map((alert, index) => (
               <Card 
                 key={index}
-                className={`border-l-4 transition-all ${
-                  alert.type === 'danger' ? 'border-red-500 bg-red-50/50' :
-                  alert.type === 'warning' ? 'border-yellow-500 bg-yellow-50/50' :
-                  'border-green-500 bg-green-50/50'
+                className={`relative overflow-hidden border-0 shadow-lg transition-all hover:shadow-xl ${
+                  alert.type === 'danger' ? 'bg-gradient-to-br from-red-50 via-white to-orange-50' :
+                  alert.type === 'warning' ? 'bg-gradient-to-br from-amber-50 via-white to-yellow-50' :
+                  'bg-gradient-to-br from-emerald-50 via-white to-green-50'
                 }`}
               >
-                <CardContent className="p-4">
+                {/* Borda lateral gradiente */}
+                <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${
+                  alert.type === 'danger' ? 'bg-gradient-to-b from-red-500 to-orange-500' :
+                  alert.type === 'warning' ? 'bg-gradient-to-b from-amber-500 to-yellow-500' :
+                  'bg-gradient-to-b from-emerald-500 to-green-500'
+                }`} />
+                
+                {/* Círculo decorativo */}
+                <div className={`absolute top-0 right-0 w-40 h-40 rounded-full blur-3xl opacity-20 ${
+                  alert.type === 'danger' ? 'bg-red-400' :
+                  alert.type === 'warning' ? 'bg-amber-400' :
+                  'bg-emerald-400'
+                }`} />
+                
+                <CardContent className="p-5 relative z-10">
                   <div 
-                    className={`flex items-center justify-between ${alert.projects && alert.projects.length > 0 ? 'cursor-pointer' : ''}`}
+                    className={`flex items-center justify-between ${alert.projects && alert.projects.length > 0 ? 'cursor-pointer group' : ''}`}
                     onClick={() => {
                       if (alert.projects && alert.projects.length > 0) {
                         setExpandedAlerts(prev => {
@@ -456,44 +470,50 @@ export default function AnalyticsPage() {
                       }
                     }}
                   >
-                    <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-lg ${
-                        alert.type === 'danger' ? 'bg-red-100' :
-                        alert.type === 'warning' ? 'bg-yellow-100' :
-                        'bg-green-100'
+                    <div className="flex items-center gap-4">
+                      <div className={`p-3 rounded-xl shadow-md transition-all group-hover:scale-110 ${
+                        alert.type === 'danger' ? 'bg-gradient-to-br from-red-500 to-orange-500' :
+                        alert.type === 'warning' ? 'bg-gradient-to-br from-amber-500 to-yellow-500' :
+                        'bg-gradient-to-br from-emerald-500 to-green-500'
                       }`}>
-                        {alert.type === 'danger' && <AlertTriangle className="w-5 h-5 text-red-600" />}
-                        {alert.type === 'warning' && <Clock className="w-5 h-5 text-yellow-600" />}
-                        {alert.type === 'success' && <CheckCircle className="w-5 h-5 text-green-600" />}
+                        {alert.type === 'danger' && <AlertTriangle className="w-6 h-6 text-white" />}
+                        {alert.type === 'warning' && <Clock className="w-6 h-6 text-white" />}
+                        {alert.type === 'success' && <CheckCircle className="w-6 h-6 text-white" />}
                       </div>
-                      <p className={`font-medium ${
-                        alert.type === 'danger' ? 'text-red-800' :
-                        alert.type === 'warning' ? 'text-yellow-800' :
-                        'text-green-800'
-                      }`}>
-                        {alert.message}
-                      </p>
+                      <div>
+                        <p className={`font-bold text-base ${
+                          alert.type === 'danger' ? 'text-red-900' :
+                          alert.type === 'warning' ? 'text-amber-900' :
+                          'text-emerald-900'
+                        }`}>
+                          {alert.message}
+                        </p>
+                        {alert.projects && alert.projects.length > 0 && (
+                          <p className="text-xs text-slate-500 mt-0.5">
+                            Clique para ver os detalhes dos projetos
+                          </p>
+                        )}
+                      </div>
                     </div>
                     
                     {alert.projects && alert.projects.length > 0 && (
                       <Button 
-                        variant="ghost" 
                         size="sm"
-                        className={`${
-                          alert.type === 'danger' ? 'hover:bg-red-100 text-red-700' :
-                          alert.type === 'warning' ? 'hover:bg-yellow-100 text-yellow-700' :
-                          'hover:bg-green-100 text-green-700'
+                        className={`shadow-md transition-all hover:shadow-lg ${
+                          alert.type === 'danger' ? 'bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white' :
+                          alert.type === 'warning' ? 'bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 text-white' :
+                          'bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white'
                         }`}
                       >
-                        {expandedAlerts.has(index) ? 'Ocultar' : 'Ver Projetos'}
+                        {expandedAlerts.has(index) ? '← Ocultar' : 'Ver Projetos →'}
                       </Button>
                     )}
                   </div>
 
                   {/* Lista de projetos expandível */}
                   {alert.projects && alert.projects.length > 0 && expandedAlerts.has(index) && (
-                    <div className="mt-4 space-y-2 animate-in slide-in-from-top duration-200">
-                      <div className="h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent my-3" />
+                    <div className="mt-5 space-y-3 animate-in slide-in-from-top-5 duration-300">
+                      <div className="h-px bg-gradient-to-r from-transparent via-slate-400 to-transparent" />
                       {alert.projects.map((project, pIndex) => {
                         const companyName = companyNames.get(project.company_id) || 'Empresa não informada'
                         const deadline = project.predicted_end_date || project.end_date
@@ -502,12 +522,19 @@ export default function AnalyticsPage() {
                         return (
                           <div 
                             key={pIndex}
-                            className={`p-3 rounded-lg border transition-all hover:shadow-md ${
-                              alert.type === 'danger' ? 'bg-white border-red-200 hover:border-red-300' :
-                              alert.type === 'warning' ? 'bg-white border-yellow-200 hover:border-yellow-300' :
-                              'bg-white border-green-200 hover:border-green-300'
+                            className={`relative p-4 rounded-xl border-0 shadow-md transition-all hover:shadow-lg hover:scale-[1.01] ${
+                              alert.type === 'danger' ? 'bg-gradient-to-r from-white to-red-50' :
+                              alert.type === 'warning' ? 'bg-gradient-to-r from-white to-amber-50' :
+                              'bg-gradient-to-r from-white to-emerald-50'
                             }`}
                           >
+                            {/* Borda superior */}
+                            <div className={`absolute top-0 left-0 right-0 h-1 rounded-t-xl ${
+                              alert.type === 'danger' ? 'bg-gradient-to-r from-red-500 to-orange-500' :
+                              alert.type === 'warning' ? 'bg-gradient-to-r from-amber-500 to-yellow-500' :
+                              'bg-gradient-to-r from-emerald-500 to-green-500'
+                            }`} />
+                            
                             <div className="flex items-start justify-between gap-3">
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 mb-1">
@@ -543,10 +570,9 @@ export default function AnalyticsPage() {
                               </div>
                               
                               <Button
-                                variant="ghost"
                                 size="sm"
                                 onClick={() => router.push(`/admin/projects/${project.id}`)}
-                                className="shrink-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                className="shrink-0 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all"
                               >
                                 Ver detalhes →
                               </Button>
@@ -564,32 +590,47 @@ export default function AnalyticsPage() {
 
         {/* Projetos Complexos Detectados */}
         {analyticsData.complexProjects.length > 0 && (
-          <Card className="border-l-4 border-amber-500 bg-amber-50/50 shadow-md">
-            <CardContent className="p-5">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-amber-100 rounded-lg">
-                    <AlertTriangle className="w-5 h-5 text-amber-600" />
+          <Card className="relative overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all bg-gradient-to-br from-amber-50 via-white to-orange-50">
+            {/* Borda lateral gradiente */}
+            <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-amber-500 via-orange-500 to-red-500" />
+            
+            {/* Círculo decorativo */}
+            <div className="absolute top-0 right-0 w-40 h-40 bg-amber-400 rounded-full blur-3xl opacity-20" />
+            
+            <CardContent className="p-6 relative z-10">
+              <div className="flex items-start justify-between mb-5">
+                <div className="flex items-center gap-4">
+                  <div className="p-3.5 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl shadow-lg">
+                    <AlertTriangle className="w-7 h-7 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-amber-900">⚠️ Projetos Complexos Detectados</h3>
-                    <p className="text-sm text-amber-700 mt-0.5">
+                    <h3 className="text-xl font-bold text-amber-900 flex items-center gap-2">
+                      ⚠️ Projetos Complexos Detectados
+                    </h3>
+                    <p className="text-sm text-amber-700 mt-1 font-medium">
                       {analyticsData.complexProjects.length} {analyticsData.complexProjects.length === 1 ? 'projeto possui' : 'projetos possuem'} tarefas com longos períodos de espera ({">"} 30 dias)
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {analyticsData.complexProjects.map((project, index) => {
                   const companyName = companyNames.get(project.company_id) || 'Empresa não informada'
                   
                   return (
                     <div 
                       key={index}
-                      className="p-3 bg-white rounded-lg border border-amber-200 hover:border-amber-300 hover:shadow-md transition-all"
+                      className="relative p-4 bg-gradient-to-r from-white to-amber-50 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.01] transition-all border-0"
                     >
-                      <div className="flex items-start justify-between gap-3">
+                      {/* Barra lateral de severidade */}
+                      <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-xl ${
+                        project.maxDelay > 60 ? 'bg-gradient-to-b from-red-600 to-orange-600' :
+                        project.maxDelay > 45 ? 'bg-gradient-to-b from-orange-500 to-amber-500' :
+                        'bg-gradient-to-b from-amber-500 to-yellow-500'
+                      }`} />
+                      
+                      <div className="flex items-start justify-between gap-3 ml-3">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
                             <h4 className="font-semibold text-slate-800 truncate">
@@ -614,16 +655,17 @@ export default function AnalyticsPage() {
                               Maior atraso: {project.maxDelay} dias
                             </span>
                           </div>
-                          <p className="text-xs text-amber-700 mt-2">
-                            💡 <strong>Recomendação:</strong> Documente os impedimentos usando <strong>"Justificativa de Atraso"</strong>
-                          </p>
+                          <div className="mt-2 p-2 bg-amber-100/50 rounded-lg border border-amber-200">
+                            <p className="text-xs text-amber-800">
+                              <strong>💡 Recomendação:</strong> Documente os impedimentos usando <strong>"Justificativa de Atraso"</strong>
+                            </p>
+                          </div>
                         </div>
                         
                         <Button
-                          variant="ghost"
                           size="sm"
                           onClick={() => router.push(`/admin/projects/${project.id}`)}
-                          className="shrink-0 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                          className="shrink-0 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white shadow-md hover:shadow-lg transition-all"
                         >
                           Ver projeto →
                         </Button>
