@@ -278,12 +278,23 @@ export class AnalyticsService {
 
       // REALIZADO: Projetos realmente concluídos no trimestre (actual_end_date + status completed)
       const realizedList = projects.filter(p => {
-        if (p.status !== 'completed' || !p.actual_end_date) return false
+        if (p.status !== 'completed' || !p.actual_end_date) {
+          // Debug: Mostrar projetos que não entraram como realizados
+          if (p.status === 'completed' && !p.actual_end_date) {
+            console.log(`⚠️ [Performance ${quarter}] Projeto "${p.name}" está COMPLETED mas sem actual_end_date`)
+          }
+          return false
+        }
         const actualEndDate = new Date(p.actual_end_date)
         return actualEndDate >= quarterStart && actualEndDate <= quarterEnd
       })
       const realized = realizedList.length
       const realizedProjects = realizedList.map(p => p.name || 'Sem nome')
+      
+      // Debug: Log dos projetos realizados neste trimestre
+      if (realized > 0) {
+        console.log(`✅ [Performance ${quarter}] Projetos REALIZADOS:`, realizedProjects)
+      }
 
       // PREVISTO: Projetos em andamento/planejamento com predicted_end_date no trimestre
       const predictedList = projects.filter(p => {
