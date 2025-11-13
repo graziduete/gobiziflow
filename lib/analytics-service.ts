@@ -250,18 +250,40 @@ export class AnalyticsService {
   }
 
   private calculateQuarterlyPerformance(projects: any[]) {
-    const currentYear = new Date().getFullYear()
-    const quarters = [
-      { quarter: 'Q1', startMonth: 0, endMonth: 2 },  // Jan-Mar
-      { quarter: 'Q2', startMonth: 3, endMonth: 5 },  // Abr-Jun
-      { quarter: 'Q3', startMonth: 6, endMonth: 8 },  // Jul-Set
-      { quarter: 'Q4', startMonth: 9, endMonth: 11 }, // Out-Dez
-    ]
+    const now = new Date()
+    const currentYear = now.getFullYear()
+    const currentMonth = now.getMonth()
+    const currentQuarter = Math.floor(currentMonth / 3)
+    
+    // Gerar últimos 4 trimestres (incluindo o atual)
+    const quarters = []
+    for (let i = 3; i >= 0; i--) {
+      const quarterIndex = currentQuarter - i
+      let year = currentYear
+      let q = quarterIndex
+      
+      // Ajustar ano se trimestre for negativo
+      if (q < 0) {
+        q = 4 + q
+        year = currentYear - 1
+      }
+      
+      const quarterLabel = `Q${q + 1}/${year}`
+      const startMonth = q * 3
+      const endMonth = startMonth + 2
+      
+      quarters.push({
+        quarter: quarterLabel,
+        year,
+        startMonth,
+        endMonth
+      })
+    }
 
-    return quarters.map(({ quarter, startMonth, endMonth }) => {
-      const quarterStart = new Date(currentYear, startMonth, 1)
+    return quarters.map(({ quarter, year, startMonth, endMonth }) => {
+      const quarterStart = new Date(year, startMonth, 1)
       quarterStart.setHours(0, 0, 0, 0)
-      const quarterEnd = new Date(currentYear, endMonth + 1, 0)
+      const quarterEnd = new Date(year, endMonth + 1, 0)
       quarterEnd.setHours(23, 59, 59, 999)
 
       // PLANEJADO: Projetos que deveriam ser concluídos no trimestre (end_date)
