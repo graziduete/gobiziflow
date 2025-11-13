@@ -477,24 +477,35 @@ export class AnalyticsService {
     }
 
     try {
-      // Buscar tarefas desses projetos
+      // Buscar todas as tarefas desses projetos (vamos filtrar no código)
       let tasksQuery = this.supabase
         .from('tasks')
         .select('id, project_id, status, planned_end_date, actual_end_date')
         .in('project_id', activeProjectIds)
-        .or('status.eq.completed_delayed,status.eq.delayed')
 
-      console.log('🔍 [ComplexProjects] Buscando tarefas atrasadas...')
-      const { data: tasks, error: tasksError } = await tasksQuery
+      console.log('🔍 [ComplexProjects] Buscando tarefas...')
+      const { data: allTasks, error: tasksError } = await tasksQuery
 
       if (tasksError) {
         console.error('❌ [ComplexProjects] Erro ao buscar tarefas:', tasksError)
         return []
       }
 
-      console.log('🔍 [ComplexProjects] Tarefas atrasadas encontradas:', tasks?.length || 0)
+      console.log('🔍 [ComplexProjects] Total de tarefas encontradas:', allTasks?.length || 0)
 
-      if (!tasks || tasks.length === 0) {
+      if (!allTasks || allTasks.length === 0) {
+        console.log('⚠️ [ComplexProjects] Nenhuma tarefa encontrada')
+        return []
+      }
+
+      // Filtrar apenas tarefas atrasadas
+      const tasks = allTasks.filter(t => 
+        t.status === 'completed_delayed' || t.status === 'delayed'
+      )
+
+      console.log('🔍 [ComplexProjects] Tarefas atrasadas (delayed/completed_delayed):', tasks.length)
+
+      if (tasks.length === 0) {
         console.log('⚠️ [ComplexProjects] Nenhuma tarefa atrasada encontrada')
         return []
       }
