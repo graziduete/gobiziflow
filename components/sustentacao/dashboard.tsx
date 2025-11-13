@@ -709,19 +709,21 @@ export function SustentacaoDashboard({
                           }
                         }
                       }}
-                      className={`text-center p-6 rounded-xl border transition-all duration-300 relative ${
+                      className={`text-center p-6 rounded-xl transition-all duration-300 relative ${
                         categoria.temChamados 
-                          ? `bg-gradient-to-br ${categoria.corFundo} border-slate-200/60 hover:shadow-lg hover:scale-105 cursor-pointer` 
-                          : 'bg-slate-50/40 border-slate-100/50 opacity-50 cursor-default'
-                      } ${
-                        // Adicionar borda grossa e sombra quando filtro está ativo
-                        (filterCategoria === categoria.nome || (categoria.nome === 'Bug' && filterCategoria === 'Bugs'))
-                          ? `ring-4 ring-offset-2 ${categoria.cor.replace('bg-', 'ring-')} shadow-2xl scale-105`
-                          : ''
+                          ? `bg-white/80 backdrop-blur-sm hover:shadow-lg hover:scale-105 cursor-pointer ${
+                              // Borda colorida quando ATIVO
+                              (filterCategoria === categoria.nome || (categoria.nome === 'Bug' && filterCategoria === 'Bugs'))
+                                ? `border-3 ${categoria.cor.replace('bg-', 'border-')} shadow-xl scale-105`
+                                : `border-2 ${categoria.cor.replace('bg-', 'border-')}/30 hover:${categoria.cor.replace('bg-', 'border-')}/60`
+                            }` 
+                          : 'bg-slate-50/40 border-2 border-slate-100/50 opacity-50 cursor-default'
                       }`}
                     >
-                      <div className={`w-8 h-8 rounded-full mx-auto mb-3 shadow-sm ring-2 ring-white flex items-center justify-center text-lg ${
-                        categoria.temChamados ? categoria.cor : 'bg-slate-300'
+                      <div className={`w-10 h-10 rounded-full mx-auto mb-3 flex items-center justify-center text-xl border-2 ${
+                        categoria.temChamados 
+                          ? `${categoria.cor.replace('bg-', 'border-')} bg-white` 
+                          : 'bg-slate-100 border-slate-300'
                       }`}>
                         {categoria.temChamados && <span>{categoria.emoji}</span>}
                       </div>
@@ -732,7 +734,7 @@ export function SustentacaoDashboard({
                       </p>
                       <p className={`text-2xl font-bold ${
                         categoria.temChamados 
-                          ? `bg-gradient-to-r ${categoria.corTexto} bg-clip-text` 
+                          ? 'text-slate-700' 
                           : 'text-slate-300'
                       }`}>
                         {categoria.quantidade}
