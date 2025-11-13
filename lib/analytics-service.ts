@@ -222,6 +222,7 @@ export class AnalyticsService {
 
       // 11. Projetos complexos (com tarefas atrasadas > 30 dias)
       const complexProjects = await this.detectComplexProjects(projects || [], tenantId)
+      console.log('🔍 [Analytics] Projetos complexos detectados:', complexProjects.length, complexProjects)
 
       return {
         totalProjects: total,
