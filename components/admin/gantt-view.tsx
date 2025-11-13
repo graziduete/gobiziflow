@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 
 
-import { Calendar, Clock, TrendingUpIcon as TrendingRight, Maximize2, Search, Building2, Tag, Activity, BarChart3, LineChart } from "lucide-react"
+import { Calendar, Clock, TrendingUpIcon as TrendingRight, Maximize2, Search, Building2, Tag, Activity, BarChart3, LineChart, ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -43,6 +43,24 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
     type: "all",
     status: ["planning", "in_progress"] // Padrão inteligente: Planejamento + Em Andamento
   })
+  
+  // Estado para colapsar/expandir filtros
+  const [isFiltersCollapsed, setIsFiltersCollapsed] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('gantt_filters_collapsed')
+      return saved === 'true'
+    }
+    return false
+  })
+
+  // Salvar estado de colapsado no localStorage
+  const toggleFilters = () => {
+    const newState = !isFiltersCollapsed
+    setIsFiltersCollapsed(newState)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('gantt_filters_collapsed', String(newState))
+    }
+  }
   
 
 
@@ -725,12 +743,48 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
           </div>
           
           <div className="flex h-[calc(100vh-80px)] relative z-10">
-            {/* Painel lateral de filtros - SEMPRE VISÍVEL */}
-            <aside className="w-[320px] border-r border-slate-200/60 bg-white/60 backdrop-blur-md p-6 overflow-y-auto shadow-sm transition-all duration-300">
-              <div className="space-y-5">
-                <div>
-                  <h3 className="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wide">Filtros</h3>
+            {/* Painel lateral de filtros - COLAPSÁVEL */}
+            <aside className={`border-r border-slate-200/60 bg-white/60 backdrop-blur-md overflow-y-auto shadow-sm transition-all duration-300 ease-in-out ${
+              isFiltersCollapsed ? 'w-[60px]' : 'w-[320px]'
+            }`}>
+              <div className={`${isFiltersCollapsed ? 'p-3' : 'p-6'} space-y-5`}>
+                {/* Header com botão de toggle */}
+                <div className="flex items-center justify-between">
+                  {!isFiltersCollapsed && (
+                    <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wide">Filtros</h3>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={toggleFilters}
+                    className={`p-2 hover:bg-blue-50 hover:text-blue-600 transition-all rounded-lg ${
+                      isFiltersCollapsed ? 'w-full' : ''
+                    }`}
+                    title={isFiltersCollapsed ? 'Expandir filtros' : 'Ocultar filtros'}
+                  >
+                    {isFiltersCollapsed ? (
+                      <ChevronRight className="h-5 w-5" />
+                    ) : (
+                      <ChevronLeft className="h-5 w-5" />
+                    )}
+                  </Button>
                 </div>
+                
+                {/* Texto vertical quando colapsado */}
+                {isFiltersCollapsed && (
+                  <div className="flex items-center justify-center py-6">
+                    <div style={{ writingMode: 'vertical-rl' as any, transform: 'rotate(180deg)' }}>
+                      <span className="text-xs font-bold text-slate-600 uppercase tracking-widest">
+                        FILTROS
+                      </span>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Conteúdo dos filtros - apenas quando expandido */}
+                {!isFiltersCollapsed && (
+                  <>
+                    <div></div>
                 
                 {/* Busca */}
                 <div className="relative">
@@ -836,6 +890,8 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
                     {getAllFilteredProjects().length} projeto{getAllFilteredProjects().length !== 1 ? 's' : ''} encontrado{getAllFilteredProjects().length !== 1 ? 's' : ''}
                   </div>
                 </div>
+                  </>
+                )}
               </div>
             </aside>
 
