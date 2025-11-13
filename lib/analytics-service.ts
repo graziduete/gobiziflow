@@ -477,18 +477,28 @@ export class AnalyticsService {
     }
 
     try {
-      // Buscar todas as tarefas desses projetos (vamos filtrar no código)
-      let tasksQuery = this.supabase
-        .from('tasks')
-        .select('id, project_id, status, planned_end_date, actual_end_date')
-        .in('project_id', activeProjectIds)
+      // Buscar todas as tarefas desses projetos em lotes de 10
+      console.log('🔍 [ComplexProjects] Buscando tarefas em lotes...')
+      const allTasks: any[] = []
+      const batchSize = 10
+      
+      for (let i = 0; i < activeProjectIds.length; i += batchSize) {
+        const batch = activeProjectIds.slice(i, i + batchSize)
+        console.log(`🔍 [ComplexProjects] Buscando lote ${Math.floor(i / batchSize) + 1}/${Math.ceil(activeProjectIds.length / batchSize)}`)
+        
+        const { data: batchTasks, error: batchError } = await this.supabase
+          .from('tasks')
+          .select('id, project_id, status, planned_end_date, actual_end_date')
+          .in('project_id', batch)
 
-      console.log('🔍 [ComplexProjects] Buscando tarefas...')
-      const { data: allTasks, error: tasksError } = await tasksQuery
+        if (batchError) {
+          console.error('❌ [ComplexProjects] Erro no lote:', batchError)
+          continue // Pula este lote e continua com o próximo
+        }
 
-      if (tasksError) {
-        console.error('❌ [ComplexProjects] Erro ao buscar tarefas:', tasksError)
-        return []
+        if (batchTasks) {
+          allTasks.push(...batchTasks)
+        }
       }
 
       console.log('🔍 [ComplexProjects] Total de tarefas encontradas:', allTasks?.length || 0)
