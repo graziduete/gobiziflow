@@ -238,16 +238,16 @@ export class AnalyticsService {
 
   private getProjectTypeLabel(type: string | null): string {
     const labels: Record<string, string> = {
-      'automation': 'Automação de Processos',
+      'automation': 'Automação',
       'data_analytics': 'Data & Analytics',
-      'digital_development': 'Desenvolvimento Digital',
+      'digital_development': 'Desenvolvimento',
       'design': 'Design',
       'consulting': 'Consultoria',
-      'project_management': 'Gestão de Projetos/PMO',
-      'system_integration': 'Integração de Sistemas/APIs',
-      'infrastructure': 'Infraestrutura/Cloud',
-      'support': 'Suporte/Sustentação',
-      'training': 'Treinamento/Capacitação'
+      'project_management': 'PMO',
+      'system_integration': 'Integração',
+      'infrastructure': 'Infraestrutura',
+      'support': 'Suporte',
+      'training': 'Treinamento'
     }
     return labels[type || ''] || 'Não Definido'
   }
