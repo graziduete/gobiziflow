@@ -255,7 +255,7 @@ export function SustentacaoDashboard({
     },
     { 
       nome: 'Falha Sistêmica', 
-      alias: ['Falha Sistêmica', 'Falha Sistema'], 
+      alias: ['Falha Sistêmica', 'Falha Sistemica', 'Falha Sistema'], // COM e SEM acento
       cor: 'bg-purple-500',
       corTexto: 'text-purple-600',
       corFundo: 'from-purple-50 to-purple-100',
@@ -386,13 +386,13 @@ export function SustentacaoDashboard({
 
     // Filtro por categoria
     if (filterCategoria !== 'all') {
-      // Mapear valores do filtro para valores reais
+      // Mapear valores do filtro para valores reais (incluindo com/sem acento)
       const categoriaMap: { [key: string]: string[] } = {
         'Bugs': ['Bug', 'Bugs'],
         'Processo': ['Processo'],
-        'Solicitação': ['Solicitação'],
+        'Solicitação': ['Solicitação', 'Solicitacao'], // COM e SEM acento
         'Ajuste': ['Ajuste'],
-        'Falha Sistêmica': ['Falha Sistêmica', 'Falha Sistema']
+        'Falha Sistêmica': ['Falha Sistêmica', 'Falha Sistemica', 'Falha Sistema'] // COM e SEM acento
       };
       
       const categoriasValidas = categoriaMap[filterCategoria] || [filterCategoria];
@@ -938,11 +938,11 @@ export function SustentacaoDashboard({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas as categorias</SelectItem>
-                <SelectItem value="Bugs">Bug</SelectItem>
-                <SelectItem value="Processo">Processo</SelectItem>
-                <SelectItem value="Solicitação">Solicitação</SelectItem>
-                <SelectItem value="Ajuste">Ajuste</SelectItem>
-                <SelectItem value="Falha Sistêmica">Falha Sistêmica</SelectItem>
+                <SelectItem value="Bugs">🔴 Bug</SelectItem>
+                <SelectItem value="Ajuste">🟡 Ajuste</SelectItem>
+                <SelectItem value="Falha Sistêmica">🟣 Falha Sistêmica</SelectItem>
+                <SelectItem value="Solicitação">🟢 Solicitação</SelectItem>
+                <SelectItem value="Processo">🔵 Processo</SelectItem>
               </SelectContent>
             </Select>
             <Select value={filterStatus} onValueChange={setFilterStatus}>
