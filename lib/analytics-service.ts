@@ -488,7 +488,7 @@ export class AnalyticsService {
         
         const { data: batchTasks, error: batchError } = await this.supabase
           .from('tasks')
-          .select('id, project_id, status, planned_end_date, actual_end_date')
+          .select('id, project_id, status, end_date, actual_end_date')
           .in('project_id', batch)
 
         if (batchError) {
@@ -532,9 +532,9 @@ export class AnalyticsService {
       today.setHours(12, 0, 0, 0)
 
       tasks.forEach(task => {
-        if (!task.planned_end_date) return
+        if (!task.end_date) return
 
-        const planned = new Date(task.planned_end_date)
+        const planned = new Date(task.end_date)
         planned.setHours(12, 0, 0, 0)
 
         let diffDays = 0
