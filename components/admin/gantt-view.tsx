@@ -504,14 +504,17 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
             </div>
           </div>
           
-          <Button
-            onClick={() => router.push('/admin/analytics')}
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all"
-            size="lg"
-          >
-            <LineChart className="w-4 h-4 mr-2" />
-            Analytics
-          </Button>
+          {/* Botão Analytics - apenas para admins */}
+          {(userRole === 'admin' || userRole === 'admin_operacional' || userRole === 'admin_master') && (
+            <Button
+              onClick={() => router.push('/admin/analytics')}
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all"
+              size="lg"
+            >
+              <LineChart className="w-4 h-4 mr-2" />
+              Analytics
+            </Button>
+          )}
         </div>
       </CardHeader>
       <CardContent>
