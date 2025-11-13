@@ -198,13 +198,8 @@ export class AnalyticsService {
       // 7. Evolução temporal (últimos 6 meses)
       const timeline = this.calculateTimeline(projects || [])
 
-      // 8. Performance (mock por enquanto)
-      const performance = [
-        { quarter: 'Q1', planned: 45, realized: 38, predicted: 0 },
-        { quarter: 'Q2', planned: 38, realized: 35, predicted: 0 },
-        { quarter: 'Q3', planned: 42, realized: 40, predicted: 0 },
-        { quarter: 'Q4', planned: 50, realized: 0, predicted: 48 },
-      ]
+      // 8. Performance trimestral (REAL)
+      const performance = this.calculateQuarterlyPerformance(projects || [])
 
       // 9. Carga mensal (2025)
       const monthlyLoad = this.calculateMonthlyLoad(projects || [])
@@ -252,6 +247,47 @@ export class AnalyticsService {
       'training': 'Treinamento/Capacitação'
     }
     return labels[type || ''] || 'Não Definido'
+  }
+
+  private calculateQuarterlyPerformance(projects: any[]) {
+    const currentYear = new Date().getFullYear()
+    const quarters = [
+      { quarter: 'Q1', startMonth: 0, endMonth: 2 },  // Jan-Mar
+      { quarter: 'Q2', startMonth: 3, endMonth: 5 },  // Abr-Jun
+      { quarter: 'Q3', startMonth: 6, endMonth: 8 },  // Jul-Set
+      { quarter: 'Q4', startMonth: 9, endMonth: 11 }, // Out-Dez
+    ]
+
+    return quarters.map(({ quarter, startMonth, endMonth }) => {
+      const quarterStart = new Date(currentYear, startMonth, 1)
+      quarterStart.setHours(0, 0, 0, 0)
+      const quarterEnd = new Date(currentYear, endMonth + 1, 0)
+      quarterEnd.setHours(23, 59, 59, 999)
+
+      // PLANEJADO: Projetos que deveriam ser concluídos no trimestre (end_date)
+      const planned = projects.filter(p => {
+        if (!p.end_date) return false
+        const endDate = new Date(p.end_date)
+        return endDate >= quarterStart && endDate <= quarterEnd
+      }).length
+
+      // REALIZADO: Projetos realmente concluídos no trimestre (actual_end_date + status completed)
+      const realized = projects.filter(p => {
+        if (p.status !== 'completed' || !p.actual_end_date) return false
+        const actualEndDate = new Date(p.actual_end_date)
+        return actualEndDate >= quarterStart && actualEndDate <= quarterEnd
+      }).length
+
+      // PREVISTO: Projetos em andamento/planejamento com predicted_end_date no trimestre
+      const predicted = projects.filter(p => {
+        if (!p.predicted_end_date) return false
+        if (p.status === 'completed' || p.status === 'cancelled') return false
+        const predictedEndDate = new Date(p.predicted_end_date)
+        return predictedEndDate >= quarterStart && predictedEndDate <= quarterEnd
+      }).length
+
+      return { quarter, planned, realized, predicted }
+    })
   }
 
   private calculateTimeline(projects: any[]) {
