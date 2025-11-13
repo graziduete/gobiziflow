@@ -240,13 +240,18 @@ export class AnalyticsService {
 
   private getProjectTypeLabel(type: string | null): string {
     const labels: Record<string, string> = {
-      'implementation': 'Implementação',
-      'maintenance': 'Manutenção',
-      'development': 'Desenvolvimento',
+      'automation': 'Automação de Processos',
+      'data_analytics': 'Data & Analytics',
+      'digital_development': 'Desenvolvimento Digital',
+      'design': 'Design',
       'consulting': 'Consultoria',
-      'support': 'Suporte'
+      'project_management': 'Gestão de Projetos/PMO',
+      'system_integration': 'Integração de Sistemas/APIs',
+      'infrastructure': 'Infraestrutura/Cloud',
+      'support': 'Suporte/Sustentação',
+      'training': 'Treinamento/Capacitação'
     }
-    return labels[type || ''] || 'Outros'
+    return labels[type || ''] || 'Não Definido'
   }
 
   private calculateTimeline(projects: any[]) {
