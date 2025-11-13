@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Calendar, Search, Clock, TrendingUp, AlertTriangle, CheckCircle, FileText, RefreshCw, Wifi, WifiOff, Info, Filter } from "lucide-react";
+import { Calendar, Search, Clock, TrendingUp, TrendingDown, Minus, AlertTriangle, CheckCircle, FileText, RefreshCw, Wifi, WifiOff, Info, Filter } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { getMockSustentacaoData } from "@/lib/data/mock-sustentacao";
 import { SustentacaoFilters } from "./filters";
@@ -37,6 +37,7 @@ export function SustentacaoDashboard({
   const [chamados, setChamados] = useState<any[]>([]);
   const [metricas, setMetricas] = useState<any>(null);
   const [categorias, setCategorias] = useState<any[]>([]);
+  const [chamadosMesAnterior, setChamadosMesAnterior] = useState<any[]>([]); // Para comparação
   const [forceUpdate, setForceUpdate] = useState(0);
   const [loading, setLoading] = useState(true);
   const [hasConfig, setHasConfig] = useState<boolean | null>(null); // null = verificando, true = tem config, false = não tem
@@ -56,6 +57,14 @@ export function SustentacaoDashboard({
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategoria, setFilterCategoria] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
+
+  // Função para calcular mês anterior
+  const getMesAnterior = (mes: number, ano: number) => {
+    if (mes === 1) {
+      return { mes: 12, ano: ano - 1 }
+    }
+    return { mes: mes - 1, ano }
+  };
 
   useEffect(() => {
     loadSustentacaoData();
@@ -143,6 +152,23 @@ export function SustentacaoDashboard({
           metricas: data.metricas,
           primeirosChamados: data.chamados.slice(0, 3).map((c: any) => c.idEllevo)
         });
+        
+        // Buscar dados do mês anterior para comparação (não bloqueia a UI)
+        const mesAnterior = getMesAnterior(filters.mes, filters.ano);
+        fetch(apiEndpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ companyId, filters: mesAnterior })
+        })
+          .then(res => res.ok ? res.json() : null)
+          .then(dataAnterior => {
+            if (dataAnterior?.chamados) {
+              setChamadosMesAnterior(dataAnterior.chamados);
+              console.log('✅ Dados do mês anterior carregados para comparação');
+            }
+          })
+          .catch(err => console.log('⚠️ Não foi possível carregar mês anterior:', err));
+        
         return;
       } else {
         const errorData = await response.json();
@@ -256,32 +282,94 @@ export function SustentacaoDashboard({
     }
   ];
 
-  // Calcular categorias baseado nos chamados filtrados COM ORDEM FIXA
-  const calcularCategorias = (chamadosList: any[]) => {
-    // Contar chamados por categoria
-    const categoriaCount: { [key: string]: number } = {};
+  // Calcular variação entre mês atual e anterior
+  const calcularVariacao = (quantidadeAtual: number, quantidadeAnterior: number, tipoCategoria: 'problema' | 'neutro') => {
+    if (quantidadeAnterior === 0 && quantidadeAtual === 0) {
+      return null; // Ambos zero, sem variação relevante
+    }
     
+    if (quantidadeAnterior === 0 && quantidadeAtual > 0) {
+      return { 
+        percentual: 100, 
+        tendencia: 'up' as const, 
+        diferenca: quantidadeAtual,
+        novo: true 
+      };
+    }
+    
+    const diferenca = quantidadeAtual - quantidadeAnterior;
+    const percentual = Math.round((diferenca / quantidadeAnterior) * 100);
+    
+    let tendencia: 'up' | 'down' | 'stable' = 'stable';
+    if (diferenca > 0) tendencia = 'up';
+    else if (diferenca < 0) tendencia = 'down';
+    
+    // Determinar se é bom ou ruim baseado no tipo
+    let colorClass = 'text-gray-500';
+    if (tendencia !== 'stable') {
+      if (tipoCategoria === 'problema') {
+        // Bug, Ajuste, Falha: aumentar é ruim, diminuir é bom
+        colorClass = tendencia === 'up' ? 'text-red-600' : 'text-green-600';
+      } else {
+        // Solicitação, Processo: neutro (azul)
+        colorClass = 'text-blue-600';
+      }
+    }
+    
+    return {
+      percentual: Math.abs(percentual),
+      tendencia,
+      diferenca,
+      colorClass,
+      novo: false
+    };
+  };
+
+  // Calcular categorias baseado nos chamados filtrados COM ORDEM FIXA E COMPARAÇÃO
+  const calcularCategorias = (chamadosList: any[], chamadosMesAnteriorList: any[] = []) => {
+    // Contar chamados por categoria (mês atual)
+    const categoriaCount: { [key: string]: number } = {};
     chamadosList.forEach(chamado => {
       const cat = chamado.categoria;
       categoriaCount[cat] = (categoriaCount[cat] || 0) + 1;
     });
     
-    // Retornar na ordem fixa definida
+    // Contar chamados por categoria (mês anterior)
+    const categoriaCountAnterior: { [key: string]: number } = {};
+    chamadosMesAnteriorList.forEach(chamado => {
+      const cat = chamado.categoria;
+      categoriaCountAnterior[cat] = (categoriaCountAnterior[cat] || 0) + 1;
+    });
+    
+    // Retornar na ordem fixa definida com comparação
     return ORDEM_CATEGORIAS.map(catConfig => {
-      // Somar quantidade de todos os alias
+      // Somar quantidade de todos os alias (mês atual)
       const quantidade = catConfig.alias.reduce((total, alias) => {
         return total + (categoriaCount[alias] || 0);
       }, 0);
       
+      // Somar quantidade de todos os alias (mês anterior)
+      const quantidadeAnterior = catConfig.alias.reduce((total, alias) => {
+        return total + (categoriaCountAnterior[alias] || 0);
+      }, 0);
+      
+      // Determinar se é problema ou neutro
+      const tipoCategoria = ['Bug', 'Ajuste', 'Falha Sistêmica'].includes(catConfig.nome) ? 'problema' : 'neutro';
+      
+      // Calcular variação
+      const variacao = calcularVariacao(quantidade, quantidadeAnterior, tipoCategoria);
+      
       return {
         nome: catConfig.nome,
         quantidade,
+        quantidadeAnterior,
         cor: catConfig.cor,
         corTexto: catConfig.corTexto,
         corFundo: catConfig.corFundo,
         emoji: catConfig.emoji,
         descricao: catConfig.descricao,
-        temChamados: quantidade > 0
+        temChamados: quantidade > 0,
+        variacao
       };
     });
   };
@@ -685,7 +773,7 @@ export function SustentacaoDashboard({
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-5 gap-6">
-            {calcularCategorias(filteredChamados).map((categoria, index) => (
+            {calcularCategorias(filteredChamados, chamadosMesAnterior).map((categoria, index) => (
               <TooltipProvider key={index}>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -739,6 +827,30 @@ export function SustentacaoDashboard({
                       }`}>
                         {categoria.quantidade}
                       </p>
+                      
+                      {/* Indicador de variação vs mês anterior */}
+                      {categoria.variacao && !categoria.variacao.novo && (
+                        <div className={`flex items-center justify-center gap-1 text-xs font-semibold mt-1 ${categoria.variacao.colorClass}`}>
+                          {categoria.variacao.tendencia === 'up' && <TrendingUp className="w-3 h-3" />}
+                          {categoria.variacao.tendencia === 'down' && <TrendingDown className="w-3 h-3" />}
+                          {categoria.variacao.tendencia === 'stable' && <Minus className="w-3 h-3" />}
+                          <span>
+                            {categoria.variacao.tendencia === 'up' ? '+' : ''}
+                            {categoria.variacao.tendencia === 'down' ? '-' : ''}
+                            {categoria.variacao.percentual}%
+                          </span>
+                        </div>
+                      )}
+                      
+                      {/* Badge "Novo" para primeira aparição */}
+                      {categoria.variacao?.novo && (
+                        <div className="flex items-center justify-center gap-1 text-xs font-semibold mt-1 text-blue-600">
+                          <span className="inline-flex items-center gap-1">
+                            ✨ Novo
+                          </span>
+                        </div>
+                      )}
+                      
                       {categoria.temChamados && (
                         <p className="text-xs mt-2">
                           {(filterCategoria === categoria.nome || (categoria.nome === 'Bug' && filterCategoria === 'Bugs')) ? (
@@ -761,13 +873,34 @@ export function SustentacaoDashboard({
                       </p>
                       <p className="text-slate-300 text-xs mt-1">{categoria.descricao}</p>
                       {categoria.temChamados ? (
-                        <p className="text-xs text-green-400 mt-1 font-medium">
-                          ✓ {categoria.quantidade} chamado{categoria.quantidade !== 1 ? 's' : ''} neste período
-                        </p>
+                        <>
+                          <p className="text-xs text-green-400 mt-1 font-medium">
+                            ✓ {categoria.quantidade} chamado{categoria.quantidade !== 1 ? 's' : ''} neste período
+                          </p>
+                          {categoria.variacao && !categoria.variacao.novo && (
+                            <p className={`text-xs mt-1 font-medium ${categoria.variacao.colorClass.replace('text-', 'text-')}`}>
+                              {categoria.variacao.tendencia === 'up' ? '↗' : categoria.variacao.tendencia === 'down' ? '↘' : '→'} 
+                              {' '}{categoria.variacao.tendencia === 'up' ? '+' : categoria.variacao.tendencia === 'down' ? '-' : ''}
+                              {categoria.variacao.percentual}% vs mês anterior ({categoria.quantidadeAnterior} chamados)
+                            </p>
+                          )}
+                          {categoria.variacao?.novo && (
+                            <p className="text-xs mt-1 font-medium text-blue-400">
+                              ✨ Primeira vez aparecendo (mês anterior: 0)
+                            </p>
+                          )}
+                        </>
                       ) : (
-                        <p className="text-xs text-slate-400 mt-1">
-                          Nenhum chamado neste período 🎉
-                        </p>
+                        <>
+                          <p className="text-xs text-slate-400 mt-1">
+                            Nenhum chamado neste período 🎉
+                          </p>
+                          {categoria.quantidadeAnterior > 0 && (
+                            <p className="text-xs text-green-400 mt-1 font-medium">
+                              ✓ Melhoria! Mês anterior: {categoria.quantidadeAnterior} chamados
+                            </p>
+                          )}
+                        </>
                       )}
                     </div>
                   </TooltipContent>
