@@ -62,6 +62,15 @@ export interface AnalyticsData {
     type: 'danger' | 'warning' | 'success'
     message: string
     icon: string
+    projects?: Array<{
+      id: string
+      name?: string
+      status: string
+      end_date?: string
+      predicted_end_date?: string
+      company_id: string
+      daysUntilDeadline?: number
+    }>
   }[]
 }
 
@@ -78,23 +87,13 @@ export class AnalyticsService {
     endDate?: string
   ): Promise<AnalyticsData> {
     try {
-      // 1. Buscar projetos com filtros
+      console.log('🔄 [Analytics] Iniciando busca de dados...')
+      const startTime = Date.now()
+      
+      // 1. Buscar projetos com filtros (query otimizada)
       let projectsQuery = this.supabase
         .from('projects')
-        .select(`
-          id,
-          name,
-          status,
-          project_type,
-          category,
-          start_date,
-          end_date,
-          predicted_end_date,
-          actual_end_date,
-          created_at,
-          company_id,
-          companies!inner(name)
-        `)
+        .select('id, name, status, project_type, created_at, start_date, end_date, predicted_end_date, actual_end_date, company_id')
 
       // Aplicar filtro de tenant
       if (tenantId) {
@@ -109,6 +108,8 @@ export class AnalyticsService {
       }
 
       const { data: projects, error } = await projectsQuery
+      
+      console.log(`✅ [Analytics] Projetos carregados em ${Date.now() - startTime}ms`)
 
       if (error) {
         console.error('Erro ao buscar projetos:', error)
@@ -161,16 +162,38 @@ export class AnalyticsService {
         value
       }))
 
-      // 6. Projetos por empresa
-      const companyMap = new Map<string, number>()
-      projects?.forEach(p => {
-        const companyName = (p.companies as any)?.name || 'Sem empresa'
-        companyMap.set(companyName, (companyMap.get(companyName) || 0) + 1)
-      })
-      const projectsByCompany = Array.from(companyMap.entries())
-        .map(([companyName, count]) => ({ companyName, count }))
+      // 6. Projetos por empresa (busca otimizada separada)
+      const companyMap = new Map<string, { name: string; count: number }>()
+      
+      // Buscar nomes das empresas apenas se necessário
+      if (projects && projects.length > 0) {
+        const uniqueCompanyIds = [...new Set(projects.map(p => p.company_id).filter(Boolean))]
+        
+        if (uniqueCompanyIds.length > 0) {
+          const { data: companies } = await this.supabase
+            .from('companies')
+            .select('id, name')
+            .in('id', uniqueCompanyIds)
+          
+          const companyNameMap = new Map(companies?.map(c => [c.id, c.name]) || [])
+          
+          projects.forEach(p => {
+            if (p.company_id) {
+              const companyName = companyNameMap.get(p.company_id) || 'Sem nome'
+              if (!companyMap.has(p.company_id)) {
+                companyMap.set(p.company_id, { name: companyName, count: 0 })
+              }
+              const current = companyMap.get(p.company_id)!
+              current.count++
+            }
+          })
+        }
+      }
+      
+      const projectsByCompany = Array.from(companyMap.values())
         .sort((a, b) => b.count - a.count)
-        .slice(0, 10) // Top 10
+        .slice(0, 10)
+        .map(({ name, count }) => ({ companyName: name, count }))
 
       // 7. Evolução temporal (últimos 6 meses)
       const timeline = this.calculateTimeline(projects || [])
@@ -187,7 +210,7 @@ export class AnalyticsService {
       const monthlyLoad = this.calculateMonthlyLoad(projects || [])
 
       // 10. Alertas
-      const alerts = this.generateAlerts(delayed, inProgress, completed)
+      const alerts = this.generateAlerts(delayed, inProgress, completed, projects || [])
 
       return {
         totalProjects: total,
@@ -272,36 +295,101 @@ export class AnalyticsService {
     })
   }
 
-  private generateAlerts(delayed: number, inProgress: number, completed: number) {
+  private generateAlerts(delayed: number, inProgress: number, completed: number, projects: any[]) {
     const alerts = []
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const sevenDaysFromNow = new Date(today)
+    sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7)
 
+    // Alertas de atraso
     if (delayed > 0) {
+      const delayedProjects = projects.filter(p => p.status === 'delayed')
       alerts.push({
         type: 'danger' as const,
         message: `${delayed} ${delayed === 1 ? 'projeto' : 'projetos'} com atraso significativo`,
-        icon: 'exclamation-circle'
+        icon: 'exclamation-circle',
+        projects: delayedProjects.map(p => ({
+          id: p.id,
+          name: p.name,
+          status: p.status,
+          company_id: p.company_id,
+          end_date: p.end_date,
+          predicted_end_date: p.predicted_end_date
+        }))
       })
     }
 
-    // Projetos próximos da entrega (mock)
-    if (inProgress > 0) {
-      const nearDeadline = Math.min(5, Math.floor(inProgress * 0.3))
-      if (nearDeadline > 0) {
-        alerts.push({
-          type: 'warning' as const,
-          message: `${nearDeadline} ${nearDeadline === 1 ? 'projeto próximo' : 'projetos próximos'} da data de entrega (próximos 7 dias)`,
-          icon: 'clock'
-        })
-      }
+    // Projetos próximos da entrega (LÓGICA REAL)
+    const projectsNearDeadline = projects.filter(p => {
+      // Apenas projetos em andamento ou homologação
+      if (p.status !== 'in_progress' && p.status !== 'homologation') return false
+      
+      // Verificar data de fim (predicted_end_date tem prioridade, depois end_date)
+      const deadline = p.predicted_end_date || p.end_date
+      if (!deadline) return false
+      
+      const deadlineDate = new Date(deadline)
+      deadlineDate.setHours(0, 0, 0, 0)
+      
+      // Está entre hoje e 7 dias?
+      return deadlineDate >= today && deadlineDate <= sevenDaysFromNow
+    })
+
+    if (projectsNearDeadline.length > 0) {
+      // Calcular dias até deadline para cada projeto
+      const projectsWithDays = projectsNearDeadline.map(p => {
+        const deadline = p.predicted_end_date || p.end_date
+        const deadlineDate = new Date(deadline)
+        deadlineDate.setHours(0, 0, 0, 0)
+        const daysUntilDeadline = Math.ceil((deadlineDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+        
+        return {
+          id: p.id,
+          name: p.name,
+          status: p.status,
+          company_id: p.company_id,
+          end_date: p.end_date,
+          predicted_end_date: p.predicted_end_date,
+          daysUntilDeadline
+        }
+      }).sort((a, b) => a.daysUntilDeadline - b.daysUntilDeadline) // Ordenar por urgência
+
+      alerts.push({
+        type: 'warning' as const,
+        message: `${projectsNearDeadline.length} ${projectsNearDeadline.length === 1 ? 'projeto próximo' : 'projetos próximos'} da data de entrega (próximos 7 dias)`,
+        icon: 'clock',
+        projects: projectsWithDays
+      })
     }
 
-    // Projetos concluídos recentemente
-    const recentlyCompleted = Math.min(completed, 2)
-    if (recentlyCompleted > 0) {
+    // Projetos concluídos recentemente (últimos 7 dias)
+    const recentlyCompletedProjects = projects.filter(p => {
+      if (p.status !== 'completed') return false
+      if (!p.actual_end_date) return false
+      
+      const completedDate = new Date(p.actual_end_date)
+      completedDate.setHours(0, 0, 0, 0)
+      const sevenDaysAgo = new Date(today)
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+      
+      return completedDate >= sevenDaysAgo && completedDate <= today
+    })
+
+    if (recentlyCompletedProjects.length > 0) {
       alerts.push({
         type: 'success' as const,
-        message: `${recentlyCompleted} ${recentlyCompleted === 1 ? 'projeto concluído' : 'projetos concluídos'} com sucesso esta semana`,
-        icon: 'check'
+        message: `${recentlyCompletedProjects.length} ${recentlyCompletedProjects.length === 1 ? 'projeto concluído' : 'projetos concluídos'} nos últimos 7 dias`,
+        icon: 'check',
+        projects: recentlyCompletedProjects.map(p => ({
+          id: p.id,
+          name: p.name,
+          status: p.status,
+          company_id: p.company_id,
+          end_date: p.end_date,
+          predicted_end_date: p.predicted_end_date,
+          actual_end_date: p.actual_end_date
+        }))
       })
     }
 

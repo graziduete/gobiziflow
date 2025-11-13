@@ -54,6 +54,8 @@ export default function AnalyticsPage() {
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null)
   const [userRole, setUserRole] = useState<string | null>(null)
   const [tenantId, setTenantId] = useState<string | null | undefined>(undefined)
+  const [expandedAlerts, setExpandedAlerts] = useState<Set<number>>(new Set())
+  const [companyNames, setCompanyNames] = useState<Map<string, string>>(new Map())
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -109,6 +111,26 @@ export default function AnalyticsPage() {
       const data = await analyticsService.getAnalyticsData(tenantFilter)
       
       setAnalyticsData(data)
+
+      // Buscar nomes das empresas dos projetos nos alertas
+      const companyIds = new Set<string>()
+      data.alerts.forEach(alert => {
+        alert.projects?.forEach(project => {
+          if (project.company_id) {
+            companyIds.add(project.company_id)
+          }
+        })
+      })
+
+      if (companyIds.size > 0) {
+        const { data: companies } = await supabase
+          .from('companies')
+          .select('id, name')
+          .in('id', Array.from(companyIds))
+        
+        const nameMap = new Map(companies?.map(c => [c.id, c.name]) || [])
+        setCompanyNames(nameMap)
+      }
     } catch (error) {
       console.error('Erro ao carregar dados de analytics:', error)
     } finally {
@@ -120,8 +142,14 @@ export default function AnalyticsPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
         <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto"></div>
-          <p className="text-slate-600 font-medium">Carregando analytics...</p>
+          <div className="relative">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto"></div>
+            <Activity className="w-8 h-8 text-blue-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+          </div>
+          <div>
+            <p className="text-slate-800 font-bold text-lg">Carregando Analytics</p>
+            <p className="text-slate-500 text-sm mt-1">Processando dados dos projetos...</p>
+          </div>
         </div>
       </div>
     )
@@ -370,31 +398,129 @@ export default function AnalyticsPage() {
             {analyticsData.alerts.map((alert, index) => (
               <Card 
                 key={index}
-                className={`border-l-4 ${
+                className={`border-l-4 transition-all ${
                   alert.type === 'danger' ? 'border-red-500 bg-red-50/50' :
                   alert.type === 'warning' ? 'border-yellow-500 bg-yellow-50/50' :
                   'border-green-500 bg-green-50/50'
                 }`}
               >
                 <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${
-                      alert.type === 'danger' ? 'bg-red-100' :
-                      alert.type === 'warning' ? 'bg-yellow-100' :
-                      'bg-green-100'
-                    }`}>
-                      {alert.type === 'danger' && <AlertTriangle className="w-5 h-5 text-red-600" />}
-                      {alert.type === 'warning' && <Clock className="w-5 h-5 text-yellow-600" />}
-                      {alert.type === 'success' && <CheckCircle className="w-5 h-5 text-green-600" />}
+                  <div 
+                    className={`flex items-center justify-between ${alert.projects && alert.projects.length > 0 ? 'cursor-pointer' : ''}`}
+                    onClick={() => {
+                      if (alert.projects && alert.projects.length > 0) {
+                        setExpandedAlerts(prev => {
+                          const newSet = new Set(prev)
+                          if (newSet.has(index)) {
+                            newSet.delete(index)
+                          } else {
+                            newSet.add(index)
+                          }
+                          return newSet
+                        })
+                      }
+                    }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded-lg ${
+                        alert.type === 'danger' ? 'bg-red-100' :
+                        alert.type === 'warning' ? 'bg-yellow-100' :
+                        'bg-green-100'
+                      }`}>
+                        {alert.type === 'danger' && <AlertTriangle className="w-5 h-5 text-red-600" />}
+                        {alert.type === 'warning' && <Clock className="w-5 h-5 text-yellow-600" />}
+                        {alert.type === 'success' && <CheckCircle className="w-5 h-5 text-green-600" />}
+                      </div>
+                      <p className={`font-medium ${
+                        alert.type === 'danger' ? 'text-red-800' :
+                        alert.type === 'warning' ? 'text-yellow-800' :
+                        'text-green-800'
+                      }`}>
+                        {alert.message}
+                      </p>
                     </div>
-                    <p className={`font-medium ${
-                      alert.type === 'danger' ? 'text-red-800' :
-                      alert.type === 'warning' ? 'text-yellow-800' :
-                      'text-green-800'
-                    }`}>
-                      {alert.message}
-                    </p>
+                    
+                    {alert.projects && alert.projects.length > 0 && (
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        className={`${
+                          alert.type === 'danger' ? 'hover:bg-red-100 text-red-700' :
+                          alert.type === 'warning' ? 'hover:bg-yellow-100 text-yellow-700' :
+                          'hover:bg-green-100 text-green-700'
+                        }`}
+                      >
+                        {expandedAlerts.has(index) ? 'Ocultar' : 'Ver Projetos'}
+                      </Button>
+                    )}
                   </div>
+
+                  {/* Lista de projetos expandível */}
+                  {alert.projects && alert.projects.length > 0 && expandedAlerts.has(index) && (
+                    <div className="mt-4 space-y-2 animate-in slide-in-from-top duration-200">
+                      <div className="h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent my-3" />
+                      {alert.projects.map((project, pIndex) => {
+                        const companyName = companyNames.get(project.company_id) || 'Empresa não informada'
+                        const deadline = project.predicted_end_date || project.end_date
+                        const deadlineDate = deadline ? new Date(deadline).toLocaleDateString('pt-BR') : 'Sem data'
+                        
+                        return (
+                          <div 
+                            key={pIndex}
+                            className={`p-3 rounded-lg border transition-all hover:shadow-md ${
+                              alert.type === 'danger' ? 'bg-white border-red-200 hover:border-red-300' :
+                              alert.type === 'warning' ? 'bg-white border-yellow-200 hover:border-yellow-300' :
+                              'bg-white border-green-200 hover:border-green-300'
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <h4 className="font-semibold text-slate-800 truncate">
+                                    {project.name || 'Projeto sem nome'}
+                                  </h4>
+                                  {project.daysUntilDeadline !== undefined && (
+                                    <Badge 
+                                      variant="outline"
+                                      className={`shrink-0 ${
+                                        project.daysUntilDeadline === 0 ? 'bg-red-100 text-red-700 border-red-300' :
+                                        project.daysUntilDeadline <= 2 ? 'bg-orange-100 text-orange-700 border-orange-300' :
+                                        'bg-yellow-100 text-yellow-700 border-yellow-300'
+                                      }`}
+                                    >
+                                      {project.daysUntilDeadline === 0 ? 'Hoje!' :
+                                       project.daysUntilDeadline === 1 ? 'Amanhã' :
+                                       `${project.daysUntilDeadline} dias`}
+                                    </Badge>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-2 flex-wrap text-sm">
+                                  <span className="inline-flex items-center gap-1 text-slate-600">
+                                    <Building2 className="w-3.5 h-3.5" />
+                                    {companyName}
+                                  </span>
+                                  <span className="text-slate-400">•</span>
+                                  <span className="inline-flex items-center gap-1 text-slate-600">
+                                    <Calendar className="w-3.5 h-3.5" />
+                                    {deadlineDate}
+                                  </span>
+                                </div>
+                              </div>
+                              
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => router.push(`/admin/projects/${project.id}`)}
+                                className="shrink-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                              >
+                                Ver detalhes →
+                              </Button>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ))}
