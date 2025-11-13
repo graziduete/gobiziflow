@@ -692,20 +692,32 @@ export function SustentacaoDashboard({
                     <div 
                       onClick={() => {
                         if (categoria.temChamados) {
-                          setFilterCategoria(categoria.nome === 'Bug' ? 'Bugs' : categoria.nome);
-                          // Scroll suave até a lista
-                          setTimeout(() => {
-                            const listaElement = document.querySelector('[data-lista-chamados]');
-                            if (listaElement) {
-                              listaElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                            }
-                          }, 100);
+                          const categoriaNormalizada = categoria.nome === 'Bug' ? 'Bugs' : categoria.nome;
+                          
+                          // Toggle: se já está filtrado nessa categoria, volta para "all"
+                          if (filterCategoria === categoriaNormalizada) {
+                            setFilterCategoria('all');
+                          } else {
+                            setFilterCategoria(categoriaNormalizada);
+                            // Scroll suave até a lista
+                            setTimeout(() => {
+                              const listaElement = document.querySelector('[data-lista-chamados]');
+                              if (listaElement) {
+                                listaElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                              }
+                            }, 100);
+                          }
                         }
                       }}
-                      className={`text-center p-6 rounded-xl border transition-all duration-300 ${
+                      className={`text-center p-6 rounded-xl border transition-all duration-300 relative ${
                         categoria.temChamados 
                           ? `bg-gradient-to-br ${categoria.corFundo} border-slate-200/60 hover:shadow-lg hover:scale-105 cursor-pointer` 
                           : 'bg-slate-50/40 border-slate-100/50 opacity-50 cursor-default'
+                      } ${
+                        // Adicionar borda grossa e sombra quando filtro está ativo
+                        (filterCategoria === categoria.nome || (categoria.nome === 'Bug' && filterCategoria === 'Bugs'))
+                          ? `ring-4 ring-offset-2 ${categoria.cor.replace('bg-', 'ring-')} shadow-2xl scale-105`
+                          : ''
                       }`}
                     >
                       <div className={`w-8 h-8 rounded-full mx-auto mb-3 shadow-sm ring-2 ring-white flex items-center justify-center text-lg ${
@@ -726,8 +738,16 @@ export function SustentacaoDashboard({
                         {categoria.quantidade}
                       </p>
                       {categoria.temChamados && (
-                        <p className="text-xs text-slate-500 mt-2">
-                          Clique para filtrar
+                        <p className="text-xs mt-2">
+                          {(filterCategoria === categoria.nome || (categoria.nome === 'Bug' && filterCategoria === 'Bugs')) ? (
+                            <span className="font-bold text-slate-700">
+                              ✓ Filtrado - Clique para mostrar todos
+                            </span>
+                          ) : (
+                            <span className="text-slate-500">
+                              Clique para filtrar
+                            </span>
+                          )}
                         </p>
                       )}
                     </div>
