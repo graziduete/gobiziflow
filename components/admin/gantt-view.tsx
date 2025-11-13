@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 
 
-import { Calendar, Clock, TrendingUpIcon as TrendingRight, Maximize2, Search, Building2, Tag, Activity, BarChart3 } from "lucide-react"
+import { Calendar, Clock, TrendingUpIcon as TrendingRight, Maximize2, Search, Building2, Tag, Activity, BarChart3, LineChart } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { GanttChart } from "@/components/admin/gantt-chart"
@@ -30,6 +31,7 @@ interface ExpandedFilters {
 }
 
 export function GanttView({ projects, allProjects, companies = [], selectedMonth, selectedYear, userRole }: GanttViewProps) {
+  const router = useRouter()
   const [isExpanded, setIsExpanded] = useState(false)
   const [isGanttView, setIsGanttView] = useState(false)
   const [projectTasks, setProjectTasks] = useState<{[key: string]: any[]}>({})
@@ -489,16 +491,27 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
       <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-cyan-500/5 to-blue-500/5 rounded-full blur-2xl" />
       
       <CardHeader className="relative z-10">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg shadow-md">
-            <TrendingRight className="h-5 w-5 text-white" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg shadow-md">
+              <TrendingRight className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <CardTitle className="text-2xl font-bold text-slate-900 tracking-tight">
+                Visão Geral dos Cronogramas
+              </CardTitle>
+              <p className="text-sm text-slate-600 mt-1">Acompanhe o progresso de cada projeto</p>
+            </div>
           </div>
-          <div>
-            <CardTitle className="text-2xl font-bold text-slate-900 tracking-tight">
-              Visão Geral dos Cronogramas
-            </CardTitle>
-            <p className="text-sm text-slate-600 mt-1">Acompanhe o progresso de cada projeto</p>
-          </div>
+          
+          <Button
+            onClick={() => router.push('/admin/analytics')}
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all"
+            size="lg"
+          >
+            <LineChart className="w-4 h-4 mr-2" />
+            Analytics
+          </Button>
         </div>
       </CardHeader>
       <CardContent>
