@@ -562,6 +562,80 @@ export default function AnalyticsPage() {
           </div>
         )}
 
+        {/* Projetos Complexos Detectados */}
+        {analyticsData.complexProjects.length > 0 && (
+          <Card className="border-l-4 border-amber-500 bg-amber-50/50 shadow-md">
+            <CardContent className="p-5">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 bg-amber-100 rounded-lg">
+                    <AlertTriangle className="w-5 h-5 text-amber-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-amber-900">⚠️ Projetos Complexos Detectados</h3>
+                    <p className="text-sm text-amber-700 mt-0.5">
+                      {analyticsData.complexProjects.length} {analyticsData.complexProjects.length === 1 ? 'projeto possui' : 'projetos possuem'} tarefas com longos períodos de espera ({">"} 30 dias)
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                {analyticsData.complexProjects.map((project, index) => {
+                  const companyName = companyNames.get(project.company_id) || 'Empresa não informada'
+                  
+                  return (
+                    <div 
+                      key={index}
+                      className="p-3 bg-white rounded-lg border border-amber-200 hover:border-amber-300 hover:shadow-md transition-all"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className="font-semibold text-slate-800 truncate">
+                              {project.name}
+                            </h4>
+                            <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-300 shrink-0">
+                              {project.delayedTasksCount} {project.delayedTasksCount === 1 ? 'tarefa' : 'tarefas'} atrasada{project.delayedTasksCount > 1 ? 's' : ''}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center gap-2 flex-wrap text-sm">
+                            <span className="inline-flex items-center gap-1 text-slate-600">
+                              <Building2 className="w-3.5 h-3.5" />
+                              {companyName}
+                            </span>
+                            <span className="text-slate-400">•</span>
+                            <span className={`inline-flex items-center gap-1 font-medium ${
+                              project.maxDelay > 60 ? 'text-red-600' :
+                              project.maxDelay > 45 ? 'text-orange-600' :
+                              'text-amber-600'
+                            }`}>
+                              <Clock className="w-3.5 h-3.5" />
+                              Maior atraso: {project.maxDelay} dias
+                            </span>
+                          </div>
+                          <p className="text-xs text-amber-700 mt-2">
+                            💡 <strong>Recomendação:</strong> Documente os impedimentos usando <strong>"Justificativa de Atraso"</strong>
+                          </p>
+                        </div>
+                        
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => router.push(`/admin/projects/${project.id}`)}
+                          className="shrink-0 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                        >
+                          Ver projeto →
+                        </Button>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* KPIs - Todos os Status */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {/* Total de Projetos */}

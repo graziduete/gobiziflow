@@ -75,6 +75,16 @@ export interface AnalyticsData {
       daysUntilDeadline?: number
     }>
   }[]
+
+  // Projetos complexos
+  complexProjects: Array<{
+    id: string
+    name: string
+    company_id: string
+    status: string
+    maxDelay: number
+    delayedTasksCount: number
+  }>
 }
 
 export class AnalyticsService {
@@ -210,6 +220,9 @@ export class AnalyticsService {
       // 10. Alertas
       const alerts = this.generateAlerts(delayed, inProgress, completed, projects || [])
 
+      // 11. Projetos complexos (com tarefas atrasadas > 30 dias)
+      const complexProjects = await this.detectComplexProjects(projects || [], tenantId)
+
       return {
         totalProjects: total,
         inProgress,
@@ -228,7 +241,8 @@ export class AnalyticsService {
         timeline,
         performance,
         monthlyLoad,
-        alerts
+        alerts,
+        complexProjects
       }
     } catch (error) {
       console.error('Erro no AnalyticsService:', error)
@@ -446,6 +460,81 @@ export class AnalyticsService {
     return alerts
   }
 
+  private async detectComplexProjects(projects: any[], tenantId?: string | null): Promise<AnalyticsData['complexProjects']> {
+    const complexProjects: AnalyticsData['complexProjects'] = []
+    
+    // Buscar tarefas apenas de projetos em andamento ou atrasados
+    const activeProjectIds = projects
+      .filter(p => p.status === 'in_progress' || p.status === 'homologation' || p.status === 'delayed')
+      .map(p => p.id)
+    
+    if (activeProjectIds.length === 0) return []
+
+    try {
+      // Buscar tarefas desses projetos
+      let tasksQuery = this.supabase
+        .from('tasks')
+        .select('id, project_id, status, planned_end_date, actual_end_date')
+        .in('project_id', activeProjectIds)
+        .in('status', ['completed_delayed', 'delayed'])
+
+      const { data: tasks } = await tasksQuery
+
+      if (!tasks || tasks.length === 0) return []
+
+      // Agrupar tarefas por projeto e calcular atrasos
+      const projectDelays = new Map<string, { maxDelay: number; count: number }>()
+      const today = new Date()
+      today.setHours(12, 0, 0, 0)
+
+      tasks.forEach(task => {
+        if (!task.planned_end_date) return
+
+        const planned = new Date(task.planned_end_date)
+        planned.setHours(12, 0, 0, 0)
+
+        let diffDays = 0
+        if (task.status === 'completed_delayed' && task.actual_end_date) {
+          const actual = new Date(task.actual_end_date)
+          actual.setHours(12, 0, 0, 0)
+          diffDays = Math.ceil((actual.getTime() - planned.getTime()) / (1000 * 60 * 60 * 24))
+        } else if (task.status === 'delayed') {
+          diffDays = Math.ceil((today.getTime() - planned.getTime()) / (1000 * 60 * 60 * 24))
+        }
+
+        // Considera complexo se atraso > 30 dias
+        if (diffDays > 30) {
+          const current = projectDelays.get(task.project_id) || { maxDelay: 0, count: 0 }
+          projectDelays.set(task.project_id, {
+            maxDelay: Math.max(current.maxDelay, diffDays),
+            count: current.count + 1
+          })
+        }
+      })
+
+      // Montar lista de projetos complexos
+      projectDelays.forEach((delays, projectId) => {
+        const project = projects.find(p => p.id === projectId)
+        if (project) {
+          complexProjects.push({
+            id: project.id,
+            name: project.name || 'Sem nome',
+            company_id: project.company_id,
+            status: project.status,
+            maxDelay: delays.maxDelay,
+            delayedTasksCount: delays.count
+          })
+        }
+      })
+
+      // Ordenar por maior atraso
+      return complexProjects.sort((a, b) => b.maxDelay - a.maxDelay)
+    } catch (error) {
+      console.error('[Analytics] Erro ao detectar projetos complexos:', error)
+      return []
+    }
+  }
+
   private getEmptyData(): AnalyticsData {
     return {
       totalProjects: 0,
@@ -465,7 +554,8 @@ export class AnalyticsService {
       timeline: [],
       performance: [],
       monthlyLoad: [],
-      alerts: []
+      alerts: [],
+      complexProjects: []
     }
   }
 }
