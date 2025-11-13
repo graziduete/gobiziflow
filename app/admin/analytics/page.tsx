@@ -396,7 +396,7 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
+    <div className="space-y-6 w-full">
       {/* Fundo decorativo animado */}
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-br from-blue-400/5 to-indigo-400/5 rounded-full blur-3xl animate-blob" />
@@ -404,7 +404,7 @@ export default function AnalyticsPage() {
         <div className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-gradient-to-br from-purple-400/5 to-blue-400/5 rounded-full blur-3xl animate-blob animation-delay-4000" />
       </div>
 
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="w-full space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>

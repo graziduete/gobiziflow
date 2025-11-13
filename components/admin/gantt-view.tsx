@@ -505,7 +505,7 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
           </div>
           
           <Button
-            onClick={() => window.open('/admin/analytics', '_blank')}
+            onClick={() => router.push('/admin/analytics')}
             className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all"
             size="lg"
           >
