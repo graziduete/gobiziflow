@@ -562,8 +562,9 @@ export default function AnalyticsPage() {
           </div>
         )}
 
-        {/* KPIs */}
+        {/* KPIs - Todos os Status */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {/* Total de Projetos */}
           <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-white to-blue-50/30 shadow-md hover:shadow-xl transition-all duration-300 group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-full blur-2xl group-hover:from-blue-500/20 group-hover:to-cyan-500/20 transition-all duration-500" />
             <CardContent className="p-6 relative z-10">
@@ -585,6 +586,41 @@ export default function AnalyticsPage() {
             </CardContent>
           </Card>
 
+          {/* Planejamento */}
+          <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-white to-sky-50/30 shadow-md hover:shadow-xl transition-all duration-300 group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-sky-500/10 to-blue-500/10 rounded-full blur-2xl group-hover:from-sky-500/20 group-hover:to-blue-500/20 transition-all duration-500" />
+            <CardContent className="p-6 relative z-10">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <p className="text-sm font-medium text-slate-600 mb-1">Planejamento</p>
+                  <p className="text-3xl font-bold text-sky-700">{analyticsData.planning}</p>
+                  <p className="text-xs text-slate-500 mt-2">Aguardando início</p>
+                </div>
+                <div className="p-3 rounded-xl bg-sky-100">
+                  <Calendar className="w-6 h-6 text-sky-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Proposta Comercial */}
+          <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-white to-violet-50/30 shadow-md hover:shadow-xl transition-all duration-300 group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-violet-500/10 to-purple-500/10 rounded-full blur-2xl group-hover:from-violet-500/20 group-hover:to-purple-500/20 transition-all duration-500" />
+            <CardContent className="p-6 relative z-10">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <p className="text-sm font-medium text-slate-600 mb-1">Proposta Comercial</p>
+                  <p className="text-3xl font-bold text-violet-700">{analyticsData.commercialProposal}</p>
+                  <p className="text-xs text-slate-500 mt-2">Em negociação</p>
+                </div>
+                <div className="p-3 rounded-xl bg-violet-100">
+                  <Building2 className="w-6 h-6 text-violet-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Em Andamento */}
           <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-white to-green-50/30 shadow-md hover:shadow-xl transition-all duration-300 group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-full blur-2xl group-hover:from-green-500/20 group-hover:to-emerald-500/20 transition-all duration-500" />
             <CardContent className="p-6 relative z-10">
@@ -606,6 +642,24 @@ export default function AnalyticsPage() {
             </CardContent>
           </Card>
 
+          {/* Pausados */}
+          <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-white to-orange-50/30 shadow-md hover:shadow-xl transition-all duration-300 group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-500/10 to-amber-500/10 rounded-full blur-2xl group-hover:from-orange-500/20 group-hover:to-amber-500/20 transition-all duration-500" />
+            <CardContent className="p-6 relative z-10">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <p className="text-sm font-medium text-slate-600 mb-1">Pausados</p>
+                  <p className="text-3xl font-bold text-orange-700">{analyticsData.onHold}</p>
+                  <p className="text-xs text-slate-500 mt-2">Temporariamente</p>
+                </div>
+                <div className="p-3 rounded-xl bg-orange-100">
+                  <Clock className="w-6 h-6 text-orange-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Atrasados */}
           <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-white to-red-50/30 shadow-md hover:shadow-xl transition-all duration-300 group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-red-500/10 to-orange-500/10 rounded-full blur-2xl group-hover:from-red-500/20 group-hover:to-orange-500/20 transition-all duration-500" />
             <CardContent className="p-6 relative z-10">
@@ -627,17 +681,35 @@ export default function AnalyticsPage() {
             </CardContent>
           </Card>
 
-          <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-white to-purple-50/30 shadow-md hover:shadow-xl transition-all duration-300 group">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-500/10 to-indigo-500/10 rounded-full blur-2xl group-hover:from-purple-500/20 group-hover:to-indigo-500/20 transition-all duration-500" />
+          {/* Concluídos */}
+          <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-white to-indigo-50/30 shadow-md hover:shadow-xl transition-all duration-300 group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-full blur-2xl group-hover:from-indigo-500/20 group-hover:to-purple-500/20 transition-all duration-500" />
             <CardContent className="p-6 relative z-10">
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <p className="text-sm font-medium text-slate-600 mb-1">Concluídos</p>
-                  <p className="text-3xl font-bold text-purple-700">{analyticsData.completed}</p>
-                  <p className="text-xs text-slate-500 mt-2">Sucesso no período</p>
+                  <p className="text-3xl font-bold text-indigo-700">{analyticsData.completed}</p>
+                  <p className="text-xs text-slate-500 mt-2">Finalizados</p>
                 </div>
-                <div className="p-3 rounded-xl bg-purple-100">
-                  <CheckCircle className="w-6 h-6 text-purple-600" />
+                <div className="p-3 rounded-xl bg-indigo-100">
+                  <CheckCircle className="w-6 h-6 text-indigo-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Cancelados */}
+          <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-white to-slate-50/30 shadow-md hover:shadow-xl transition-all duration-300 group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-slate-500/10 to-gray-500/10 rounded-full blur-2xl group-hover:from-slate-500/20 group-hover:to-gray-500/20 transition-all duration-500" />
+            <CardContent className="p-6 relative z-10">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <p className="text-sm font-medium text-slate-600 mb-1">Cancelados</p>
+                  <p className="text-3xl font-bold text-slate-700">{analyticsData.cancelled}</p>
+                  <p className="text-xs text-slate-500 mt-2">Descontinuados</p>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-100">
+                  <Activity className="w-6 h-6 text-slate-600" />
                 </div>
               </div>
             </CardContent>
@@ -756,50 +828,6 @@ export default function AnalyticsPage() {
             </CardContent>
           </Card>
         )}
-
-        {/* Resumo por Status (Grid de badges) */}
-        <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle>Resumo Detalhado por Status</CardTitle>
-            <CardDescription>Contagem completa de todos os status</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <p className="text-sm text-slate-600 mb-1">Planejamento</p>
-                <p className="text-2xl font-bold text-blue-700">{analyticsData.planning}</p>
-              </div>
-              <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
-                <p className="text-sm text-slate-600 mb-1">Proposta</p>
-                <p className="text-2xl font-bold text-purple-700">{analyticsData.commercialProposal}</p>
-              </div>
-              <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                <p className="text-sm text-slate-600 mb-1">Em Andamento</p>
-                <p className="text-2xl font-bold text-green-700">{analyticsData.inProgress}</p>
-              </div>
-              <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
-                <p className="text-sm text-slate-600 mb-1">Pausados</p>
-                <p className="text-2xl font-bold text-orange-700">{analyticsData.onHold}</p>
-              </div>
-              <div className="p-4 bg-red-50 rounded-lg border border-red-200">
-                <p className="text-sm text-slate-600 mb-1">Atrasados</p>
-                <p className="text-2xl font-bold text-red-700">{analyticsData.delayed}</p>
-              </div>
-              <div className="p-4 bg-indigo-50 rounded-lg border border-indigo-200">
-                <p className="text-sm text-slate-600 mb-1">Concluídos</p>
-                <p className="text-2xl font-bold text-indigo-700">{analyticsData.completed}</p>
-              </div>
-              <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
-                <p className="text-sm text-slate-600 mb-1">Cancelados</p>
-                <p className="text-2xl font-bold text-slate-700">{analyticsData.cancelled}</p>
-              </div>
-              <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border-2 border-blue-300">
-                <p className="text-sm text-slate-600 mb-1 font-semibold">TOTAL</p>
-                <p className="text-2xl font-bold text-blue-700">{analyticsData.totalProjects}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
       </div>
     </div>
