@@ -24,15 +24,18 @@ async function testTaskNotification(request: NextRequest) {
   try {
     const supabase = createClient()
     
-    // Obter taskId do body (POST) ou query (GET)
+    // Obter taskId e force do body (POST) ou query (GET)
     let taskId: string | null = null
+    let force: boolean = false
     
     if (request.method === 'POST') {
       const body = await request.json().catch(() => ({}))
       taskId = body.taskId || null
+      force = body.force === true || body.force === 'true'
     } else {
       const { searchParams } = new URL(request.url)
       taskId = searchParams.get('taskId')
+      force = searchParams.get('force') === 'true'
     }
     
     if (!taskId) {
@@ -41,8 +44,9 @@ async function testTaskNotification(request: NextRequest) {
           success: false, 
           error: 'taskId é obrigatório',
           usage: {
-            POST: 'POST /api/cron/deadline-monitor/test com body: { "taskId": "uuid-da-tarefa" }',
-            GET: 'GET /api/cron/deadline-monitor/test?taskId=uuid-da-tarefa'
+            POST: 'POST /api/cron/deadline-monitor/test com body: { "taskId": "uuid-da-tarefa", "force": true }',
+            GET: 'GET /api/cron/deadline-monitor/test?taskId=uuid-da-tarefa&force=true',
+            note: 'Use "force": true para testar tarefas fora do período de notificação (mais de 3 dias)'
           }
         },
         { status: 400 }
@@ -163,18 +167,27 @@ async function testTaskNotification(request: NextRequest) {
       notificationType = 'deadline_warning'
       notificationMessage = `Tarefa vence em ${daysUntilDeadline} dia(s)`
     } else {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Tarefa não está dentro do período de notificação',
-          info: {
-            daysUntilDeadline,
-            deadlineDate,
-            message: 'Notificações são enviadas apenas para tarefas que vencem em até 3 dias ou estão atrasadas'
-          }
-        },
-        { status: 400 }
-      )
+      // Tarefa fora do período normal
+      if (force) {
+        // Modo forçado: simular como se fosse aviso
+        notificationType = 'deadline_warning'
+        notificationMessage = `[TESTE FORÇADO] Tarefa vence em ${daysUntilDeadline} dia(s) (normalmente não notificaria)`
+        console.log(`⚠️ [Test] Modo FORÇADO ativado - tarefa está ${daysUntilDeadline} dias no futuro`)
+      } else {
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'Tarefa não está dentro do período de notificação',
+            info: {
+              daysUntilDeadline,
+              deadlineDate,
+              message: 'Notificações são enviadas apenas para tarefas que vencem em até 3 dias ou estão atrasadas',
+              tip: 'Use "force": true no body para testar mesmo assim'
+            }
+          },
+          { status: 400 }
+        )
+      }
     }
     
     console.log(`📬 [Test] Tipo de notificação: ${notificationType}`)
@@ -212,6 +225,7 @@ async function testTaskNotification(request: NextRequest) {
       return NextResponse.json({
         success: true,
         message: 'Notificação de teste enviada com sucesso',
+        forced: force && daysUntilDeadline > 3,
         details: {
           task: {
             id: task.id,
@@ -229,7 +243,8 @@ async function testTaskNotification(request: NextRequest) {
           notification: {
             type: notificationType,
             message: notificationMessage,
-            daysUntilDeadline
+            daysUntilDeadline,
+            forced: force && daysUntilDeadline > 3
           }
         }
       })
