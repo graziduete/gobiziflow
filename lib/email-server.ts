@@ -11,15 +11,26 @@ export interface EmailData {
 export async function sendEmail(emailData: EmailData): Promise<{ success: boolean; error?: string }> {
   try {
     // Proteção: não enviar emails em desenvolvimento ou se DISABLE_EMAILS estiver configurado
+    // EXCETO se ALLOW_EMAILS_IN_DEV=true (permite envio real em dev para testes)
     const isDevelopment = process.env.NODE_ENV === 'development'
     const disableEmails = process.env.DISABLE_EMAILS === 'true'
+    const allowEmailsInDev = process.env.ALLOW_EMAILS_IN_DEV === 'true'
     
-    if (isDevelopment || disableEmails) {
+    // Se estiver em dev mas ALLOW_EMAILS_IN_DEV=true, permite envio real
+    const shouldBlock = (isDevelopment || disableEmails) && !allowEmailsInDev
+    
+    if (shouldBlock) {
       console.log('⚠️ [EmailService] MODO DE TESTE - Email NÃO será enviado')
       console.log('📧 [EmailService] Para:', emailData.to)
       console.log('📧 [EmailService] Assunto:', emailData.subject)
       console.log('📧 [EmailService] HTML (primeiros 200 chars):', emailData.html.substring(0, Math.min(200, emailData.html.length)))
+      console.log('💡 [EmailService] Dica: Configure ALLOW_EMAILS_IN_DEV=true para enviar emails reais em desenvolvimento')
       return { success: true } // Retorna sucesso mas não envia
+    }
+    
+    if (isDevelopment && allowEmailsInDev) {
+      console.log('⚠️ [EmailService] MODO DESENVOLVIMENTO COM ENVIO REAL ATIVADO')
+      console.log('📧 [EmailService] Email SERÁ ENVIADO para:', emailData.to)
     }
     
     console.log('📧 [EmailService] Enviando email para:', emailData.to)
