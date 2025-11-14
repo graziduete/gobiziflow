@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Calendar, Search, Clock, TrendingUp, AlertTriangle, CheckCircle, FileText, RefreshCw, Wifi, WifiOff, Info, Filter } from "lucide-react";
+import { Calendar, Search, Clock, TrendingUp, TrendingDown, Minus, AlertTriangle, CheckCircle, FileText, RefreshCw, Wifi, WifiOff, Info, Filter } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { getMockSustentacaoData } from "@/lib/data/mock-sustentacao";
 import { SustentacaoFilters } from "./filters";
@@ -37,6 +37,7 @@ export function SustentacaoDashboard({
   const [chamados, setChamados] = useState<any[]>([]);
   const [metricas, setMetricas] = useState<any>(null);
   const [categorias, setCategorias] = useState<any[]>([]);
+  const [chamadosMesAnterior, setChamadosMesAnterior] = useState<any[]>([]); // Para comparação
   const [forceUpdate, setForceUpdate] = useState(0);
   const [loading, setLoading] = useState(true);
   const [hasConfig, setHasConfig] = useState<boolean | null>(null); // null = verificando, true = tem config, false = não tem
@@ -56,6 +57,14 @@ export function SustentacaoDashboard({
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategoria, setFilterCategoria] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
+
+  // Função para calcular mês anterior
+  const getMesAnterior = (mes: number, ano: number) => {
+    if (mes === 1) {
+      return { mes: 12, ano: ano - 1 }
+    }
+    return { mes: mes - 1, ano }
+  };
 
   useEffect(() => {
     loadSustentacaoData();
@@ -143,6 +152,23 @@ export function SustentacaoDashboard({
           metricas: data.metricas,
           primeirosChamados: data.chamados.slice(0, 3).map((c: any) => c.idEllevo)
         });
+        
+        // Buscar dados do mês anterior para comparação (não bloqueia a UI)
+        const mesAnterior = getMesAnterior(filters.mes, filters.ano);
+        fetch(apiEndpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ companyId, filters: mesAnterior })
+        })
+          .then(res => res.ok ? res.json() : null)
+          .then(dataAnterior => {
+            if (dataAnterior?.chamados) {
+              setChamadosMesAnterior(dataAnterior.chamados);
+              console.log('✅ Dados do mês anterior carregados para comparação');
+            }
+          })
+          .catch(err => console.log('⚠️ Não foi possível carregar mês anterior:', err));
+        
         return;
       } else {
         const errorData = await response.json();
@@ -207,30 +233,145 @@ export function SustentacaoDashboard({
     setFilters(newFilters);
   };
 
-  // Calcular categorias baseado nos chamados filtrados
-  const calcularCategorias = (chamadosList: any[]) => {
-    const categoriaCount: { [key: string]: number } = {};
+  // Definição de ordem fixa das categorias (por criticidade)
+  const ORDEM_CATEGORIAS = [
+    { 
+      nome: 'Bug', 
+      alias: ['Bug', 'Bugs'], 
+      cor: 'bg-red-500',
+      corTexto: 'text-red-600',
+      corFundo: 'from-red-50 to-red-100',
+      emoji: '🔴',
+      descricao: 'Problemas críticos que afetam funcionalidades'
+    },
+    { 
+      nome: 'Ajuste', 
+      alias: ['Ajuste'], 
+      cor: 'bg-yellow-500',
+      corTexto: 'text-yellow-600',
+      corFundo: 'from-yellow-50 to-yellow-100',
+      emoji: '🟡',
+      descricao: 'Ajustes e correções finas'
+    },
+    { 
+      nome: 'Falha Sistêmica', 
+      alias: ['Falha Sistêmica', 'Falha Sistemica', 'Falha Sistema'], // COM e SEM acento
+      cor: 'bg-purple-500',
+      corTexto: 'text-purple-600',
+      corFundo: 'from-purple-50 to-purple-100',
+      emoji: '🟣',
+      descricao: 'Falhas estruturais do sistema'
+    },
+    { 
+      nome: 'Solicitação', 
+      alias: ['Solicitação'], 
+      cor: 'bg-green-500',
+      corTexto: 'text-green-600',
+      corFundo: 'from-green-50 to-green-100',
+      emoji: '🟢',
+      descricao: 'Novas funcionalidades e melhorias'
+    },
+    { 
+      nome: 'Processo', 
+      alias: ['Processo'], 
+      cor: 'bg-blue-500',
+      corTexto: 'text-blue-600',
+      corFundo: 'from-blue-50 to-blue-100',
+      emoji: '🔵',
+      descricao: 'Mudanças de processo e fluxo'
+    }
+  ];
+
+  // Calcular variação entre mês atual e anterior
+  const calcularVariacao = (quantidadeAtual: number, quantidadeAnterior: number, tipoCategoria: 'problema' | 'neutro') => {
+    if (quantidadeAnterior === 0 && quantidadeAtual === 0) {
+      return null; // Ambos zero, sem variação relevante
+    }
     
+    if (quantidadeAnterior === 0 && quantidadeAtual > 0) {
+      return { 
+        percentual: 100, 
+        tendencia: 'up' as const, 
+        diferenca: quantidadeAtual,
+        novo: true 
+      };
+    }
+    
+    const diferenca = quantidadeAtual - quantidadeAnterior;
+    const percentual = Math.round((diferenca / quantidadeAnterior) * 100);
+    
+    let tendencia: 'up' | 'down' | 'stable' = 'stable';
+    if (diferenca > 0) tendencia = 'up';
+    else if (diferenca < 0) tendencia = 'down';
+    
+    // Determinar se é bom ou ruim baseado no tipo
+    let colorClass = 'text-gray-500';
+    if (tendencia !== 'stable') {
+      if (tipoCategoria === 'problema') {
+        // Bug, Ajuste, Falha: aumentar é ruim, diminuir é bom
+        colorClass = tendencia === 'up' ? 'text-red-600' : 'text-green-600';
+      } else {
+        // Solicitação, Processo: neutro (azul)
+        colorClass = 'text-blue-600';
+      }
+    }
+    
+    return {
+      percentual: Math.abs(percentual),
+      tendencia,
+      diferenca,
+      colorClass,
+      novo: false
+    };
+  };
+
+  // Calcular categorias baseado nos chamados filtrados COM ORDEM FIXA E COMPARAÇÃO
+  const calcularCategorias = (chamadosList: any[], chamadosMesAnteriorList: any[] = []) => {
+    // Contar chamados por categoria (mês atual)
+    const categoriaCount: { [key: string]: number } = {};
     chamadosList.forEach(chamado => {
       const cat = chamado.categoria;
       categoriaCount[cat] = (categoriaCount[cat] || 0) + 1;
     });
     
-    const cores: { [key: string]: string } = {
-      'Bug': 'bg-red-500',
-      'Bugs': 'bg-red-500',
-      'Processo': 'bg-blue-500',
-      'Solicitação': 'bg-green-500',
-      'Ajuste': 'bg-yellow-500',
-      'Falha Sistêmica': 'bg-purple-500',
-      'Falha Sistema': 'bg-purple-500'
-    };
+    // Contar chamados por categoria (mês anterior)
+    const categoriaCountAnterior: { [key: string]: number } = {};
+    chamadosMesAnteriorList.forEach(chamado => {
+      const cat = chamado.categoria;
+      categoriaCountAnterior[cat] = (categoriaCountAnterior[cat] || 0) + 1;
+    });
     
-    return Object.entries(categoriaCount).map(([nome, quantidade]) => ({
-      nome,
-      quantidade,
-      cor: cores[nome] || 'bg-gray-500'
-    }));
+    // Retornar na ordem fixa definida com comparação
+    return ORDEM_CATEGORIAS.map(catConfig => {
+      // Somar quantidade de todos os alias (mês atual)
+      const quantidade = catConfig.alias.reduce((total, alias) => {
+        return total + (categoriaCount[alias] || 0);
+      }, 0);
+      
+      // Somar quantidade de todos os alias (mês anterior)
+      const quantidadeAnterior = catConfig.alias.reduce((total, alias) => {
+        return total + (categoriaCountAnterior[alias] || 0);
+      }, 0);
+      
+      // Determinar se é problema ou neutro
+      const tipoCategoria = ['Bug', 'Ajuste', 'Falha Sistêmica'].includes(catConfig.nome) ? 'problema' : 'neutro';
+      
+      // Calcular variação
+      const variacao = calcularVariacao(quantidade, quantidadeAnterior, tipoCategoria);
+      
+      return {
+        nome: catConfig.nome,
+        quantidade,
+        quantidadeAnterior,
+        cor: catConfig.cor,
+        corTexto: catConfig.corTexto,
+        corFundo: catConfig.corFundo,
+        emoji: catConfig.emoji,
+        descricao: catConfig.descricao,
+        temChamados: quantidade > 0,
+        variacao
+      };
+    });
   };
 
   // Filtrar chamados baseado nos filtros da listagem
@@ -245,13 +386,13 @@ export function SustentacaoDashboard({
 
     // Filtro por categoria
     if (filterCategoria !== 'all') {
-      // Mapear valores do filtro para valores reais
+      // Mapear valores do filtro para valores reais (incluindo com/sem acento)
       const categoriaMap: { [key: string]: string[] } = {
         'Bugs': ['Bug', 'Bugs'],
         'Processo': ['Processo'],
-        'Solicitação': ['Solicitação'],
+        'Solicitação': ['Solicitação', 'Solicitacao'], // COM e SEM acento
         'Ajuste': ['Ajuste'],
-        'Falha Sistêmica': ['Falha Sistêmica', 'Falha Sistema']
+        'Falha Sistêmica': ['Falha Sistêmica', 'Falha Sistemica', 'Falha Sistema'] // COM e SEM acento
       };
       
       const categoriasValidas = categoriaMap[filterCategoria] || [filterCategoria];
@@ -599,35 +740,179 @@ export function SustentacaoDashboard({
         </Card>
       </div>
 
-      {/* Chamados por categoria - design modernizado */}
+      {/* Chamados por categoria - design modernizado COM ORDEM FIXA */}
       <Card className="bg-white/80 backdrop-blur-sm border border-white/20 shadow-xl">
         <CardHeader className="pb-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg shadow-lg">
-              <FileText className="h-5 w-5 text-white" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg shadow-lg">
+                <FileText className="h-5 w-5 text-white" />
+              </div>
+              <CardTitle className="text-xl font-bold bg-gradient-to-r from-slate-900 via-indigo-900 to-purple-900 bg-clip-text text-transparent">
+                Chamados por Categoria
+              </CardTitle>
             </div>
-            <CardTitle className="text-xl font-bold bg-gradient-to-r from-slate-900 via-indigo-900 to-purple-900 bg-clip-text text-transparent">
-              Chamados por Categoria
-            </CardTitle>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <div className="p-2 hover:bg-slate-100 rounded-lg transition-colors cursor-help">
+                    <Info className="h-4 w-4 text-slate-400" />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="left" className="max-w-xs bg-slate-800 border-slate-700">
+                  <p className="text-sm text-white">
+                    <strong>Ordem por criticidade:</strong> Bug → Ajuste → Falha Sistêmica → Solicitação → Processo
+                  </p>
+                  <p className="text-xs text-slate-300 mt-1">
+                    Clique em uma categoria para filtrar a lista abaixo
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-5 gap-6">
-            {calcularCategorias(filteredChamados).map((categoria, index) => (
-              <div key={index} className="text-center p-6 bg-gradient-to-br from-slate-50/80 to-blue-50/50 rounded-xl border border-slate-200/60 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer">
-                <div className={`w-6 h-6 rounded-full mx-auto mb-3 shadow-sm ring-2 ring-white ${categoria.cor}`}></div>
-                <p className="text-sm font-semibold text-slate-700 mb-2">{categoria.nome}</p>
-                <p className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                  {categoria.quantidade}
-                </p>
-              </div>
+            {calcularCategorias(filteredChamados, chamadosMesAnterior).map((categoria, index) => (
+              <TooltipProvider key={index}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div 
+                      onClick={() => {
+                        if (categoria.temChamados) {
+                          const categoriaNormalizada = categoria.nome === 'Bug' ? 'Bugs' : categoria.nome;
+                          
+                          // Toggle: se já está filtrado nessa categoria, volta para "all"
+                          if (filterCategoria === categoriaNormalizada) {
+                            setFilterCategoria('all');
+                          } else {
+                            setFilterCategoria(categoriaNormalizada);
+                            // Scroll suave até a lista
+                            setTimeout(() => {
+                              const listaElement = document.querySelector('[data-lista-chamados]');
+                              if (listaElement) {
+                                listaElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                              }
+                            }, 100);
+                          }
+                        }
+                      }}
+                      className={`text-center p-6 rounded-xl transition-all duration-300 relative ${
+                        categoria.temChamados 
+                          ? `bg-white/80 backdrop-blur-sm hover:shadow-lg hover:scale-105 cursor-pointer ${
+                              // Borda colorida quando ATIVO
+                              (filterCategoria === categoria.nome || (categoria.nome === 'Bug' && filterCategoria === 'Bugs'))
+                                ? `border-3 ${categoria.cor.replace('bg-', 'border-')} shadow-xl scale-105`
+                                : `border-2 ${categoria.cor.replace('bg-', 'border-')}/30 hover:${categoria.cor.replace('bg-', 'border-')}/60`
+                            }` 
+                          : 'bg-slate-50/40 border-2 border-slate-100/50 opacity-50 cursor-default'
+                      }`}
+                    >
+                      <div className={`w-10 h-10 rounded-full mx-auto mb-3 flex items-center justify-center text-xl border-2 ${
+                        categoria.temChamados 
+                          ? `${categoria.cor.replace('bg-', 'border-')} bg-white` 
+                          : 'bg-slate-100 border-slate-300'
+                      }`}>
+                        {categoria.temChamados && <span>{categoria.emoji}</span>}
+                      </div>
+                      <p className={`text-sm font-semibold mb-2 ${
+                        categoria.temChamados ? 'text-slate-700' : 'text-slate-400'
+                      }`}>
+                        {categoria.nome}
+                      </p>
+                      <p className={`text-2xl font-bold ${
+                        categoria.temChamados 
+                          ? 'text-slate-700' 
+                          : 'text-slate-300'
+                      }`}>
+                        {categoria.quantidade}
+                      </p>
+                      
+                      {/* Indicador de variação vs mês anterior */}
+                      {categoria.variacao && !categoria.variacao.novo && (
+                        <div className={`flex items-center justify-center gap-1 text-xs font-semibold mt-1 ${categoria.variacao.colorClass}`}>
+                          {categoria.variacao.tendencia === 'up' && <TrendingUp className="w-3 h-3" />}
+                          {categoria.variacao.tendencia === 'down' && <TrendingDown className="w-3 h-3" />}
+                          {categoria.variacao.tendencia === 'stable' && <Minus className="w-3 h-3" />}
+                          <span>
+                            {categoria.variacao.tendencia === 'up' ? '+' : ''}
+                            {categoria.variacao.tendencia === 'down' ? '-' : ''}
+                            {categoria.variacao.percentual}%
+                          </span>
+                        </div>
+                      )}
+                      
+                      {/* Badge "Novo" para primeira aparição */}
+                      {categoria.variacao?.novo && (
+                        <div className="flex items-center justify-center gap-1 text-xs font-semibold mt-1 text-blue-600">
+                          <span className="inline-flex items-center gap-1">
+                            ✨ Novo
+                          </span>
+                        </div>
+                      )}
+                      
+                      {categoria.temChamados && (
+                        <p className="text-xs mt-2">
+                          {(filterCategoria === categoria.nome || (categoria.nome === 'Bug' && filterCategoria === 'Bugs')) ? (
+                            <span className="font-bold text-slate-700">
+                              ✓ Filtrado - Clique para mostrar todos
+                            </span>
+                          ) : (
+                            <span className="text-slate-500">
+                              Clique para filtrar
+                            </span>
+                          )}
+                        </p>
+                      )}
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-slate-800 border-slate-700">
+                    <div className="text-sm">
+                      <p className="font-semibold text-white flex items-center gap-1">
+                        {categoria.emoji} {categoria.nome}
+                      </p>
+                      <p className="text-slate-300 text-xs mt-1">{categoria.descricao}</p>
+                      {categoria.temChamados ? (
+                        <>
+                          <p className="text-xs text-green-400 mt-1 font-medium">
+                            ✓ {categoria.quantidade} chamado{categoria.quantidade !== 1 ? 's' : ''} neste período
+                          </p>
+                          {categoria.variacao && !categoria.variacao.novo && (
+                            <p className={`text-xs mt-1 font-medium ${categoria.variacao.colorClass.replace('text-', 'text-')}`}>
+                              {categoria.variacao.tendencia === 'up' ? '↗' : categoria.variacao.tendencia === 'down' ? '↘' : '→'} 
+                              {' '}{categoria.variacao.tendencia === 'up' ? '+' : categoria.variacao.tendencia === 'down' ? '-' : ''}
+                              {categoria.variacao.percentual}% vs mês anterior ({categoria.quantidadeAnterior} chamados)
+                            </p>
+                          )}
+                          {categoria.variacao?.novo && (
+                            <p className="text-xs mt-1 font-medium text-blue-400">
+                              ✨ Primeira vez aparecendo (mês anterior: 0)
+                            </p>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-xs text-slate-400 mt-1">
+                            Nenhum chamado neste período 🎉
+                          </p>
+                          {categoria.quantidadeAnterior > 0 && (
+                            <p className="text-xs text-green-400 mt-1 font-medium">
+                              ✓ Melhoria! Mês anterior: {categoria.quantidadeAnterior} chamados
+                            </p>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             ))}
           </div>
         </CardContent>
       </Card>
 
       {/* Lista de chamados - design modernizado */}
-      <Card className="bg-white/80 backdrop-blur-sm border border-white/20 shadow-xl">
+      <Card className="bg-white/80 backdrop-blur-sm border border-white/20 shadow-xl" data-lista-chamados>
         <CardHeader className="pb-6">
           <div className="flex items-center gap-3 mb-6">
             <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg shadow-lg">
@@ -653,11 +938,11 @@ export function SustentacaoDashboard({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas as categorias</SelectItem>
-                <SelectItem value="Bugs">Bug</SelectItem>
-                <SelectItem value="Processo">Processo</SelectItem>
-                <SelectItem value="Solicitação">Solicitação</SelectItem>
-                <SelectItem value="Ajuste">Ajuste</SelectItem>
-                <SelectItem value="Falha Sistêmica">Falha Sistêmica</SelectItem>
+                <SelectItem value="Bugs">🔴 Bug</SelectItem>
+                <SelectItem value="Ajuste">🟡 Ajuste</SelectItem>
+                <SelectItem value="Falha Sistêmica">🟣 Falha Sistêmica</SelectItem>
+                <SelectItem value="Solicitação">🟢 Solicitação</SelectItem>
+                <SelectItem value="Processo">🔵 Processo</SelectItem>
               </SelectContent>
             </Select>
             <Select value={filterStatus} onValueChange={setFilterStatus}>
