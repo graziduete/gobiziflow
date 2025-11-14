@@ -392,6 +392,9 @@ export class ResponsavelNotificationService {
       }
 
       // Enviar email
+      console.log(`📧 [ResponsavelNotification] Tentando enviar email para: ${email}`)
+      console.log(`📧 [ResponsavelNotification] Assunto: ${emailTemplate.subject}`)
+      
       const emailResult = await sendEmail({
         to: email,
         subject: emailTemplate.subject,
@@ -399,11 +402,14 @@ export class ResponsavelNotificationService {
         text: emailTemplate.text
       })
 
+      console.log(`📧 [ResponsavelNotification] Resultado do envio:`, emailResult)
+
       if (!emailResult.success) {
+        console.error(`❌ [ResponsavelNotification] Erro ao enviar email:`, emailResult.error)
         throw new Error(emailResult.error || 'Falha ao enviar email')
       }
 
-      console.log(`📧 Email enviado para ${email}: ${emailTemplate.subject}`)
+      console.log(`✅ [ResponsavelNotification] Email enviado com sucesso para ${email}: ${emailTemplate.subject}`)
 
       // Atualizar status do log para 'sent' usando o logId
       console.log('🔔 [ResponsavelNotification] Tentando atualizar log com ID:', logId)
