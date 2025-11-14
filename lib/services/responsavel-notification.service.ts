@@ -9,23 +9,59 @@ export class ResponsavelNotificationService {
   /**
    * Formata data considerando timezone do Brasil (usa função utilitária corrigida)
    */
-  private formatDateBrazil(dateString: string | undefined): string {
-    if (!dateString) {
-      console.warn('⚠️ formatDateBrazil: dateString é undefined ou vazio')
-      return 'Não definida'
+  private formatDateBrazil(dateString: string | undefined | null): string {
+    if (!dateString || dateString === 'null' || dateString === 'undefined') {
+      console.warn('⚠️ formatDateBrazil: dateString é undefined, null ou vazio')
+      return 'Data não informada'
     }
     
-    console.log('📅 formatDateBrazil: Recebido:', dateString)
+    console.log('📅 formatDateBrazil: Recebido:', dateString, 'Tipo:', typeof dateString)
     
-    const formatted = formatDateUtil(dateString)
-    
-    if (!formatted) {
-      console.error('❌ formatDateBrazil: Data inválida:', dateString)
-      return 'Data inválida'
+    try {
+      const formatted = formatDateUtil(dateString)
+      console.log('📅 formatDateBrazil: Resultado do formatDateUtil:', formatted, 'Tipo:', typeof formatted, 'Vazio?', !formatted || formatted.trim() === '')
+      
+      if (!formatted || formatted.trim() === '') {
+        console.error('❌ formatDateBrazil: Data inválida ou vazia após formatação. Tentando formatação manual...')
+        // Tentar formatação manual como fallback
+        try {
+          const date = new Date(dateString + 'T00:00:00Z')
+          if (!isNaN(date.getTime())) {
+            const manualFormatted = date.toLocaleDateString('pt-BR', { 
+              timeZone: 'UTC',
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit'
+            })
+            console.log('✅ formatDateBrazil: Formatação manual bem-sucedida:', manualFormatted)
+            return manualFormatted
+          }
+        } catch (manualError) {
+          console.error('❌ formatDateBrazil: Erro na formatação manual:', manualError)
+        }
+        return 'Data não informada'
+      }
+      
+      console.log('✅ formatDateBrazil: Formatado:', formatted)
+      return formatted
+    } catch (error) {
+      console.error('❌ formatDateBrazil: Erro ao formatar data:', error, 'Data recebida:', dateString)
+      // Tentar formatação manual como último recurso
+      try {
+        const date = new Date(dateString + 'T00:00:00Z')
+        if (!isNaN(date.getTime())) {
+          return date.toLocaleDateString('pt-BR', { 
+            timeZone: 'UTC',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          })
+        }
+      } catch {
+        // Ignorar
+      }
+      return 'Data não informada'
     }
-    
-    console.log('✅ formatDateBrazil: Formatado:', formatted)
-    return formatted
   }
 
   /**
@@ -70,29 +106,36 @@ export class ResponsavelNotificationService {
     message: string,
     projectId?: string,
     taskId?: string,
-    taskDetails?: Array<{ name: string; start_date?: string; end_date?: string }>
+    taskDetails?: Array<{ name: string; start_date?: string; end_date?: string }>,
+    formattedDate?: string, // Data já formatada para passar diretamente aos templates
+    skipDuplicateCheck?: boolean // Ignorar verificação de duplicatas (útil para testes)
   ) {
     try {
-      console.log('🔔 [ResponsavelNotification] Iniciando notificação:', { responsavelId, type, title })
+      console.log('🔔 [ResponsavelNotification] Iniciando notificação:', { responsavelId, type, title, skipDuplicateCheck })
       
       // Verificar se já existe uma notificação similar recente (últimas 2 horas)
-      const twoHoursAgo = new Date()
-      twoHoursAgo.setHours(twoHoursAgo.getHours() - 2)
+      // EXCETO se skipDuplicateCheck=true (para testes)
+      if (!skipDuplicateCheck) {
+        const twoHoursAgo = new Date()
+        twoHoursAgo.setHours(twoHoursAgo.getHours() - 2)
 
-      const { data: existingNotification } = await this.supabase
-        .from('notifications')
-        .select('id')
-        .eq('responsavel_id', responsavelId)
-        .eq('type', type)
-        .eq('title', title)
-        .eq('project_id', projectId || null)
-        .eq('task_id', taskId || null)
-        .gte('created_at', twoHoursAgo.toISOString())
-        .limit(1)
+        const { data: existingNotification } = await this.supabase
+          .from('notifications')
+          .select('id')
+          .eq('responsavel_id', responsavelId)
+          .eq('type', type)
+          .eq('title', title)
+          .eq('project_id', projectId || null)
+          .eq('task_id', taskId || null)
+          .gte('created_at', twoHoursAgo.toISOString())
+          .limit(1)
 
-      if (existingNotification && existingNotification.length > 0) {
-        console.log(`🔔 [ResponsavelNotification] Notificação duplicada evitada para responsável ${responsavelId} - tipo: ${type}`)
-        return { success: true, message: 'Notificação duplicada evitada' }
+        if (existingNotification && existingNotification.length > 0) {
+          console.log(`🔔 [ResponsavelNotification] Notificação duplicada evitada para responsável ${responsavelId} - tipo: ${type}`)
+          return { success: true, message: 'Notificação duplicada evitada' }
+        }
+      } else {
+        console.log(`🔔 [ResponsavelNotification] Verificação de duplicatas IGNORADA (modo teste)`)
       }
       
       const { isRegistered, userId } = await this.isResponsavelRegisteredUser(responsavelId)
@@ -159,7 +202,8 @@ export class ResponsavelNotificationService {
         message,
         projectId,
         taskId,
-        taskDetails
+        taskDetails,
+        formattedDate
       )
 
       return { success: true, isRegistered }
@@ -180,7 +224,8 @@ export class ResponsavelNotificationService {
     message: string,
     projectId?: string,
     taskId?: string,
-    taskDetails?: Array<{ name: string; start_date?: string; end_date?: string }>
+    taskDetails?: Array<{ name: string; start_date?: string; end_date?: string }>,
+    formattedDate?: string // Data já formatada para passar diretamente aos templates
   ) {
     // Declarar logId no escopo da função
     let logId: string | null = null
@@ -347,22 +392,37 @@ export class ResponsavelNotificationService {
         case 'deadline_warning':
           const warningTaskMatch = message.match(/"([^"]+)"/)
           const warningTaskName = warningTaskMatch ? warningTaskMatch[1] : 'Tarefa'
-          const warningDateMatch = message.match(/\(([^)]+)\)/)
-          const warningDate = warningDateMatch ? warningDateMatch[1] : 'Data não informada'
+          // SEMPRE usar formattedDate se foi passado, nunca extrair da mensagem
+          // Se formattedDate não for válido, usar "Data não informada"
+          console.log(`📅 [EmailTemplate] deadline_warning - formattedDate recebido:`, formattedDate, 'Tipo:', typeof formattedDate, 'Vazio?', !formattedDate || formattedDate.trim() === '')
+          let warningDate = formattedDate
+          if (!warningDate || warningDate === 'Data não informada' || warningDate === 'Data inválida' || (typeof warningDate === 'string' && warningDate.trim() === '')) {
+            console.warn(`⚠️ [EmailTemplate] deadline_warning - formattedDate inválido, usando "Data não informada"`)
+            warningDate = 'Data não informada'
+          }
+          console.log(`📅 [EmailTemplate] deadline_warning - Usando warningDate: "${warningDate}"`)
           emailTemplate = emailTemplates.deadlineWarning(warningTaskName, warningDate, projectName)
           break
         case 'deadline_urgent':
           const urgentTaskMatch = message.match(/"([^"]+)"/)
           const urgentTaskName = urgentTaskMatch ? urgentTaskMatch[1] : 'Tarefa'
-          const urgentDateMatch = message.match(/\(([^)]+)\)/)
-          const urgentDate = urgentDateMatch ? urgentDateMatch[1] : 'Data não informada'
+          // SEMPRE usar formattedDate se foi passado, nunca extrair da mensagem
+          let urgentDate = formattedDate
+          if (!urgentDate || urgentDate === 'Data não informada' || urgentDate === 'Data inválida' || urgentDate.trim() === '') {
+            urgentDate = 'Data não informada'
+          }
+          console.log(`📅 [EmailTemplate] deadline_urgent - formattedDate recebido: "${formattedDate}", usando: "${urgentDate}"`)
           emailTemplate = emailTemplates.deadlineUrgent(urgentTaskName, urgentDate, projectName)
           break
         case 'task_overdue':
           const overdueTaskMatch = message.match(/"([^"]+)"/)
           const overdueTaskName = overdueTaskMatch ? overdueTaskMatch[1] : 'Tarefa'
-          const overdueDateMatch = message.match(/Data de vencimento: ([^.]+)\./)
-          const overdueDate = overdueDateMatch ? overdueDateMatch[1] : 'Data não informada'
+          // SEMPRE usar formattedDate se foi passado, nunca extrair da mensagem
+          let overdueDate = formattedDate
+          if (!overdueDate || overdueDate === 'Data não informada' || overdueDate === 'Data inválida' || overdueDate.trim() === '') {
+            overdueDate = 'Data não informada'
+          }
+          console.log(`📅 [EmailTemplate] task_overdue - formattedDate recebido: "${formattedDate}", usando: "${overdueDate}"`)
           emailTemplate = emailTemplates.taskOverdue(overdueTaskName, overdueDate, projectName)
           break
         default:
@@ -375,6 +435,9 @@ export class ResponsavelNotificationService {
       }
 
       // Enviar email
+      console.log(`📧 [ResponsavelNotification] Tentando enviar email para: ${email}`)
+      console.log(`📧 [ResponsavelNotification] Assunto: ${emailTemplate.subject}`)
+      
       const emailResult = await sendEmail({
         to: email,
         subject: emailTemplate.subject,
@@ -382,11 +445,14 @@ export class ResponsavelNotificationService {
         text: emailTemplate.text
       })
 
+      console.log(`📧 [ResponsavelNotification] Resultado do envio:`, emailResult)
+
       if (!emailResult.success) {
+        console.error(`❌ [ResponsavelNotification] Erro ao enviar email:`, emailResult.error)
         throw new Error(emailResult.error || 'Falha ao enviar email')
       }
 
-      console.log(`📧 Email enviado para ${email}: ${emailTemplate.subject}`)
+      console.log(`✅ [ResponsavelNotification] Email enviado com sucesso para ${email}: ${emailTemplate.subject}`)
 
       // Atualizar status do log para 'sent' usando o logId
       console.log('🔔 [ResponsavelNotification] Tentando atualizar log com ID:', logId)
@@ -454,7 +520,7 @@ export class ResponsavelNotificationService {
   /**
    * Notifica sobre prazo próximo (3 dias antes)
    */
-  async notifyDeadlineWarning(responsavelId: string, taskName: string, endDate: string, projectId: string, taskId?: string) {
+  async notifyDeadlineWarning(responsavelId: string, taskName: string, endDate: string, projectId: string, taskId?: string, skipDuplicateCheck?: boolean) {
     const responsavel = await this.getResponsavelById(responsavelId)
     if (!responsavel) return
 
@@ -467,16 +533,45 @@ export class ResponsavelNotificationService {
 
     const projectName = project?.name || 'Projeto'
 
+    // Formatar data antes de passar para a notificação
+    let formattedDate = this.formatDateBrazil(endDate)
+    console.log(`📅 [notifyDeadlineWarning] Após formatDateBrazil - endDate: ${endDate}, formattedDate: "${formattedDate}"`)
+    
+    // Se a formatação falhou, tentar formatar manualmente
+    if (!formattedDate || formattedDate === 'Data não informada' || (typeof formattedDate === 'string' && formattedDate.trim() === '')) {
+      console.log(`⚠️ [notifyDeadlineWarning] Formatação falhou, tentando formatação manual...`)
+      try {
+        const date = new Date(endDate + 'T00:00:00Z')
+        if (!isNaN(date.getTime())) {
+          formattedDate = date.toLocaleDateString('pt-BR', { 
+            timeZone: 'UTC',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          })
+          console.log(`✅ [notifyDeadlineWarning] Formatação manual bem-sucedida: "${formattedDate}"`)
+        } else {
+          console.error(`❌ [notifyDeadlineWarning] Data inválida após new Date: ${endDate}`)
+          formattedDate = 'Data não informada'
+        }
+      } catch (error) {
+        console.error(`❌ [notifyDeadlineWarning] Erro na formatação manual:`, error)
+        formattedDate = 'Data não informada'
+      }
+    }
+    
+    console.log(`📅 [notifyDeadlineWarning] Data original: ${endDate}, formatada final: "${formattedDate}"`)
+    
     const title = `⏰ Tarefas sob sua responsabilidade vencem em breve`
-    const message = `Olá ${responsavel.nome}!\n\nA tarefa "${taskName}" do projeto "${projectName}" vence em ${this.formatDateBrazil(endDate)}.\n\nPor favor, verifique o status e tome as ações necessárias.`
+    const message = `Olá ${responsavel.nome}!\n\nA tarefa "${taskName}" do projeto "${projectName}" vence em ${formattedDate}.\n\nPor favor, verifique o status e tome as ações necessárias.`
 
-    return await this.notifyResponsavel(responsavelId, 'deadline_warning', title, message, projectId, taskId)
+    return await this.notifyResponsavel(responsavelId, 'deadline_warning', title, message, projectId, taskId, undefined, formattedDate, skipDuplicateCheck)
   }
 
   /**
    * Notifica sobre prazo urgente (1 dia antes)
    */
-  async notifyDeadlineUrgent(responsavelId: string, taskName: string, endDate: string, projectId: string, taskId?: string) {
+  async notifyDeadlineUrgent(responsavelId: string, taskName: string, endDate: string, projectId: string, taskId?: string, skipDuplicateCheck?: boolean) {
     const responsavel = await this.getResponsavelById(responsavelId)
     if (!responsavel) return
 
@@ -489,16 +584,38 @@ export class ResponsavelNotificationService {
 
     const projectName = project?.name || 'Projeto'
 
+    // Formatar data antes de passar para a notificação
+    let formattedDate = this.formatDateBrazil(endDate)
+    
+    // Se a formatação falhou, tentar formatar manualmente
+    if (!formattedDate || formattedDate === 'Data não informada' || formattedDate.trim() === '') {
+      try {
+        const date = new Date(endDate + 'T00:00:00Z')
+        if (!isNaN(date.getTime())) {
+          formattedDate = date.toLocaleDateString('pt-BR', { 
+            timeZone: 'UTC',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          })
+        } else {
+          formattedDate = 'Data não informada'
+        }
+      } catch {
+        formattedDate = 'Data não informada'
+      }
+    }
+    
     const title = `🚨 Tarefas sob sua responsabilidade vencem amanhã`
-    const message = `Olá ${responsavel.nome}!\n\nA tarefa "${taskName}" do projeto "${projectName}" vence amanhã (${this.formatDateBrazil(endDate)}).\n\nAção imediata necessária!`
+    const message = `Olá ${responsavel.nome}!\n\nA tarefa "${taskName}" do projeto "${projectName}" vence amanhã (${formattedDate}).\n\nAção imediata necessária!`
 
-    return await this.notifyResponsavel(responsavelId, 'deadline_urgent', title, message, projectId, taskId)
+    return await this.notifyResponsavel(responsavelId, 'deadline_urgent', title, message, projectId, taskId, undefined, formattedDate, skipDuplicateCheck)
   }
 
   /**
    * Notifica sobre tarefa atrasada
    */
-  async notifyTaskOverdue(responsavelId: string, taskName: string, endDate: string, projectId: string, taskId?: string) {
+  async notifyTaskOverdue(responsavelId: string, taskName: string, endDate: string, projectId: string, taskId?: string, skipDuplicateCheck?: boolean) {
     const responsavel = await this.getResponsavelById(responsavelId)
     if (!responsavel) return
 
@@ -511,10 +628,32 @@ export class ResponsavelNotificationService {
 
     const projectName = project?.name || 'Projeto'
 
+    // Formatar data antes de passar para a notificação
+    let formattedDate = this.formatDateBrazil(endDate)
+    
+    // Se a formatação falhou, tentar formatar manualmente
+    if (!formattedDate || formattedDate === 'Data não informada' || formattedDate.trim() === '') {
+      try {
+        const date = new Date(endDate + 'T00:00:00Z')
+        if (!isNaN(date.getTime())) {
+          formattedDate = date.toLocaleDateString('pt-BR', { 
+            timeZone: 'UTC',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          })
+        } else {
+          formattedDate = 'Data não informada'
+        }
+      } catch {
+        formattedDate = 'Data não informada'
+      }
+    }
+    
     const title = `❌ Tarefa Atrasada`
-    const message = `Olá ${responsavel.nome}!\n\nA tarefa "${taskName}" do projeto "${projectName}" está atrasada desde ${this.formatDateBrazil(endDate)}.\n\nStatus foi alterado automaticamente para "Atrasada".`
+    const message = `Olá ${responsavel.nome}!\n\nA tarefa "${taskName}" do projeto "${projectName}" está atrasada desde ${formattedDate}.\n\nStatus foi alterado automaticamente para "Atrasada".`
 
-    return await this.notifyResponsavel(responsavelId, 'task_overdue', title, message, projectId, taskId)
+    return await this.notifyResponsavel(responsavelId, 'task_overdue', title, message, projectId, taskId, undefined, formattedDate, skipDuplicateCheck)
   }
 
   /**

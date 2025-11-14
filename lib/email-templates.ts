@@ -217,113 +217,196 @@ export const emailTemplates = {
   }),
 
   deadlineWarning: (taskName: string, endDate: string, projectName: string): EmailTemplate => {
-    // Função para formatar data com timezone do Brasil
+    // Função para formatar data com timezone do Brasil (mesma lógica da função utilitária)
     const formatDateBrazil = (dateString: string): string => {
-      if (!dateString) return 'Não definida'
+      console.log('📅 [EmailTemplate deadlineWarning] Recebido endDate:', dateString, 'Tipo:', typeof dateString)
+      
+      if (!dateString || dateString === 'Data não informada' || dateString === 'Data inválida' || dateString.trim() === '') {
+        console.warn('⚠️ [EmailTemplate deadlineWarning] Data inválida ou vazia:', dateString)
+        return 'Data não informada'
+      }
+      
+      // Se já está formatada (contém /), retornar como está
+      if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateString.trim())) {
+        console.log('✅ [EmailTemplate deadlineWarning] Data já formatada, usando como está:', dateString)
+        return dateString.trim()
+      }
       
       try {
-        const date = new Date(dateString)
-        
-        // Verificar se a data é válida
-        if (isNaN(date.getTime())) {
-          console.error('Data inválida no template:', dateString)
-          return 'Data inválida'
+        // Se a data está no formato YYYY-MM-DD (sem hora), interpretar como UTC
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateString.trim())) {
+          const dateUTC = new Date(dateString.trim() + 'T00:00:00Z')
+          
+          if (isNaN(dateUTC.getTime())) {
+            console.error('❌ [EmailTemplate deadlineWarning] Data UTC inválida:', dateString)
+            return 'Data não informada'
+          }
+          
+          // Formatar usando o timezone UTC para evitar conversão automática
+          const formatted = new Intl.DateTimeFormat('pt-BR', { 
+            timeZone: 'UTC',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          }).format(dateUTC)
+          
+          console.log('✅ [EmailTemplate deadlineWarning] Data formatada (YYYY-MM-DD):', formatted)
+          return formatted
         }
         
+        // Para outros formatos de data (com hora/timestamp)
+        const date = new Date(dateString)
+        
+        if (isNaN(date.getTime())) {
+          console.error('❌ [EmailTemplate deadlineWarning] Data inválida após new Date:', dateString)
+          return 'Data não informada'
+        }
+        
+        // Ajustar para timezone do Brasil (UTC-3)
         const brazilOffset = -3 * 60 // UTC-3 em minutos
         const utc = date.getTime() + (date.getTimezoneOffset() * 60000)
         const brazilTime = new Date(utc + (brazilOffset * 60000))
-        return brazilTime.toLocaleDateString('pt-BR')
+        
+        const formatted = brazilTime.toLocaleDateString('pt-BR')
+        console.log('✅ [EmailTemplate deadlineWarning] Data formatada (outro formato):', formatted)
+        return formatted
       } catch (error) {
-        console.error('Erro ao formatar data:', error)
-        return 'Data inválida'
+        console.error('❌ [EmailTemplate deadlineWarning] Erro ao formatar data:', error, 'Data recebida:', dateString)
+        return 'Data não informada'
       }
     }
+
+    const formattedDate = formatDateBrazil(endDate)
+    console.log('📅 [EmailTemplate deadlineWarning] Data final formatada:', formattedDate)
 
     return {
       subject: `⚠️ Prazo Próximo - ${taskName}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #ffc107;">⚠️ Prazo Próximo</h2>
-          <p>A tarefa "${taskName}" no projeto "${projectName}" vence em breve (${formatDateBrazil(endDate)}).</p>
+          <p>A tarefa "${taskName}" no projeto "${projectName}" vence em breve (${formattedDate}).</p>
           <p>Por favor, verifique o status da tarefa no sistema.</p>
         </div>
       `,
-      text: `⚠️ Prazo Próximo\n\nA tarefa "${taskName}" no projeto "${projectName}" vence em breve (${formatDateBrazil(endDate)}).\n\nPor favor, verifique o status da tarefa no sistema.`
+      text: `⚠️ Prazo Próximo\n\nA tarefa "${taskName}" no projeto "${projectName}" vence em breve (${formattedDate}).\n\nPor favor, verifique o status da tarefa no sistema.`
     }
   },
 
   deadlineUrgent: (taskName: string, endDate: string, projectName: string): EmailTemplate => {
-    // Função para formatar data com timezone do Brasil
+    // Função para formatar data com timezone do Brasil (mesma lógica da função utilitária)
     const formatDateBrazil = (dateString: string): string => {
-      if (!dateString) return 'Não definida'
+      if (!dateString || dateString === 'Data não informada' || dateString === 'Data inválida') {
+        return 'Data não informada'
+      }
       
       try {
-        const date = new Date(dateString)
-        
-        // Verificar se a data é válida
-        if (isNaN(date.getTime())) {
-          console.error('Data inválida no template:', dateString)
-          return 'Data inválida'
+        // Se a data está no formato YYYY-MM-DD (sem hora), interpretar como UTC
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+          const dateUTC = new Date(dateString + 'T00:00:00Z')
+          
+          if (isNaN(dateUTC.getTime())) {
+            return 'Data não informada'
+          }
+          
+          // Formatar usando o timezone UTC para evitar conversão automática
+          return new Intl.DateTimeFormat('pt-BR', { 
+            timeZone: 'UTC',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          }).format(dateUTC)
         }
         
+        // Para outros formatos de data (com hora/timestamp)
+        const date = new Date(dateString)
+        
+        if (isNaN(date.getTime())) {
+          return 'Data não informada'
+        }
+        
+        // Ajustar para timezone do Brasil (UTC-3)
         const brazilOffset = -3 * 60 // UTC-3 em minutos
         const utc = date.getTime() + (date.getTimezoneOffset() * 60000)
         const brazilTime = new Date(utc + (brazilOffset * 60000))
+        
         return brazilTime.toLocaleDateString('pt-BR')
       } catch (error) {
-        console.error('Erro ao formatar data:', error)
-        return 'Data inválida'
+        console.error('Erro ao formatar data no template:', error)
+        return 'Data não informada'
       }
     }
+
+    const formattedDate = formatDateBrazil(endDate)
 
     return {
       subject: `🚨 Prazo Urgente - ${taskName}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #dc3545;">🚨 Prazo Urgente</h2>
-          <p>A tarefa "${taskName}" no projeto "${projectName}" vence amanhã (${formatDateBrazil(endDate)}).</p>
+          <p>A tarefa "${taskName}" no projeto "${projectName}" vence amanhã (${formattedDate}).</p>
           <p>Ação necessária: Conclua a tarefa o mais rápido possível.</p>
         </div>
       `,
-      text: `🚨 Prazo Urgente\n\nA tarefa "${taskName}" no projeto "${projectName}" vence amanhã (${formatDateBrazil(endDate)}).\n\nAção necessária: Conclua a tarefa o mais rápido possível.`
+      text: `🚨 Prazo Urgente\n\nA tarefa "${taskName}" no projeto "${projectName}" vence amanhã (${formattedDate}).\n\nAção necessária: Conclua a tarefa o mais rápido possível.`
     }
   },
 
   taskOverdue: (taskName: string, endDate: string, projectName: string): EmailTemplate => {
-    // Função para formatar data com timezone do Brasil
+    // Função para formatar data com timezone do Brasil (mesma lógica da função utilitária)
     const formatDateBrazil = (dateString: string): string => {
-      if (!dateString) return 'Não definida'
+      if (!dateString || dateString === 'Data não informada' || dateString === 'Data inválida') {
+        return 'Data não informada'
+      }
       
       try {
-        const date = new Date(dateString)
-        
-        // Verificar se a data é válida
-        if (isNaN(date.getTime())) {
-          console.error('Data inválida no template:', dateString)
-          return 'Data inválida'
+        // Se a data está no formato YYYY-MM-DD (sem hora), interpretar como UTC
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+          const dateUTC = new Date(dateString + 'T00:00:00Z')
+          
+          if (isNaN(dateUTC.getTime())) {
+            return 'Data não informada'
+          }
+          
+          // Formatar usando o timezone UTC para evitar conversão automática
+          return new Intl.DateTimeFormat('pt-BR', { 
+            timeZone: 'UTC',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          }).format(dateUTC)
         }
         
+        // Para outros formatos de data (com hora/timestamp)
+        const date = new Date(dateString)
+        
+        if (isNaN(date.getTime())) {
+          return 'Data não informada'
+        }
+        
+        // Ajustar para timezone do Brasil (UTC-3)
         const brazilOffset = -3 * 60 // UTC-3 em minutos
         const utc = date.getTime() + (date.getTimezoneOffset() * 60000)
         const brazilTime = new Date(utc + (brazilOffset * 60000))
+        
         return brazilTime.toLocaleDateString('pt-BR')
       } catch (error) {
-        console.error('Erro ao formatar data:', error)
-        return 'Data inválida'
+        console.error('Erro ao formatar data no template:', error)
+        return 'Data não informada'
       }
     }
+
+    const formattedDate = formatDateBrazil(endDate)
 
     return {
       subject: `🔴 Tarefa Atrasada - ${taskName}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #dc3545;">🔴 Tarefa Atrasada</h2>
-          <p>A tarefa "${taskName}" no projeto "${projectName}" está atrasada. Data de vencimento: ${formatDateBrazil(endDate)}.</p>
+          <p>A tarefa "${taskName}" no projeto "${projectName}" está atrasada. Data de vencimento: ${formattedDate}.</p>
           <p>Ação necessária: Atualize o status da tarefa no sistema o mais rápido possível.</p>
         </div>
       `,
-      text: `🔴 Tarefa Atrasada\n\nA tarefa "${taskName}" no projeto "${projectName}" está atrasada. Data de vencimento: ${formatDateBrazil(endDate)}.\n\nAção necessária: Atualize o status da tarefa no sistema o mais rápido possível.`
+      text: `🔴 Tarefa Atrasada\n\nA tarefa "${taskName}" no projeto "${projectName}" está atrasada. Data de vencimento: ${formattedDate}.\n\nAção necessária: Atualize o status da tarefa no sistema o mais rápido possível.`
     }
   }
 }
