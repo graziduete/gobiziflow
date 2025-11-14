@@ -394,11 +394,13 @@ export class ResponsavelNotificationService {
           const warningTaskName = warningTaskMatch ? warningTaskMatch[1] : 'Tarefa'
           // SEMPRE usar formattedDate se foi passado, nunca extrair da mensagem
           // Se formattedDate não for válido, usar "Data não informada"
+          console.log(`📅 [EmailTemplate] deadline_warning - formattedDate recebido:`, formattedDate, 'Tipo:', typeof formattedDate, 'Vazio?', !formattedDate || formattedDate.trim() === '')
           let warningDate = formattedDate
-          if (!warningDate || warningDate === 'Data não informada' || warningDate === 'Data inválida' || warningDate.trim() === '') {
+          if (!warningDate || warningDate === 'Data não informada' || warningDate === 'Data inválida' || (typeof warningDate === 'string' && warningDate.trim() === '')) {
+            console.warn(`⚠️ [EmailTemplate] deadline_warning - formattedDate inválido, usando "Data não informada"`)
             warningDate = 'Data não informada'
           }
-          console.log(`📅 [EmailTemplate] deadline_warning - formattedDate recebido: "${formattedDate}", usando: "${warningDate}"`)
+          console.log(`📅 [EmailTemplate] deadline_warning - Usando warningDate: "${warningDate}"`)
           emailTemplate = emailTemplates.deadlineWarning(warningTaskName, warningDate, projectName)
           break
         case 'deadline_urgent':
@@ -533,9 +535,11 @@ export class ResponsavelNotificationService {
 
     // Formatar data antes de passar para a notificação
     let formattedDate = this.formatDateBrazil(endDate)
+    console.log(`📅 [notifyDeadlineWarning] Após formatDateBrazil - endDate: ${endDate}, formattedDate: "${formattedDate}"`)
     
     // Se a formatação falhou, tentar formatar manualmente
-    if (!formattedDate || formattedDate === 'Data não informada' || formattedDate.trim() === '') {
+    if (!formattedDate || formattedDate === 'Data não informada' || (typeof formattedDate === 'string' && formattedDate.trim() === '')) {
+      console.log(`⚠️ [notifyDeadlineWarning] Formatação falhou, tentando formatação manual...`)
       try {
         const date = new Date(endDate + 'T00:00:00Z')
         if (!isNaN(date.getTime())) {
@@ -545,15 +549,18 @@ export class ResponsavelNotificationService {
             month: '2-digit',
             day: '2-digit'
           })
+          console.log(`✅ [notifyDeadlineWarning] Formatação manual bem-sucedida: "${formattedDate}"`)
         } else {
+          console.error(`❌ [notifyDeadlineWarning] Data inválida após new Date: ${endDate}`)
           formattedDate = 'Data não informada'
         }
-      } catch {
+      } catch (error) {
+        console.error(`❌ [notifyDeadlineWarning] Erro na formatação manual:`, error)
         formattedDate = 'Data não informada'
       }
     }
     
-    console.log(`📅 [notifyDeadlineWarning] Data original: ${endDate}, formatada: ${formattedDate}`)
+    console.log(`📅 [notifyDeadlineWarning] Data original: ${endDate}, formatada final: "${formattedDate}"`)
     
     const title = `⏰ Tarefas sob sua responsabilidade vencem em breve`
     const message = `Olá ${responsavel.nome}!\n\nA tarefa "${taskName}" do projeto "${projectName}" vence em ${formattedDate}.\n\nPor favor, verifique o status e tome as ações necessárias.`

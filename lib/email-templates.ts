@@ -219,32 +219,46 @@ export const emailTemplates = {
   deadlineWarning: (taskName: string, endDate: string, projectName: string): EmailTemplate => {
     // Função para formatar data com timezone do Brasil (mesma lógica da função utilitária)
     const formatDateBrazil = (dateString: string): string => {
-      if (!dateString || dateString === 'Data não informada' || dateString === 'Data inválida') {
+      console.log('📅 [EmailTemplate deadlineWarning] Recebido endDate:', dateString, 'Tipo:', typeof dateString)
+      
+      if (!dateString || dateString === 'Data não informada' || dateString === 'Data inválida' || dateString.trim() === '') {
+        console.warn('⚠️ [EmailTemplate deadlineWarning] Data inválida ou vazia:', dateString)
         return 'Data não informada'
+      }
+      
+      // Se já está formatada (contém /), retornar como está
+      if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateString.trim())) {
+        console.log('✅ [EmailTemplate deadlineWarning] Data já formatada, usando como está:', dateString)
+        return dateString.trim()
       }
       
       try {
         // Se a data está no formato YYYY-MM-DD (sem hora), interpretar como UTC
-        if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
-          const dateUTC = new Date(dateString + 'T00:00:00Z')
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateString.trim())) {
+          const dateUTC = new Date(dateString.trim() + 'T00:00:00Z')
           
           if (isNaN(dateUTC.getTime())) {
+            console.error('❌ [EmailTemplate deadlineWarning] Data UTC inválida:', dateString)
             return 'Data não informada'
           }
           
           // Formatar usando o timezone UTC para evitar conversão automática
-          return new Intl.DateTimeFormat('pt-BR', { 
+          const formatted = new Intl.DateTimeFormat('pt-BR', { 
             timeZone: 'UTC',
             year: 'numeric',
             month: '2-digit',
             day: '2-digit'
           }).format(dateUTC)
+          
+          console.log('✅ [EmailTemplate deadlineWarning] Data formatada (YYYY-MM-DD):', formatted)
+          return formatted
         }
         
         // Para outros formatos de data (com hora/timestamp)
         const date = new Date(dateString)
         
         if (isNaN(date.getTime())) {
+          console.error('❌ [EmailTemplate deadlineWarning] Data inválida após new Date:', dateString)
           return 'Data não informada'
         }
         
@@ -253,14 +267,17 @@ export const emailTemplates = {
         const utc = date.getTime() + (date.getTimezoneOffset() * 60000)
         const brazilTime = new Date(utc + (brazilOffset * 60000))
         
-        return brazilTime.toLocaleDateString('pt-BR')
+        const formatted = brazilTime.toLocaleDateString('pt-BR')
+        console.log('✅ [EmailTemplate deadlineWarning] Data formatada (outro formato):', formatted)
+        return formatted
       } catch (error) {
-        console.error('Erro ao formatar data no template:', error)
+        console.error('❌ [EmailTemplate deadlineWarning] Erro ao formatar data:', error, 'Data recebida:', dateString)
         return 'Data não informada'
       }
     }
 
     const formattedDate = formatDateBrazil(endDate)
+    console.log('📅 [EmailTemplate deadlineWarning] Data final formatada:', formattedDate)
 
     return {
       subject: `⚠️ Prazo Próximo - ${taskName}`,
