@@ -362,10 +362,17 @@ export class ResponsavelNotificationService {
           const warningTaskMatch = message.match(/"([^"]+)"/)
           const warningTaskName = warningTaskMatch ? warningTaskMatch[1] : 'Tarefa'
           // Usar data formatada passada como parâmetro, ou tentar extrair da mensagem como fallback
-          const warningDate = formattedDate || (() => {
+          // IMPORTANTE: Se formattedDate for "Data não informada" ou "Data inválida", tentar extrair da mensagem
+          let warningDate = formattedDate
+          if (!warningDate || warningDate === 'Data não informada' || warningDate === 'Data inválida' || warningDate.trim() === '') {
             const warningDateMatch = message.match(/vence em ([^.]+)\./)
-            return warningDateMatch ? warningDateMatch[1] : 'Data não informada'
-          })()
+            warningDate = warningDateMatch ? warningDateMatch[1] : 'Data não informada'
+            // Se ainda for "Data inválida", usar "Data não informada"
+            if (warningDate === 'Data inválida') {
+              warningDate = 'Data não informada'
+            }
+          }
+          console.log(`📅 [EmailTemplate] deadline_warning - formattedDate recebido: "${formattedDate}", usando: "${warningDate}"`)
           emailTemplate = emailTemplates.deadlineWarning(warningTaskName, warningDate, projectName)
           break
         case 'deadline_urgent':
@@ -497,7 +504,29 @@ export class ResponsavelNotificationService {
     const projectName = project?.name || 'Projeto'
 
     // Formatar data antes de passar para a notificação
-    const formattedDate = this.formatDateBrazil(endDate)
+    let formattedDate = this.formatDateBrazil(endDate)
+    
+    // Se a formatação falhou, tentar formatar manualmente
+    if (!formattedDate || formattedDate === 'Data não informada' || formattedDate.trim() === '') {
+      try {
+        const date = new Date(endDate + 'T00:00:00Z')
+        if (!isNaN(date.getTime())) {
+          formattedDate = date.toLocaleDateString('pt-BR', { 
+            timeZone: 'UTC',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          })
+        } else {
+          formattedDate = 'Data não informada'
+        }
+      } catch {
+        formattedDate = 'Data não informada'
+      }
+    }
+    
+    console.log(`📅 [notifyDeadlineWarning] Data original: ${endDate}, formatada: ${formattedDate}`)
+    
     const title = `⏰ Tarefas sob sua responsabilidade vencem em breve`
     const message = `Olá ${responsavel.nome}!\n\nA tarefa "${taskName}" do projeto "${projectName}" vence em ${formattedDate}.\n\nPor favor, verifique o status e tome as ações necessárias.`
 
@@ -521,7 +550,27 @@ export class ResponsavelNotificationService {
     const projectName = project?.name || 'Projeto'
 
     // Formatar data antes de passar para a notificação
-    const formattedDate = this.formatDateBrazil(endDate)
+    let formattedDate = this.formatDateBrazil(endDate)
+    
+    // Se a formatação falhou, tentar formatar manualmente
+    if (!formattedDate || formattedDate === 'Data não informada' || formattedDate.trim() === '') {
+      try {
+        const date = new Date(endDate + 'T00:00:00Z')
+        if (!isNaN(date.getTime())) {
+          formattedDate = date.toLocaleDateString('pt-BR', { 
+            timeZone: 'UTC',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          })
+        } else {
+          formattedDate = 'Data não informada'
+        }
+      } catch {
+        formattedDate = 'Data não informada'
+      }
+    }
+    
     const title = `🚨 Tarefas sob sua responsabilidade vencem amanhã`
     const message = `Olá ${responsavel.nome}!\n\nA tarefa "${taskName}" do projeto "${projectName}" vence amanhã (${formattedDate}).\n\nAção imediata necessária!`
 
@@ -545,7 +594,27 @@ export class ResponsavelNotificationService {
     const projectName = project?.name || 'Projeto'
 
     // Formatar data antes de passar para a notificação
-    const formattedDate = this.formatDateBrazil(endDate)
+    let formattedDate = this.formatDateBrazil(endDate)
+    
+    // Se a formatação falhou, tentar formatar manualmente
+    if (!formattedDate || formattedDate === 'Data não informada' || formattedDate.trim() === '') {
+      try {
+        const date = new Date(endDate + 'T00:00:00Z')
+        if (!isNaN(date.getTime())) {
+          formattedDate = date.toLocaleDateString('pt-BR', { 
+            timeZone: 'UTC',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          })
+        } else {
+          formattedDate = 'Data não informada'
+        }
+      } catch {
+        formattedDate = 'Data não informada'
+      }
+    }
+    
     const title = `❌ Tarefa Atrasada`
     const message = `Olá ${responsavel.nome}!\n\nA tarefa "${taskName}" do projeto "${projectName}" está atrasada desde ${formattedDate}.\n\nStatus foi alterado automaticamente para "Atrasada".`
 
