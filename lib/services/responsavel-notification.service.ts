@@ -165,7 +165,8 @@ export class ResponsavelNotificationService {
         message,
         projectId,
         taskId,
-        taskDetails
+        taskDetails,
+        formattedDate
       )
 
       return { success: true, isRegistered }
@@ -186,7 +187,8 @@ export class ResponsavelNotificationService {
     message: string,
     projectId?: string,
     taskId?: string,
-    taskDetails?: Array<{ name: string; start_date?: string; end_date?: string }>
+    taskDetails?: Array<{ name: string; start_date?: string; end_date?: string }>,
+    formattedDate?: string // Data já formatada para passar diretamente aos templates
   ) {
     // Declarar logId no escopo da função
     let logId: string | null = null
