@@ -15,13 +15,30 @@ export class ResponsavelNotificationService {
       return 'Data não informada'
     }
     
-    console.log('📅 formatDateBrazil: Recebido:', dateString)
+    console.log('📅 formatDateBrazil: Recebido:', dateString, 'Tipo:', typeof dateString)
     
     try {
       const formatted = formatDateUtil(dateString)
+      console.log('📅 formatDateBrazil: Resultado do formatDateUtil:', formatted, 'Tipo:', typeof formatted, 'Vazio?', !formatted || formatted.trim() === '')
       
       if (!formatted || formatted.trim() === '') {
-        console.error('❌ formatDateBrazil: Data inválida ou vazia após formatação:', dateString)
+        console.error('❌ formatDateBrazil: Data inválida ou vazia após formatação. Tentando formatação manual...')
+        // Tentar formatação manual como fallback
+        try {
+          const date = new Date(dateString + 'T00:00:00Z')
+          if (!isNaN(date.getTime())) {
+            const manualFormatted = date.toLocaleDateString('pt-BR', { 
+              timeZone: 'UTC',
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit'
+            })
+            console.log('✅ formatDateBrazil: Formatação manual bem-sucedida:', manualFormatted)
+            return manualFormatted
+          }
+        } catch (manualError) {
+          console.error('❌ formatDateBrazil: Erro na formatação manual:', manualError)
+        }
         return 'Data não informada'
       }
       
@@ -29,6 +46,20 @@ export class ResponsavelNotificationService {
       return formatted
     } catch (error) {
       console.error('❌ formatDateBrazil: Erro ao formatar data:', error, 'Data recebida:', dateString)
+      // Tentar formatação manual como último recurso
+      try {
+        const date = new Date(dateString + 'T00:00:00Z')
+        if (!isNaN(date.getTime())) {
+          return date.toLocaleDateString('pt-BR', { 
+            timeZone: 'UTC',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          })
+        }
+      } catch {
+        // Ignorar
+      }
       return 'Data não informada'
     }
   }
@@ -361,16 +392,11 @@ export class ResponsavelNotificationService {
         case 'deadline_warning':
           const warningTaskMatch = message.match(/"([^"]+)"/)
           const warningTaskName = warningTaskMatch ? warningTaskMatch[1] : 'Tarefa'
-          // Usar data formatada passada como parâmetro, ou tentar extrair da mensagem como fallback
-          // IMPORTANTE: Se formattedDate for "Data não informada" ou "Data inválida", tentar extrair da mensagem
+          // SEMPRE usar formattedDate se foi passado, nunca extrair da mensagem
+          // Se formattedDate não for válido, usar "Data não informada"
           let warningDate = formattedDate
           if (!warningDate || warningDate === 'Data não informada' || warningDate === 'Data inválida' || warningDate.trim() === '') {
-            const warningDateMatch = message.match(/vence em ([^.]+)\./)
-            warningDate = warningDateMatch ? warningDateMatch[1] : 'Data não informada'
-            // Se ainda for "Data inválida", usar "Data não informada"
-            if (warningDate === 'Data inválida') {
-              warningDate = 'Data não informada'
-            }
+            warningDate = 'Data não informada'
           }
           console.log(`📅 [EmailTemplate] deadline_warning - formattedDate recebido: "${formattedDate}", usando: "${warningDate}"`)
           emailTemplate = emailTemplates.deadlineWarning(warningTaskName, warningDate, projectName)
@@ -378,21 +404,23 @@ export class ResponsavelNotificationService {
         case 'deadline_urgent':
           const urgentTaskMatch = message.match(/"([^"]+)"/)
           const urgentTaskName = urgentTaskMatch ? urgentTaskMatch[1] : 'Tarefa'
-          // Usar data formatada passada como parâmetro, ou tentar extrair da mensagem como fallback
-          const urgentDate = formattedDate || (() => {
-            const urgentDateMatch = message.match(/vence amanhã \(([^)]+)\)/)
-            return urgentDateMatch ? urgentDateMatch[1] : 'Data não informada'
-          })()
+          // SEMPRE usar formattedDate se foi passado, nunca extrair da mensagem
+          let urgentDate = formattedDate
+          if (!urgentDate || urgentDate === 'Data não informada' || urgentDate === 'Data inválida' || urgentDate.trim() === '') {
+            urgentDate = 'Data não informada'
+          }
+          console.log(`📅 [EmailTemplate] deadline_urgent - formattedDate recebido: "${formattedDate}", usando: "${urgentDate}"`)
           emailTemplate = emailTemplates.deadlineUrgent(urgentTaskName, urgentDate, projectName)
           break
         case 'task_overdue':
           const overdueTaskMatch = message.match(/"([^"]+)"/)
           const overdueTaskName = overdueTaskMatch ? overdueTaskMatch[1] : 'Tarefa'
-          // Usar data formatada passada como parâmetro, ou tentar extrair da mensagem como fallback
-          const overdueDate = formattedDate || (() => {
-            const overdueDateMatch = message.match(/atrasada desde ([^.]+)\./)
-            return overdueDateMatch ? overdueDateMatch[1] : 'Data não informada'
-          })()
+          // SEMPRE usar formattedDate se foi passado, nunca extrair da mensagem
+          let overdueDate = formattedDate
+          if (!overdueDate || overdueDate === 'Data não informada' || overdueDate === 'Data inválida' || overdueDate.trim() === '') {
+            overdueDate = 'Data não informada'
+          }
+          console.log(`📅 [EmailTemplate] task_overdue - formattedDate recebido: "${formattedDate}", usando: "${overdueDate}"`)
           emailTemplate = emailTemplates.taskOverdue(overdueTaskName, overdueDate, projectName)
           break
         default:
