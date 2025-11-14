@@ -9,23 +9,28 @@ export class ResponsavelNotificationService {
   /**
    * Formata data considerando timezone do Brasil (usa função utilitária corrigida)
    */
-  private formatDateBrazil(dateString: string | undefined): string {
-    if (!dateString) {
-      console.warn('⚠️ formatDateBrazil: dateString é undefined ou vazio')
-      return 'Não definida'
+  private formatDateBrazil(dateString: string | undefined | null): string {
+    if (!dateString || dateString === 'null' || dateString === 'undefined') {
+      console.warn('⚠️ formatDateBrazil: dateString é undefined, null ou vazio')
+      return 'Data não informada'
     }
     
     console.log('📅 formatDateBrazil: Recebido:', dateString)
     
-    const formatted = formatDateUtil(dateString)
-    
-    if (!formatted) {
-      console.error('❌ formatDateBrazil: Data inválida:', dateString)
-      return 'Data inválida'
+    try {
+      const formatted = formatDateUtil(dateString)
+      
+      if (!formatted || formatted.trim() === '') {
+        console.error('❌ formatDateBrazil: Data inválida ou vazia após formatação:', dateString)
+        return 'Data não informada'
+      }
+      
+      console.log('✅ formatDateBrazil: Formatado:', formatted)
+      return formatted
+    } catch (error) {
+      console.error('❌ formatDateBrazil: Erro ao formatar data:', error, 'Data recebida:', dateString)
+      return 'Data não informada'
     }
-    
-    console.log('✅ formatDateBrazil: Formatado:', formatted)
-    return formatted
   }
 
   /**
@@ -70,7 +75,8 @@ export class ResponsavelNotificationService {
     message: string,
     projectId?: string,
     taskId?: string,
-    taskDetails?: Array<{ name: string; start_date?: string; end_date?: string }>
+    taskDetails?: Array<{ name: string; start_date?: string; end_date?: string }>,
+    formattedDate?: string // Data já formatada para passar diretamente aos templates
   ) {
     try {
       console.log('🔔 [ResponsavelNotification] Iniciando notificação:', { responsavelId, type, title })
@@ -347,22 +353,31 @@ export class ResponsavelNotificationService {
         case 'deadline_warning':
           const warningTaskMatch = message.match(/"([^"]+)"/)
           const warningTaskName = warningTaskMatch ? warningTaskMatch[1] : 'Tarefa'
-          const warningDateMatch = message.match(/\(([^)]+)\)/)
-          const warningDate = warningDateMatch ? warningDateMatch[1] : 'Data não informada'
+          // Usar data formatada passada como parâmetro, ou tentar extrair da mensagem como fallback
+          const warningDate = formattedDate || (() => {
+            const warningDateMatch = message.match(/vence em ([^.]+)\./)
+            return warningDateMatch ? warningDateMatch[1] : 'Data não informada'
+          })()
           emailTemplate = emailTemplates.deadlineWarning(warningTaskName, warningDate, projectName)
           break
         case 'deadline_urgent':
           const urgentTaskMatch = message.match(/"([^"]+)"/)
           const urgentTaskName = urgentTaskMatch ? urgentTaskMatch[1] : 'Tarefa'
-          const urgentDateMatch = message.match(/\(([^)]+)\)/)
-          const urgentDate = urgentDateMatch ? urgentDateMatch[1] : 'Data não informada'
+          // Usar data formatada passada como parâmetro, ou tentar extrair da mensagem como fallback
+          const urgentDate = formattedDate || (() => {
+            const urgentDateMatch = message.match(/vence amanhã \(([^)]+)\)/)
+            return urgentDateMatch ? urgentDateMatch[1] : 'Data não informada'
+          })()
           emailTemplate = emailTemplates.deadlineUrgent(urgentTaskName, urgentDate, projectName)
           break
         case 'task_overdue':
           const overdueTaskMatch = message.match(/"([^"]+)"/)
           const overdueTaskName = overdueTaskMatch ? overdueTaskMatch[1] : 'Tarefa'
-          const overdueDateMatch = message.match(/Data de vencimento: ([^.]+)\./)
-          const overdueDate = overdueDateMatch ? overdueDateMatch[1] : 'Data não informada'
+          // Usar data formatada passada como parâmetro, ou tentar extrair da mensagem como fallback
+          const overdueDate = formattedDate || (() => {
+            const overdueDateMatch = message.match(/atrasada desde ([^.]+)\./)
+            return overdueDateMatch ? overdueDateMatch[1] : 'Data não informada'
+          })()
           emailTemplate = emailTemplates.taskOverdue(overdueTaskName, overdueDate, projectName)
           break
         default:
@@ -467,10 +482,12 @@ export class ResponsavelNotificationService {
 
     const projectName = project?.name || 'Projeto'
 
+    // Formatar data antes de passar para a notificação
+    const formattedDate = this.formatDateBrazil(endDate)
     const title = `⏰ Tarefas sob sua responsabilidade vencem em breve`
-    const message = `Olá ${responsavel.nome}!\n\nA tarefa "${taskName}" do projeto "${projectName}" vence em ${this.formatDateBrazil(endDate)}.\n\nPor favor, verifique o status e tome as ações necessárias.`
+    const message = `Olá ${responsavel.nome}!\n\nA tarefa "${taskName}" do projeto "${projectName}" vence em ${formattedDate}.\n\nPor favor, verifique o status e tome as ações necessárias.`
 
-    return await this.notifyResponsavel(responsavelId, 'deadline_warning', title, message, projectId, taskId)
+    return await this.notifyResponsavel(responsavelId, 'deadline_warning', title, message, projectId, taskId, undefined, formattedDate)
   }
 
   /**
@@ -489,10 +506,12 @@ export class ResponsavelNotificationService {
 
     const projectName = project?.name || 'Projeto'
 
+    // Formatar data antes de passar para a notificação
+    const formattedDate = this.formatDateBrazil(endDate)
     const title = `🚨 Tarefas sob sua responsabilidade vencem amanhã`
-    const message = `Olá ${responsavel.nome}!\n\nA tarefa "${taskName}" do projeto "${projectName}" vence amanhã (${this.formatDateBrazil(endDate)}).\n\nAção imediata necessária!`
+    const message = `Olá ${responsavel.nome}!\n\nA tarefa "${taskName}" do projeto "${projectName}" vence amanhã (${formattedDate}).\n\nAção imediata necessária!`
 
-    return await this.notifyResponsavel(responsavelId, 'deadline_urgent', title, message, projectId, taskId)
+    return await this.notifyResponsavel(responsavelId, 'deadline_urgent', title, message, projectId, taskId, undefined, formattedDate)
   }
 
   /**
@@ -511,10 +530,12 @@ export class ResponsavelNotificationService {
 
     const projectName = project?.name || 'Projeto'
 
+    // Formatar data antes de passar para a notificação
+    const formattedDate = this.formatDateBrazil(endDate)
     const title = `❌ Tarefa Atrasada`
-    const message = `Olá ${responsavel.nome}!\n\nA tarefa "${taskName}" do projeto "${projectName}" está atrasada desde ${this.formatDateBrazil(endDate)}.\n\nStatus foi alterado automaticamente para "Atrasada".`
+    const message = `Olá ${responsavel.nome}!\n\nA tarefa "${taskName}" do projeto "${projectName}" está atrasada desde ${formattedDate}.\n\nStatus foi alterado automaticamente para "Atrasada".`
 
-    return await this.notifyResponsavel(responsavelId, 'task_overdue', title, message, projectId, taskId)
+    return await this.notifyResponsavel(responsavelId, 'task_overdue', title, message, projectId, taskId, undefined, formattedDate)
   }
 
   /**
