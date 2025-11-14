@@ -347,14 +347,16 @@ export class NotificationService {
     taskName: string,
     endDate: string,
     projectId: string,
-    taskId?: string
+    taskId?: string,
+    skipDuplicateCheck?: boolean
   ) {
     return await responsavelNotificationService.notifyDeadlineWarning(
       responsavelId,
       taskName,
       endDate,
       projectId,
-      taskId
+      taskId,
+      skipDuplicateCheck
     )
   }
 
@@ -366,14 +368,16 @@ export class NotificationService {
     taskName: string,
     endDate: string,
     projectId: string,
-    taskId?: string
+    taskId?: string,
+    skipDuplicateCheck?: boolean
   ) {
     return await responsavelNotificationService.notifyDeadlineUrgent(
       responsavelId,
       taskName,
       endDate,
       projectId,
-      taskId
+      taskId,
+      skipDuplicateCheck
     )
   }
 
@@ -385,14 +389,16 @@ export class NotificationService {
     taskName: string,
     endDate: string,
     projectId: string,
-    taskId?: string
+    taskId?: string,
+    skipDuplicateCheck?: boolean
   ) {
     return await responsavelNotificationService.notifyTaskOverdue(
       responsavelId,
       taskName,
       endDate,
       projectId,
-      taskId
+      taskId,
+      skipDuplicateCheck
     )
   }
 

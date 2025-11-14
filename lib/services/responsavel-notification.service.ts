@@ -76,29 +76,35 @@ export class ResponsavelNotificationService {
     projectId?: string,
     taskId?: string,
     taskDetails?: Array<{ name: string; start_date?: string; end_date?: string }>,
-    formattedDate?: string // Data já formatada para passar diretamente aos templates
+    formattedDate?: string, // Data já formatada para passar diretamente aos templates
+    skipDuplicateCheck?: boolean // Ignorar verificação de duplicatas (útil para testes)
   ) {
     try {
-      console.log('🔔 [ResponsavelNotification] Iniciando notificação:', { responsavelId, type, title })
+      console.log('🔔 [ResponsavelNotification] Iniciando notificação:', { responsavelId, type, title, skipDuplicateCheck })
       
       // Verificar se já existe uma notificação similar recente (últimas 2 horas)
-      const twoHoursAgo = new Date()
-      twoHoursAgo.setHours(twoHoursAgo.getHours() - 2)
+      // EXCETO se skipDuplicateCheck=true (para testes)
+      if (!skipDuplicateCheck) {
+        const twoHoursAgo = new Date()
+        twoHoursAgo.setHours(twoHoursAgo.getHours() - 2)
 
-      const { data: existingNotification } = await this.supabase
-        .from('notifications')
-        .select('id')
-        .eq('responsavel_id', responsavelId)
-        .eq('type', type)
-        .eq('title', title)
-        .eq('project_id', projectId || null)
-        .eq('task_id', taskId || null)
-        .gte('created_at', twoHoursAgo.toISOString())
-        .limit(1)
+        const { data: existingNotification } = await this.supabase
+          .from('notifications')
+          .select('id')
+          .eq('responsavel_id', responsavelId)
+          .eq('type', type)
+          .eq('title', title)
+          .eq('project_id', projectId || null)
+          .eq('task_id', taskId || null)
+          .gte('created_at', twoHoursAgo.toISOString())
+          .limit(1)
 
-      if (existingNotification && existingNotification.length > 0) {
-        console.log(`🔔 [ResponsavelNotification] Notificação duplicada evitada para responsável ${responsavelId} - tipo: ${type}`)
-        return { success: true, message: 'Notificação duplicada evitada' }
+        if (existingNotification && existingNotification.length > 0) {
+          console.log(`🔔 [ResponsavelNotification] Notificação duplicada evitada para responsável ${responsavelId} - tipo: ${type}`)
+          return { success: true, message: 'Notificação duplicada evitada' }
+        }
+      } else {
+        console.log(`🔔 [ResponsavelNotification] Verificação de duplicatas IGNORADA (modo teste)`)
       }
       
       const { isRegistered, userId } = await this.isResponsavelRegisteredUser(responsavelId)
@@ -477,7 +483,7 @@ export class ResponsavelNotificationService {
   /**
    * Notifica sobre prazo próximo (3 dias antes)
    */
-  async notifyDeadlineWarning(responsavelId: string, taskName: string, endDate: string, projectId: string, taskId?: string) {
+  async notifyDeadlineWarning(responsavelId: string, taskName: string, endDate: string, projectId: string, taskId?: string, skipDuplicateCheck?: boolean) {
     const responsavel = await this.getResponsavelById(responsavelId)
     if (!responsavel) return
 
@@ -495,13 +501,13 @@ export class ResponsavelNotificationService {
     const title = `⏰ Tarefas sob sua responsabilidade vencem em breve`
     const message = `Olá ${responsavel.nome}!\n\nA tarefa "${taskName}" do projeto "${projectName}" vence em ${formattedDate}.\n\nPor favor, verifique o status e tome as ações necessárias.`
 
-    return await this.notifyResponsavel(responsavelId, 'deadline_warning', title, message, projectId, taskId, undefined, formattedDate)
+    return await this.notifyResponsavel(responsavelId, 'deadline_warning', title, message, projectId, taskId, undefined, formattedDate, skipDuplicateCheck)
   }
 
   /**
    * Notifica sobre prazo urgente (1 dia antes)
    */
-  async notifyDeadlineUrgent(responsavelId: string, taskName: string, endDate: string, projectId: string, taskId?: string) {
+  async notifyDeadlineUrgent(responsavelId: string, taskName: string, endDate: string, projectId: string, taskId?: string, skipDuplicateCheck?: boolean) {
     const responsavel = await this.getResponsavelById(responsavelId)
     if (!responsavel) return
 
@@ -519,13 +525,13 @@ export class ResponsavelNotificationService {
     const title = `🚨 Tarefas sob sua responsabilidade vencem amanhã`
     const message = `Olá ${responsavel.nome}!\n\nA tarefa "${taskName}" do projeto "${projectName}" vence amanhã (${formattedDate}).\n\nAção imediata necessária!`
 
-    return await this.notifyResponsavel(responsavelId, 'deadline_urgent', title, message, projectId, taskId, undefined, formattedDate)
+    return await this.notifyResponsavel(responsavelId, 'deadline_urgent', title, message, projectId, taskId, undefined, formattedDate, skipDuplicateCheck)
   }
 
   /**
    * Notifica sobre tarefa atrasada
    */
-  async notifyTaskOverdue(responsavelId: string, taskName: string, endDate: string, projectId: string, taskId?: string) {
+  async notifyTaskOverdue(responsavelId: string, taskName: string, endDate: string, projectId: string, taskId?: string, skipDuplicateCheck?: boolean) {
     const responsavel = await this.getResponsavelById(responsavelId)
     if (!responsavel) return
 
@@ -543,7 +549,7 @@ export class ResponsavelNotificationService {
     const title = `❌ Tarefa Atrasada`
     const message = `Olá ${responsavel.nome}!\n\nA tarefa "${taskName}" do projeto "${projectName}" está atrasada desde ${formattedDate}.\n\nStatus foi alterado automaticamente para "Atrasada".`
 
-    return await this.notifyResponsavel(responsavelId, 'task_overdue', title, message, projectId, taskId, undefined, formattedDate)
+    return await this.notifyResponsavel(responsavelId, 'task_overdue', title, message, projectId, taskId, undefined, formattedDate, skipDuplicateCheck)
   }
 
   /**

@@ -196,13 +196,17 @@ async function testTaskNotification(request: NextRequest) {
     // Enviar notificação
     let notificationResult
     try {
+      // Sempre ignorar verificação de duplicatas em testes
+      const skipDuplicateCheck = true
+      
       if (notificationType === 'task_overdue') {
         notificationResult = await notificationService.notifyResponsavelTaskOverdue(
           responsavel.id,
           task.name,
           deadlineDate,
           task.project_id,
-          task.id
+          task.id,
+          skipDuplicateCheck
         )
       } else if (notificationType === 'deadline_urgent') {
         notificationResult = await notificationService.notifyResponsavelDeadlineUrgent(
@@ -210,7 +214,8 @@ async function testTaskNotification(request: NextRequest) {
           task.name,
           deadlineDate,
           task.project_id,
-          task.id
+          task.id,
+          skipDuplicateCheck
         )
       } else {
         notificationResult = await notificationService.notifyResponsavelDeadlineWarning(
@@ -218,7 +223,8 @@ async function testTaskNotification(request: NextRequest) {
           task.name,
           deadlineDate,
           task.project_id,
-          task.id
+          task.id,
+          skipDuplicateCheck
         )
       }
       
