@@ -106,7 +106,7 @@ export class AnalyticsService {
       // 1. Buscar projetos com filtros (query otimizada)
       let projectsQuery = this.supabase
         .from('projects')
-        .select('id, name, status, project_type, created_at, start_date, end_date, predicted_end_date, actual_end_date, company_id')
+        .select('id, name, status, project_type, created_at, start_date, end_date, predicted_end_date, actual_end_date, company_id, safra')
 
       // Aplicar filtro de tenant
       if (tenantId) {
@@ -120,7 +120,115 @@ export class AnalyticsService {
         projectsQuery = projectsQuery.eq('company_id', companyId)
       }
 
-      const { data: projects, error } = await projectsQuery
+      const { data: allProjects, error } = await projectsQuery
+      
+      // Aplicar filtros de data no código (mais flexível para lógica de sobreposição)
+      let projects = allProjects || []
+      
+      if (startDate && endDate) {
+        const start = new Date(startDate)
+        start.setHours(0, 0, 0, 0)
+        const end = new Date(endDate)
+        end.setHours(23, 59, 59, 999)
+        
+        // Extrair safra do período (ex: "2026/27" de "2026-04-01" até "2027-03-31")
+        const safraYear = start.getFullYear()
+        const safraEndYear = end.getFullYear()
+        const safraString = `${safraYear}/${safraEndYear.toString().slice(-2)}`
+        
+        projects = projects.filter((project: any) => {
+          // PRIORIDADE 1: Se o projeto tem campo safra definido, usar ele (mais preciso)
+          if (project.safra && project.safra.trim() !== '') {
+            // Normalizar formato da safra (pode ser "2026/27" ou "2026/2027")
+            const projectSafra = project.safra.trim()
+            const safraMatch = projectSafra.match(/(\d{4})\/(\d{2,4})/)
+            if (safraMatch) {
+              const projSafraYear = parseInt(safraMatch[1])
+              const projSafraEndYearShort = parseInt(safraMatch[2])
+              const projSafraEndYear = projSafraEndYearShort < 100 ? 2000 + projSafraEndYearShort : projSafraEndYearShort
+              const projSafraString = `${projSafraYear}/${projSafraEndYear.toString().slice(-2)}`
+              
+              // Se a safra do projeto corresponde à safra filtrada, incluir
+              if (projSafraString === safraString) {
+                return true
+              } else {
+                // Safra não corresponde, não incluir
+                return false
+              }
+            }
+          }
+          
+          // PRIORIDADE 2: Se não tem safra definida, usar lógica de datas
+          // Projetos em status que não dependem de datas (proposta comercial, planejamento)
+          // devem ser incluídos APENAS se tiverem datas que se sobrepõem ao período
+          const statusWithoutDates = ['commercial_proposal', 'planning']
+          const isStatusWithoutDates = statusWithoutDates.includes(project.status)
+          
+          // Para outros status, verificar sobreposição de datas
+          // Caso 1: Tem ambas as datas
+          if (project.start_date && project.end_date) {
+            const projStart = new Date(project.start_date)
+            projStart.setHours(0, 0, 0, 0)
+            const projEnd = new Date(project.end_date)
+            projEnd.setHours(23, 59, 59, 999)
+            // Sobreposição: projeto começa antes do fim do período E termina depois do início do período
+            const overlaps = projStart <= end && projEnd >= start
+            
+            // Se é status sem datas e não há sobreposição, não incluir
+            if (isStatusWithoutDates && !overlaps) {
+              return false
+            }
+            
+            return overlaps
+          } 
+          // Caso 2: Só tem start_date
+          else if (project.start_date) {
+            const projStart = new Date(project.start_date)
+            projStart.setHours(0, 0, 0, 0)
+            // Incluir se começou antes ou durante o período
+            const includes = projStart <= end
+            
+            // Se é status sem datas e não há inclusão, não incluir
+            if (isStatusWithoutDates && !includes) {
+              return false
+            }
+            
+            return includes
+          } 
+          // Caso 3: Só tem end_date
+          else if (project.end_date) {
+            const projEnd = new Date(project.end_date)
+            projEnd.setHours(23, 59, 59, 999)
+            // Incluir se termina durante ou depois do período
+            const includes = projEnd >= start
+            
+            // Se é status sem datas e não há inclusão, não incluir
+            if (isStatusWithoutDates && !includes) {
+              return false
+            }
+            
+            return includes
+          } 
+          // Caso 4: Não tem datas, usar created_at
+          else if (project.created_at) {
+            const created = new Date(project.created_at)
+            created.setHours(0, 0, 0, 0)
+            // Incluir se foi criado durante o período
+            const inPeriod = created >= start && created <= end
+            
+            // Se é status sem datas e não está no período, não incluir
+            if (isStatusWithoutDates && !inPeriod) {
+              return false
+            }
+            
+            return inPeriod
+          }
+          
+          // Se não tem nenhuma data e é status sem datas, não incluir (muito restritivo)
+          return false
+        })
+        
+      }
       
       console.log(`✅ [Analytics] Projetos carregados em ${Date.now() - startTime}ms`)
 
@@ -130,22 +238,22 @@ export class AnalyticsService {
       }
 
       // 2. Calcular KPIs
-      const total = projects?.length || 0
-      const inProgress = projects?.filter(p => 
+      const total = projects.length || 0
+      const inProgress = projects.filter(p => 
         p.status === 'in_progress' || p.status === 'homologation'
       ).length || 0
-      const delayed = projects?.filter(p => p.status === 'delayed').length || 0
-      const onHold = projects?.filter(p => p.status === 'on_hold').length || 0
-      const commercialProposal = projects?.filter(p => p.status === 'commercial_proposal').length || 0
-      const completed = projects?.filter(p => p.status === 'completed').length || 0
-      const planning = projects?.filter(p => p.status === 'planning').length || 0
-      const cancelled = projects?.filter(p => p.status === 'cancelled').length || 0
+      const delayed = projects.filter(p => p.status === 'delayed').length || 0
+      const onHold = projects.filter(p => p.status === 'on_hold').length || 0
+      const commercialProposal = projects.filter(p => p.status === 'commercial_proposal').length || 0
+      const completed = projects.filter(p => p.status === 'completed').length || 0
+      const planning = projects.filter(p => p.status === 'planning').length || 0
+      const cancelled = projects.filter(p => p.status === 'cancelled').length || 0
 
       // 3. Calcular mudanças (mês anterior)
       const lastMonth = new Date()
       lastMonth.setMonth(lastMonth.getMonth() - 1)
       
-      const lastMonthProjects = projects?.filter(p => 
+      const lastMonthProjects = projects.filter(p => 
         new Date(p.created_at) < lastMonth
       ) || []
 
@@ -166,7 +274,7 @@ export class AnalyticsService {
 
       // 5. Distribuição por tipo
       const typeMap = new Map<string, number>()
-      projects?.forEach(p => {
+      projects.forEach(p => {
         const type = this.getProjectTypeLabel(p.project_type)
         typeMap.set(type, (typeMap.get(type) || 0) + 1)
       })
@@ -209,19 +317,19 @@ export class AnalyticsService {
         .map(({ name, count }) => ({ companyName: name, count }))
 
       // 7. Evolução temporal (últimos 6 meses)
-      const timeline = this.calculateTimeline(projects || [])
+      const timeline = this.calculateTimeline(projects)
 
       // 8. Performance trimestral (REAL)
-      const performance = this.calculateQuarterlyPerformance(projects || [])
+      const performance = this.calculateQuarterlyPerformance(projects)
 
-      // 9. Carga mensal (2025)
-      const monthlyLoad = this.calculateMonthlyLoad(projects || [])
+      // 9. Carga mensal (baseado no período filtrado)
+      const monthlyLoad = this.calculateMonthlyLoad(projects, startDate, endDate)
 
       // 10. Alertas
-      const alerts = this.generateAlerts(delayed, inProgress, completed, projects || [])
+      const alerts = this.generateAlerts(delayed, inProgress, completed, projects)
 
       // 11. Projetos complexos (com tarefas atrasadas > 30 dias)
-      const complexProjects = await this.detectComplexProjects(projects || [], tenantId)
+      const complexProjects = await this.detectComplexProjects(projects, tenantId)
       console.log('🔍 [Analytics] Projetos complexos detectados:', complexProjects.length, complexProjects)
 
       return {
@@ -341,12 +449,40 @@ export class AnalyticsService {
     })
   }
 
-  private calculateMonthlyLoad(projects: any[]) {
+  private calculateMonthlyLoad(projects: any[], startDate?: string, endDate?: string) {
     const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
-    const year = new Date().getFullYear()
     
-    return months.map((month, index) => {
-      const monthDate = new Date(year, index, 15) // meio do mês
+    // Se houver filtro de data, calcular meses baseado no período
+    let monthsToShow: { month: string; year: number; date: Date }[] = []
+    
+    if (startDate && endDate) {
+      const start = new Date(startDate)
+      const end = new Date(endDate)
+      const current = new Date(start)
+      
+      while (current <= end) {
+        const monthIndex = current.getMonth()
+        const monthName = months[monthIndex]
+        monthsToShow.push({
+          month: monthName,
+          year: current.getFullYear(),
+          date: new Date(current)
+        })
+        current.setMonth(current.getMonth() + 1)
+      }
+    } else {
+      // Sem filtro: mostrar ano atual
+      const year = new Date().getFullYear()
+      monthsToShow = months.map((month, index) => ({
+        month,
+        year,
+        date: new Date(year, index, 15)
+      }))
+    }
+    
+    return monthsToShow.map(({ month, year, date }) => {
+      const monthDate = new Date(date)
+      monthDate.setDate(15) // meio do mês
       
       const activeProjects = projects.filter(p => {
         const start = p.start_date ? new Date(p.start_date) : null
@@ -356,7 +492,7 @@ export class AnalyticsService {
         return start && start <= monthDate && (!endDate || endDate >= monthDate)
       }).length
 
-      return { month, activeProjects }
+      return { month: `${month}/${year.toString().slice(-2)}`, activeProjects }
     })
   }
 

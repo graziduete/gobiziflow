@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { LayoutDashboard, FolderKanban, CheckSquare, User, LogOut, ChevronLeft, ChevronRight, Shield } from "lucide-react"
+import { LayoutDashboard, FolderKanban, CheckSquare, User, LogOut, ChevronLeft, ChevronRight, Shield, BarChart3 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState, useEffect, useMemo, useCallback, memo } from "react"
@@ -83,6 +83,11 @@ const navigation = [
     name: "Sustentação",
     href: "/dashboard/sustentacao",
     icon: Shield,
+  },
+  {
+    name: "Analytics",
+    href: "/dashboard/analytics",
+    icon: BarChart3,
   },
   {
     name: "Perfil",

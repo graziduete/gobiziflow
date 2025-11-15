@@ -522,10 +522,16 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
             </div>
           </div>
           
-          {/* Botão Analytics - apenas para admins */}
-          {(userRole === 'admin' || userRole === 'admin_operacional' || userRole === 'admin_master') && (
+          {/* Botão Analytics - para admins e clientes */}
+          {((userRole === 'admin' || userRole === 'admin_operacional' || userRole === 'admin_master') || !userRole) && (
             <Button
-              onClick={() => router.push('/admin/analytics')}
+              onClick={() => {
+                if (userRole === 'admin' || userRole === 'admin_operacional' || userRole === 'admin_master') {
+                  router.push('/admin/analytics')
+                } else {
+                  router.push('/dashboard/analytics')
+                }
+              }}
               className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all"
               size="lg"
             >

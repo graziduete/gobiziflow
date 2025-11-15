@@ -20,6 +20,9 @@ import {
   Calendar
 } from "lucide-react"
 import { AnalyticsService, AnalyticsData } from "@/lib/analytics-service"
+import { HourService } from "@/lib/hour-service"
+import { formatDecimalToHHMM } from "@/lib/utils/hours"
+import { useClientData } from "@/hooks/use-client-data"
 import { 
   Chart as ChartJS, 
   CategoryScale, 
@@ -34,6 +37,65 @@ import {
   ChartOptions
 } from 'chart.js'
 import { Line, Bar, Doughnut } from 'react-chartjs-2'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
+// ID da Copersucar
+const COPERSUCAR_ID = '443a6a0e-768f-48e4-a9ea-0cd972375a30'
+
+// Função utilitária para calcular período safra
+function getSafraPeriod(safra: string): { start: string; end: string } | null {
+  // Formato esperado: "2025/26" ou "2025/2026"
+  const match = safra.match(/(\d{4})\/(\d{2,4})/)
+  if (!match) return null
+  
+  const startYear = parseInt(match[1])
+  const endYearShort = parseInt(match[2])
+  // Se for 2 dígitos, assume que é o ano seguinte (ex: 26 = 2026)
+  const endYear = endYearShort < 100 ? 2000 + endYearShort : endYearShort
+  
+  return {
+    start: `${startYear}-04-01`,
+    end: `${endYear}-03-31`
+  }
+}
+
+// Função para gerar lista de safras disponíveis
+function getAvailableSafras(): string[] {
+  const currentYear = new Date().getFullYear()
+  const currentMonth = new Date().getMonth() + 1
+  
+  // Se estamos após abril, a safra atual já começou
+  const startYear = currentMonth >= 4 ? currentYear : currentYear - 1
+  const safras: string[] = []
+  
+  // Gerar safras dos últimos 3 anos e próximos 2 anos
+  for (let i = -3; i <= 2; i++) {
+    const year = startYear + i
+    const nextYear = year + 1
+    const nextYearShort = nextYear.toString().slice(-2)
+    safras.push(`${year}/${nextYearShort}`)
+  }
+  
+  return safras.reverse()
+}
+
+// Função para obter safra atual baseada na data
+function getCurrentSafra(): string {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = now.getMonth() + 1
+  
+  // Se estamos entre abril e dezembro, a safra é do ano atual
+  // Se estamos entre janeiro e março, a safra é do ano anterior
+  if (month >= 4) {
+    const nextYear = (year + 1).toString().slice(-2)
+    return `${year}/${nextYear}`
+  } else {
+    const prevYear = year - 1
+    const currentYearShort = year.toString().slice(-2)
+    return `${prevYear}/${currentYearShort}`
+  }
+}
 
 // Registrar componentes do Chart.js
 ChartJS.register(
@@ -48,14 +110,23 @@ ChartJS.register(
   Legend
 )
 
-export default function AnalyticsPage() {
+export default function ClientAnalyticsPage() {
   const router = useRouter()
+  const { company, isLoading: clientLoading } = useClientData()
   const [loading, setLoading] = useState(true)
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null)
-  const [userRole, setUserRole] = useState<string | null>(null)
-  const [tenantId, setTenantId] = useState<string | null | undefined>(undefined)
   const [expandedAlerts, setExpandedAlerts] = useState<Set<number | string>>(new Set())
-  const [companyNames, setCompanyNames] = useState<Map<string, string>>(new Map())
+  const [hourStats, setHourStats] = useState({
+    totalContractedHours: 0,
+    totalConsumedHours: 0,
+    totalRemainingHours: 0
+  })
+  
+  // Estados para filtros
+  const [selectedSafra, setSelectedSafra] = useState<string>(getCurrentSafra())
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear())
+  
+  const isCopersucar = company?.id === COPERSUCAR_ID
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -63,8 +134,34 @@ export default function AnalyticsPage() {
   )
 
   useEffect(() => {
-    loadAnalyticsData()
-  }, [])
+    if (!clientLoading && company?.id) {
+      // Resetar filtros quando empresa mudar
+      const isCopersucarCompany = company.id === COPERSUCAR_ID
+      if (isCopersucarCompany) {
+        setSelectedSafra(getCurrentSafra())
+      } else {
+        setSelectedYear(new Date().getFullYear())
+      }
+      loadHourStats()
+    }
+  }, [clientLoading, company?.id])
+
+  useEffect(() => {
+    if (!clientLoading && company?.id) {
+      loadAnalyticsData()
+    }
+  }, [selectedSafra, selectedYear, company?.id])
+
+  const loadHourStats = async () => {
+    if (!company?.id) return
+    
+    try {
+      const stats = await HourService.getDashboardHourStats(company.id)
+      setHourStats(stats)
+    } catch (error) {
+      console.error("Erro ao carregar estatísticas de horas:", error)
+    }
+  }
 
   const loadAnalyticsData = async () => {
     try {
@@ -77,60 +174,35 @@ export default function AnalyticsPage() {
         return
       }
 
-      // Verificar perfil
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .single()
-
-      setUserRole(profile?.role || null)
-
-      // Verificar se é Client Admin
-      const { data: clientAdmin } = await supabase
-        .from('client_admins')
-        .select('company_id')
-        .eq('id', user.id)
-        .single()
-
-      let tenantFilter: string | null | undefined = undefined
-
-      if (clientAdmin) {
-        // Client Admin - filtrar por tenant_id
-        tenantFilter = clientAdmin.company_id
-      } else if (profile?.role === 'admin' || profile?.role === 'admin_operacional') {
-        // Admin Normal - filtrar por tenant_id null
-        tenantFilter = null
+      if (!company?.id) {
+        setLoading(false)
+        return
       }
-      // Admin Master - sem filtro (undefined)
 
-      setTenantId(tenantFilter)
+      // Calcular período de filtro
+      let startDate: string | undefined
+      let endDate: string | undefined
+      
+      const isCopersucarCompany = company.id === COPERSUCAR_ID
+      
+      if (isCopersucarCompany && selectedSafra) {
+        // Filtro por safra (Copersucar)
+        const period = getSafraPeriod(selectedSafra)
+        if (period) {
+          startDate = period.start
+          endDate = period.end
+        }
+      } else if (!isCopersucarCompany) {
+        // Filtro por ano calendário (outros clientes)
+        startDate = `${selectedYear}-01-01`
+        endDate = `${selectedYear}-12-31`
+      }
 
-      // Buscar dados de analytics
+      // Buscar dados de analytics filtrados pela empresa do cliente e período
       const analyticsService = new AnalyticsService()
-      const data = await analyticsService.getAnalyticsData(tenantFilter)
+      const data = await analyticsService.getAnalyticsData(undefined, company.id, startDate, endDate)
       
       setAnalyticsData(data)
-
-      // Buscar nomes das empresas dos projetos nos alertas
-      const companyIds = new Set<string>()
-      data.alerts.forEach(alert => {
-        alert.projects?.forEach(project => {
-          if (project.company_id) {
-            companyIds.add(project.company_id)
-          }
-        })
-      })
-
-      if (companyIds.size > 0) {
-        const { data: companies } = await supabase
-          .from('companies')
-          .select('id, name')
-          .in('id', Array.from(companyIds))
-        
-        const nameMap = new Map(companies?.map(c => [c.id, c.name]) || [])
-        setCompanyNames(nameMap)
-      }
     } catch (error) {
       console.error('Erro ao carregar dados de analytics:', error)
     } finally {
@@ -138,7 +210,7 @@ export default function AnalyticsPage() {
     }
   }
 
-  if (loading) {
+  if (clientLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
         <div className="text-center space-y-4">
@@ -155,13 +227,13 @@ export default function AnalyticsPage() {
     )
   }
 
-  if (!analyticsData) {
+  if (!analyticsData || !company) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
         <div className="text-center space-y-4">
           <AlertTriangle className="w-16 h-16 text-yellow-500 mx-auto" />
           <p className="text-slate-600 font-medium">Não foi possível carregar os dados</p>
-          <Button onClick={() => router.push('/admin')}>
+          <Button onClick={() => router.push('/dashboard')}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Voltar ao Dashboard
           </Button>
@@ -237,41 +309,6 @@ export default function AnalyticsPage() {
     }
   }
 
-  // Opções especiais para o gráfico de performance com tooltip customizado
-  const performanceChartOptions: ChartOptions<'bar'> = {
-    ...barChartOptions,
-    plugins: {
-      ...barChartOptions.plugins,
-      tooltip: {
-        backgroundColor: 'rgba(0, 0, 0, 0.9)',
-        padding: 16,
-        titleFont: { size: 14, weight: 'bold' },
-        bodyFont: { size: 12 },
-        cornerRadius: 8,
-        callbacks: {
-          afterLabel: function(context) {
-            const dataIndex = context.dataIndex
-            const datasetIndex = context.datasetIndex
-            const performance = analyticsData.performance[dataIndex]
-            
-            let projects: string[] = []
-            if (datasetIndex === 0 && performance.plannedProjects) {
-              projects = performance.plannedProjects
-            } else if (datasetIndex === 1 && performance.realizedProjects) {
-              projects = performance.realizedProjects
-            } else if (datasetIndex === 2 && performance.predictedProjects) {
-              projects = performance.predictedProjects
-            }
-            
-            if (projects.length === 0) return ''
-            
-            return '\n' + projects.map((name, i) => `  ${i + 1}. ${name}`).join('\n')
-          }
-        }
-      }
-    }
-  }
-
   const doughnutOptions: ChartOptions<'doughnut'> = {
     responsive: true,
     maintainAspectRatio: false,
@@ -335,64 +372,25 @@ export default function AnalyticsPage() {
     }],
   }
 
-  // Dados para o gráfico de distribuição por tipo
-  const typeChartData = {
-    labels: analyticsData.typeDistribution.map(t => t.label),
-    datasets: [{
-      label: 'Projetos',
-      data: analyticsData.typeDistribution.map(t => t.value),
-      backgroundColor: [
-        'rgba(59, 130, 246, 0.8)',
-        'rgba(16, 185, 129, 0.8)',
-        'rgba(245, 158, 11, 0.8)',
-        'rgba(139, 92, 246, 0.8)',
-        'rgba(236, 72, 153, 0.8)',
-      ],
-      borderRadius: 8,
-    }],
-  }
-
-  // Dados para o gráfico de performance
-  const performanceChartData = {
-    labels: analyticsData.performance.map(p => p.quarter),
+  // Dados para o gráfico de horas consumidas vs contratadas
+  const hoursChartData = {
+    labels: ['Horas Contratadas', 'Horas Consumidas', 'Horas Restantes'],
     datasets: [
       {
-        label: 'Planejado',
-        data: analyticsData.performance.map(p => p.planned),
-        backgroundColor: 'rgba(59, 130, 246, 0.8)',
-        borderRadius: 8,
-      },
-      {
-        label: 'Realizado',
-        data: analyticsData.performance.map(p => p.realized),
-        backgroundColor: 'rgba(16, 185, 129, 0.8)',
-        borderRadius: 8,
-      },
-      {
-        label: 'Previsto',
-        data: analyticsData.performance.map(p => p.predicted),
-        backgroundColor: 'rgba(245, 158, 11, 0.8)',
+        label: 'Horas',
+        data: [
+          hourStats.totalContractedHours,
+          hourStats.totalConsumedHours,
+          hourStats.totalRemainingHours
+        ],
+        backgroundColor: [
+          'rgba(59, 130, 246, 0.8)',
+          'rgba(16, 185, 129, 0.8)',
+          'rgba(245, 158, 11, 0.8)',
+        ],
         borderRadius: 8,
       },
     ],
-  }
-
-  // Dados para o gráfico de carga mensal
-  const monthlyLoadChartData = {
-    labels: analyticsData.monthlyLoad.map(m => m.month),
-    datasets: [{
-      label: 'Projetos Ativos',
-      data: analyticsData.monthlyLoad.map(m => m.activeProjects),
-      borderColor: 'rgb(139, 92, 246)',
-      backgroundColor: 'rgba(139, 92, 246, 0.1)',
-      tension: 0.4,
-      fill: true,
-      pointBackgroundColor: 'rgb(139, 92, 246)',
-      pointBorderColor: '#fff',
-      pointBorderWidth: 2,
-      pointRadius: 4,
-      pointHoverRadius: 6,
-    }],
   }
 
   return (
@@ -409,7 +407,7 @@ export default function AnalyticsPage() {
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-2">
             <button
-              onClick={() => router.push('/admin')}
+              onClick={() => router.push('/dashboard')}
               className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
               aria-label="Voltar"
             >
@@ -426,6 +424,67 @@ export default function AnalyticsPage() {
           </div>
           <p className="text-slate-600 text-base ml-[72px]">Análise completa e visual dos seus projetos</p>
         </div>
+
+        {/* Filtro de Período */}
+        <Card className="border-0 shadow-md bg-white/80 backdrop-blur-sm">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-slate-600" />
+                <span className="text-sm font-medium text-slate-700">
+                  {isCopersucar ? 'Ano Safra:' : 'Ano:'}
+                </span>
+              </div>
+              
+              {isCopersucar ? (
+                <>
+                  <Select value={selectedSafra} onValueChange={setSelectedSafra}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Selecione a safra" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {getAvailableSafras().map((safra) => (
+                        <SelectItem key={safra} value={safra}>
+                          {safra}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  
+                  {selectedSafra && (() => {
+                    const period = getSafraPeriod(selectedSafra)
+                    return period ? (
+                      <div className="text-sm text-slate-500">
+                        Período: {new Date(period.start).toLocaleDateString('pt-BR')} até {new Date(period.end).toLocaleDateString('pt-BR')}
+                      </div>
+                    ) : null
+                  })()}
+                </>
+              ) : (
+                <>
+                  <Select 
+                    value={selectedYear.toString()} 
+                    onValueChange={(value) => setSelectedYear(parseInt(value))}
+                  >
+                    <SelectTrigger className="w-[140px]">
+                      <SelectValue placeholder="Selecione o ano" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 5 }, (_, i) => {
+                        const year = new Date().getFullYear() - 2 + i
+                        return (
+                          <SelectItem key={year} value={year.toString()}>
+                            {year}
+                          </SelectItem>
+                        )
+                      })}
+                    </SelectContent>
+                  </Select>
+                </>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Alertas e Projetos Complexos */}
         {(analyticsData.alerts.length > 0 || analyticsData.complexProjects.length > 0) && (
@@ -567,9 +626,7 @@ export default function AnalyticsPage() {
                       </h3>
                     </div>
                     <div className="space-y-3">
-
                       {alert.projects.map((project, pIndex) => {
-                        const companyName = companyNames.get(project.company_id) || 'Empresa não informada'
                         const deadline = project.predicted_end_date || project.end_date
                         const deadlineDate = deadline ? new Date(deadline).toLocaleDateString('pt-BR') : 'Sem data'
                         
@@ -612,11 +669,6 @@ export default function AnalyticsPage() {
                                 </div>
                                 <div className="flex items-center gap-2 flex-wrap text-sm">
                                   <span className="inline-flex items-center gap-1 text-slate-600">
-                                    <Building2 className="w-3.5 h-3.5" />
-                                    {companyName}
-                                  </span>
-                                  <span className="text-slate-400">•</span>
-                                  <span className="inline-flex items-center gap-1 text-slate-600">
                                     <Calendar className="w-3.5 h-3.5" />
                                     {deadlineDate}
                                   </span>
@@ -627,7 +679,7 @@ export default function AnalyticsPage() {
                                 size="sm"
                                 onClick={(e) => {
                                   e.stopPropagation()
-                                  router.push(`/admin/projects/${project.id}`)
+                                  router.push(`/dashboard/projects/${project.id}`)
                                 }}
                                 className="shrink-0 bg-white border-2 border-indigo-500 text-indigo-600 hover:bg-indigo-50 shadow-sm hover:shadow-md transition-all"
                               >
@@ -656,7 +708,7 @@ export default function AnalyticsPage() {
               </div>
               <div className="space-y-3">
                 {analyticsData.complexProjects.map((project, index) => {
-                  const companyName = companyNames.get(project.company_id) || 'Empresa não informada'
+                  const companyName = company?.name || 'Empresa não informada'
                   
                   return (
                     <div 
@@ -710,7 +762,7 @@ export default function AnalyticsPage() {
                           size="sm"
                           onClick={(e) => {
                             e.stopPropagation()
-                            router.push(`/admin/projects/${project.id}`)
+                            router.push(`/dashboard/projects/${project.id}`)
                           }}
                           className="shrink-0 bg-white border-2 border-violet-500 text-violet-600 hover:bg-violet-50 shadow-sm hover:shadow-md transition-all"
                         >
@@ -913,85 +965,26 @@ export default function AnalyticsPage() {
             </CardContent>
           </Card>
 
-          {/* Distribuição por Tipo */}
-          <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+          {/* Horas Consumidas vs Contratadas */}
+          <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm lg:col-span-2">
             <CardHeader>
               <div className="flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-purple-600" />
-                <CardTitle>Distribuição por Tipo</CardTitle>
+                <Clock className="w-5 h-5 text-indigo-600" />
+                <CardTitle>Horas Consumidas vs Contratadas</CardTitle>
               </div>
-              <CardDescription>Categorias de projeto</CardDescription>
+              <CardDescription>
+                Contratadas: {formatDecimalToHHMM(hourStats.totalContractedHours)} | 
+                Consumidas: {formatDecimalToHHMM(hourStats.totalConsumedHours)} | 
+                Restantes: {formatDecimalToHHMM(hourStats.totalRemainingHours)}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div style={{ height: '300px' }}>
-                <Bar data={typeChartData} options={barChartOptions} />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Performance Trimestral */}
-          <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-orange-600" />
-                <CardTitle>Performance Trimestral</CardTitle>
-              </div>
-              <CardDescription>Planejado vs Realizado (passe o mouse para ver os projetos)</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div style={{ height: '300px' }}>
-                <Bar data={performanceChartData} options={performanceChartOptions} />
+                <Bar data={hoursChartData} options={barChartOptions} />
               </div>
             </CardContent>
           </Card>
         </div>
-
-        {/* Gráfico de carga mensal (full width) */}
-        <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Activity className="w-5 h-5 text-indigo-600" />
-              <CardTitle>Carga Mensal de Projetos Ativos (2025)</CardTitle>
-            </div>
-            <CardDescription>Quantidade de projetos ativos por mês</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div style={{ height: '350px' }}>
-              <Line data={monthlyLoadChartData} options={lineChartOptions} />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Projetos por Empresa */}
-        {analyticsData.projectsByCompany.length > 0 && (
-          <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Building2 className="w-5 h-5 text-blue-600" />
-                <CardTitle>Projetos por Empresa</CardTitle>
-              </div>
-              <CardDescription>Top 10 empresas com mais projetos</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {analyticsData.projectsByCompany.map((company, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <Badge className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-                        #{index + 1}
-                      </Badge>
-                      <span className="font-medium text-slate-800">{company.companyName}</span>
-                    </div>
-                    <Badge variant="outline" className="font-bold">
-                      {company.count} {company.count === 1 ? 'projeto' : 'projetos'}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
       </div>
     </div>
   )
