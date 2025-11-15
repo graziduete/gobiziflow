@@ -34,6 +34,59 @@ import {
   ChartOptions
 } from 'chart.js'
 import { Line, Bar, Doughnut } from 'react-chartjs-2'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
+// ID da Copersucar
+const COPERSUCAR_ID = '443a6a0e-768f-48e4-a9ea-0cd972375a30'
+
+// Função utilitária para calcular período safra
+function getSafraPeriod(safra: string): { start: string; end: string } | null {
+  const match = safra.match(/(\d{4})\/(\d{2,4})/)
+  if (!match) return null
+  
+  const startYear = parseInt(match[1])
+  const endYearShort = parseInt(match[2])
+  const endYear = endYearShort < 100 ? 2000 + endYearShort : endYearShort
+  
+  return {
+    start: `${startYear}-04-01`,
+    end: `${endYear}-03-31`
+  }
+}
+
+// Função para gerar lista de safras disponíveis
+function getAvailableSafras(): string[] {
+  const currentYear = new Date().getFullYear()
+  const currentMonth = new Date().getMonth() + 1
+  
+  const startYear = currentMonth >= 4 ? currentYear : currentYear - 1
+  const safras: string[] = []
+  
+  for (let i = -3; i <= 2; i++) {
+    const year = startYear + i
+    const nextYear = year + 1
+    const nextYearShort = nextYear.toString().slice(-2)
+    safras.push(`${year}/${nextYearShort}`)
+  }
+  
+  return safras.reverse()
+}
+
+// Função para obter safra atual baseada na data
+function getCurrentSafra(): string {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = now.getMonth() + 1
+  
+  if (month >= 4) {
+    const nextYear = (year + 1).toString().slice(-2)
+    return `${year}/${nextYear}`
+  } else {
+    const prevYear = year - 1
+    const currentYearShort = year.toString().slice(-2)
+    return `${prevYear}/${currentYearShort}`
+  }
+}
 
 // Registrar componentes do Chart.js
 ChartJS.register(
@@ -56,15 +109,44 @@ export default function AnalyticsPage() {
   const [tenantId, setTenantId] = useState<string | null | undefined>(undefined)
   const [expandedAlerts, setExpandedAlerts] = useState<Set<number | string>>(new Set())
   const [companyNames, setCompanyNames] = useState<Map<string, string>>(new Map())
+  
+  // Estados para filtros
+  const [companies, setCompanies] = useState<any[]>([])
+  const [selectedCompany, setSelectedCompany] = useState<string>("all")
+  const [selectedSafra, setSelectedSafra] = useState<string>(getCurrentSafra())
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear())
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
+  // Detectar se a empresa selecionada é Copersucar
+  const isCopersucar = selectedCompany !== "all" && selectedCompany === COPERSUCAR_ID
+
   useEffect(() => {
-    loadAnalyticsData()
+    loadCompanies()
   }, [])
+
+  useEffect(() => {
+    if (companies.length > 0) {
+      loadAnalyticsData()
+    }
+  }, [selectedCompany, selectedSafra, selectedYear, tenantId])
+
+  const loadCompanies = async () => {
+    try {
+      const { data: companiesData, error } = await supabase
+        .from('companies')
+        .select('id, name')
+        .order('name')
+      
+      if (error) throw error
+      setCompanies(companiesData || [])
+    } catch (error) {
+      console.error('Erro ao carregar empresas:', error)
+    }
+  }
 
   const loadAnalyticsData = async () => {
     try {
@@ -106,9 +188,37 @@ export default function AnalyticsPage() {
 
       setTenantId(tenantFilter)
 
+      // Calcular período de filtro
+      let startDate: string | undefined
+      let endDate: string | undefined
+      let companyId: string | undefined
+      
+      // Se empresa específica foi selecionada
+      if (selectedCompany !== "all") {
+        companyId = selectedCompany
+        
+        // Verificar se é Copersucar
+        if (selectedCompany === COPERSUCAR_ID && selectedSafra) {
+          // Filtro por safra (Copersucar)
+          const period = getSafraPeriod(selectedSafra)
+          if (period) {
+            startDate = period.start
+            endDate = period.end
+          }
+        } else if (selectedCompany !== COPERSUCAR_ID) {
+          // Filtro por ano calendário (outras empresas)
+          startDate = `${selectedYear}-01-01`
+          endDate = `${selectedYear}-12-31`
+        }
+      } else {
+        // Todas as empresas: usar ano calendário
+        startDate = `${selectedYear}-01-01`
+        endDate = `${selectedYear}-12-31`
+      }
+
       // Buscar dados de analytics
       const analyticsService = new AnalyticsService()
-      const data = await analyticsService.getAnalyticsData(tenantFilter)
+      const data = await analyticsService.getAnalyticsData(tenantFilter, companyId, startDate, endDate)
       
       setAnalyticsData(data)
 
@@ -425,6 +535,93 @@ export default function AnalyticsPage() {
             </div>
           </div>
           <p className="text-slate-600 text-base ml-[72px]">Análise completa e visual dos seus projetos</p>
+        </div>
+
+        {/* Filtros de Empresa e Período */}
+        <div className="grid gap-4 md:grid-cols-2">
+          {/* Filtro de Empresa */}
+          <Card className="border-0 shadow-md bg-white/80 backdrop-blur-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Building2 className="w-5 h-5 text-slate-600" />
+                  <span className="text-sm font-medium text-slate-700">Empresa:</span>
+                </div>
+                <Select value={selectedCompany} onValueChange={setSelectedCompany}>
+                  <SelectTrigger className="w-full md:w-[250px]">
+                    <SelectValue placeholder="Selecione a empresa" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas as Empresas</SelectItem>
+                    {companies.map((company) => (
+                      <SelectItem key={company.id} value={company.id}>
+                        {company.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Filtro de Período */}
+          <Card className="border-0 shadow-md bg-white/80 backdrop-blur-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-slate-600" />
+                  <span className="text-sm font-medium text-slate-700">
+                    {isCopersucar ? 'Ano Safra:' : 'Ano:'}
+                  </span>
+                </div>
+                
+                {isCopersucar ? (
+                  <>
+                    <Select value={selectedSafra} onValueChange={setSelectedSafra}>
+                      <SelectTrigger className="w-full md:w-[180px]">
+                        <SelectValue placeholder="Selecione a safra" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {getAvailableSafras().map((safra) => (
+                          <SelectItem key={safra} value={safra}>
+                            {safra}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    
+                    {selectedSafra && (() => {
+                      const period = getSafraPeriod(selectedSafra)
+                      return period ? (
+                        <div className="text-sm text-slate-500 hidden md:block">
+                          {new Date(period.start).toLocaleDateString('pt-BR')} até {new Date(period.end).toLocaleDateString('pt-BR')}
+                        </div>
+                      ) : null
+                    })()}
+                  </>
+                ) : (
+                  <Select 
+                    value={selectedYear.toString()} 
+                    onValueChange={(value) => setSelectedYear(parseInt(value))}
+                  >
+                    <SelectTrigger className="w-full md:w-[140px]">
+                      <SelectValue placeholder="Selecione o ano" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 5 }, (_, i) => {
+                        const year = new Date().getFullYear() - 2 + i
+                        return (
+                          <SelectItem key={year} value={year.toString()}>
+                            {year}
+                          </SelectItem>
+                        )
+                      })}
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Alertas e Projetos Complexos */}
