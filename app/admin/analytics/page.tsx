@@ -204,11 +204,11 @@ export default function AnalyticsPage() {
       const currentTenantId = tenantFilter
 
       // Calcular período de filtro
-      let startDate: string | undefined
-      let endDate: string | undefined
-      let companyId: string | undefined
+      let startDate: string | undefined = undefined
+      let endDate: string | undefined = undefined
+      let companyId: string | undefined = undefined
       
-      // Se empresa específica foi selecionada
+      // Se empresa específica foi selecionada, aplicar filtros
       if (selectedCompany !== "all") {
         companyId = selectedCompany
         
@@ -225,11 +225,8 @@ export default function AnalyticsPage() {
           startDate = `${selectedYear}-01-01`
           endDate = `${selectedYear}-12-31`
         }
-      } else {
-        // Todas as empresas: usar ano calendário
-        startDate = `${selectedYear}-01-01`
-        endDate = `${selectedYear}-12-31`
       }
+      // Para "Todas as Empresas": startDate e endDate ficam undefined (não aplica filtro de data)
 
       // Buscar dados de analytics
       const analyticsService = new AnalyticsService()
