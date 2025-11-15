@@ -144,10 +144,41 @@ export default function AnalyticsPage() {
 
   const loadCompanies = async () => {
     try {
-      const { data: companiesData, error } = await supabase
+      // Buscar dados do usuário para aplicar filtro correto
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      // Verificar perfil
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role, is_client_admin")
+        .eq("id", user.id)
+        .single()
+
+      let companiesQuery = supabase
         .from('companies')
-        .select('id, name')
+        .select('id, name, tenant_id')
         .order('name')
+
+      // Aplicar filtro de tenant_id baseado no perfil
+      if (profile?.is_client_admin) {
+        // Client Admin - filtrar por tenant_id
+        const { data: clientAdmin } = await supabase
+          .from('client_admins')
+          .select('company_id')
+          .eq('id', user.id)
+          .single()
+        
+        if (clientAdmin?.company_id) {
+          companiesQuery = companiesQuery.eq('tenant_id', clientAdmin.company_id)
+        }
+      } else if (profile?.role === 'admin' || profile?.role === 'admin_operacional') {
+        // Admin Normal - filtrar apenas empresas sem tenant_id
+        companiesQuery = companiesQuery.is('tenant_id', null)
+      }
+      // Admin Master - sem filtro (mostra todas)
+
+      const { data: companiesData, error } = await companiesQuery
       
       if (error) throw error
       setCompanies(companiesData || [])
