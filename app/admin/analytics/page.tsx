@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { createBrowserClient } from "@supabase/ssr"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -115,6 +115,9 @@ export default function AnalyticsPage() {
   const [selectedCompany, setSelectedCompany] = useState<string>("all")
   const [selectedSafra, setSelectedSafra] = useState<string>(getCurrentSafra())
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear())
+  
+  // Ref para evitar carregamento duplo na inicialização
+  const hasInitialLoad = useRef(false)
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -126,13 +129,18 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     loadCompanies()
+    // Carregar analytics na inicialização
+    loadAnalyticsData()
   }, [])
 
   useEffect(() => {
-    if (companies.length > 0) {
+    // Recarregar apenas quando filtros mudarem (não na inicialização)
+    if (hasInitialLoad.current) {
       loadAnalyticsData()
+    } else {
+      hasInitialLoad.current = true
     }
-  }, [selectedCompany, selectedSafra, selectedYear, tenantId])
+  }, [selectedCompany, selectedSafra, selectedYear])
 
   const loadCompanies = async () => {
     try {
@@ -186,7 +194,14 @@ export default function AnalyticsPage() {
       }
       // Admin Master - sem filtro (undefined)
 
-      setTenantId(tenantFilter)
+      // Não atualizar tenantId aqui para evitar loop infinito
+      // tenantId será usado apenas na primeira carga
+      if (tenantId === undefined) {
+        setTenantId(tenantFilter)
+      }
+
+      // Usar tenantFilter diretamente (não depende do estado)
+      const currentTenantId = tenantFilter
 
       // Calcular período de filtro
       let startDate: string | undefined
@@ -218,7 +233,7 @@ export default function AnalyticsPage() {
 
       // Buscar dados de analytics
       const analyticsService = new AnalyticsService()
-      const data = await analyticsService.getAnalyticsData(tenantFilter, companyId, startDate, endDate)
+      const data = await analyticsService.getAnalyticsData(currentTenantId, companyId, startDate, endDate)
       
       setAnalyticsData(data)
 
