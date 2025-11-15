@@ -75,6 +75,9 @@ export default function AdminDashboard() {
   // Estados para controle de privacidade dos cards
   const [isRevenueVisible, setIsRevenueVisible] = useState(false)
   const [isForecastVisible, setIsForecastVisible] = useState(false)
+  
+  // Controle para mostrar/esconder cards de estatísticas de projetos (redundantes com Analytics)
+  const SHOW_PROJECT_STATS_CARDS = false // Mudar para true para mostrar novamente
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -1023,41 +1026,44 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatsCard
-          title={selectedCompany !== "all" ? "Projetos em Planejamento" : "Total de Projetos"}
-          value={selectedCompany !== "all" 
-            ? (selectedCompany !== "all" ? filteredProjects : projects).filter(p => p.status === "planning").length
-            : projectsCount
-          }
-          description={selectedCompany !== "all" ? "Aguardando início" : "Período selecionado"}
-          icon={FolderKanban}
-        />
-        <StatsCard
-          title="Projetos em Andamento"
-          value={projectsInProgress}
-          description="Em desenvolvimento"
-          icon={FolderKanban}
-        />
-        <StatsCard
-          title="Projetos Atrasados"
-          value={selectedCompany !== "all" 
-            ? filteredProjects.filter(p => p.status === "delayed").length
-            : projectsDelayed
-          }
-          description="Requerem atenção"
-          icon={AlertTriangle}
-        />
-        <StatsCard
-          title="Projetos Concluídos"
-          value={selectedCompany !== "all" 
-            ? filteredProjects.filter(p => p.status === "completed").length
-            : projectsCompleted
-          }
-          description="Finalizados com sucesso"
-          icon={CheckCircle}
-        />
-      </div>
+      {/* Cards de estatísticas de projetos - Escondidos por serem redundantes com Analytics */}
+      {SHOW_PROJECT_STATS_CARDS && (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <StatsCard
+            title={selectedCompany !== "all" ? "Projetos em Planejamento" : "Total de Projetos"}
+            value={selectedCompany !== "all" 
+              ? (selectedCompany !== "all" ? filteredProjects : projects).filter(p => p.status === "planning").length
+              : projectsCount
+            }
+            description={selectedCompany !== "all" ? "Aguardando início" : "Período selecionado"}
+            icon={FolderKanban}
+          />
+          <StatsCard
+            title="Projetos em Andamento"
+            value={projectsInProgress}
+            description="Em desenvolvimento"
+            icon={FolderKanban}
+          />
+          <StatsCard
+            title="Projetos Atrasados"
+            value={selectedCompany !== "all" 
+              ? filteredProjects.filter(p => p.status === "delayed").length
+              : projectsDelayed
+            }
+            description="Requerem atenção"
+            icon={AlertTriangle}
+          />
+          <StatsCard
+            title="Projetos Concluídos"
+            value={selectedCompany !== "all" 
+              ? filteredProjects.filter(p => p.status === "completed").length
+              : projectsCompleted
+            }
+            description="Finalizados com sucesso"
+            icon={CheckCircle}
+          />
+        </div>
+      )}
 
       <div className="grid gap-4 md:grid-cols-3">
         <StatsCard
