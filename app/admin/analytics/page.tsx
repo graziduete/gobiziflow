@@ -239,7 +239,7 @@ export default function AnalyticsPage() {
       let endDate: string | undefined = undefined
       let companyId: string | undefined = undefined
       
-      // Se empresa específica foi selecionada
+      // Se empresa específica foi selecionada, aplicar filtros
       if (selectedCompany !== "all") {
         companyId = selectedCompany
         
@@ -256,11 +256,8 @@ export default function AnalyticsPage() {
           startDate = `${selectedYear}-01-01`
           endDate = `${selectedYear}-12-31`
         }
-      } else {
-        // Para "Todas as Empresas": aplicar filtro de ano calendário
-        startDate = `${selectedYear}-01-01`
-        endDate = `${selectedYear}-12-31`
       }
+      // Para "Todas as Empresas": startDate e endDate ficam undefined (não aplica filtro de data)
 
       // Buscar dados de analytics
       const analyticsService = new AnalyticsService()
