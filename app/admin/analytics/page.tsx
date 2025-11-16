@@ -257,8 +257,19 @@ export default function AnalyticsPage() {
         end.setHours(23, 59, 59, 999)
         
         projects = projects.filter((p: any) => {
-          // Para projetos em 'commercial_proposal', 'planning' ou 'cancelled', verificar created_at
-          if (p.status === 'commercial_proposal' || p.status === 'planning' || p.status === 'cancelled') {
+          // Para projetos cancelados, sempre incluir se tiver created_at no período
+          // ou se não tiver created_at, incluir todos (para não perder projetos antigos)
+          if (p.status === 'cancelled') {
+            if (p.created_at) {
+              const created = new Date(p.created_at)
+              return created >= start && created <= end
+            }
+            // Se não tiver created_at, incluir todos os cancelados (projetos antigos)
+            return true
+          }
+          
+          // Para projetos em 'commercial_proposal' ou 'planning', verificar created_at
+          if (p.status === 'commercial_proposal' || p.status === 'planning') {
             if (p.created_at) {
               const created = new Date(p.created_at)
               return created >= start && created <= end
@@ -275,6 +286,7 @@ export default function AnalyticsPage() {
           return false
         })
       }
+      // Se não há filtro de data, incluir TODOS os projetos (já está correto)
 
       // Agrupar projetos por status
       const statusMap = new Map<string, string[]>()
