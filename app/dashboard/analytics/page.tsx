@@ -380,6 +380,74 @@ export default function ClientAnalyticsPage() {
     }
   }
 
+  // Opções do gráfico de distribuição por status com tooltip customizado
+  // IMPORTANTE: useMemo deve vir ANTES dos early returns para seguir as regras dos Hooks
+  const doughnutOptions: ChartOptions<'doughnut'> = useMemo(() => ({
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'right',
+        labels: {
+          font: { size: 11 },
+          padding: 12,
+          usePointStyle: true,
+        }
+      },
+      tooltip: {
+        backgroundColor: 'rgba(15, 23, 42, 0.98)',
+        padding: 10,
+        titleFont: { size: 12, weight: 'bold' },
+        bodyFont: { size: 11 },
+        cornerRadius: 6,
+        displayColors: false,
+        titleColor: '#fff',
+        bodyColor: '#cbd5e1',
+        borderColor: 'rgba(255, 255, 255, 0.15)',
+        borderWidth: 1,
+        maxWidth: 280,
+        titleSpacing: 4,
+        bodySpacing: 3,
+        callbacks: {
+          title: function(context) {
+            const label = context[0]?.label || ''
+            const value = context[0]?.parsed || 0
+            return `${label}: ${value}`
+          },
+          label: function(context) {
+            // Retornar vazio aqui, vamos usar afterBody para a lista
+            return ''
+          },
+          afterBody: function(context) {
+            if (!analyticsData) return []
+
+            const label = context[0]?.label || ''
+            const projects = projectsByStatus.get(label) || []
+
+            if (projects.length === 0) {
+              return []
+            }
+
+            // Mostrar todos os projetos, mas limitar a 15 para não ficar muito grande
+            const maxProjects = 15
+            const displayProjects = projects.slice(0, maxProjects)
+            const remaining = projects.length - maxProjects
+
+            // Retornar array onde cada item é uma linha
+            const lines = displayProjects.map((name) => `• ${name}`)
+
+            if (remaining > 0) {
+              lines.push(`... e mais ${remaining} projeto${remaining !== 1 ? 's' : ''}`)
+            }
+
+            return lines
+          }
+        }
+      }
+    }
+  }), [analyticsData, projectsByStatus])
+
+  // Early returns devem vir DEPOIS de todos os hooks
   if (clientLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
@@ -476,72 +544,6 @@ export default function ClientAnalyticsPage() {
       }
     }
   }
-
-  // Opções do gráfico de distribuição por status com tooltip customizado
-  const doughnutOptions: ChartOptions<'doughnut'> = useMemo(() => ({
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'right',
-        labels: {
-          font: { size: 11 },
-          padding: 12,
-          usePointStyle: true,
-        }
-      },
-      tooltip: {
-        backgroundColor: 'rgba(15, 23, 42, 0.98)',
-        padding: 10,
-        titleFont: { size: 12, weight: 'bold' },
-        bodyFont: { size: 11 },
-        cornerRadius: 6,
-        displayColors: false,
-        titleColor: '#fff',
-        bodyColor: '#cbd5e1',
-        borderColor: 'rgba(255, 255, 255, 0.15)',
-        borderWidth: 1,
-        maxWidth: 280,
-        titleSpacing: 4,
-        bodySpacing: 3,
-        callbacks: {
-          title: function(context) {
-            const label = context[0]?.label || ''
-            const value = context[0]?.parsed || 0
-            return `${label}: ${value}`
-          },
-          label: function(context) {
-            // Retornar vazio aqui, vamos usar afterBody para a lista
-            return ''
-          },
-          afterBody: function(context) {
-            if (!analyticsData) return []
-
-            const label = context[0]?.label || ''
-            const projects = projectsByStatus.get(label) || []
-
-            if (projects.length === 0) {
-              return []
-            }
-
-            // Mostrar todos os projetos, mas limitar a 15 para não ficar muito grande
-            const maxProjects = 15
-            const displayProjects = projects.slice(0, maxProjects)
-            const remaining = projects.length - maxProjects
-
-            // Retornar array onde cada item é uma linha
-            const lines = displayProjects.map((name) => `• ${name}`)
-
-            if (remaining > 0) {
-              lines.push(`... e mais ${remaining} projeto${remaining !== 1 ? 's' : ''}`)
-            }
-
-            return lines
-          }
-        }
-      }
-    }
-  }), [analyticsData, projectsByStatus])
 
   // Dados para o gráfico de linha (Evolução Temporal)
   const timelineChartData = {
