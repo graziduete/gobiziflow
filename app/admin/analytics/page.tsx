@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { createBrowserClient } from "@supabase/ssr"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -109,6 +109,7 @@ export default function AnalyticsPage() {
   const [tenantId, setTenantId] = useState<string | null | undefined>(undefined)
   const [expandedAlerts, setExpandedAlerts] = useState<Set<number | string>>(new Set())
   const [companyNames, setCompanyNames] = useState<Map<string, string>>(new Map())
+  const [projectsByStatus, setProjectsByStatus] = useState<Map<string, string[]>>(new Map())
   
   // Estados para filtros
   const [companies, setCompanies] = useState<any[]>([])
@@ -141,6 +142,151 @@ export default function AnalyticsPage() {
       hasInitialLoad.current = true
     }
   }, [selectedCompany, selectedSafra, selectedYear])
+
+  const loadProjectsByStatus = async (
+    tenantId: string | null | undefined,
+    companyId: string | undefined,
+    startDate: string | undefined,
+    endDate: string | undefined,
+    allCompaniesYear: number | undefined
+  ) => {
+    try {
+      // Buscar projetos usando a mesma lógica do AnalyticsService
+      let projectsQuery = supabase
+        .from('projects')
+        .select('id, name, status, company_id, start_date, end_date, safra')
+        .neq('status', 'cancelled')
+        .neq('status', 'commercial_proposal')
+
+      // Aplicar filtro de tenant
+      if (tenantId) {
+        projectsQuery = projectsQuery.eq('tenant_id', tenantId)
+      } else if (tenantId === null) {
+        projectsQuery = projectsQuery.is('tenant_id', null)
+      }
+
+      // Aplicar filtro de empresa
+      if (companyId && companyId !== 'all') {
+        projectsQuery = projectsQuery.eq('company_id', companyId)
+      }
+
+      const { data: allProjects, error } = await projectsQuery
+      if (error) throw error
+
+      // Aplicar filtros de data (mesma lógica do AnalyticsService)
+      let projects = allProjects || []
+      const COPERSUCAR_ID = '443a6a0e-768f-48e4-a9ea-0cd972375a30'
+
+      if (allCompaniesYear && startDate && endDate) {
+        // Lógica híbrida para "Todas as Empresas"
+        const safraStart = `${allCompaniesYear}-04-01`
+        const safraEnd = `${allCompaniesYear + 1}-03-31`
+        
+        const copersucarProjects: any[] = []
+        const otherProjects: any[] = []
+        
+        allProjects?.forEach((project: any) => {
+          if (project.company_id === COPERSUCAR_ID) {
+            copersucarProjects.push(project)
+          } else {
+            otherProjects.push(project)
+          }
+        })
+        
+        const start = new Date(startDate)
+        start.setHours(0, 0, 0, 0)
+        const end = new Date(endDate)
+        end.setHours(23, 59, 59, 999)
+        
+        const filteredOther = otherProjects.filter((p: any) => {
+          if (p.start_date && p.end_date) {
+            const ps = new Date(p.start_date)
+            const pe = new Date(p.end_date)
+            return ps <= end && pe >= start
+          }
+          return false
+        })
+        
+        const safraStartDate = new Date(safraStart)
+        const safraEndDate = new Date(safraEnd)
+        const safraString = `${allCompaniesYear}/${(allCompaniesYear + 1).toString().slice(-2)}`
+        
+        const filteredCopersucar = copersucarProjects.filter((p: any) => {
+          if (p.safra && p.safra.trim() !== '') {
+            const match = p.safra.trim().match(/(\d{4})\/(\d{2,4})/)
+            if (match) {
+              const year = parseInt(match[1])
+              const endYearShort = parseInt(match[2])
+              const endYear = endYearShort < 100 ? 2000 + endYearShort : endYearShort
+              const projSafra = `${year}/${endYear.toString().slice(-2)}`
+              return projSafra === safraString
+            }
+          }
+          if (p.start_date && p.end_date) {
+            const ps = new Date(p.start_date)
+            const pe = new Date(p.end_date)
+            return ps <= safraEndDate && pe >= safraStartDate
+          }
+          return false
+        })
+        
+        projects = [...filteredOther, ...filteredCopersucar]
+      } else if (startDate && endDate) {
+        const start = new Date(startDate)
+        start.setHours(0, 0, 0, 0)
+        const end = new Date(endDate)
+        end.setHours(23, 59, 59, 999)
+        
+        projects = projects.filter((p: any) => {
+          if (p.start_date && p.end_date) {
+            const ps = new Date(p.start_date)
+            const pe = new Date(p.end_date)
+            return ps <= end && pe >= start
+          }
+          return false
+        })
+      }
+
+      // Agrupar projetos por status
+      const statusMap = new Map<string, string[]>()
+      
+      // Mapeamento de status para labels (deve corresponder ao statusDistribution do AnalyticsService)
+      const statusLabelMap: { [key: string]: string } = {
+        'in_progress': 'Em Andamento',
+        'homologation': 'Em Andamento',
+        'delayed': 'Atrasados',
+        'on_hold': 'Pausados',
+        'commercial_proposal': 'Proposta',
+        'planning': 'Planejamento',
+        'completed': 'Concluídos',
+        'cancelled': 'Cancelados'
+      }
+
+      projects.forEach((project: any) => {
+        const status = project.status
+        let label = statusLabelMap[status] || status
+        
+        // Tratamento especial para "Em Andamento" (in_progress + homologation)
+        if (status === 'in_progress' || status === 'homologation') {
+          label = 'Em Andamento'
+        }
+        
+        // Incluir projetos em "Proposta Comercial" também (mesmo que sejam filtrados nos KPIs)
+        if (status === 'commercial_proposal') {
+          label = 'Proposta'
+        }
+        
+        if (!statusMap.has(label)) {
+          statusMap.set(label, [])
+        }
+        statusMap.get(label)!.push(project.name)
+      })
+
+      setProjectsByStatus(statusMap)
+    } catch (error) {
+      console.error('Erro ao carregar projetos por status:', error)
+    }
+  }
 
   const loadCompanies = async () => {
     try {
@@ -306,6 +452,9 @@ export default function AnalyticsPage() {
         const nameMap = new Map(companies?.map(c => [c.id, c.name]) || [])
         setCompanyNames(nameMap)
       }
+
+      // Buscar projetos agrupados por status para tooltip
+      await loadProjectsByStatus(currentTenantId, companyId, startDate, endDate, selectedCompany === "all" ? selectedYear : undefined)
     } catch (error) {
       console.error('Erro ao carregar dados de analytics:', error)
     } finally {
@@ -447,7 +596,8 @@ export default function AnalyticsPage() {
     }
   }
 
-  const doughnutOptions: ChartOptions<'doughnut'> = {
+  // Opções do gráfico de distribuição por status com tooltip customizado
+  const doughnutOptions: ChartOptions<'doughnut'> = useMemo(() => ({
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -460,14 +610,40 @@ export default function AnalyticsPage() {
         }
       },
       tooltip: {
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        padding: 12,
-        titleFont: { size: 13, weight: 'bold' },
+        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+        padding: 16,
+        titleFont: { size: 14, weight: 'bold' },
         bodyFont: { size: 12 },
         cornerRadius: 8,
+        callbacks: {
+          label: function(context) {
+            if (!analyticsData) return ''
+            
+            const label = context.label || ''
+            const value = context.parsed || 0
+            const projects = projectsByStatus.get(label) || []
+            
+            if (projects.length === 0) {
+              return `${label}: ${value} projeto${value !== 1 ? 's' : ''}`
+            }
+            
+            // Limitar a 10 projetos no tooltip para não ficar muito grande
+            const displayProjects = projects.slice(0, 10)
+            const remaining = projects.length - 10
+            
+            let tooltipText = `${label}: ${value} projeto${value !== 1 ? 's' : ''}\n\n`
+            tooltipText += displayProjects.map((name, i) => `  ${i + 1}. ${name}`).join('\n')
+            
+            if (remaining > 0) {
+              tooltipText += `\n\n  ... e mais ${remaining} projeto${remaining !== 1 ? 's' : ''}`
+            }
+            
+            return tooltipText
+          }
+        }
       }
     }
-  }
+  }), [analyticsData, projectsByStatus])
 
   // Dados para o gráfico de linha (Evolução Temporal)
   const timelineChartData = {
