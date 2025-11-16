@@ -578,32 +578,43 @@ export default function AnalyticsPage() {
         }
       },
       tooltip: {
-        backgroundColor: 'rgba(0, 0, 0, 0.9)',
-        padding: 16,
-        titleFont: { size: 14, weight: 'bold' },
-        bodyFont: { size: 12 },
-        cornerRadius: 8,
+        backgroundColor: 'rgba(15, 23, 42, 0.98)',
+        padding: 10,
+        titleFont: { size: 12, weight: 'bold' },
+        bodyFont: { size: 11 },
+        cornerRadius: 6,
+        displayColors: false,
+        titleColor: '#fff',
+        bodyColor: '#cbd5e1',
+        borderColor: 'rgba(255, 255, 255, 0.15)',
+        borderWidth: 1,
+        maxWidth: 280,
+        titleSpacing: 4,
+        bodySpacing: 3,
         callbacks: {
+          title: function(context) {
+            const label = context[0]?.label || ''
+            const value = context[0]?.parsed || 0
+            return `${label}: ${value}`
+          },
           label: function(context) {
             if (!analyticsData) return ''
             
             const label = context.label || ''
-            const value = context.parsed || 0
             const projects = projectsByStatus.get(label) || []
             
             if (projects.length === 0) {
-              return `${label}: ${value} projeto${value !== 1 ? 's' : ''}`
+              return ''
             }
             
-            // Limitar a 10 projetos no tooltip para não ficar muito grande
-            const displayProjects = projects.slice(0, 10)
-            const remaining = projects.length - 10
+            // Limitar a 4 projetos no tooltip para não ficar muito grande
+            const displayProjects = projects.slice(0, 4)
+            const remaining = projects.length - 4
             
-            let tooltipText = `${label}: ${value} projeto${value !== 1 ? 's' : ''}\n\n`
-            tooltipText += displayProjects.map((name, i) => `  ${i + 1}. ${name}`).join('\n')
+            let tooltipText = displayProjects.map((name, i) => `• ${name}`).join('\n')
             
             if (remaining > 0) {
-              tooltipText += `\n\n  ... e mais ${remaining} projeto${remaining !== 1 ? 's' : ''}`
+              tooltipText += `\n+${remaining} mais`
             }
             
             return tooltipText
