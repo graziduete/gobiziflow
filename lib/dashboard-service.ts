@@ -743,13 +743,50 @@ export class DashboardService {
       for (const project of projects || []) {
         const budget = project.budget || 0
         
-        // Verificar se o projeto termina no ano atual
+        // Para "Faturamento Total do Ano", incluir projetos que:
+        // 1. Têm end_date no ano selecionado, OU
+        // 2. Não têm end_date mas foram criados no ano ou antes, OU
+        // 3. Têm end_date no futuro mas foram criados no ano ou antes
+        let shouldInclude = false
+        
         if (project.end_date) {
           const projectEndYear = new Date(project.end_date).getFullYear().toString()
-          if (projectEndYear !== year) {
-            console.log(`📊 Projeto ${project.name}: Termina em ${projectEndYear}, não incluindo no ano ${year}`)
-            continue
+          if (projectEndYear === year) {
+            shouldInclude = true
+            console.log(`📊 Projeto ${project.name}: Termina em ${projectEndYear}, incluindo no ano ${year}`)
+          } else {
+            // Se termina em outro ano, verificar se foi criado no ano selecionado
+            if (project.created_at) {
+              const projectCreatedYear = new Date(project.created_at).getFullYear().toString()
+              if (projectCreatedYear === year) {
+                shouldInclude = true
+                console.log(`📊 Projeto ${project.name}: Criado em ${projectCreatedYear}, incluindo no ano ${year} (termina em ${projectEndYear})`)
+              } else {
+                console.log(`📊 Projeto ${project.name}: Termina em ${projectEndYear}, criado em ${projectCreatedYear}, não incluindo no ano ${year}`)
+              }
+            }
           }
+        } else {
+          // Se não tem end_date, incluir se foi criado no ano ou antes
+          if (project.created_at) {
+            const projectCreatedYear = new Date(project.created_at).getFullYear().toString()
+            const yearNum = parseInt(year)
+            const createdYearNum = parseInt(projectCreatedYear)
+            if (createdYearNum <= yearNum) {
+              shouldInclude = true
+              console.log(`📊 Projeto ${project.name}: Sem end_date, criado em ${projectCreatedYear}, incluindo no ano ${year}`)
+            } else {
+              console.log(`📊 Projeto ${project.name}: Sem end_date, criado em ${projectCreatedYear}, não incluindo no ano ${year}`)
+            }
+          } else {
+            // Se não tem nem end_date nem created_at, incluir por segurança
+            shouldInclude = true
+            console.log(`📊 Projeto ${project.name}: Sem end_date nem created_at, incluindo por segurança`)
+          }
+        }
+        
+        if (!shouldInclude) {
+          continue
         }
         
         // Para "Faturamento Total do Ano", sempre usar 100% do orçamento
