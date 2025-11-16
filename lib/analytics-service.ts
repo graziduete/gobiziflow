@@ -306,13 +306,13 @@ export class AnalyticsService {
 
       // 4. Distribuição por status
       const statusDistribution = [
-        { label: 'Em Andamento', value: inProgress, color: '#10b981' },
-        { label: 'Atrasados', value: delayed, color: '#ef4444' },
-        { label: 'Pausados', value: onHold, color: '#f59e0b' },
-        { label: 'Proposta', value: commercialProposal, color: '#3b82f6' },
-        { label: 'Planejamento', value: planning, color: '#8b5cf6' },
-        { label: 'Concluídos', value: completed, color: '#6366f1' },
-        { label: 'Cancelados', value: cancelled, color: '#64748b' },
+        { label: 'Em Andamento', value: inProgress, color: '#3b82f6' }, // Azul
+        { label: 'Atrasados', value: delayed, color: '#ef4444' }, // Vermelho
+        { label: 'Pausados', value: onHold, color: '#f59e0b' }, // Laranja/Amarelo
+        { label: 'Proposta', value: commercialProposal, color: '#8b5cf6' }, // Roxo
+        { label: 'Planejamento', value: planning, color: '#f97316' }, // Laranja
+        { label: 'Concluídos', value: completed, color: '#10b981' }, // Verde
+        { label: 'Cancelados', value: cancelled, color: '#64748b' }, // Cinza
       ].filter(item => item.value > 0)
 
       // 5. Distribuição por tipo
