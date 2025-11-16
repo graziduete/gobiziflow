@@ -221,6 +221,16 @@ export default function AnalyticsPage() {
         const safraString = `${allCompaniesYear}/${(allCompaniesYear + 1).toString().slice(-2)}`
         
         const filteredCopersucar = copersucarProjects.filter((p: any) => {
+          // Para projetos em 'commercial_proposal' ou 'planning', verificar created_at
+          if (p.status === 'commercial_proposal' || p.status === 'planning') {
+            if (p.created_at) {
+              const created = new Date(p.created_at)
+              return created >= safraStartDate && created <= safraEndDate
+            }
+            return false
+          }
+          
+          // Para outros status, verificar safra primeiro, depois datas
           if (p.safra && p.safra.trim() !== '') {
             const match = p.safra.trim().match(/(\d{4})\/(\d{2,4})/)
             if (match) {
