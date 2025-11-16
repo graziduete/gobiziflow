@@ -462,39 +462,7 @@ export default function AnalyticsPage() {
     }
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-        <div className="text-center space-y-4">
-          <div className="relative">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto"></div>
-            <Activity className="w-8 h-8 text-blue-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-pulse" />
-          </div>
-          <div>
-            <p className="text-slate-800 font-bold text-lg">Carregando Analytics</p>
-            <p className="text-slate-500 text-sm mt-1">Processando dados dos projetos...</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (!analyticsData) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-        <div className="text-center space-y-4">
-          <AlertTriangle className="w-16 h-16 text-yellow-500 mx-auto" />
-          <p className="text-slate-600 font-medium">Não foi possível carregar os dados</p>
-          <Button onClick={() => router.push('/admin')}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Voltar ao Dashboard
-          </Button>
-        </div>
-      </div>
-    )
-  }
-
-  // Configuração dos gráficos
+  // Configuração dos gráficos (hooks devem vir antes de early returns)
   const lineChartOptions: ChartOptions<'line'> = {
     responsive: true,
     maintainAspectRatio: false,
@@ -644,6 +612,39 @@ export default function AnalyticsPage() {
       }
     }
   }), [analyticsData, projectsByStatus])
+
+  // Early returns devem vir DEPOIS de todos os hooks
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+        <div className="text-center space-y-4">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto"></div>
+            <Activity className="w-8 h-8 text-blue-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+          </div>
+          <div>
+            <p className="text-slate-800 font-bold text-lg">Carregando Analytics</p>
+            <p className="text-slate-500 text-sm mt-1">Processando dados dos projetos...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!analyticsData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+        <div className="text-center space-y-4">
+          <AlertTriangle className="w-16 h-16 text-yellow-500 mx-auto" />
+          <p className="text-slate-600 font-medium">Não foi possível carregar os dados</p>
+          <Button onClick={() => router.push('/admin')}>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Voltar ao Dashboard
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   // Dados para o gráfico de linha (Evolução Temporal)
   const timelineChartData = {
