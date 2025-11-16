@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { createBrowserClient } from "@supabase/ssr"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -126,6 +126,7 @@ export default function ClientAnalyticsPage() {
   // Estados para filtros
   const [selectedSafra, setSelectedSafra] = useState<string>(getCurrentSafra())
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear())
+  const [projectsByStatus, setProjectsByStatus] = useState<Map<string, string[]>>(new Map())
   
   const isCopersucar = company?.id === COPERSUCAR_ID
 
@@ -161,6 +162,171 @@ export default function ClientAnalyticsPage() {
       setHourStats(stats)
     } catch (error) {
       console.error("Erro ao carregar estatísticas de horas:", error)
+    }
+  }
+
+  const loadProjectsByStatus = async (
+    companyId: string,
+    startDate: string | undefined,
+    endDate: string | undefined,
+    isCopersucarCompany: boolean,
+    selectedSafra: string | undefined
+  ) => {
+    try {
+      // Buscar projetos da empresa do cliente
+      let projectsQuery = supabase
+        .from('projects')
+        .select('id, name, status, company_id, start_date, end_date, safra, created_at')
+        .eq('company_id', companyId)
+
+      const { data: allProjects, error } = await projectsQuery
+      if (error) throw error
+
+      // Aplicar filtros de data
+      let projects = allProjects || []
+
+      if (startDate && endDate) {
+        const start = new Date(startDate)
+        start.setHours(0, 0, 0, 0)
+        const end = new Date(endDate)
+        end.setHours(23, 59, 59, 999)
+
+        if (isCopersucarCompany && selectedSafra) {
+          // Para Copersucar, priorizar safra
+          projects = projects.filter((p: any) => {
+            // PRIORIDADE 1: Se tem campo safra, usar ele
+            if (p.safra && p.safra.trim() !== '') {
+              const projectSafra = p.safra.trim()
+              const safraMatch = projectSafra.match(/(\d{4})\/(\d{2,4})/)
+              if (safraMatch) {
+                const projSafraYear = parseInt(safraMatch[1])
+                const projSafraEndYearShort = parseInt(safraMatch[2])
+                const projSafraEndYear = projSafraEndYearShort < 100 ? 2000 + projSafraEndYearShort : projSafraEndYearShort
+                const projSafraString = `${projSafraYear}/${projSafraEndYear.toString().slice(-2)}`
+                return projSafraString === selectedSafra
+              }
+            }
+
+            // PRIORIDADE 2: Se não tem safra, usar lógica de datas
+            const statusWithoutDates = ['commercial_proposal', 'planning']
+            const isStatusWithoutDates = statusWithoutDates.includes(p.status)
+
+            if (p.start_date && p.end_date) {
+              const ps = new Date(p.start_date)
+              ps.setHours(0, 0, 0, 0)
+              const pe = new Date(p.end_date)
+              pe.setHours(23, 59, 59, 999)
+              const overlaps = ps <= end && pe >= start
+              if (isStatusWithoutDates && !overlaps) return false
+              return overlaps
+            } else if (p.start_date) {
+              const ps = new Date(p.start_date)
+              ps.setHours(0, 0, 0, 0)
+              const includes = ps <= end
+              if (isStatusWithoutDates && !includes) return false
+              return includes
+            } else if (p.end_date) {
+              const pe = new Date(p.end_date)
+              pe.setHours(23, 59, 59, 999)
+              const includes = pe >= start
+              if (isStatusWithoutDates && !includes) return false
+              return includes
+            } else if (p.created_at) {
+              const created = new Date(p.created_at)
+              created.setHours(0, 0, 0, 0)
+              const inPeriod = created >= start && created <= end
+              if (isStatusWithoutDates && !inPeriod) return false
+              return inPeriod
+            }
+            return false
+          })
+        } else {
+          // Para outros clientes, usar lógica padrão de datas
+          projects = projects.filter((p: any) => {
+            const statusWithoutDates = ['commercial_proposal', 'planning']
+            const isStatusWithoutDates = statusWithoutDates.includes(p.status)
+
+            // Para projetos cancelados, verificar created_at
+            if (p.status === 'cancelled') {
+              if (p.created_at) {
+                const created = new Date(p.created_at)
+                created.setHours(0, 0, 0, 0)
+                return created >= start && created <= end
+              }
+              return false
+            }
+
+            // Para outros status, seguir a lógica do AnalyticsService
+            if (p.start_date && p.end_date) {
+              const ps = new Date(p.start_date)
+              ps.setHours(0, 0, 0, 0)
+              const pe = new Date(p.end_date)
+              pe.setHours(23, 59, 59, 999)
+              const overlaps = ps <= end && pe >= start
+              if (isStatusWithoutDates && !overlaps) return false
+              return overlaps
+            } else if (p.start_date) {
+              const ps = new Date(p.start_date)
+              ps.setHours(0, 0, 0, 0)
+              const includes = ps <= end
+              if (isStatusWithoutDates && !includes) return false
+              return includes
+            } else if (p.end_date) {
+              const pe = new Date(p.end_date)
+              pe.setHours(23, 59, 59, 999)
+              const includes = pe >= start
+              if (isStatusWithoutDates && !includes) return false
+              return includes
+            } else if (p.created_at) {
+              const created = new Date(p.created_at)
+              created.setHours(0, 0, 0, 0)
+              const inPeriod = created >= start && created <= end
+              if (isStatusWithoutDates && !inPeriod) return false
+              return inPeriod
+            }
+            return false
+          })
+        }
+      }
+
+      // Agrupar projetos por status
+      const statusMap = new Map<string, string[]>()
+
+      // Mapeamento de status para labels (deve corresponder ao statusDistribution do AnalyticsService)
+      const statusLabelMap: { [key: string]: string } = {
+        'in_progress': 'Em Andamento',
+        'homologation': 'Em Andamento',
+        'delayed': 'Atrasados',
+        'on_hold': 'Pausados',
+        'commercial_proposal': 'Proposta',
+        'planning': 'Planejamento',
+        'completed': 'Concluídos',
+        'cancelled': 'Cancelados'
+      }
+
+      projects.forEach((project: any) => {
+        const status = project.status
+        let label = statusLabelMap[status] || status
+
+        // Tratamento especial para "Em Andamento" (in_progress + homologation)
+        if (status === 'in_progress' || status === 'homologation') {
+          label = 'Em Andamento'
+        }
+
+        // Garantir que projetos cancelados sejam mapeados corretamente
+        if (status === 'cancelled') {
+          label = 'Cancelados'
+        }
+
+        if (!statusMap.has(label)) {
+          statusMap.set(label, [])
+        }
+        statusMap.get(label)!.push(project.name)
+      })
+
+      setProjectsByStatus(statusMap)
+    } catch (error) {
+      console.error('Erro ao carregar projetos por status:', error)
     }
   }
 
@@ -204,6 +370,9 @@ export default function ClientAnalyticsPage() {
       const data = await analyticsService.getAnalyticsData(undefined, company.id, startDate, endDate)
       
       setAnalyticsData(data)
+      
+      // Carregar projetos por status para o tooltip
+      await loadProjectsByStatus(company.id, startDate, endDate, isCopersucarCompany, selectedSafra)
     } catch (error) {
       console.error('Erro ao carregar dados de analytics:', error)
     } finally {
@@ -308,7 +477,8 @@ export default function ClientAnalyticsPage() {
     }
   }
 
-  const doughnutOptions: ChartOptions<'doughnut'> = {
+  // Opções do gráfico de distribuição por status com tooltip customizado
+  const doughnutOptions: ChartOptions<'doughnut'> = useMemo(() => ({
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -321,14 +491,57 @@ export default function ClientAnalyticsPage() {
         }
       },
       tooltip: {
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        padding: 12,
-        titleFont: { size: 13, weight: 'bold' },
-        bodyFont: { size: 12 },
-        cornerRadius: 8,
+        backgroundColor: 'rgba(15, 23, 42, 0.98)',
+        padding: 10,
+        titleFont: { size: 12, weight: 'bold' },
+        bodyFont: { size: 11 },
+        cornerRadius: 6,
+        displayColors: false,
+        titleColor: '#fff',
+        bodyColor: '#cbd5e1',
+        borderColor: 'rgba(255, 255, 255, 0.15)',
+        borderWidth: 1,
+        maxWidth: 280,
+        titleSpacing: 4,
+        bodySpacing: 3,
+        callbacks: {
+          title: function(context) {
+            const label = context[0]?.label || ''
+            const value = context[0]?.parsed || 0
+            return `${label}: ${value}`
+          },
+          label: function(context) {
+            // Retornar vazio aqui, vamos usar afterBody para a lista
+            return ''
+          },
+          afterBody: function(context) {
+            if (!analyticsData) return []
+
+            const label = context[0]?.label || ''
+            const projects = projectsByStatus.get(label) || []
+
+            if (projects.length === 0) {
+              return []
+            }
+
+            // Mostrar todos os projetos, mas limitar a 15 para não ficar muito grande
+            const maxProjects = 15
+            const displayProjects = projects.slice(0, maxProjects)
+            const remaining = projects.length - maxProjects
+
+            // Retornar array onde cada item é uma linha
+            const lines = displayProjects.map((name) => `• ${name}`)
+
+            if (remaining > 0) {
+              lines.push(`... e mais ${remaining} projeto${remaining !== 1 ? 's' : ''}`)
+            }
+
+            return lines
+          }
+        }
       }
     }
-  }
+  }), [analyticsData, projectsByStatus])
 
   // Dados para o gráfico de linha (Evolução Temporal)
   const timelineChartData = {
