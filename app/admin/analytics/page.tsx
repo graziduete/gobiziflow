@@ -198,20 +198,47 @@ export default function AnalyticsPage() {
         end.setHours(23, 59, 59, 999)
         
         const filteredOther = otherProjects.filter((p: any) => {
-          // Para projetos em 'commercial_proposal', 'planning' ou 'cancelled', verificar created_at
-          if (p.status === 'commercial_proposal' || p.status === 'planning' || p.status === 'cancelled') {
+          // Usar a mesma lógica do AnalyticsService.filterProjectsByDateRange
+          const statusWithoutDates = ['commercial_proposal', 'planning']
+          const isStatusWithoutDates = statusWithoutDates.includes(p.status)
+          
+          // Para projetos cancelados, verificar created_at
+          if (p.status === 'cancelled') {
             if (p.created_at) {
               const created = new Date(p.created_at)
+              created.setHours(0, 0, 0, 0)
               return created >= start && created <= end
             }
             return false
           }
           
-          // Para outros status, verificar sobreposição de datas
+          // Para outros status, seguir a lógica do AnalyticsService
           if (p.start_date && p.end_date) {
             const ps = new Date(p.start_date)
+            ps.setHours(0, 0, 0, 0)
             const pe = new Date(p.end_date)
-            return ps <= end && pe >= start
+            pe.setHours(23, 59, 59, 999)
+            const overlaps = ps <= end && pe >= start
+            if (isStatusWithoutDates && !overlaps) return false
+            return overlaps
+          } else if (p.start_date) {
+            const ps = new Date(p.start_date)
+            ps.setHours(0, 0, 0, 0)
+            const includes = ps <= end
+            if (isStatusWithoutDates && !includes) return false
+            return includes
+          } else if (p.end_date) {
+            const pe = new Date(p.end_date)
+            pe.setHours(23, 59, 59, 999)
+            const includes = pe >= start
+            if (isStatusWithoutDates && !includes) return false
+            return includes
+          } else if (p.created_at) {
+            const created = new Date(p.created_at)
+            created.setHours(0, 0, 0, 0)
+            const inPeriod = created >= start && created <= end
+            if (isStatusWithoutDates && !inPeriod) return false
+            return inPeriod
           }
           return false
         })
@@ -221,30 +248,49 @@ export default function AnalyticsPage() {
         const safraString = `${allCompaniesYear}/${(allCompaniesYear + 1).toString().slice(-2)}`
         
         const filteredCopersucar = copersucarProjects.filter((p: any) => {
-          // Para projetos em 'commercial_proposal' ou 'planning', verificar created_at
-          if (p.status === 'commercial_proposal' || p.status === 'planning') {
-            if (p.created_at) {
-              const created = new Date(p.created_at)
-              return created >= safraStartDate && created <= safraEndDate
+          // PRIORIDADE 1: Se tem campo safra, usar ele (mesma lógica do AnalyticsService)
+          if (p.safra && p.safra.trim() !== '') {
+            const projectSafra = p.safra.trim()
+            const safraMatch = projectSafra.match(/(\d{4})\/(\d{2,4})/)
+            if (safraMatch) {
+              const projSafraYear = parseInt(safraMatch[1])
+              const projSafraEndYearShort = parseInt(safraMatch[2])
+              const projSafraEndYear = projSafraEndYearShort < 100 ? 2000 + projSafraEndYearShort : projSafraEndYearShort
+              const projSafraString = `${projSafraYear}/${projSafraEndYear.toString().slice(-2)}`
+              return projSafraString === safraString
             }
-            return false
           }
           
-          // Para outros status, verificar safra primeiro, depois datas
-          if (p.safra && p.safra.trim() !== '') {
-            const match = p.safra.trim().match(/(\d{4})\/(\d{2,4})/)
-            if (match) {
-              const year = parseInt(match[1])
-              const endYearShort = parseInt(match[2])
-              const endYear = endYearShort < 100 ? 2000 + endYearShort : endYearShort
-              const projSafra = `${year}/${endYear.toString().slice(-2)}`
-              return projSafra === safraString
-            }
-          }
+          // PRIORIDADE 2: Se não tem safra, usar lógica de datas (mesma do filterProjectsByDateRange)
+          const statusWithoutDates = ['commercial_proposal', 'planning']
+          const isStatusWithoutDates = statusWithoutDates.includes(p.status)
+          
           if (p.start_date && p.end_date) {
             const ps = new Date(p.start_date)
+            ps.setHours(0, 0, 0, 0)
             const pe = new Date(p.end_date)
-            return ps <= safraEndDate && pe >= safraStartDate
+            pe.setHours(23, 59, 59, 999)
+            const overlaps = ps <= safraEndDate && pe >= safraStartDate
+            if (isStatusWithoutDates && !overlaps) return false
+            return overlaps
+          } else if (p.start_date) {
+            const ps = new Date(p.start_date)
+            ps.setHours(0, 0, 0, 0)
+            const includes = ps <= safraEndDate
+            if (isStatusWithoutDates && !includes) return false
+            return includes
+          } else if (p.end_date) {
+            const pe = new Date(p.end_date)
+            pe.setHours(23, 59, 59, 999)
+            const includes = pe >= safraStartDate
+            if (isStatusWithoutDates && !includes) return false
+            return includes
+          } else if (p.created_at) {
+            const created = new Date(p.created_at)
+            created.setHours(0, 0, 0, 0)
+            const inPeriod = created >= safraStartDate && created <= safraEndDate
+            if (isStatusWithoutDates && !inPeriod) return false
+            return inPeriod
           }
           return false
         })
