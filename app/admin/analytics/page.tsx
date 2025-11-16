@@ -598,26 +598,31 @@ export default function AnalyticsPage() {
             return `${label}: ${value}`
           },
           label: function(context) {
-            if (!analyticsData) return ''
+            // Retornar vazio aqui, vamos usar afterBody para a lista
+            return ''
+          },
+          afterBody: function(context) {
+            if (!analyticsData) return []
             
-            const label = context.label || ''
+            const label = context[0]?.label || ''
             const projects = projectsByStatus.get(label) || []
             
             if (projects.length === 0) {
-              return ''
+              return []
             }
             
             // Limitar a 4 projetos no tooltip para não ficar muito grande
             const displayProjects = projects.slice(0, 4)
             const remaining = projects.length - 4
             
-            let tooltipText = displayProjects.map((name, i) => `• ${name}`).join('\n')
+            // Retornar array onde cada item é uma linha
+            const lines = displayProjects.map((name) => `• ${name}`)
             
             if (remaining > 0) {
-              tooltipText += `\n+${remaining} mais`
+              lines.push(`+${remaining} mais`)
             }
             
-            return tooltipText
+            return lines
           }
         }
       }
