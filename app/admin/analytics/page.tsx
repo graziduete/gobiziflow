@@ -198,8 +198,8 @@ export default function AnalyticsPage() {
         end.setHours(23, 59, 59, 999)
         
         const filteredOther = otherProjects.filter((p: any) => {
-          // Para projetos em 'commercial_proposal' ou 'planning', verificar created_at
-          if (p.status === 'commercial_proposal' || p.status === 'planning') {
+          // Para projetos em 'commercial_proposal', 'planning' ou 'cancelled', verificar created_at
+          if (p.status === 'commercial_proposal' || p.status === 'planning' || p.status === 'cancelled') {
             if (p.created_at) {
               const created = new Date(p.created_at)
               return created >= start && created <= end
@@ -257,8 +257,8 @@ export default function AnalyticsPage() {
         end.setHours(23, 59, 59, 999)
         
         projects = projects.filter((p: any) => {
-          // Para projetos em 'commercial_proposal' ou 'planning', verificar created_at
-          if (p.status === 'commercial_proposal' || p.status === 'planning') {
+          // Para projetos em 'commercial_proposal', 'planning' ou 'cancelled', verificar created_at
+          if (p.status === 'commercial_proposal' || p.status === 'planning' || p.status === 'cancelled') {
             if (p.created_at) {
               const created = new Date(p.created_at)
               return created >= start && created <= end
@@ -305,11 +305,21 @@ export default function AnalyticsPage() {
           label = 'Proposta'
         }
         
+        // Garantir que projetos cancelados sejam mapeados corretamente
+        if (status === 'cancelled') {
+          label = 'Cancelados'
+        }
+        
         if (!statusMap.has(label)) {
           statusMap.set(label, [])
         }
         statusMap.get(label)!.push(project.name)
       })
+
+      // Debug: verificar se projetos cancelados estão sendo incluídos
+      console.log('🔍 [loadProjectsByStatus] Total de projetos:', projects.length)
+      console.log('🔍 [loadProjectsByStatus] Projetos cancelados:', projects.filter((p: any) => p.status === 'cancelled').length)
+      console.log('🔍 [loadProjectsByStatus] StatusMap:', Array.from(statusMap.entries()))
 
       setProjectsByStatus(statusMap)
     } catch (error) {
@@ -635,6 +645,13 @@ export default function AnalyticsPage() {
             
             const label = context[0]?.label || ''
             const projects = projectsByStatus.get(label) || []
+            
+            // Debug: verificar o que está sendo buscado
+            if (label === 'Cancelados') {
+              console.log('🔍 [Tooltip] Label:', label)
+              console.log('🔍 [Tooltip] Projetos encontrados:', projects)
+              console.log('🔍 [Tooltip] StatusMap completo:', Array.from(projectsByStatus.entries()))
+            }
             
             if (projects.length === 0) {
               return []
