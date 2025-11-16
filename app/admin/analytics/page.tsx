@@ -611,15 +611,16 @@ export default function AnalyticsPage() {
               return []
             }
             
-            // Limitar a 4 projetos no tooltip para não ficar muito grande
-            const displayProjects = projects.slice(0, 4)
-            const remaining = projects.length - 4
+            // Mostrar todos os projetos, mas limitar a 15 para não ficar muito grande
+            const maxProjects = 15
+            const displayProjects = projects.slice(0, maxProjects)
+            const remaining = projects.length - maxProjects
             
             // Retornar array onde cada item é uma linha
             const lines = displayProjects.map((name) => `• ${name}`)
             
             if (remaining > 0) {
-              lines.push(`+${remaining} mais`)
+              lines.push(`... e mais ${remaining} projeto${remaining !== 1 ? 's' : ''}`)
             }
             
             return lines
