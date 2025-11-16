@@ -671,12 +671,35 @@ export class DashboardService {
     try {
       console.log(`📊 Calculando percentual por fases para ANO ${year} - Empresa: ${metric.company_id}`)
       
+      // Buscar a empresa para obter o tenant_id
+      const { data: company, error: companyError } = await this.supabase
+        .from('companies')
+        .select('id, tenant_id')
+        .eq('id', metric.company_id)
+        .single()
+      
+      if (companyError) {
+        console.error('❌ Erro ao buscar empresa:', companyError)
+      }
+      
       // Buscar projetos da empresa (sem filtro de mês, pois é anual)
-      const { data: projects, error } = await this.supabase
+      let projectsQuery = this.supabase
         .from('projects')
-        .select('id, name, budget, status, created_at, updated_at, end_date')
+        .select('id, name, budget, status, created_at, updated_at, end_date, tenant_id')
         .eq('company_id', metric.company_id)
         .in('status', ['planning', 'in_progress', 'development', 'testing', 'homologation', 'completed'])
+      
+      // Filtrar por tenant_id se a empresa tiver (para client admin)
+      if (company?.tenant_id) {
+        console.log(`🔍 Filtrando projetos por tenant_id: ${company.tenant_id}`)
+        projectsQuery = projectsQuery.eq('tenant_id', company.tenant_id)
+      } else {
+        // Se a empresa não tem tenant_id, filtrar apenas projetos sem tenant_id (admin normal/master)
+        console.log(`🔍 Filtrando projetos sem tenant_id (admin normal/master)`)
+        projectsQuery = projectsQuery.is('tenant_id', null)
+      }
+      
+      const { data: projects, error } = await projectsQuery
 
       if (error) {
         console.error('❌ Erro ao buscar projetos para ANO:', error)
