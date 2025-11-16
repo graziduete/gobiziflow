@@ -97,7 +97,8 @@ export class AnalyticsService {
     tenantId?: string | null,
     companyId?: string,
     startDate?: string,
-    endDate?: string
+    endDate?: string,
+    allCompaniesYear?: number // Ano quando "Todas as Empresas" está selecionado (para lógica híbrida)
   ): Promise<AnalyticsData> {
     try {
       console.log('🔄 [Analytics] Iniciando busca de dados...')
@@ -125,7 +126,49 @@ export class AnalyticsService {
       // Aplicar filtros de data no código (mais flexível para lógica de sobreposição)
       let projects = allProjects || []
       
-      if (startDate && endDate) {
+      // Lógica híbrida: quando "Todas as Empresas" + ano está selecionado
+      // - Empresas normais: filtrar por ano calendário
+      // - Copersucar: filtrar por safra correspondente ao ano
+      const COPERSUCAR_ID = '443a6a0e-768f-48e4-a9ea-0cd972375a30'
+      
+      if (allCompaniesYear && startDate && endDate) {
+        // Calcular safra correspondente ao ano
+        // Exemplo: Ano 2026 → safra 2026/27 (01/04/2026 até 31/03/2027)
+        const safraStart = `${allCompaniesYear}-04-01`
+        const safraEnd = `${allCompaniesYear + 1}-03-31`
+        
+        // Separar projetos da Copersucar dos demais
+        const copersucarProjects: any[] = []
+        const otherProjects: any[] = []
+        
+        allProjects?.forEach((project: any) => {
+          if (project.company_id === COPERSUCAR_ID) {
+            copersucarProjects.push(project)
+          } else {
+            otherProjects.push(project)
+          }
+        })
+        
+        // Filtrar empresas normais pelo ano calendário
+        const start = new Date(startDate)
+        start.setHours(0, 0, 0, 0)
+        const end = new Date(endDate)
+        end.setHours(23, 59, 59, 999)
+        
+        const filteredOtherProjects = this.filterProjectsByDateRange(otherProjects, start, end)
+        
+        // Filtrar Copersucar pela safra correspondente
+        const safraStartDate = new Date(safraStart)
+        safraStartDate.setHours(0, 0, 0, 0)
+        const safraEndDate = new Date(safraEnd)
+        safraEndDate.setHours(23, 59, 59, 999)
+        
+        const safraString = `${allCompaniesYear}/${(allCompaniesYear + 1).toString().slice(-2)}`
+        const filteredCopersucarProjects = this.filterProjectsBySafraOrDate(copersucarProjects, safraString, safraStartDate, safraEndDate)
+        
+        // Combinar resultados
+        projects = [...filteredOtherProjects, ...filteredCopersucarProjects]
+      } else if (startDate && endDate) {
         const start = new Date(startDate)
         start.setHours(0, 0, 0, 0)
         const end = new Date(endDate)
@@ -446,6 +489,64 @@ export class AnalyticsService {
       }).length
 
       return { month, started, completed, delayed }
+    })
+  }
+
+  // Método auxiliar para filtrar projetos por intervalo de datas
+  private filterProjectsByDateRange(projects: any[], start: Date, end: Date): any[] {
+    return projects.filter((project: any) => {
+      const statusWithoutDates = ['commercial_proposal', 'planning']
+      const isStatusWithoutDates = statusWithoutDates.includes(project.status)
+      
+      if (project.start_date && project.end_date) {
+        const projStart = new Date(project.start_date)
+        projStart.setHours(0, 0, 0, 0)
+        const projEnd = new Date(project.end_date)
+        projEnd.setHours(23, 59, 59, 999)
+        const overlaps = projStart <= end && projEnd >= start
+        if (isStatusWithoutDates && !overlaps) return false
+        return overlaps
+      } else if (project.start_date) {
+        const projStart = new Date(project.start_date)
+        projStart.setHours(0, 0, 0, 0)
+        const includes = projStart <= end
+        if (isStatusWithoutDates && !includes) return false
+        return includes
+      } else if (project.end_date) {
+        const projEnd = new Date(project.end_date)
+        projEnd.setHours(23, 59, 59, 999)
+        const includes = projEnd >= start
+        if (isStatusWithoutDates && !includes) return false
+        return includes
+      } else if (project.created_at) {
+        const created = new Date(project.created_at)
+        created.setHours(0, 0, 0, 0)
+        const inPeriod = created >= start && created <= end
+        if (isStatusWithoutDates && !inPeriod) return false
+        return inPeriod
+      }
+      return false
+    })
+  }
+
+  // Método auxiliar para filtrar projetos da Copersucar por safra ou data
+  private filterProjectsBySafraOrDate(projects: any[], safraString: string, safraStart: Date, safraEnd: Date): any[] {
+    return projects.filter((project: any) => {
+      // PRIORIDADE 1: Se tem campo safra, usar ele
+      if (project.safra && project.safra.trim() !== '') {
+        const projectSafra = project.safra.trim()
+        const safraMatch = projectSafra.match(/(\d{4})\/(\d{2,4})/)
+        if (safraMatch) {
+          const projSafraYear = parseInt(safraMatch[1])
+          const projSafraEndYearShort = parseInt(safraMatch[2])
+          const projSafraEndYear = projSafraEndYearShort < 100 ? 2000 + projSafraEndYearShort : projSafraEndYearShort
+          const projSafraString = `${projSafraYear}/${projSafraEndYear.toString().slice(-2)}`
+          return projSafraString === safraString
+        }
+      }
+      
+      // PRIORIDADE 2: Se não tem safra, usar lógica de datas
+      return this.filterProjectsByDateRange([project], safraStart, safraEnd).length > 0
     })
   }
 

@@ -256,12 +256,34 @@ export default function AnalyticsPage() {
           startDate = `${selectedYear}-01-01`
           endDate = `${selectedYear}-12-31`
         }
+      } else {
+        // Para "Todas as Empresas": aplicar lógica híbrida
+        // - Empresas normais: filtrar por ano calendário
+        // - Copersucar: filtrar por safra correspondente ao ano
+        // Como o AnalyticsService não suporta múltiplos períodos, vamos buscar todos
+        // e filtrar no código, OU fazer duas queries e combinar
+        // Por enquanto, vamos aplicar o filtro de ano calendário e depois incluir
+        // projetos da Copersucar da safra correspondente no AnalyticsService
+        
+        // Aplicar filtro de ano calendário (será usado para empresas normais)
+        startDate = `${selectedYear}-01-01`
+        endDate = `${selectedYear}-12-31`
+        
+        // A safra correspondente ao ano será calculada no AnalyticsService
+        // Exemplo: Ano 2026 → safra 2026/27 (01/04/2026 até 31/03/2027)
       }
-      // Para "Todas as Empresas": startDate e endDate ficam undefined (não aplica filtro de data)
 
       // Buscar dados de analytics
       const analyticsService = new AnalyticsService()
-      const data = await analyticsService.getAnalyticsData(currentTenantId, companyId, startDate, endDate)
+      // Passar flag especial para indicar que é "Todas as Empresas" + ano
+      // O AnalyticsService vai tratar Copersucar separadamente
+      const data = await analyticsService.getAnalyticsData(
+        currentTenantId, 
+        companyId, 
+        startDate, 
+        endDate,
+        selectedCompany === "all" ? selectedYear : undefined // Passar ano para lógica híbrida
+      )
       
       setAnalyticsData(data)
 
