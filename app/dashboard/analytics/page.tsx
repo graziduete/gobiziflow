@@ -21,6 +21,7 @@ import {
 } from "lucide-react"
 import { AnalyticsService, AnalyticsData } from "@/lib/analytics-service"
 import { HourService } from "@/lib/hour-service"
+import { ModernLoading } from "@/components/ui/modern-loading"
 import { formatDecimalToHHMM } from "@/lib/utils/hours"
 import { useClientData } from "@/hooks/use-client-data"
 import { 
@@ -213,15 +214,13 @@ export default function ClientAnalyticsPage() {
   if (clientLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-        <div className="text-center space-y-4">
-          <div className="relative">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto"></div>
-            <Activity className="w-8 h-8 text-blue-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-pulse" />
-          </div>
-          <div>
-            <p className="text-slate-800 font-bold text-lg">Carregando Analytics</p>
-            <p className="text-slate-500 text-sm mt-1">Processando dados dos projetos...</p>
-          </div>
+        <div className="text-center">
+          <ModernLoading 
+            size="lg" 
+            text="Carregando Analytics" 
+            color="blue"
+          />
+          <p className="text-slate-500 text-sm mt-2">Processando dados dos projetos...</p>
         </div>
       </div>
     )
