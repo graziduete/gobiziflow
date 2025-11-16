@@ -152,11 +152,10 @@ export default function AnalyticsPage() {
   ) => {
     try {
       // Buscar projetos usando a mesma lógica do AnalyticsService
+      // Incluir TODOS os status para o tooltip funcionar corretamente
       let projectsQuery = supabase
         .from('projects')
-        .select('id, name, status, company_id, start_date, end_date, safra')
-        .neq('status', 'cancelled')
-        .neq('status', 'commercial_proposal')
+        .select('id, name, status, company_id, start_date, end_date, safra, created_at')
 
       // Aplicar filtro de tenant
       if (tenantId) {
@@ -199,6 +198,16 @@ export default function AnalyticsPage() {
         end.setHours(23, 59, 59, 999)
         
         const filteredOther = otherProjects.filter((p: any) => {
+          // Para projetos em 'commercial_proposal' ou 'planning', verificar created_at
+          if (p.status === 'commercial_proposal' || p.status === 'planning') {
+            if (p.created_at) {
+              const created = new Date(p.created_at)
+              return created >= start && created <= end
+            }
+            return false
+          }
+          
+          // Para outros status, verificar sobreposição de datas
           if (p.start_date && p.end_date) {
             const ps = new Date(p.start_date)
             const pe = new Date(p.end_date)
@@ -238,6 +247,16 @@ export default function AnalyticsPage() {
         end.setHours(23, 59, 59, 999)
         
         projects = projects.filter((p: any) => {
+          // Para projetos em 'commercial_proposal' ou 'planning', verificar created_at
+          if (p.status === 'commercial_proposal' || p.status === 'planning') {
+            if (p.created_at) {
+              const created = new Date(p.created_at)
+              return created >= start && created <= end
+            }
+            return false
+          }
+          
+          // Para outros status, verificar sobreposição de datas
           if (p.start_date && p.end_date) {
             const ps = new Date(p.start_date)
             const pe = new Date(p.end_date)
