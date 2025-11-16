@@ -303,31 +303,47 @@ export default function AnalyticsPage() {
         end.setHours(23, 59, 59, 999)
         
         projects = projects.filter((p: any) => {
-          // Para projetos cancelados, sempre incluir se tiver created_at no período
-          // ou se não tiver created_at, incluir todos (para não perder projetos antigos)
+          // Usar a mesma lógica do AnalyticsService.filterProjectsByDateRange
+          const statusWithoutDates = ['commercial_proposal', 'planning']
+          const isStatusWithoutDates = statusWithoutDates.includes(p.status)
+          
+          // Para projetos cancelados, verificar created_at
           if (p.status === 'cancelled') {
             if (p.created_at) {
               const created = new Date(p.created_at)
-              return created >= start && created <= end
-            }
-            // Se não tiver created_at, incluir todos os cancelados (projetos antigos)
-            return true
-          }
-          
-          // Para projetos em 'commercial_proposal' ou 'planning', verificar created_at
-          if (p.status === 'commercial_proposal' || p.status === 'planning') {
-            if (p.created_at) {
-              const created = new Date(p.created_at)
+              created.setHours(0, 0, 0, 0)
               return created >= start && created <= end
             }
             return false
           }
           
-          // Para outros status, verificar sobreposição de datas
+          // Para outros status, seguir a lógica do AnalyticsService
           if (p.start_date && p.end_date) {
             const ps = new Date(p.start_date)
+            ps.setHours(0, 0, 0, 0)
             const pe = new Date(p.end_date)
-            return ps <= end && pe >= start
+            pe.setHours(23, 59, 59, 999)
+            const overlaps = ps <= end && pe >= start
+            if (isStatusWithoutDates && !overlaps) return false
+            return overlaps
+          } else if (p.start_date) {
+            const ps = new Date(p.start_date)
+            ps.setHours(0, 0, 0, 0)
+            const includes = ps <= end
+            if (isStatusWithoutDates && !includes) return false
+            return includes
+          } else if (p.end_date) {
+            const pe = new Date(p.end_date)
+            pe.setHours(23, 59, 59, 999)
+            const includes = pe >= start
+            if (isStatusWithoutDates && !includes) return false
+            return includes
+          } else if (p.created_at) {
+            const created = new Date(p.created_at)
+            created.setHours(0, 0, 0, 0)
+            const inPeriod = created >= start && created <= end
+            if (isStatusWithoutDates && !inPeriod) return false
+            return inPeriod
           }
           return false
         })
