@@ -667,7 +667,24 @@ export default function ClientAnalyticsPage() {
         grid: { color: 'rgba(0, 0, 0, 0.05)' }
       },
       x: {
-        ticks: { font: { size: 11 } },
+        ticks: { 
+          font: { size: 11 },
+          maxRotation: 0,
+          minRotation: 0,
+          padding: 10,
+          callback: function(value, index) {
+            // Formatar labels de forma mais compacta
+            const label = this.getLabelForValue(value)
+            // Se for formato "abr. de 2025", transformar para "Abr/25"
+            const match = label.match(/(\w{3})\.\s+de\s+(\d{4})/)
+            if (match) {
+              const mes = match[1].charAt(0).toUpperCase() + match[1].slice(1)
+              const ano = match[2].slice(-2)
+              return `${mes}/${ano}`
+            }
+            return label
+          }
+        },
         grid: { display: false }
       }
     }
