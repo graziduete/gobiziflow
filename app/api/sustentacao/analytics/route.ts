@@ -301,13 +301,13 @@ export async function POST(request: NextRequest) {
       })
     );
 
-    // Buscar configuração da empresa para horas contratadas
+    // Buscar configuração da empresa para horas contratadas e período de vigência
     const { createClient } = await import('@/lib/supabase/server');
     const supabase = await createClient();
     
     const { data: configs } = await supabase
       .from('sustentacao_empresa_config')
-      .select('horas_contratadas, data_fim')
+      .select('horas_contratadas, data_inicio, data_fim, saldo_negativo')
       .eq('company_id', companyId)
       .eq('status', 'ativo')
       .order('created_at', { ascending: false });
@@ -321,9 +321,60 @@ export async function POST(request: NextRequest) {
     const horasContratadasMensais = activeConfig?.horas_contratadas 
       ? parseFloat(activeConfig.horas_contratadas.toString()) 
       : 40;
+    
+    const dataInicio = activeConfig?.data_inicio ? new Date(activeConfig.data_inicio) : null;
+    const dataFim = activeConfig?.data_fim ? new Date(activeConfig.data_fim) : null;
+    const permiteSaldoNegativo = activeConfig?.saldo_negativo || false;
 
-    // Calcular saldo acumulado
-    let saldoAcumulado = 0;
+    // Calcular saldo acumulado considerando período de vigência (mesma lógica do provider)
+    // O saldo acumulado começa desde o início do contrato, não apenas do período exibido
+    let saldoAcumuladoMesesAnteriores = 0;
+    
+    if (dataInicio && dataFim) {
+      // Calcular saldo de todos os meses anteriores ao primeiro mês exibido
+      const primeiroMesExibido = monthsToDisplay[0];
+      const primeiroMesDate = new Date(primeiroMesExibido.year, primeiroMesExibido.month - 1, 1);
+      
+      // Buscar saldo acumulado de meses anteriores (dentro do período de vigência)
+      for (let ano = dataInicio.getFullYear(); ano <= primeiroMesExibido.year; ano++) {
+        const mesInicialLoop = (ano === dataInicio.getFullYear()) ? dataInicio.getMonth() + 1 : 1;
+        const mesFinalLoop = (ano === primeiroMesExibido.year) 
+          ? primeiroMesExibido.month - 1  // Até o mês anterior ao primeiro exibido
+          : 12;
+
+        for (let mes = mesInicialLoop; mes <= mesFinalLoop; mes++) {
+          // Verificar se o mês está dentro do período de vigência
+          const dataReferencia = new Date(ano, mes - 1, 1);
+          if (dataReferencia < dataInicio || dataReferencia > dataFim) {
+            continue;
+          }
+
+          // Buscar chamados deste mês
+          const chamadosMesAnterior = allChamados.filter((chamado: any) => {
+            const mesChamado = Number(chamado['mês']);
+            const anoChamado = Number(chamado.ano);
+            return mesChamado === mes && anoChamado === ano;
+          });
+
+          // Calcular horas consumidas deste mês
+          const tempoTotal = chamadosMesAnterior.reduce((total: string, chamado: any) => {
+            return somarTempos(total, chamado.tempoAtendimento || '00:00');
+          }, '00:00');
+          const horasConsumidasMesAnterior = converterRelogioParaDecimal(tempoTotal);
+
+          // Calcular saldo do mês
+          let saldoMesAnterior = horasContratadasMensais - horasConsumidasMesAnterior;
+          if (!permiteSaldoNegativo && saldoMesAnterior < 0) {
+            saldoMesAnterior = 0;
+          }
+          
+          saldoAcumuladoMesesAnteriores += saldoMesAnterior;
+        }
+      }
+    }
+
+    // Agora calcular o saldo acumulado para cada mês exibido
+    let saldoAcumulado = saldoAcumuladoMesesAnteriores; // Começa com o saldo dos meses anteriores
     const saldoByMonth: Array<{ month: number; year: number; label: string; saldo: number }> = [];
 
     monthsToDisplay.forEach(({ month, year, label }) => {
@@ -331,7 +382,22 @@ export async function POST(request: NextRequest) {
       const monthData = dataByMonth.get(key);
       if (!monthData) return;
 
-      saldoAcumulado += horasContratadasMensais - monthData.horasConsumidas;
+      // Verificar se o mês está dentro do período de vigência
+      const dataReferencia = new Date(year, month - 1, 1);
+      const dentroDoPeriodo = !dataInicio || !dataFim || 
+        (dataReferencia >= dataInicio && dataReferencia <= dataFim);
+
+      if (dentroDoPeriodo) {
+        // Calcular saldo do mês
+        let saldoMes = horasContratadasMensais - monthData.horasConsumidas;
+        if (!permiteSaldoNegativo && saldoMes < 0) {
+          saldoMes = 0;
+        }
+        
+        // Acumular
+        saldoAcumulado += saldoMes;
+      }
+
       saldoByMonth.push({
         month,
         year,
