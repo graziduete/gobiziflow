@@ -1433,7 +1433,7 @@ export default function ClientAnalyticsPage() {
         {/* Seção de Gráficos de Sustentação */}
         {hasSustentacaoConfig && (
           <>
-            <div className="mt-12 mb-6 ml-0 md:ml-0">
+            <div className="mt-12 mb-6 px-4 md:px-0">
               <h2 className="text-2xl font-bold text-slate-900">Sustentação</h2>
               <p className="text-slate-600 text-sm mt-1">Análise de chamados e horas de sustentação</p>
             </div>
