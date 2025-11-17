@@ -263,7 +263,21 @@ export async function POST(request: NextRequest) {
       Array.from(dataByMonth.entries()).map(([key, data]) => ({
         mes: key,
         totalChamados: data.totalChamados,
-        horasConsumidas: data.horasConsumidas.toFixed(2)
+        horasConsumidas: data.horasConsumidas.toFixed(2),
+        horasConsumidasHHMM: `${Math.floor(data.horasConsumidas)}:${Math.round((data.horasConsumidas % 1) * 60).toString().padStart(2, '0')}`
+      }))
+    );
+    
+    // Log detalhado de alguns chamados para debug de horas
+    const chamadosComHoras = allChamados.filter((c: any) => (c.tempoAtendimento || c.horas) && c.dataAbertura).slice(0, 10);
+    console.log('📊 [Analytics] Exemplo de chamados com horas:', 
+      chamadosComHoras.map((c: any) => ({
+        dataAbertura: c.dataAbertura,
+        tempoAtendimento: c.tempoAtendimento,
+        horas: c.horas,
+        categoria: c.categoria,
+        mes: new Date(c.dataAbertura).getMonth() + 1,
+        ano: new Date(c.dataAbertura).getFullYear()
       }))
     );
 
