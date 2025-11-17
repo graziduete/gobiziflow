@@ -838,7 +838,7 @@ export default function ClientAnalyticsPage() {
   } : null
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-6 w-full px-4 md:px-6">
       {/* Fundo decorativo animado */}
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-br from-blue-400/5 to-indigo-400/5 rounded-full blur-3xl animate-blob" />
@@ -1433,7 +1433,7 @@ export default function ClientAnalyticsPage() {
         {/* Seção de Gráficos de Sustentação */}
         {hasSustentacaoConfig && (
           <>
-            <div className="mt-12 mb-6 px-4 md:px-0">
+            <div className="mt-12 mb-6">
               <h2 className="text-2xl font-bold text-slate-900">Sustentação</h2>
               <p className="text-slate-600 text-sm mt-1">Análise de chamados e horas de sustentação</p>
             </div>
