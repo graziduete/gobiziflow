@@ -604,6 +604,15 @@ export default function ClientAnalyticsPage() {
         titleFont: { size: 13, weight: 'bold' },
         bodyFont: { size: 12 },
         cornerRadius: 8,
+        callbacks: {
+          label: function(context) {
+            // Converter decimal para HH:MM no tooltip
+            const value = context.parsed.y
+            const formatted = formatDecimalToHHMM(value)
+            const label = context.label || 'Horas'
+            return `${label}: ${formatted}`
+          }
+        }
       }
     },
     scales: {
