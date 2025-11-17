@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     const companyId = body.companyId;
     const periodType = body.periodType || 'calendar'; // 'safra' ou 'calendar'
     const periodValue = body.periodValue; // safra string (ex: "2025/26") ou ano number (ex: 2025)
-    const monthsToShow = body.monthsToShow || 6; // Quantos meses mostrar (últimos N meses)
+    const monthsToShow = body.monthsToShow ?? 6; // Quantos meses mostrar (últimos N meses). undefined = todos os meses
 
     if (!companyId) {
       return NextResponse.json(
@@ -165,8 +165,11 @@ export async function POST(request: NextRequest) {
     // Obter meses do período
     const monthsInPeriod = getMonthsInPeriod(periodType, periodValue);
     
-    // Calcular quais meses mostrar (últimos N meses do período)
-    const monthsToDisplay = monthsInPeriod.slice(-monthsToShow);
+    // Para safra (Copersucar), mostrar TODOS os meses da safra
+    // Para calendário, mostrar os últimos N meses (ou todos se monthsToShow for undefined)
+    const monthsToDisplay = periodType === 'safra' || monthsToShow === undefined
+      ? monthsInPeriod  // Todos os meses do período
+      : monthsInPeriod.slice(-monthsToShow); // Últimos N meses
 
     // Agrupar dados por mês e categoria
     const dataByMonth: Map<string, {
@@ -230,16 +233,19 @@ export async function POST(request: NextRequest) {
       monthData.chamadosByCategoria.set(categoria, currentCount + 1);
 
       // Somar horas (converter de HH:MM para decimal)
-      if (chamado.tempoAtendimento) {
+      // O provider retorna tanto 'tempoAtendimento' quanto 'horas', usar o que estiver disponível
+      const tempoAtendimento = chamado.tempoAtendimento || chamado.horas || '';
+      
+      if (tempoAtendimento) {
         let horas = 0;
-        const tempoStr = chamado.tempoAtendimento.toString().trim();
+        const tempoStr = tempoAtendimento.toString().trim();
         
         // Verificar se está no formato HH:MM
         if (tempoStr.includes(':')) {
           const partes = tempoStr.split(':');
           const horasParte = parseInt(partes[0]) || 0;
           const minutosParte = parseInt(partes[1]) || 0;
-          const segundosParte = parseInt(partes[2]) || 0;
+          const segundosParte = partes.length >= 3 ? (parseInt(partes[2]) || 0) : 0;
           horas = horasParte + (minutosParte / 60) + (segundosParte / 3600);
         } else {
           // Tentar como decimal

@@ -196,6 +196,10 @@ export default function ClientAnalyticsPage() {
       const periodType = isCopersucar ? 'safra' : 'calendar'
       const periodValue = isCopersucar ? selectedSafra : selectedYear
       
+      // Para safra, não limitar meses (mostrar todos)
+      // Para calendário, mostrar últimos 6 meses
+      const monthsToShow = isCopersucar ? undefined : 6
+      
       const response = await fetch('/api/sustentacao/analytics', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -203,7 +207,7 @@ export default function ClientAnalyticsPage() {
           companyId: company.id,
           periodType,
           periodValue,
-          monthsToShow: 6
+          monthsToShow
         })
       })
       
