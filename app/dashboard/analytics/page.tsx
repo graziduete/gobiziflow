@@ -1465,7 +1465,7 @@ export default function ClientAnalyticsPage() {
                   </CardHeader>
                   <CardContent>
                     <div style={{ height: '300px' }}>
-                      <Line data={sustentacaoEvolucaoData} options={lineChartOptions} />
+                      <Line data={sustentacaoEvolucaoData} options={sustentacaoLineChartOptions} />
                     </div>
                   </CardContent>
                 </Card>
