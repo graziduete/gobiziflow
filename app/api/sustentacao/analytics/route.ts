@@ -194,8 +194,31 @@ export async function POST(request: NextRequest) {
       });
     });
 
+    // Funções auxiliares para converter horas (mesma lógica do provider)
+    const converterRelogioParaDecimal = (tempo: string): number => {
+      if (!tempo || typeof tempo !== 'string') return 0;
+      const partes = tempo.split(':');
+      if (partes.length < 2) return 0;
+      const horas = parseInt(partes[0]) || 0;
+      const minutos = parseInt(partes[1]) || 0;
+      const segundos = partes.length >= 3 ? (parseInt(partes[2]) || 0) : 0;
+      return horas + (minutos / 60) + (segundos / 3600);
+    };
+
+    const somarTempos = (tempo1: string, tempo2: string): string => {
+      const decimal1 = converterRelogioParaDecimal(tempo1);
+      const decimal2 = converterRelogioParaDecimal(tempo2);
+      const soma = decimal1 + decimal2;
+      const horas = Math.floor(soma);
+      const minutos = Math.round((soma - horas) * 60);
+      return `${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}`;
+    };
+
     // Processar chamados
     const categoriasSet = new Set<string>();
+    
+    // Primeiro, agrupar chamados por mês e somar horas usando a mesma lógica do provider
+    const chamadosPorMes: Map<string, { chamados: any[], tempoTotal: string }> = new Map();
     
     allChamados.forEach((chamado: any) => {
       if (!chamado.dataAbertura) return;
@@ -232,29 +255,23 @@ export async function POST(request: NextRequest) {
       const currentCount = monthData.chamadosByCategoria.get(categoria) || 0;
       monthData.chamadosByCategoria.set(categoria, currentCount + 1);
 
-      // Somar horas (converter de HH:MM para decimal)
-      // O provider retorna tanto 'tempoAtendimento' quanto 'horas', usar o que estiver disponível
-      const tempoAtendimento = chamado.tempoAtendimento || chamado.horas || '';
+      // Agrupar chamados por mês para somar horas
+      if (!chamadosPorMes.has(key)) {
+        chamadosPorMes.set(key, { chamados: [], tempoTotal: '00:00' });
+      }
+      const mesData = chamadosPorMes.get(key)!;
+      mesData.chamados.push(chamado);
       
-      if (tempoAtendimento) {
-        let horas = 0;
-        const tempoStr = tempoAtendimento.toString().trim();
-        
-        // Verificar se está no formato HH:MM
-        if (tempoStr.includes(':')) {
-          const partes = tempoStr.split(':');
-          const horasParte = parseInt(partes[0]) || 0;
-          const minutosParte = parseInt(partes[1]) || 0;
-          const segundosParte = partes.length >= 3 ? (parseInt(partes[2]) || 0) : 0;
-          horas = horasParte + (minutosParte / 60) + (segundosParte / 3600);
-        } else {
-          // Tentar como decimal
-          horas = parseFloat(tempoStr.replace(',', '.')) || 0;
-        }
-        
-        if (horas > 0) {
-          monthData.horasConsumidas += horas;
-        }
+      // Somar horas usando a mesma lógica do provider (somar como strings HH:MM)
+      const tempoAtendimento = chamado.tempoAtendimento || chamado.horas || '00:00';
+      mesData.tempoTotal = somarTempos(mesData.tempoTotal, tempoAtendimento);
+    });
+
+    // Converter horas totais de cada mês para decimal e atribuir
+    chamadosPorMes.forEach((mesData, key) => {
+      const monthData = dataByMonth.get(key);
+      if (monthData) {
+        monthData.horasConsumidas = converterRelogioParaDecimal(mesData.tempoTotal);
       }
     });
     
@@ -268,17 +285,18 @@ export async function POST(request: NextRequest) {
       }))
     );
     
-    // Log detalhado de alguns chamados para debug de horas
-    const chamadosComHoras = allChamados.filter((c: any) => (c.tempoAtendimento || c.horas) && c.dataAbertura).slice(0, 10);
-    console.log('📊 [Analytics] Exemplo de chamados com horas:', 
-      chamadosComHoras.map((c: any) => ({
-        dataAbertura: c.dataAbertura,
-        tempoAtendimento: c.tempoAtendimento,
-        horas: c.horas,
-        categoria: c.categoria,
-        mes: new Date(c.dataAbertura).getMonth() + 1,
-        ano: new Date(c.dataAbertura).getFullYear()
-      }))
+    // Log detalhado por mês para debug de horas
+    console.log('📊 [Analytics] Detalhamento de horas por mês:', 
+      Array.from(chamadosPorMes.entries()).map(([key, data]) => {
+        const monthData = dataByMonth.get(key);
+        return {
+          mes: key,
+          totalChamados: monthData?.totalChamados || 0,
+          tempoTotalHHMM: data.tempoTotal,
+          horasConsumidasDecimal: monthData?.horasConsumidas.toFixed(2) || '0.00',
+          chamadosComHoras: data.chamados.filter((c: any) => (c.tempoAtendimento || c.horas)).length
+        };
+      })
     );
 
     // Buscar configuração da empresa para horas contratadas
