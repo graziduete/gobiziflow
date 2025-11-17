@@ -605,7 +605,109 @@ export default function ClientAnalyticsPage() {
     scales: {
       y: {
         beginAtZero: true,
+        ticks: { 
+          font: { size: 11 },
+          callback: function(value) {
+            // Converter decimal para HH:MM para exibição no eixo Y
+            return formatDecimalToHHMM(Number(value))
+          }
+        },
+        grid: { color: 'rgba(0, 0, 0, 0.05)' }
+      },
+      x: {
         ticks: { font: { size: 11 } },
+        grid: { display: false }
+      }
+    }
+  }
+
+  // Opções customizadas para gráfico de horas de sustentação (com tooltip em HH:MM)
+  const sustentacaoBarChartOptions: ChartOptions<'bar'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: {
+          font: { size: 12, weight: 'bold' },
+          padding: 15,
+          usePointStyle: true,
+        }
+      },
+      tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        padding: 12,
+        titleFont: { size: 13, weight: 'bold' },
+        bodyFont: { size: 12 },
+        cornerRadius: 8,
+        callbacks: {
+          label: function(context) {
+            // Converter decimal para HH:MM no tooltip
+            const value = context.parsed.y
+            const formatted = formatDecimalToHHMM(value)
+            return `${context.dataset.label}: ${formatted}`
+          }
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: { 
+          font: { size: 11 },
+          callback: function(value) {
+            // Converter decimal para HH:MM para exibição no eixo Y
+            return formatDecimalToHHMM(Number(value))
+          }
+        },
+        grid: { color: 'rgba(0, 0, 0, 0.05)' }
+      },
+      x: {
+        ticks: { font: { size: 11 } },
+        grid: { display: false }
+      }
+    }
+  }
+
+  // Opções customizadas para gráfico de saldo acumulado (com tooltip em HH:MM)
+  const sustentacaoLineChartOptions: ChartOptions<'line'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: {
+          font: { size: 12, weight: 'bold' },
+          padding: 15,
+          usePointStyle: true,
+        }
+      },
+      tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        padding: 12,
+        titleFont: { size: 13, weight: 'bold' },
+        bodyFont: { size: 12 },
+        cornerRadius: 8,
+        callbacks: {
+          label: function(context) {
+            // Converter decimal para HH:MM no tooltip
+            const value = context.parsed.y
+            const formatted = formatDecimalToHHMM(value)
+            return `${context.dataset.label}: ${formatted}`
+          }
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: false,
+        ticks: { 
+          font: { size: 11 },
+          callback: function(value) {
+            // Converter decimal para HH:MM para exibição no eixo Y
+            return formatDecimalToHHMM(Number(value))
+          }
+        },
         grid: { color: 'rgba(0, 0, 0, 0.05)' }
       },
       x: {
@@ -1379,7 +1481,7 @@ export default function ClientAnalyticsPage() {
                   </CardHeader>
                   <CardContent>
                     <div style={{ height: '300px' }}>
-                      <Bar data={sustentacaoHorasData} options={barChartOptions} />
+                      <Bar data={sustentacaoHorasData} options={sustentacaoBarChartOptions} />
                     </div>
                   </CardContent>
                 </Card>
@@ -1406,7 +1508,7 @@ export default function ClientAnalyticsPage() {
                 </CardHeader>
                 <CardContent>
                   <div style={{ height: '300px' }}>
-                    <Line data={sustentacaoSaldoData} options={lineChartOptions} />
+                    <Line data={sustentacaoSaldoData} options={sustentacaoLineChartOptions} />
                   </div>
                 </CardContent>
               </Card>
