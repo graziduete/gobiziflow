@@ -259,9 +259,20 @@ export async function POST(request: NextRequest) {
       // Contar chamados
       monthData.totalChamados = chamadosDoMes.length;
 
-      // Agrupar por categoria
+      // Agrupar por categoria (normalizar nomes)
       chamadosDoMes.forEach((chamado: any) => {
-        const categoria = chamado.categoria || 'Sem categoria';
+        let categoria = chamado.categoria || 'Sem categoria';
+        
+        // Normalizar variações de "Falha Sistêmica"
+        if (categoria === 'Falha Sistema' || categoria === 'Falha Sistemica' || categoria === 'Falha Sistêmica') {
+          categoria = 'Falha Sistêmica';
+        }
+        
+        // Normalizar variações de "Solicitação"
+        if (categoria === 'Solicitacao' || categoria === 'Solicitação') {
+          categoria = 'Solicitação';
+        }
+        
         categoriasSet.add(categoria);
         const currentCount = monthData.chamadosByCategoria.get(categoria) || 0;
         monthData.chamadosByCategoria.set(categoria, currentCount + 1);
