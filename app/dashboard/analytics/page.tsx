@@ -128,6 +128,11 @@ export default function ClientAnalyticsPage() {
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear())
   const [projectsByStatus, setProjectsByStatus] = useState<Map<string, string[]>>(new Map())
   
+  // Estados para gráficos de sustentação
+  const [sustentacaoData, setSustentacaoData] = useState<any>(null)
+  const [sustentacaoLoading, setSustentacaoLoading] = useState(false)
+  const [hasSustentacaoConfig, setHasSustentacaoConfig] = useState<boolean | null>(null)
+  
   const isCopersucar = company?.id === COPERSUCAR_ID
 
   const supabase = createBrowserClient(
@@ -151,8 +156,73 @@ export default function ClientAnalyticsPage() {
   useEffect(() => {
     if (!clientLoading && company?.id) {
       loadAnalyticsData()
+      checkSustentacaoConfig()
     }
   }, [selectedSafra, selectedYear, company?.id])
+
+  // Verificar se a empresa tem configuração de sustentação
+  const checkSustentacaoConfig = async () => {
+    if (!company?.id) return
+    
+    try {
+      // Copersucar sempre tem (usa hardcoded)
+      if (company.id === COPERSUCAR_ID) {
+        setHasSustentacaoConfig(true)
+        return
+      }
+      
+      // Verificar se tem configuração de Google Sheets
+      const response = await fetch(`/api/sustentacao/google-sheets-config?companyId=${company.id}`)
+      const data = await response.json()
+      
+      // Verificar se tem configuração ativa
+      const hasConfig = data.success && data.data && (
+        Array.isArray(data.data) ? data.data.length > 0 : !!data.data
+      )
+      
+      setHasSustentacaoConfig(hasConfig)
+    } catch (error) {
+      console.error('Erro ao verificar configuração de sustentação:', error)
+      setHasSustentacaoConfig(false)
+    }
+  }
+
+  // Carregar dados de sustentação
+  const loadSustentacaoData = async () => {
+    if (!company?.id || !hasSustentacaoConfig) return
+    
+    setSustentacaoLoading(true)
+    try {
+      const periodType = isCopersucar ? 'safra' : 'calendar'
+      const periodValue = isCopersucar ? selectedSafra : selectedYear
+      
+      const response = await fetch('/api/sustentacao/analytics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          companyId: company.id,
+          periodType,
+          periodValue,
+          monthsToShow: 6
+        })
+      })
+      
+      const data = await response.json()
+      if (data.success) {
+        setSustentacaoData(data)
+      }
+    } catch (error) {
+      console.error('Erro ao carregar dados de sustentação:', error)
+    } finally {
+      setSustentacaoLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (hasSustentacaoConfig && company?.id) {
+      loadSustentacaoData()
+    }
+  }, [hasSustentacaoConfig, selectedSafra, selectedYear, company?.id])
 
   const loadHourStats = async () => {
     if (!company?.id) return
@@ -606,6 +676,60 @@ export default function ClientAnalyticsPage() {
       },
     ],
   }
+
+  // Dados para gráficos de sustentação
+  const sustentacaoEvolucaoData = sustentacaoData ? {
+    labels: sustentacaoData.meses.map((m: any) => m.label),
+    datasets: sustentacaoData.evolucaoPorCategoria.map((cat: any, index: number) => {
+      const colors = [
+        'rgb(239, 68, 68)',   // Bug - Vermelho
+        'rgb(234, 179, 8)',   // Ajuste - Amarelo
+        'rgb(168, 85, 247)',  // Falha Sistêmica - Roxo
+        'rgb(34, 197, 94)',   // Solicitação - Verde
+        'rgb(59, 130, 246)',  // Processo - Azul
+      ]
+      return {
+        label: cat.categoria,
+        data: cat.data.map((d: any) => d.quantidade),
+        borderColor: colors[index % colors.length],
+        backgroundColor: colors[index % colors.length].replace('rgb', 'rgba').replace(')', ', 0.1)'),
+        tension: 0.4,
+        fill: false,
+      }
+    })
+  } : null
+
+  const sustentacaoHorasData = sustentacaoData ? {
+    labels: sustentacaoData.meses.map((m: any) => m.label),
+    datasets: [
+      {
+        label: 'Horas Contratadas',
+        data: sustentacaoData.horasData.map((h: any) => h.contratadas),
+        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+        borderRadius: 8,
+      },
+      {
+        label: 'Horas Consumidas',
+        data: sustentacaoData.horasData.map((h: any) => h.consumidas),
+        backgroundColor: 'rgba(16, 185, 129, 0.8)',
+        borderRadius: 8,
+      },
+    ],
+  } : null
+
+  const sustentacaoSaldoData = sustentacaoData ? {
+    labels: sustentacaoData.meses.map((m: any) => m.label),
+    datasets: [
+      {
+        label: 'Saldo Acumulado',
+        data: sustentacaoData.saldoData.map((s: any) => s.saldo),
+        borderColor: 'rgb(139, 92, 246)',
+        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+        tension: 0.4,
+        fill: true,
+      },
+    ],
+  } : null
 
   return (
     <div className="space-y-6 w-full">
@@ -1199,6 +1323,96 @@ export default function ClientAnalyticsPage() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Seção de Gráficos de Sustentação */}
+        {hasSustentacaoConfig && (
+          <>
+            <div className="mt-8 mb-4">
+              <h2 className="text-2xl font-bold text-slate-900">Sustentação</h2>
+              <p className="text-slate-600 text-sm mt-1">Análise de chamados e horas de sustentação</p>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2">
+              {/* Evolução de Chamados por Categoria */}
+              {sustentacaoLoading ? (
+                <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-center h-[300px]">
+                      <ModernLoading />
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : sustentacaoEvolucaoData ? (
+                <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+                  <CardHeader>
+                    <div className="flex items-center gap-2">
+                      <BarChart3 className="w-5 h-5 text-blue-600" />
+                      <CardTitle>Evolução de Chamados por Categoria</CardTitle>
+                    </div>
+                    <CardDescription>Últimos 6 meses</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div style={{ height: '300px' }}>
+                      <Line data={sustentacaoEvolucaoData} options={lineChartOptions} />
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : null}
+
+              {/* Horas Consumidas vs Contratadas (Sustentação) */}
+              {sustentacaoLoading ? (
+                <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-center h-[300px]">
+                      <ModernLoading />
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : sustentacaoHorasData ? (
+                <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+                  <CardHeader>
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-5 h-5 text-indigo-600" />
+                      <CardTitle>Horas de Sustentação</CardTitle>
+                    </div>
+                    <CardDescription>Consumidas vs Contratadas mensais</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div style={{ height: '300px' }}>
+                      <Bar data={sustentacaoHorasData} options={barChartOptions} />
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : null}
+            </div>
+
+            {/* Saldo Acumulado */}
+            {sustentacaoLoading ? (
+              <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm mt-6">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-center h-[300px]">
+                    <ModernLoading />
+                  </div>
+                </CardContent>
+              </Card>
+            ) : sustentacaoSaldoData ? (
+              <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm mt-6">
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-purple-600" />
+                    <CardTitle>Saldo Acumulado de Horas</CardTitle>
+                  </div>
+                  <CardDescription>Evolução do saldo acumulado ao longo do período</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div style={{ height: '300px' }}>
+                    <Line data={sustentacaoSaldoData} options={lineChartOptions} />
+                  </div>
+                </CardContent>
+              </Card>
+            ) : null}
+          </>
+        )}
       </div>
     </div>
   )
