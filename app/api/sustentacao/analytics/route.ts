@@ -199,6 +199,12 @@ export async function POST(request: NextRequest) {
 
       const dataAbertura = new Date(chamado.dataAbertura);
       
+      // Verificar se a data é válida
+      if (isNaN(dataAbertura.getTime())) {
+        console.warn('⚠️ [Analytics] Data de abertura inválida:', chamado.dataAbertura);
+        return;
+      }
+      
       // Verificar se está no período
       if (!isDateInPeriod(dataAbertura, periodType, periodValue)) {
         return;
@@ -209,7 +215,10 @@ export async function POST(request: NextRequest) {
       const key = `${year}-${month}`;
 
       const monthData = dataByMonth.get(key);
-      if (!monthData) return; // Mês não está no período a ser exibido
+      if (!monthData) {
+        // Mês não está no período a ser exibido (últimos N meses)
+        return;
+      }
 
       // Contar chamado
       monthData.totalChamados++;
@@ -220,12 +229,37 @@ export async function POST(request: NextRequest) {
       const currentCount = monthData.chamadosByCategoria.get(categoria) || 0;
       monthData.chamadosByCategoria.set(categoria, currentCount + 1);
 
-      // Somar horas
+      // Somar horas (converter de HH:MM para decimal)
       if (chamado.tempoAtendimento) {
-        const horas = parseFloat(chamado.tempoAtendimento.toString().replace(',', '.')) || 0;
-        monthData.horasConsumidas += horas;
+        let horas = 0;
+        const tempoStr = chamado.tempoAtendimento.toString().trim();
+        
+        // Verificar se está no formato HH:MM
+        if (tempoStr.includes(':')) {
+          const partes = tempoStr.split(':');
+          const horasParte = parseInt(partes[0]) || 0;
+          const minutosParte = parseInt(partes[1]) || 0;
+          const segundosParte = parseInt(partes[2]) || 0;
+          horas = horasParte + (minutosParte / 60) + (segundosParte / 3600);
+        } else {
+          // Tentar como decimal
+          horas = parseFloat(tempoStr.replace(',', '.')) || 0;
+        }
+        
+        if (horas > 0) {
+          monthData.horasConsumidas += horas;
+        }
       }
     });
+    
+    // Log para debug
+    console.log('📊 [Analytics] Dados agregados por mês:', 
+      Array.from(dataByMonth.entries()).map(([key, data]) => ({
+        mes: key,
+        totalChamados: data.totalChamados,
+        horasConsumidas: data.horasConsumidas.toFixed(2)
+      }))
+    );
 
     // Buscar configuração da empresa para horas contratadas
     const { createClient } = await import('@/lib/supabase/server');
