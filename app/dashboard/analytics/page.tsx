@@ -786,19 +786,25 @@ export default function ClientAnalyticsPage() {
   // Dados para gráficos de sustentação
   const sustentacaoEvolucaoData = sustentacaoData ? {
     labels: sustentacaoData.meses.map((m: any) => m.label),
-    datasets: sustentacaoData.evolucaoPorCategoria.map((cat: any, index: number) => {
-      const colors = [
-        'rgb(239, 68, 68)',   // Bug - Vermelho
-        'rgb(234, 179, 8)',   // Ajuste - Amarelo
-        'rgb(168, 85, 247)',  // Falha Sistêmica - Roxo
-        'rgb(34, 197, 94)',   // Solicitação - Verde
-        'rgb(59, 130, 246)',  // Processo - Azul
-      ]
+    datasets: sustentacaoData.evolucaoPorCategoria.map((cat: any) => {
+      // Mapeamento de cores por categoria (mesmas cores do dashboard de sustentação)
+      const categoriaColors: Record<string, string> = {
+        'Bug': 'rgb(239, 68, 68)',           // Vermelho
+        'Ajuste': 'rgb(234, 179, 8)',        // Amarelo
+        'Falha Sistêmica': 'rgb(168, 85, 247)', // Roxo
+        'Solicitação': 'rgb(34, 197, 94)',   // Verde
+        'Processo': 'rgb(59, 130, 246)',     // Azul
+      }
+      
+      // Cor padrão caso a categoria não esteja no mapeamento
+      const defaultColor = 'rgb(107, 114, 128)' // Cinza
+      const color = categoriaColors[cat.categoria] || defaultColor
+      
       return {
         label: cat.categoria,
         data: cat.data.map((d: any) => d.quantidade),
-        borderColor: colors[index % colors.length],
-        backgroundColor: colors[index % colors.length].replace('rgb', 'rgba').replace(')', ', 0.1)'),
+        borderColor: color,
+        backgroundColor: color.replace('rgb', 'rgba').replace(')', ', 0.1)'),
         tension: 0.4,
         fill: false,
       }
