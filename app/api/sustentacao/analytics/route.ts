@@ -214,65 +214,67 @@ export async function POST(request: NextRequest) {
       return `${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}`;
     };
 
-    // Processar chamados
+    // Processar chamados usando a MESMA lógica do módulo de sustentação
+    // O módulo filtra por campos 'mês' e 'ano' do chamado, não por dataAbertura
     const categoriasSet = new Set<string>();
     
-    // Primeiro, agrupar chamados por mês e somar horas usando a mesma lógica do provider
-    const chamadosPorMes: Map<string, { chamados: any[], tempoTotal: string }> = new Map();
-    
-    allChamados.forEach((chamado: any) => {
-      if (!chamado.dataAbertura) return;
-
-      const dataAbertura = new Date(chamado.dataAbertura);
-      
-      // Verificar se a data é válida
-      if (isNaN(dataAbertura.getTime())) {
-        console.warn('⚠️ [Analytics] Data de abertura inválida:', chamado.dataAbertura);
-        return;
-      }
-      
-      // Verificar se está no período
-      if (!isDateInPeriod(dataAbertura, periodType, periodValue)) {
-        return;
-      }
-
-      const month = dataAbertura.getMonth() + 1;
-      const year = dataAbertura.getFullYear();
+    // Para cada mês a ser exibido, buscar chamados usando a mesma lógica do provider
+    monthsToDisplay.forEach(({ month, year, label }) => {
       const key = `${year}-${month}`;
-
       const monthData = dataByMonth.get(key);
-      if (!monthData) {
-        // Mês não está no período a ser exibido (últimos N meses)
-        return;
-      }
+      if (!monthData) return;
 
-      // Contar chamado
-      monthData.totalChamados++;
+      // Filtrar chamados para este mês específico (mesma lógica do provider)
+      const chamadosDoMes = allChamados.filter((chamado: any) => {
+        const mesChamado = Number(chamado['mês']);
+        const anoChamado = Number(chamado.ano);
+        
+        // Se não houver mês/ano definidos na linha, verificar dataAbertura como fallback
+        if (!mesChamado || !anoChamado) {
+          if (chamado.dataAbertura) {
+            const dataAbertura = new Date(chamado.dataAbertura);
+            if (!isNaN(dataAbertura.getTime())) {
+              return dataAbertura.getMonth() + 1 === month && 
+                     dataAbertura.getFullYear() === year &&
+                     isDateInPeriod(dataAbertura, periodType, periodValue);
+            }
+          }
+          return false;
+        }
+        
+        // Verificar se o mês/ano do chamado corresponde e está no período
+        if (mesChamado === month && anoChamado === year) {
+          // Verificar se está no período (safra ou calendário)
+          if (chamado.dataAbertura) {
+            const dataAbertura = new Date(chamado.dataAbertura);
+            if (!isNaN(dataAbertura.getTime())) {
+              return isDateInPeriod(dataAbertura, periodType, periodValue);
+            }
+          }
+          return true; // Se não tem dataAbertura, confiar no mês/ano da planilha
+        }
+        return false;
+      });
+
+      // Contar chamados
+      monthData.totalChamados = chamadosDoMes.length;
 
       // Agrupar por categoria
-      const categoria = chamado.categoria || 'Sem categoria';
-      categoriasSet.add(categoria);
-      const currentCount = monthData.chamadosByCategoria.get(categoria) || 0;
-      monthData.chamadosByCategoria.set(categoria, currentCount + 1);
+      chamadosDoMes.forEach((chamado: any) => {
+        const categoria = chamado.categoria || 'Sem categoria';
+        categoriasSet.add(categoria);
+        const currentCount = monthData.chamadosByCategoria.get(categoria) || 0;
+        monthData.chamadosByCategoria.set(categoria, currentCount + 1);
+      });
 
-      // Agrupar chamados por mês para somar horas
-      if (!chamadosPorMes.has(key)) {
-        chamadosPorMes.set(key, { chamados: [], tempoTotal: '00:00' });
-      }
-      const mesData = chamadosPorMes.get(key)!;
-      mesData.chamados.push(chamado);
-      
-      // Somar horas usando a mesma lógica do provider (somar como strings HH:MM)
-      const tempoAtendimento = chamado.tempoAtendimento || chamado.horas || '00:00';
-      mesData.tempoTotal = somarTempos(mesData.tempoTotal, tempoAtendimento);
-    });
+      // Calcular horas consumidas usando a MESMA lógica do provider
+      // Somar todos os tempoAtendimento como strings HH:MM primeiro
+      const tempoTotal = chamadosDoMes.reduce((total: string, chamado: any) => {
+        return somarTempos(total, chamado.tempoAtendimento || '00:00');
+      }, '00:00');
 
-    // Converter horas totais de cada mês para decimal e atribuir
-    chamadosPorMes.forEach((mesData, key) => {
-      const monthData = dataByMonth.get(key);
-      if (monthData) {
-        monthData.horasConsumidas = converterRelogioParaDecimal(mesData.tempoTotal);
-      }
+      // Converter para decimal
+      monthData.horasConsumidas = converterRelogioParaDecimal(tempoTotal);
     });
     
     // Log para debug
@@ -287,14 +289,14 @@ export async function POST(request: NextRequest) {
     
     // Log detalhado por mês para debug de horas
     console.log('📊 [Analytics] Detalhamento de horas por mês:', 
-      Array.from(chamadosPorMes.entries()).map(([key, data]) => {
-        const monthData = dataByMonth.get(key);
+      Array.from(dataByMonth.entries()).map(([key, data]) => {
+        const horasHHMM = `${Math.floor(data.horasConsumidas)}:${Math.round((data.horasConsumidas % 1) * 60).toString().padStart(2, '0')}`;
         return {
           mes: key,
-          totalChamados: monthData?.totalChamados || 0,
-          tempoTotalHHMM: data.tempoTotal,
-          horasConsumidasDecimal: monthData?.horasConsumidas.toFixed(2) || '0.00',
-          chamadosComHoras: data.chamados.filter((c: any) => (c.tempoAtendimento || c.horas)).length
+          label: data.label,
+          totalChamados: data.totalChamados,
+          horasConsumidasHHMM: horasHHMM,
+          horasConsumidasDecimal: data.horasConsumidas.toFixed(2)
         };
       })
     );
