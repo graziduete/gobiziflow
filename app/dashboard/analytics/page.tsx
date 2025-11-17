@@ -1577,7 +1577,12 @@ export default function ClientAnalyticsPage() {
                       <Clock className="w-5 h-5 text-indigo-600" />
                       <CardTitle>Horas de Sustentação</CardTitle>
                     </div>
-                    <CardDescription>Consumidas vs Contratadas mensais</CardDescription>
+                    <CardDescription>
+                      Consumidas vs Contratadas mensais
+                      {isCopersucar && selectedSafra 
+                        ? ` - Safra ${selectedSafra}`
+                        : ' - Últimos 6 meses'}
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div style={{ height: '300px' }}>
@@ -1604,7 +1609,12 @@ export default function ClientAnalyticsPage() {
                     <TrendingUp className="w-5 h-5 text-purple-600" />
                     <CardTitle>Saldo Acumulado de Horas</CardTitle>
                   </div>
-                  <CardDescription>Evolução do saldo acumulado ao longo do período</CardDescription>
+                  <CardDescription>
+                    Evolução do saldo acumulado
+                    {isCopersucar && selectedSafra 
+                      ? ` - Safra ${selectedSafra}`
+                      : ' - Últimos 6 meses'}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div style={{ height: '300px' }}>
