@@ -21,6 +21,7 @@ import {
 } from "lucide-react"
 import { AnalyticsService, AnalyticsData } from "@/lib/analytics-service"
 import { ModernLoading } from "@/components/ui/modern-loading"
+import { formatDecimalToHHMM } from "@/lib/utils/hours"
 import { 
   Chart as ChartJS, 
   CategoryScale, 
@@ -118,6 +119,11 @@ export default function AnalyticsPage() {
   const [selectedSafra, setSelectedSafra] = useState<string>(getCurrentSafra())
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear())
   
+  // Estados para gráficos de sustentação
+  const [sustentacaoData, setSustentacaoData] = useState<any>(null)
+  const [sustentacaoLoading, setSustentacaoLoading] = useState(false)
+  const [hasSustentacaoConfig, setHasSustentacaoConfig] = useState<boolean | null>(null)
+  
   // Ref para evitar carregamento duplo na inicialização
   const hasInitialLoad = useRef(false)
 
@@ -133,16 +139,101 @@ export default function AnalyticsPage() {
     loadCompanies()
     // Carregar analytics na inicialização
     loadAnalyticsData()
+    // Verificar configuração de sustentação na inicialização
+    if (selectedCompany !== "all") {
+      checkSustentacaoConfig()
+    }
   }, [])
 
   useEffect(() => {
     // Recarregar apenas quando filtros mudarem (não na inicialização)
     if (hasInitialLoad.current) {
       loadAnalyticsData()
+      if (selectedCompany !== "all") {
+        checkSustentacaoConfig()
+      } else {
+        setHasSustentacaoConfig(false)
+        setSustentacaoData(null)
+      }
     } else {
       hasInitialLoad.current = true
     }
   }, [selectedCompany, selectedSafra, selectedYear])
+
+  // Verificar se a empresa selecionada tem configuração de sustentação
+  const checkSustentacaoConfig = async () => {
+    const companyId = selectedCompany === "all" ? null : selectedCompany
+    if (!companyId) {
+      setHasSustentacaoConfig(false)
+      return
+    }
+    
+    try {
+      // Copersucar sempre tem (usa hardcoded)
+      if (companyId === COPERSUCAR_ID) {
+        setHasSustentacaoConfig(true)
+        return
+      }
+      
+      // Verificar se tem configuração de Google Sheets
+      const response = await fetch(`/api/sustentacao/google-sheets-config?companyId=${companyId}`)
+      const data = await response.json()
+      
+      // Verificar se tem configuração ativa
+      const hasConfig = data.success && data.data && (
+        Array.isArray(data.data) ? data.data.length > 0 : !!data.data
+      )
+      
+      setHasSustentacaoConfig(hasConfig)
+    } catch (error) {
+      console.error('Erro ao verificar configuração de sustentação:', error)
+      setHasSustentacaoConfig(false)
+    }
+  }
+
+  // Carregar dados de sustentação
+  const loadSustentacaoData = async () => {
+    const companyId = selectedCompany === "all" ? null : selectedCompany
+    if (!companyId || !hasSustentacaoConfig) return
+    
+    setSustentacaoLoading(true)
+    try {
+      const periodType = companyId === COPERSUCAR_ID ? 'safra' : 'calendar'
+      const periodValue = companyId === COPERSUCAR_ID ? selectedSafra : selectedYear
+      
+      // Para safra, não limitar meses (mostrar todos)
+      // Para calendário, mostrar últimos 6 meses
+      const monthsToShow = companyId === COPERSUCAR_ID ? undefined : 6
+      
+      const response = await fetch('/api/sustentacao/analytics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          companyId,
+          periodType,
+          periodValue,
+          monthsToShow
+        })
+      })
+      
+      const data = await response.json()
+      if (data.success) {
+        setSustentacaoData(data)
+      }
+    } catch (error) {
+      console.error('Erro ao carregar dados de sustentação:', error)
+    } finally {
+      setSustentacaoLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (hasSustentacaoConfig && selectedCompany !== "all") {
+      loadSustentacaoData()
+    } else {
+      setSustentacaoData(null)
+    }
+  }, [hasSustentacaoConfig, selectedSafra, selectedYear, selectedCompany])
 
   const loadProjectsByStatus = async (
     tenantId: string | null | undefined,
@@ -883,6 +974,247 @@ export default function AnalyticsPage() {
     }],
   }
 
+  // Opções customizadas para gráfico de horas de sustentação (com tooltip em HH:MM)
+  const sustentacaoBarChartOptions: ChartOptions<'bar'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: {
+          font: { size: 12, weight: 'bold' },
+          padding: 15,
+          usePointStyle: true,
+        }
+      },
+      tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        padding: 12,
+        titleFont: { size: 13, weight: 'bold' },
+        bodyFont: { size: 12 },
+        cornerRadius: 8,
+        callbacks: {
+          label: function(context) {
+            // Converter decimal para HH:MM no tooltip
+            const value = context.parsed.y
+            const formatted = formatDecimalToHHMM(value)
+            return `${context.dataset.label}: ${formatted}`
+          }
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: { 
+          font: { size: 11 },
+          callback: function(value) {
+            // Converter decimal para HH:MM para exibição no eixo Y
+            return formatDecimalToHHMM(Number(value))
+          }
+        },
+        grid: { color: 'rgba(0, 0, 0, 0.05)' }
+      },
+      x: {
+        ticks: { 
+          font: { size: 11 },
+          maxRotation: 0,
+          minRotation: 0,
+          padding: 10,
+          callback: function(value, index) {
+            // Formatar labels de forma mais compacta
+            const label = this.getLabelForValue(value)
+            // Se for formato "abr. de 2025", transformar para "Abr/25"
+            const match = label.match(/(\w{3})\.\s+de\s+(\d{4})/)
+            if (match) {
+              const mes = match[1].charAt(0).toUpperCase() + match[1].slice(1)
+              const ano = match[2].slice(-2)
+              return `${mes}/${ano}`
+            }
+            return label
+          }
+        },
+        grid: { display: false }
+      }
+    }
+  }
+
+  // Opções para gráfico de evolução de categorias
+  const sustentacaoEvolucaoLineChartOptions: ChartOptions<'line'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: {
+          font: { size: 12, weight: 'bold' },
+          padding: 15,
+          usePointStyle: true,
+        }
+      },
+      tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        padding: 12,
+        titleFont: { size: 13, weight: 'bold' },
+        bodyFont: { size: 12 },
+        cornerRadius: 8,
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: { font: { size: 11 } },
+        grid: { color: 'rgba(0, 0, 0, 0.05)' }
+      },
+      x: {
+        ticks: { 
+          font: { size: 11 },
+          maxRotation: 0,
+          minRotation: 0,
+          padding: 10,
+          callback: function(value, index) {
+            // Formatar labels de forma mais compacta
+            const label = this.getLabelForValue(value)
+            // Se for formato "abr. de 2025", transformar para "Abr/25"
+            const match = label.match(/(\w{3})\.\s+de\s+(\d{4})/)
+            if (match) {
+              const mes = match[1].charAt(0).toUpperCase() + match[1].slice(1)
+              const ano = match[2].slice(-2)
+              return `${mes}/${ano}`
+            }
+            return label
+          }
+        },
+        grid: { display: false }
+      }
+    }
+  }
+
+  // Opções customizadas para gráfico de saldo acumulado (com tooltip em HH:MM)
+  const sustentacaoSaldoLineChartOptions: ChartOptions<'line'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: {
+          font: { size: 12, weight: 'bold' },
+          padding: 15,
+          usePointStyle: true,
+        }
+      },
+      tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        padding: 12,
+        titleFont: { size: 13, weight: 'bold' },
+        bodyFont: { size: 12 },
+        cornerRadius: 8,
+        callbacks: {
+          label: function(context) {
+            // Converter decimal para HH:MM no tooltip
+            const value = context.parsed.y
+            const formatted = formatDecimalToHHMM(value)
+            return `${context.dataset.label}: ${formatted}`
+          }
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: false,
+        ticks: { 
+          font: { size: 11 },
+          callback: function(value) {
+            // Converter decimal para HH:MM para exibição no eixo Y
+            return formatDecimalToHHMM(Number(value))
+          }
+        },
+        grid: { color: 'rgba(0, 0, 0, 0.05)' }
+      },
+      x: {
+        ticks: { 
+          font: { size: 11 },
+          maxRotation: 0,
+          minRotation: 0,
+          padding: 10,
+          callback: function(value, index) {
+            // Formatar labels de forma mais compacta
+            const label = this.getLabelForValue(value)
+            // Se for formato "abr. de 2025", transformar para "Abr/25"
+            const match = label.match(/(\w{3})\.\s+de\s+(\d{4})/)
+            if (match) {
+              const mes = match[1].charAt(0).toUpperCase() + match[1].slice(1)
+              const ano = match[2].slice(-2)
+              return `${mes}/${ano}`
+            }
+            return label
+          }
+        },
+        grid: { display: false }
+      }
+    }
+  }
+
+  // Dados para gráficos de sustentação
+  const sustentacaoEvolucaoData = sustentacaoData ? {
+    labels: sustentacaoData.meses.map((m: any) => m.label),
+    datasets: sustentacaoData.evolucaoPorCategoria.map((cat: any) => {
+      // Mapeamento de cores por categoria (mesmas cores do dashboard de sustentação)
+      const categoriaColors: Record<string, string> = {
+        'Bug': 'rgb(239, 68, 68)',           // Vermelho
+        'Ajuste': 'rgb(234, 179, 8)',        // Amarelo
+        'Falha Sistêmica': 'rgb(168, 85, 247)', // Roxo
+        'Solicitação': 'rgb(34, 197, 94)',   // Verde
+        'Processo': 'rgb(59, 130, 246)',     // Azul
+      }
+      
+      // Cor padrão caso a categoria não esteja no mapeamento
+      const defaultColor = 'rgb(107, 114, 128)' // Cinza
+      const color = categoriaColors[cat.categoria] || defaultColor
+      
+      return {
+        label: cat.categoria,
+        data: cat.data.map((d: any) => d.quantidade),
+        borderColor: color,
+        backgroundColor: color.replace('rgb', 'rgba').replace(')', ', 0.1)'),
+        tension: 0.4,
+        fill: false,
+      }
+    })
+  } : null
+
+  const sustentacaoHorasData = sustentacaoData ? {
+    labels: sustentacaoData.meses.map((m: any) => m.label),
+    datasets: [
+      {
+        label: 'Horas Contratadas',
+        data: sustentacaoData.horasData.map((h: any) => h.contratadas),
+        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+        borderRadius: 8,
+      },
+      {
+        label: 'Horas Consumidas',
+        data: sustentacaoData.horasData.map((h: any) => h.consumidas),
+        backgroundColor: 'rgba(16, 185, 129, 0.8)',
+        borderRadius: 8,
+      },
+    ],
+  } : null
+
+  const sustentacaoSaldoData = sustentacaoData ? {
+    labels: sustentacaoData.meses.map((m: any) => m.label),
+    datasets: [
+      {
+        label: 'Saldo Acumulado',
+        data: sustentacaoData.saldoData.map((s: any) => s.saldo),
+        borderColor: 'rgb(139, 92, 246)',
+        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+        tension: 0.4,
+        fill: true,
+      },
+    ],
+  } : null
+
   return (
     <div className="space-y-6 w-full">
       {/* Fundo decorativo animado */}
@@ -1565,6 +1897,110 @@ export default function AnalyticsPage() {
               </div>
             </CardContent>
           </Card>
+        )}
+
+        {/* Gráficos de Sustentação */}
+        {hasSustentacaoConfig && selectedCompany !== "all" && (
+          <>
+            <div className="mt-12 mb-6">
+              <h2 className="text-2xl font-bold text-slate-900">Sustentação</h2>
+              <p className="text-slate-600 mt-1">Análise de chamados e horas de sustentação</p>
+            </div>
+
+            <div className="grid gap-6 lg:grid-cols-2">
+              {/* Evolução de Chamados por Categoria */}
+              {sustentacaoLoading ? (
+                <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-center h-[300px]">
+                      <ModernLoading />
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : sustentacaoEvolucaoData ? (
+                <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+                  <CardHeader>
+                    <div className="flex items-center gap-2">
+                      <BarChart3 className="w-5 h-5 text-blue-600" />
+                      <CardTitle>Evolução de Chamados por Categoria</CardTitle>
+                    </div>
+                    <CardDescription>
+                      {isCopersucar && selectedSafra 
+                        ? `Safra ${selectedSafra}`
+                        : 'Últimos 6 meses'}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div style={{ height: '300px' }}>
+                      <Line data={sustentacaoEvolucaoData} options={sustentacaoEvolucaoLineChartOptions} />
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : null}
+
+              {/* Horas Consumidas vs Contratadas (Sustentação) */}
+              {sustentacaoLoading ? (
+                <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-center h-[300px]">
+                      <ModernLoading />
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : sustentacaoHorasData ? (
+                <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+                  <CardHeader>
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-5 h-5 text-indigo-600" />
+                      <CardTitle>Horas de Sustentação</CardTitle>
+                    </div>
+                    <CardDescription>
+                      Consumidas vs Contratadas mensais
+                      {isCopersucar && selectedSafra 
+                        ? ` - Safra ${selectedSafra}`
+                        : ' - Últimos 6 meses'}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div style={{ height: '300px' }}>
+                      <Bar data={sustentacaoHorasData} options={sustentacaoBarChartOptions} />
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : null}
+            </div>
+
+            {/* Saldo Acumulado */}
+            {sustentacaoLoading ? (
+              <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm mt-6">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-center h-[300px]">
+                    <ModernLoading />
+                  </div>
+                </CardContent>
+              </Card>
+            ) : sustentacaoSaldoData ? (
+              <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm mt-6">
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-purple-600" />
+                    <CardTitle>Saldo Acumulado de Horas</CardTitle>
+                  </div>
+                  <CardDescription>
+                    Evolução do saldo acumulado
+                    {isCopersucar && selectedSafra 
+                      ? ` - Safra ${selectedSafra}`
+                      : ' - Últimos 6 meses'}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div style={{ height: '300px' }}>
+                    <Line data={sustentacaoSaldoData} options={sustentacaoSaldoLineChartOptions} />
+                  </div>
+                </CardContent>
+              </Card>
+            ) : null}
+          </>
         )}
 
       </div>

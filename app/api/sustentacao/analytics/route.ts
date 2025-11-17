@@ -1,0 +1,486 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { GoogleSheetsProviderV2 } from '@/lib/providers/google-sheets-provider-v2';
+import { localCache, createCacheKey } from '@/lib/cache/local-cache';
+
+// ID da Copersucar
+const COPERSUCAR_ID = '443a6a0e-768f-48e4-a9ea-0cd972375a30';
+
+// Função para calcular período safra
+function getSafraPeriod(safra: string): { start: Date; end: Date } | null {
+  const match = safra.match(/(\d{4})\/(\d{2,4})/);
+  if (!match) return null;
+  
+  const startYear = parseInt(match[1]);
+  const endYearShort = parseInt(match[2]);
+  const endYear = endYearShort < 100 ? 2000 + endYearShort : endYearShort;
+  
+  return {
+    start: new Date(startYear, 3, 1), // 01/04
+    end: new Date(endYear, 2, 31) // 31/03
+  };
+}
+
+// Função para obter meses do período (safra ou calendário)
+function getMonthsInPeriod(periodType: 'safra' | 'calendar', periodValue: string | number): Array<{ month: number; year: number; label: string }> {
+  const months: Array<{ month: number; year: number; label: string }> = [];
+  
+  if (periodType === 'safra') {
+    const safraPeriod = getSafraPeriod(periodValue as string);
+    if (!safraPeriod) return [];
+    
+    const current = new Date(safraPeriod.start);
+    const end = new Date(safraPeriod.end);
+    
+    while (current <= end) {
+      months.push({
+        month: current.getMonth() + 1,
+        year: current.getFullYear(),
+        label: current.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })
+      });
+      current.setMonth(current.getMonth() + 1);
+    }
+  } else {
+    // Calendário: 12 meses do ano
+    const year = typeof periodValue === 'number' ? periodValue : parseInt(periodValue);
+    for (let month = 1; month <= 12; month++) {
+      const date = new Date(year, month - 1, 1);
+      months.push({
+        month,
+        year,
+        label: date.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })
+      });
+    }
+  }
+  
+  return months;
+}
+
+// Função para verificar se uma data está no período
+function isDateInPeriod(date: Date, periodType: 'safra' | 'calendar', periodValue: string | number): boolean {
+  if (periodType === 'safra') {
+    const safraPeriod = getSafraPeriod(periodValue as string);
+    if (!safraPeriod) return false;
+    return date >= safraPeriod.start && date <= safraPeriod.end;
+  } else {
+    const year = typeof periodValue === 'number' ? periodValue : parseInt(periodValue);
+    return date.getFullYear() === year;
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const companyId = body.companyId;
+    const periodType = body.periodType || 'calendar'; // 'safra' ou 'calendar'
+    const periodValue = body.periodValue; // safra string (ex: "2025/26") ou ano number (ex: 2025)
+    const monthsToShow = body.monthsToShow ?? 6; // Quantos meses mostrar (últimos N meses). undefined = todos os meses
+
+    if (!companyId) {
+      return NextResponse.json(
+        { success: false, error: 'Company ID é obrigatório' },
+        { status: 400 }
+      );
+    }
+
+    console.log('📊 [Analytics] Buscando dados históricos de sustentação...', {
+      companyId,
+      periodType,
+      periodValue,
+      monthsToShow
+    });
+
+    // Criar chave de cache
+    const cacheKey = createCacheKey('sustentacao-analytics', {
+      companyId,
+      periodType,
+      periodValue,
+      monthsToShow
+    });
+
+    // Tentar buscar do cache primeiro (apenas em desenvolvimento)
+    if (process.env.NODE_ENV === 'development') {
+      const cachedData = localCache.get(cacheKey);
+      if (cachedData) {
+        console.log('🚀 [Analytics] Retornando dados do cache local');
+        return NextResponse.json({
+          ...cachedData,
+          cached: true
+        });
+      }
+    }
+
+    // Verificar configuração
+    const apiKey = process.env.GOOGLE_SHEETS_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json(
+        { success: false, error: 'Configuração Google Sheets não encontrada' },
+        { status: 500 }
+      );
+    }
+
+    // Buscar configuração da empresa
+    let spreadsheetId: string;
+    let tabName: string = 'Página1';
+
+    if (companyId === COPERSUCAR_ID) {
+      spreadsheetId = process.env.GOOGLE_SHEETS_COPERCUSAR_ID || '';
+      if (!spreadsheetId) {
+        return NextResponse.json(
+          { success: false, error: 'Configuração Copersucar não encontrada' },
+          { status: 500 }
+        );
+      }
+    } else {
+      const { createClient } = await import('@/lib/supabase/server');
+      const supabase = await createClient();
+      
+      const { data: config, error } = await supabase
+        .from('sustentacao_google_sheets_config')
+        .select('spreadsheet_id, tab_name')
+        .eq('company_id', companyId)
+        .eq('is_active', true)
+        .single();
+
+      if (error || !config) {
+        return NextResponse.json(
+          { success: false, error: 'Configuração Google Sheets não encontrada para empresa' },
+          { status: 500 }
+        );
+      }
+
+      spreadsheetId = config.spreadsheet_id;
+      tabName = config.tab_name || 'Página1';
+    }
+
+    // Criar provider
+    const provider = new GoogleSheetsProviderV2(spreadsheetId, tabName);
+
+    // Buscar TODOS os chamados da planilha (sem filtro de mês/ano)
+    // Isso evita múltiplas requisições
+    console.log('📊 [Analytics] Buscando todos os chamados da planilha...');
+    const allChamados = await provider.getChamados({}); // Sem filtros para pegar tudo
+
+    console.log(`📊 [Analytics] Total de chamados encontrados: ${allChamados.length}`);
+
+    // Obter meses do período
+    const monthsInPeriod = getMonthsInPeriod(periodType, periodValue);
+    
+    // Para safra (Copersucar), mostrar TODOS os meses da safra
+    // Para calendário, mostrar os últimos N meses (ou todos se monthsToShow for undefined)
+    const monthsToDisplay = periodType === 'safra' || monthsToShow === undefined
+      ? monthsInPeriod  // Todos os meses do período
+      : monthsInPeriod.slice(-monthsToShow); // Últimos N meses
+
+    // Agrupar dados por mês e categoria
+    const dataByMonth: Map<string, {
+      month: number;
+      year: number;
+      label: string;
+      chamadosByCategoria: Map<string, number>;
+      totalChamados: number;
+      horasConsumidas: number;
+    }> = new Map();
+
+    // Inicializar estrutura para cada mês
+    monthsToDisplay.forEach(({ month, year, label }) => {
+      const key = `${year}-${month}`;
+      dataByMonth.set(key, {
+        month,
+        year,
+        label,
+        chamadosByCategoria: new Map(),
+        totalChamados: 0,
+        horasConsumidas: 0
+      });
+    });
+
+    // Funções auxiliares para converter horas (mesma lógica do provider)
+    const converterRelogioParaDecimal = (tempo: string): number => {
+      if (!tempo || typeof tempo !== 'string') return 0;
+      const partes = tempo.split(':');
+      if (partes.length < 2) return 0;
+      const horas = parseInt(partes[0]) || 0;
+      const minutos = parseInt(partes[1]) || 0;
+      const segundos = partes.length >= 3 ? (parseInt(partes[2]) || 0) : 0;
+      return horas + (minutos / 60) + (segundos / 3600);
+    };
+
+    const somarTempos = (tempo1: string, tempo2: string): string => {
+      const decimal1 = converterRelogioParaDecimal(tempo1);
+      const decimal2 = converterRelogioParaDecimal(tempo2);
+      const soma = decimal1 + decimal2;
+      const horas = Math.floor(soma);
+      const minutos = Math.round((soma - horas) * 60);
+      return `${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}`;
+    };
+
+    // Processar chamados usando a MESMA lógica do módulo de sustentação
+    // O módulo filtra por campos 'mês' e 'ano' do chamado, não por dataAbertura
+    const categoriasSet = new Set<string>();
+    
+    // Para cada mês a ser exibido, buscar chamados usando a mesma lógica do provider
+    monthsToDisplay.forEach(({ month, year, label }) => {
+      const key = `${year}-${month}`;
+      const monthData = dataByMonth.get(key);
+      if (!monthData) return;
+
+      // Filtrar chamados para este mês específico (mesma lógica do provider)
+      const chamadosDoMes = allChamados.filter((chamado: any) => {
+        const mesChamado = Number(chamado['mês']);
+        const anoChamado = Number(chamado.ano);
+        
+        // Se não houver mês/ano definidos na linha, verificar dataAbertura como fallback
+        if (!mesChamado || !anoChamado) {
+          if (chamado.dataAbertura) {
+            const dataAbertura = new Date(chamado.dataAbertura);
+            if (!isNaN(dataAbertura.getTime())) {
+              return dataAbertura.getMonth() + 1 === month && 
+                     dataAbertura.getFullYear() === year &&
+                     isDateInPeriod(dataAbertura, periodType, periodValue);
+            }
+          }
+          return false;
+        }
+        
+        // Verificar se o mês/ano do chamado corresponde e está no período
+        if (mesChamado === month && anoChamado === year) {
+          // Verificar se está no período (safra ou calendário)
+          if (chamado.dataAbertura) {
+            const dataAbertura = new Date(chamado.dataAbertura);
+            if (!isNaN(dataAbertura.getTime())) {
+              return isDateInPeriod(dataAbertura, periodType, periodValue);
+            }
+          }
+          return true; // Se não tem dataAbertura, confiar no mês/ano da planilha
+        }
+        return false;
+      });
+
+      // Contar chamados
+      monthData.totalChamados = chamadosDoMes.length;
+
+      // Agrupar por categoria (normalizar nomes)
+      chamadosDoMes.forEach((chamado: any) => {
+        let categoria = chamado.categoria || 'Sem categoria';
+        
+        // Normalizar variações de "Falha Sistêmica"
+        if (categoria === 'Falha Sistema' || categoria === 'Falha Sistemica' || categoria === 'Falha Sistêmica') {
+          categoria = 'Falha Sistêmica';
+        }
+        
+        // Normalizar variações de "Solicitação"
+        if (categoria === 'Solicitacao' || categoria === 'Solicitação') {
+          categoria = 'Solicitação';
+        }
+        
+        categoriasSet.add(categoria);
+        const currentCount = monthData.chamadosByCategoria.get(categoria) || 0;
+        monthData.chamadosByCategoria.set(categoria, currentCount + 1);
+      });
+
+      // Calcular horas consumidas usando a MESMA lógica do provider
+      // Somar todos os tempoAtendimento como strings HH:MM primeiro
+      const tempoTotal = chamadosDoMes.reduce((total: string, chamado: any) => {
+        return somarTempos(total, chamado.tempoAtendimento || '00:00');
+      }, '00:00');
+
+      // Converter para decimal
+      monthData.horasConsumidas = converterRelogioParaDecimal(tempoTotal);
+    });
+    
+    // Log para debug
+    console.log('📊 [Analytics] Dados agregados por mês:', 
+      Array.from(dataByMonth.entries()).map(([key, data]) => ({
+        mes: key,
+        totalChamados: data.totalChamados,
+        horasConsumidas: data.horasConsumidas.toFixed(2),
+        horasConsumidasHHMM: `${Math.floor(data.horasConsumidas)}:${Math.round((data.horasConsumidas % 1) * 60).toString().padStart(2, '0')}`
+      }))
+    );
+    
+    // Log detalhado por mês para debug de horas
+    console.log('📊 [Analytics] Detalhamento de horas por mês:', 
+      Array.from(dataByMonth.entries()).map(([key, data]) => {
+        const horasHHMM = `${Math.floor(data.horasConsumidas)}:${Math.round((data.horasConsumidas % 1) * 60).toString().padStart(2, '0')}`;
+        return {
+          mes: key,
+          label: data.label,
+          totalChamados: data.totalChamados,
+          horasConsumidasHHMM: horasHHMM,
+          horasConsumidasDecimal: data.horasConsumidas.toFixed(2)
+        };
+      })
+    );
+
+    // Buscar configuração da empresa para horas contratadas e período de vigência
+    const { createClient } = await import('@/lib/supabase/server');
+    const supabase = await createClient();
+    
+    const { data: configs } = await supabase
+      .from('sustentacao_empresa_config')
+      .select('horas_contratadas, data_inicio, data_fim, saldo_negativo')
+      .eq('company_id', companyId)
+      .eq('status', 'ativo')
+      .order('created_at', { ascending: false });
+
+    // Verificar se alguma configuração ativa não está expirada
+    const today = new Date().toISOString().split('T')[0];
+    const activeConfig = configs?.find(config => 
+      !config.data_fim || config.data_fim >= today
+    );
+
+    const horasContratadasMensais = activeConfig?.horas_contratadas 
+      ? parseFloat(activeConfig.horas_contratadas.toString()) 
+      : 40;
+    
+    const dataInicio = activeConfig?.data_inicio ? new Date(activeConfig.data_inicio) : null;
+    const dataFim = activeConfig?.data_fim ? new Date(activeConfig.data_fim) : null;
+    const permiteSaldoNegativo = activeConfig?.saldo_negativo || false;
+
+    // Calcular saldo acumulado considerando período de vigência (mesma lógica do provider)
+    // O saldo acumulado começa desde o início do contrato, não apenas do período exibido
+    let saldoAcumuladoMesesAnteriores = 0;
+    
+    if (dataInicio && dataFim) {
+      // Calcular saldo de todos os meses anteriores ao primeiro mês exibido
+      const primeiroMesExibido = monthsToDisplay[0];
+      const primeiroMesDate = new Date(primeiroMesExibido.year, primeiroMesExibido.month - 1, 1);
+      
+      // Buscar saldo acumulado de meses anteriores (dentro do período de vigência)
+      for (let ano = dataInicio.getFullYear(); ano <= primeiroMesExibido.year; ano++) {
+        const mesInicialLoop = (ano === dataInicio.getFullYear()) ? dataInicio.getMonth() + 1 : 1;
+        const mesFinalLoop = (ano === primeiroMesExibido.year) 
+          ? primeiroMesExibido.month - 1  // Até o mês anterior ao primeiro exibido
+          : 12;
+
+        for (let mes = mesInicialLoop; mes <= mesFinalLoop; mes++) {
+          // Verificar se o mês está dentro do período de vigência
+          const dataReferencia = new Date(ano, mes - 1, 1);
+          if (dataReferencia < dataInicio || dataReferencia > dataFim) {
+            continue;
+          }
+
+          // Buscar chamados deste mês
+          const chamadosMesAnterior = allChamados.filter((chamado: any) => {
+            const mesChamado = Number(chamado['mês']);
+            const anoChamado = Number(chamado.ano);
+            return mesChamado === mes && anoChamado === ano;
+          });
+
+          // Calcular horas consumidas deste mês
+          const tempoTotal = chamadosMesAnterior.reduce((total: string, chamado: any) => {
+            return somarTempos(total, chamado.tempoAtendimento || '00:00');
+          }, '00:00');
+          const horasConsumidasMesAnterior = converterRelogioParaDecimal(tempoTotal);
+
+          // Calcular saldo do mês
+          let saldoMesAnterior = horasContratadasMensais - horasConsumidasMesAnterior;
+          if (!permiteSaldoNegativo && saldoMesAnterior < 0) {
+            saldoMesAnterior = 0;
+          }
+          
+          saldoAcumuladoMesesAnteriores += saldoMesAnterior;
+        }
+      }
+    }
+
+    // Agora calcular o saldo acumulado para cada mês exibido
+    let saldoAcumulado = saldoAcumuladoMesesAnteriores; // Começa com o saldo dos meses anteriores
+    const saldoByMonth: Array<{ month: number; year: number; label: string; saldo: number }> = [];
+
+    monthsToDisplay.forEach(({ month, year, label }) => {
+      const key = `${year}-${month}`;
+      const monthData = dataByMonth.get(key);
+      if (!monthData) return;
+
+      // Verificar se o mês está dentro do período de vigência
+      const dataReferencia = new Date(year, month - 1, 1);
+      const dentroDoPeriodo = !dataInicio || !dataFim || 
+        (dataReferencia >= dataInicio && dataReferencia <= dataFim);
+
+      if (dentroDoPeriodo) {
+        // Calcular saldo do mês
+        let saldoMes = horasContratadasMensais - monthData.horasConsumidas;
+        if (!permiteSaldoNegativo && saldoMes < 0) {
+          saldoMes = 0;
+        }
+        
+        // Acumular
+        saldoAcumulado += saldoMes;
+      }
+
+      saldoByMonth.push({
+        month,
+        year,
+        label,
+        saldo: saldoAcumulado
+      });
+    });
+
+    // Preparar dados para gráficos
+    const categorias = Array.from(categoriasSet).sort();
+    
+    // Dados para gráfico de evolução por categoria
+    const evolucaoPorCategoria = categorias.map(categoria => ({
+      categoria,
+      data: monthsToDisplay.map(({ month, year, label }) => {
+        const key = `${year}-${month}`;
+        const monthData = dataByMonth.get(key);
+        return {
+          month,
+          year,
+          label,
+          quantidade: monthData?.chamadosByCategoria.get(categoria) || 0
+        };
+      })
+    }));
+
+    // Dados para gráfico de horas
+    const horasData = monthsToDisplay.map(({ month, year, label }) => {
+      const key = `${year}-${month}`;
+      const monthData = dataByMonth.get(key);
+      return {
+        month,
+        year,
+        label,
+        contratadas: horasContratadasMensais,
+        consumidas: monthData?.horasConsumidas || 0
+      };
+    });
+
+    // Dados para gráfico de saldo acumulado
+    const saldoData = saldoByMonth;
+
+    const responseData = {
+      success: true,
+      periodType,
+      periodValue,
+      meses: monthsToDisplay,
+      categorias,
+      evolucaoPorCategoria,
+      horasData,
+      saldoData,
+      loadTime: Date.now()
+    };
+
+    // Salvar no cache (apenas em desenvolvimento)
+    if (process.env.NODE_ENV === 'development') {
+      localCache.set(cacheKey, responseData);
+      console.log(`⏱️ [Analytics] Dados carregados e salvos no cache`);
+    }
+
+    return NextResponse.json(responseData);
+
+  } catch (error) {
+    console.error('❌ [Analytics] Erro ao buscar dados:', error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Erro ao buscar dados de analytics',
+        message: error instanceof Error ? error.message : 'Erro desconhecido'
+      },
+      { status: 500 }
+    );
+  }
+}
+

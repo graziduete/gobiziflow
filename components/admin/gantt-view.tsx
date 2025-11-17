@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 
 
-import { Calendar, Clock, TrendingUpIcon as TrendingRight, Maximize2, Search, Building2, Tag, Activity, BarChart3, LineChart, ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen } from "lucide-react"
+import { Calendar, Clock, TrendingUpIcon as TrendingRight, Maximize2, Search, Building2, Tag, Activity, BarChart3, ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -521,24 +521,6 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
               <p className="text-sm text-slate-600 mt-1">Acompanhe o progresso de cada projeto</p>
             </div>
           </div>
-          
-          {/* Botão Analytics - para admins e clientes */}
-          {((userRole === 'admin' || userRole === 'admin_operacional' || userRole === 'admin_master') || !userRole) && (
-            <Button
-              onClick={() => {
-                if (userRole === 'admin' || userRole === 'admin_operacional' || userRole === 'admin_master') {
-                  router.push('/admin/analytics')
-                } else {
-                  router.push('/dashboard/analytics')
-                }
-              }}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all"
-              size="lg"
-            >
-              <LineChart className="w-4 h-4 mr-2" />
-              Analytics
-            </Button>
-          )}
         </div>
       </CardHeader>
       <CardContent>

@@ -18,6 +18,7 @@ import {
   Bell,
   DollarSign,
   UserCog,
+  BarChart3,
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -85,6 +86,12 @@ const navigation = [
     name: "Sustentação",
     href: "/admin/sustentacao",
     icon: Shield,
+    roles: ["admin", "admin_operacional", "admin_master"]
+  },
+  {
+    name: "Analytics",
+    href: "/admin/analytics",
+    icon: BarChart3,
     roles: ["admin", "admin_operacional", "admin_master"]
   },
   {
