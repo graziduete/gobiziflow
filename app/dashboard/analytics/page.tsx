@@ -1547,7 +1547,11 @@ export default function ClientAnalyticsPage() {
                       <BarChart3 className="w-5 h-5 text-blue-600" />
                       <CardTitle>Evolução de Chamados por Categoria</CardTitle>
                     </div>
-                    <CardDescription>Últimos 6 meses</CardDescription>
+                    <CardDescription>
+                      {isCopersucar && selectedSafra 
+                        ? `Safra ${selectedSafra}`
+                        : 'Últimos 6 meses'}
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div style={{ height: '300px' }}>
