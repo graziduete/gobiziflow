@@ -182,8 +182,8 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
           const taskDates = validTasks.flatMap(task => {
             // SEMPRE usar datas planejadas para calcular a timeline
             return [
-              new Date(task.start_date), 
-              new Date(task.end_date)
+            new Date(task.start_date), 
+            new Date(task.end_date)
             ]
           }).filter(date => !isNaN(date.getTime()))
           
@@ -504,6 +504,11 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
       }
 
       const segments = []
+      const minSegmentWidth = Math.max(weekWidth / 7, 8)
+      const getSegmentWidth = (left: number, right: number) => {
+        const rawWidth = Math.max(right - left, 0)
+        return rawWidth < minSegmentWidth ? minSegmentWidth : rawWidth
+      }
 
       // Se a tarefa já terminou (tem actual_end_date)
       if (task.actual_end_date) {
@@ -513,11 +518,12 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
         // Barra única mostrando período executado
         const leftPx = calculatePixels(taskStart)
         const rightPx = calculatePixels(actualEnd)
+        const widthPx = getSegmentWidth(leftPx, rightPx)
         
         segments.push({
           type: 'completed',
           left: `${leftPx}px`,
-          width: `${rightPx - leftPx}px`,
+          width: `${widthPx}px`,
           color: task.status === 'completed_delayed' ? 'bg-gradient-to-r from-orange-500 to-orange-600' : 'bg-gradient-to-r from-emerald-500 to-emerald-600',
           opacity: 'opacity-90'
         })
@@ -530,12 +536,13 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
         const segment1End = today < plannedEnd ? today : plannedEnd
         const leftPx1 = calculatePixels(taskStart)
         const rightPx1 = calculatePixels(segment1End)
+        const widthPx1 = getSegmentWidth(leftPx1, rightPx1)
         
-        if (rightPx1 > leftPx1) {
+        if (widthPx1 > 0) {
           segments.push({
             type: 'executed',
             left: `${leftPx1}px`,
-            width: `${rightPx1 - leftPx1}px`,
+            width: `${widthPx1}px`,
             color: 'bg-gradient-to-r from-emerald-500 to-emerald-600',
             opacity: 'opacity-80'
           })
@@ -545,12 +552,13 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
         if (today > plannedEnd) {
           const leftPx2 = calculatePixels(plannedEnd)
           const rightPx2 = calculatePixels(today)
+          const widthPx2 = getSegmentWidth(leftPx2, rightPx2)
           
-          if (rightPx2 > leftPx2) {
+          if (widthPx2 > 0) {
             segments.push({
               type: 'delayed',
               left: `${leftPx2}px`,
-              width: `${rightPx2 - leftPx2}px`,
+              width: `${widthPx2}px`,
               color: 'bg-gradient-to-r from-red-500 to-red-600',
               opacity: 'opacity-90',
               pulse: true
@@ -561,12 +569,13 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
         // Segmento 3: De hoje até a previsão de término (futuro)
         const leftPx3 = calculatePixels(today)
         const rightPx3 = calculatePixels(taskEnd)
+        const widthPx3 = getSegmentWidth(leftPx3, rightPx3)
         
-        if (rightPx3 > leftPx3) {
+        if (widthPx3 > 0) {
           segments.push({
             type: 'predicted',
             left: `${leftPx3}px`,
-            width: `${rightPx3 - leftPx3}px`,
+            width: `${widthPx3}px`,
             color: 'bg-slate-300',
             opacity: 'opacity-50',
             dashed: true
@@ -577,11 +586,12 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
       else {
         const leftPx = calculatePixels(taskStart)
         const rightPx = calculatePixels(taskEnd)
+        const widthPx = getSegmentWidth(leftPx, rightPx)
         
         segments.push({
           type: 'notstarted',
           left: `${leftPx}px`,
-          width: `${rightPx - leftPx}px`,
+          width: `${widthPx}px`,
           color: 'bg-slate-200',
           opacity: 'opacity-40',
           dashed: true
@@ -1053,7 +1063,10 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                             ))}
                             
                             {/* Tooltip Rico (único para todos os segmentos) */}
-                            <div className={`pointer-events-none absolute -top-3 left-1/2 -translate-x-1/2 -translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50 ${isTransitioning ? '!opacity-0 !hidden' : ''}`}>
+                            <div
+                              className={`pointer-events-none absolute top-full mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50 ${isTransitioning ? '!opacity-0 !hidden' : ''}`}
+                              style={{ left: 'clamp(64px, 50%, calc(100% - 64px))', transform: 'translateX(-50%)' }}
+                            >
                               <div className="min-w-[280px] max-w-[320px] px-4 py-3 rounded-xl border border-slate-300 bg-white shadow-xl">
                                 <div className="text-xs font-bold text-slate-900 mb-2">{task.name}</div>
                                 
@@ -1140,9 +1153,9 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                       
                       // Modo Planejado: Barra única (original)
                       return task.start_date && task.end_date && (
+                      <div className="absolute top-6 bottom-6 group" style={getTaskBarStyle(task)}>
                         <div
-                          className={`absolute top-6 bottom-6 bg-gradient-to-r ${getTaskColor(task.status)} shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group rounded-xl border border-white/20 hover:border-white/40 hover:scale-[1.02] backdrop-blur-sm`}
-                          style={getTaskBarStyle(task)}
+                          className={`absolute inset-0 bg-gradient-to-r ${getTaskColor(task.status)} shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer rounded-xl border border-white/20 hover:border-white/40 hover:scale-[1.02] backdrop-blur-sm`}
                           data-progress-bar="true"
                           data-start-date={task.start_date}
                           data-end-date={task.end_date}
@@ -1151,9 +1164,18 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                           {/* Efeito de brilho interno */}
                           <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-white/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-                          {/* Tooltip moderno */}
-                          <div className={`pointer-events-none absolute -top-3 left-1/2 -translate-x-1/2 -translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${isTransitioning ? '!opacity-0 !hidden' : ''}`}>
-                          <div className="min-w-[220px] max-w-[280px] px-3 py-2 rounded-xl border border-white/30 bg-white/70 backdrop-blur-md shadow-lg">
+                          {/* Indicador de progresso sutil */}
+                          <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20 rounded-b-xl overflow-hidden">
+                            <div 
+                              className="h-full bg-white/40 transition-all duration-500 ease-out"
+                              style={{ width: `${getTaskProgress(task)}%` }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Tooltip moderno - fora da barra para aparecer acima */}
+                        <div className={`pointer-events-none absolute top-full mt-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-[9999] ${isTransitioning ? '!opacity-0 !hidden' : ''}`}>
+                          <div className="min-w-[220px] max-w-[280px] px-3 py-2 rounded-xl border border-slate-300 bg-white shadow-xl">
                             <div className="text-[11px] font-semibold text-slate-900 line-clamp-1">{task.name}</div>
                             <div className="mt-1 grid grid-cols-2 gap-2 text-[11px] text-slate-700">
                               <div className="flex items-center gap-1"><Users className="w-3 h-3" /> {task.responsible}</div>
@@ -1173,14 +1195,6 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                               </div>
                             )}
                           </div>
-                        </div>
-
-                        {/* Indicador de progresso sutil */}
-                        <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20 rounded-b-xl overflow-hidden">
-                          <div 
-                            className="h-full bg-white/40 transition-all duration-500 ease-out"
-                            style={{ width: `${getTaskProgress(task)}%` }}
-                          />
                         </div>
                       </div>
                       )
@@ -1259,7 +1273,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
 
   // Renderizar Gantt normal quando não expandido
   return (
-    <Card className="mt-6 border-0 shadow-xl bg-white overflow-hidden transition-all duration-300">
+    <Card className="mt-6 border-0 shadow-xl bg-white overflow-visible transition-all duration-300">
               <CardHeader className="bg-gradient-to-r from-slate-50/80 to-blue-50/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-slate-200">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-3 text-slate-800">
@@ -1515,7 +1529,10 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                         ))}
                         
                         {/* Tooltip Rico (único para todos os segmentos) */}
-                        <div className={`pointer-events-none absolute -top-3 left-1/2 -translate-x-1/2 -translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50 ${isTransitioning ? '!opacity-0 !hidden' : ''}`}>
+                            <div
+                              className={`pointer-events-none absolute top-full mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50 ${isTransitioning ? '!opacity-0 !hidden' : ''}`}
+                              style={{ left: 'clamp(64px, 50%, calc(100% - 64px))', transform: 'translateX(-50%)' }}
+                            >
                           <div className="min-w-[280px] max-w-[320px] px-4 py-3 rounded-xl border border-slate-300 bg-white shadow-xl">
                             <div className="text-xs font-bold text-slate-900 mb-2">{task.name}</div>
                             
@@ -1602,9 +1619,9 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                   
                   // Modo Planejado: Barra única (original)
                   return task.start_date && task.end_date && (
+                  <div className="absolute top-6 bottom-6 group" style={getTaskBarStyle(task)}>
                     <div
-                      className={`absolute top-6 bottom-6 bg-gradient-to-r ${getTaskColor(task.status)} shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group rounded-xl border border-white/20 hover:border-white/40 hover:scale-[1.02] backdrop-blur-sm`}
-                      style={getTaskBarStyle(task)}
+                      className={`absolute inset-0 bg-gradient-to-r ${getTaskColor(task.status)} shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer rounded-xl border border-white/20 hover:border-white/40 hover:scale-[1.02] backdrop-blur-sm`}
                       title={`${task.name}: ${task.start_date} a ${task.end_date}`}
                       data-progress-bar="true"
                       data-start-date={task.start_date}
@@ -1622,10 +1639,11 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                           style={{ width: `${getTaskProgress(task)}%` }}
                         />
                       </div>
+                    </div>
 
-                      {/* Tooltip moderno */}
-                      <div className={`pointer-events-none absolute -top-3 left-1/2 -translate-x-1/2 -translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${isTransitioning ? '!opacity-0 !hidden' : ''}`}>
-                      <div className="min-w-[220px] max-w-[280px] px-3 py-2 rounded-xl border border-white/30 bg-white/70 backdrop-blur-md shadow-lg">
+                    {/* Tooltip moderno - fora da barra para aparecer acima */}
+                    <div className={`pointer-events-none absolute top-full mt-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-[9999] ${isTransitioning ? '!opacity-0 !hidden' : ''}`}>
+                      <div className="min-w-[220px] max-w-[280px] px-3 py-2 rounded-xl border border-slate-300 bg-white shadow-xl">
                         <div className="text-[11px] font-semibold text-slate-900 line-clamp-1">{task.name}</div>
                         <div className="mt-1 grid grid-cols-2 gap-2 text-[11px] text-slate-700">
                           <div className="flex items-center gap-1"><Users className="w-3 h-3" /> {task.responsible}</div>
@@ -1649,7 +1667,7 @@ export function GanttChart({ tasks, projectStartDate, projectEndDate, defaultExp
                         )}
                       </div>
                     </div>
-                    </div>
+                  </div>
                   )
                 })()}
 

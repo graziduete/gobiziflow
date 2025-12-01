@@ -504,9 +504,11 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
   }, [isGanttView])
 
   return (
-    <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-white to-slate-50/50 shadow-md">
-      {/* Círculo decorativo */}
-      <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-cyan-500/5 to-blue-500/5 rounded-full blur-2xl" />
+    <Card className="relative border-0 bg-gradient-to-br from-white to-slate-50/50 shadow-md overflow-visible">
+      {/* Camada decorativa isolada para permitir overflow do conteúdo */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-cyan-500/5 to-blue-500/5 rounded-full blur-2xl" />
+      </div>
       
       <CardHeader className="relative z-10">
         <div className="flex items-center justify-between">
@@ -529,7 +531,7 @@ export function GanttView({ projects, allProjects, companies = [], selectedMonth
             <p className="text-center text-muted-foreground py-8">Nenhum projeto encontrado</p>
           ) : (
             sortedMainProjects.map((project) => (
-              <div key={project.id} className="relative overflow-hidden border-0 bg-gradient-to-br from-white to-slate-50/50 rounded-xl p-5 hover:shadow-lg transition-all duration-300 group shadow-sm">
+              <div key={project.id} className="relative border-0 bg-gradient-to-br from-white to-slate-50/50 rounded-xl p-5 hover:shadow-lg transition-all duration-300 group shadow-sm overflow-visible">
                 {/* Barra colorida lateral baseada no status com gradiente */}
                 <div 
                   className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-xl"

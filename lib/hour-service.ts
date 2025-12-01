@@ -171,7 +171,7 @@ export class HourService {
           console.log("📊 Detalhes dos projetos:", projects?.map(p => ({ name: p.name, estimated_hours: p.estimated_hours })))
 
           const consumedHours = await this.calculateAutomaticHourConsumption(companyId, month && year ? `${year}-${month.padStart(2, '0')}` : undefined)
-          const remainingHours = Math.max(0, projectHours - consumedHours)
+          const remainingHours = projectHours - consumedHours // Permitir valores negativos
 
           console.log("📊 Resultado final para empresa sem pacote:", {
             totalContractedHours: projectHours,
@@ -212,7 +212,7 @@ export class HourService {
         const consumedHours = await this.calculateAutomaticHourConsumption(companyId, month && year ? `${year}-${month.padStart(2, '0')}` : undefined)
         console.log("📊 Horas consumidas calculadas:", consumedHours)
         
-        const remainingHours = Math.max(0, contractedHours - consumedHours)
+        const remainingHours = contractedHours - consumedHours // Permitir valores negativos
         console.log("📊 Horas restantes calculadas:", remainingHours)
 
         console.log("📊 Valores calculados:", {
@@ -360,7 +360,7 @@ export class HourService {
         }
 
         const totalContracted = packageHours + projectHours
-        const totalRemaining = Math.max(0, totalContracted - totalConsumed)
+        const totalRemaining = totalContracted - totalConsumed // Permitir valores negativos
 
         return {
           totalContractedHours: totalContracted,
