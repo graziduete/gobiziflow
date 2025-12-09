@@ -565,9 +565,9 @@ function EditarEstimativaTarefaContent({ params }: { params: Promise<{ id: strin
                   <>
                     {/* Cabeçalho da Tabela */}
                     <div className="grid grid-cols-12 gap-2 mb-4 p-3 bg-gray-100 rounded-lg font-medium text-sm">
-                      <div className="col-span-3">Funcionalidade</div>
+                      <div className="col-span-4">Funcionalidade</div>
                       <div className="col-span-1 text-center">Qtd</div>
-                      <div className="col-span-2">Tecnologia</div>
+                      <div className="col-span-1">Tecnologia</div>
                       <div className="col-span-1">Complexidade</div>
                       <div className="col-span-1 text-center">Tipo</div>
                       <div className="col-span-1 text-center">Fator</div>
@@ -703,7 +703,7 @@ function TarefaRow({
   return (
     <div className="grid grid-cols-12 gap-2 p-3 border rounded-lg bg-white hover:bg-gray-50">
       {/* Funcionalidade */}
-      <div className="col-span-3">
+      <div className="col-span-4">
         <div className="flex items-center gap-2">
           <Badge className="bg-green-100 text-green-800 text-xs">
             #{index}
@@ -713,7 +713,6 @@ function TarefaRow({
             onChange={(e) => onUpdate('funcionalidade', e.target.value)}
             placeholder="Descreva a funcionalidade..."
             className="text-sm"
-            maxLength={45}
           />
         </div>
       </div>
@@ -730,7 +729,7 @@ function TarefaRow({
       </div>
 
       {/* Tecnologia */}
-      <div className="col-span-2">
+      <div className="col-span-1">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="w-full justify-between text-sm h-9">
