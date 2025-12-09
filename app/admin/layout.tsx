@@ -5,6 +5,9 @@ import { Header } from "@/components/admin/header"
 import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
 
+// Forçar renderização dinâmica para todas as rotas admin (usam cookies)
+export const dynamic = 'force-dynamic'
+
 export default async function AdminLayout({
   children,
 }: {
