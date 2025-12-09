@@ -787,6 +787,7 @@ export function useEstimativaDownload() {
     pdf.setFontSize(10)
     pdf.setTextColor(255, 255, 255)
     pdf.text('Funcionalidade', 25, currentY + 5)
+    pdf.text('Qtd', 140, currentY + 5)
     pdf.text('Estimativa', 200, currentY + 5)
     
     currentY += 10
@@ -802,11 +803,15 @@ export function useEstimativaDownload() {
       pdf.setFontSize(9)
       pdf.setTextColor(15, 23, 42)
       
-      // Funcionalidade (limitada)
-      const funcionalidade = tarefa.funcionalidade.length > 60 
-        ? tarefa.funcionalidade.substring(0, 60) + '...'
+      // Funcionalidade (limitada para dar espaço à coluna Qtd)
+      const funcionalidade = tarefa.funcionalidade.length > 50 
+        ? tarefa.funcionalidade.substring(0, 50) + '...'
         : tarefa.funcionalidade
       pdf.text(funcionalidade, 25, currentY + 3)
+      
+      // Quantidade
+      pdf.setTextColor(100, 116, 139)
+      pdf.text(tarefa.quantidade.toString(), 140, currentY + 3)
       
       // Estimativa
       pdf.setTextColor(16, 185, 129)
