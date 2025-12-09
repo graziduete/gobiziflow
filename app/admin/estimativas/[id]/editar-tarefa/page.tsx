@@ -565,14 +565,14 @@ function EditarEstimativaTarefaContent({ params }: { params: Promise<{ id: strin
                   <>
                     {/* Cabeçalho da Tabela */}
                     <div className="grid grid-cols-12 gap-2 mb-4 p-3 bg-gray-100 rounded-lg font-medium text-sm">
-                      <div className="col-span-4">Funcionalidade</div>
+                      <div className="col-span-3">Funcionalidade</div>
                       <div className="col-span-1 text-center">Qtd</div>
                       <div className="col-span-1">Tecnologia</div>
-                      <div className="col-span-1">Complexidade</div>
-                      <div className="col-span-1 text-center">Tipo</div>
+                      <div className="col-span-2">Complexidade</div>
+                      <div className="col-span-2 text-center">Tipo</div>
                       <div className="col-span-1 text-center">Fator</div>
                       <div className="col-span-1 text-center">Total Base</div>
-                      <div className="col-span-2 text-center">Com Gordura</div>
+                      <div className="col-span-1 text-center">Com Gordura</div>
                     </div>
                     <div className="space-y-2">
                     {tarefas.map((tarefa, index) => (
@@ -703,7 +703,7 @@ function TarefaRow({
   return (
     <div className="grid grid-cols-12 gap-2 p-3 border rounded-lg bg-white hover:bg-gray-50">
       {/* Funcionalidade */}
-      <div className="col-span-4">
+      <div className="col-span-3">
         <div className="flex items-center gap-2">
           <Badge className="bg-green-100 text-green-800 text-xs">
             #{index}
@@ -733,14 +733,16 @@ function TarefaRow({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="w-full justify-between text-sm h-9">
-              {tarefa.tecnologia_id ? 
-                tecnologias.find(t => t.id === tarefa.tecnologia_id)?.nome || 'Selecionar' : 
-                'Selecionar'
-              }
-              <ChevronDown className="h-4 w-4" />
+              <span className="truncate">
+                {tarefa.tecnologia_id ? 
+                  tecnologias.find(t => t.id === tarefa.tecnologia_id)?.nome || 'Selecionar' : 
+                  'Selecionar'
+                }
+              </span>
+              <ChevronDown className="h-4 w-4 flex-shrink-0" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-full">
+          <DropdownMenuContent className="w-48">
             {tecnologias.map(tecnologia => (
               <DropdownMenuItem 
                 key={tecnologia.id}
@@ -754,18 +756,20 @@ function TarefaRow({
       </div>
 
       {/* Complexidade */}
-      <div className="col-span-1">
+      <div className="col-span-2">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="w-full justify-between text-sm h-9">
-              {tarefa.complexidade_id ? 
-                complexidades.find(c => c.id === tarefa.complexidade_id)?.nome || 'Selecionar' : 
-                'Selecionar'
-              }
-              <ChevronDown className="h-4 w-4" />
+            <Button variant="outline" className="w-full flex items-center text-sm h-9 px-2">
+              <span className="truncate flex-1 text-left">
+                {tarefa.complexidade_id ? 
+                  complexidades.find(c => c.id === tarefa.complexidade_id)?.nome || 'Selecionar' : 
+                  'Selecionar'
+                }
+              </span>
+              <ChevronDown className="h-4 w-4 flex-shrink-0" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-full">
+          <DropdownMenuContent className="w-56">
             {complexidades.map(complexidade => (
               <DropdownMenuItem 
                 key={complexidade.id}
@@ -779,18 +783,20 @@ function TarefaRow({
       </div>
 
       {/* Tipo */}
-      <div className="col-span-1">
+      <div className="col-span-2">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="w-full justify-between text-sm h-9">
-              {tarefa.tipo_tarefa_id ? 
-                tiposTarefa.find(t => t.id === tarefa.tipo_tarefa_id)?.nome || 'Selecionar' : 
-                'Selecionar'
-              }
-              <ChevronDown className="h-4 w-4" />
+              <span className="truncate">
+                {tarefa.tipo_tarefa_id ? 
+                  tiposTarefa.find(t => t.id === tarefa.tipo_tarefa_id)?.nome || 'Selecionar' : 
+                  'Selecionar'
+                }
+              </span>
+              <ChevronDown className="h-4 w-4 flex-shrink-0" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-full">
+          <DropdownMenuContent className="w-48">
             {tiposTarefa.map(tipo => (
               <DropdownMenuItem 
                 key={tipo.id}
@@ -814,8 +820,8 @@ function TarefaRow({
       </div>
 
       {/* Com Gordura */}
-      <div className="col-span-2 text-center flex items-center justify-center">
-        <div className="flex items-center gap-2">
+      <div className="col-span-1 text-center flex items-center justify-center">
+        <div className="flex items-center gap-1">
           <span className="text-sm font-medium text-green-600">{tarefa.total_com_gordura.toFixed(1)}h</span>
           <Button
             variant="ghost"
