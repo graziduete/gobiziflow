@@ -130,9 +130,28 @@ export function useEstimativaDownload() {
     const currentDate = new Date().toLocaleDateString('pt-BR')
   }, [loadLogo])
 
+  // Função auxiliar para limpar HTML do texto
+  const stripHtml = useCallback((html: string): string => {
+    if (!html) return ''
+    // Remove tags HTML e decodifica entidades
+    return html
+      .replace(/<[^>]*>/g, '') // Remove tags HTML
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .trim()
+  }, [])
+
   // Função para criar card de informações do projeto
   const createProjectInfo = useCallback((pdf: jsPDF, estimativa: EstimativaData, yPosition: number) => {
     let currentY = yPosition
+    
+    // Limpar HTML do nome do projeto e observações
+    const nomeProjetoLimpo = stripHtml(estimativa.nome_projeto || '')
+    const observacoesLimpo = estimativa.observacoes ? stripHtml(estimativa.observacoes) : null
     
     // Card principal com sombra sutil
     pdf.setFillColor(255, 255, 255) // Branco
@@ -158,7 +177,12 @@ export function useEstimativaDownload() {
     pdf.text('Nome do Projeto', leftCol, currentY)
     pdf.setFontSize(14)
     pdf.setTextColor(15, 23, 42)
-    pdf.text(estimativa.nome_projeto, leftCol, currentY + 6)
+    // Quebrar texto em múltiplas linhas se necessário
+    const maxWidth = 150
+    const nomeProjetoLines = pdf.splitTextToSize(nomeProjetoLimpo, maxWidth)
+    nomeProjetoLines.forEach((line: string, index: number) => {
+      pdf.text(line, leftCol, currentY + 6 + (index * 5))
+    })
     currentY += 15
     
     // Status com badge
@@ -200,7 +224,7 @@ export function useEstimativaDownload() {
     }
     
     // Observações em card separado se existir
-    if (estimativa.observacoes) {
+    if (observacoesLimpo) {
       currentY += 5
       pdf.setFillColor(248, 250, 252) // Cinza muito claro
       pdf.setDrawColor(226, 232, 240)
@@ -211,7 +235,7 @@ export function useEstimativaDownload() {
       pdf.text('Observações:', 25, currentY + 8)
       
       const maxWidth = 160
-      const lines = pdf.splitTextToSize(estimativa.observacoes, maxWidth)
+      const lines = pdf.splitTextToSize(observacoesLimpo, maxWidth)
       pdf.setFontSize(10)
       pdf.setTextColor(15, 23, 42)
       lines.forEach((line: string, index: number) => {
@@ -222,7 +246,7 @@ export function useEstimativaDownload() {
     }
     
     return currentY + 20
-  }, [formatDate])
+  }, [formatDate, stripHtml])
 
   // Função para criar card de resumo financeiro
   const createFinancialSummary = useCallback((pdf: jsPDF, estimativa: EstimativaData, yPosition: number) => {
@@ -546,13 +570,24 @@ export function useEstimativaDownload() {
   const createProjectInfoTarefas = useCallback((pdf: jsPDF, estimativa: EstimativaData, yPosition: number) => {
     let currentY = yPosition
     
+    // Limpar HTML do nome do projeto e observações
+    const nomeProjetoLimpo = stripHtml(estimativa.nome_projeto || '')
+    const observacoesLimpo = estimativa.observacoes ? stripHtml(estimativa.observacoes) : null
+    
     // Calcular altura do card baseada no conteúdo
+    const maxWidth = 200
+    const nomeProjetoLines = pdf.splitTextToSize(nomeProjetoLimpo, maxWidth)
+    
     let cardHeight = 25 // Altura base
-    if (estimativa.observacoes) {
-      const lines = estimativa.observacoes.length > 0 ? Math.ceil(estimativa.observacoes.length / 80) : 0
+    if (observacoesLimpo) {
+      const lines = observacoesLimpo.length > 0 ? Math.ceil(observacoesLimpo.length / 80) : 0
       cardHeight += lines * 4 + 15 // +15 para margem das observações
     }
     cardHeight += 60 // Altura para outras informações
+    // Adicionar altura extra se o nome do projeto for longo
+    if (nomeProjetoLines.length > 1) {
+      cardHeight += (nomeProjetoLines.length - 1) * 5
+    }
     
     // Card principal com sombra sutil
     pdf.setFillColor(255, 255, 255) // Branco
@@ -578,7 +613,11 @@ export function useEstimativaDownload() {
     pdf.text('Nome do Projeto', leftCol, currentY)
     pdf.setFontSize(11)
     pdf.setTextColor(15, 23, 42)
-    pdf.text(estimativa.nome_projeto, leftCol, currentY + 6)
+    // Quebrar texto em múltiplas linhas se necessário
+    nomeProjetoLines.forEach((line: string, index: number) => {
+      pdf.text(line, leftCol, currentY + 6 + (index * 5))
+    })
+    currentY += nomeProjetoLines.length * 5
     
     pdf.setFontSize(9)
     pdf.setTextColor(100, 116, 139)
@@ -598,14 +637,14 @@ export function useEstimativaDownload() {
     currentY += 20
     
     // Observações dentro do card como na tela
-    if (estimativa.observacoes) {
+    if (observacoesLimpo) {
       currentY += 5
       pdf.setFontSize(9)
       pdf.setTextColor(100, 116, 139)
       pdf.text('Observações', leftCol, currentY)
       
       const maxWidth = 220
-      const lines = pdf.splitTextToSize(estimativa.observacoes, maxWidth)
+      const lines = pdf.splitTextToSize(observacoesLimpo, maxWidth)
       pdf.setFontSize(8)
       pdf.setTextColor(15, 23, 42)
       lines.forEach((line: string, index: number) => {
@@ -624,22 +663,34 @@ export function useEstimativaDownload() {
     currentY += 10
     
     return currentY + 15
-  }, [formatDate])
+  }, [formatDate, stripHtml])
 
   // Função para criar informações do projeto para tarefas (versão cliente)
   const createProjectInfoTarefasCliente = useCallback((pdf: jsPDF, estimativa: EstimativaData, yPosition: number) => {
     let currentY = yPosition
     
+    // Limpar HTML do nome do projeto e observações
+    const nomeProjetoLimpo = stripHtml(estimativa.nome_projeto || '')
+    const observacoesLimpo = estimativa.observacoes ? stripHtml(estimativa.observacoes) : null
+    
+    // Calcular altura do card baseada no conteúdo
+    const maxWidth = 240
+    const nomeProjetoLines = pdf.splitTextToSize(nomeProjetoLimpo, maxWidth)
+    
+    let cardHeight = 35 // Altura base aumentada
+    if (observacoesLimpo) {
+      const lines = observacoesLimpo.length > 0 ? Math.ceil(observacoesLimpo.length / 60) : 0
+      cardHeight += lines * 4 + 10 // +10 para margem
+    }
+    // Adicionar altura extra se o nome do projeto for longo
+    if (nomeProjetoLines.length > 1) {
+      cardHeight += (nomeProjetoLines.length - 1) * 5
+    }
+    
     // Card principal compacto
     pdf.setFillColor(255, 255, 255)
     pdf.setDrawColor(226, 232, 240)
     pdf.setLineWidth(0.5)
-    // Calcular altura do card baseada no conteúdo
-    let cardHeight = 25
-    if (estimativa.observacoes) {
-      const lines = estimativa.observacoes.length > 0 ? Math.ceil(estimativa.observacoes.length / 60) : 0
-      cardHeight += lines * 4 + 10 // +10 para margem
-    }
     pdf.roundedRect(15, currentY, 260, cardHeight, 3, 3, 'FD')
     
     // Título compacto
@@ -648,44 +699,51 @@ export function useEstimativaDownload() {
     pdf.text('INFORMAÇÕES DO PROJETO', 20, currentY + 8)
     currentY += 20
     
-    // Layout horizontal compacto
+    // Layout vertical para evitar sobreposição
     const leftCol = 20
-    const middleCol = 120
-    const rightCol = 200
     
-    // Nome do projeto
-    pdf.setFontSize(12)
-    pdf.setTextColor(59, 130, 246)
+    // Nome do projeto em linha separada
+    pdf.setFontSize(10)
+    pdf.setTextColor(100, 116, 139)
     pdf.text('Projeto:', leftCol, currentY)
+    currentY += 5
+    
+    // Nome do projeto quebrado em múltiplas linhas se necessário
     pdf.setFontSize(11)
     pdf.setTextColor(15, 23, 42)
-    pdf.text(estimativa.nome_projeto, leftCol + 20, currentY)
+    nomeProjetoLines.forEach((line: string, index: number) => {
+      pdf.text(line, leftCol, currentY + (index * 5))
+    })
+    currentY += nomeProjetoLines.length * 5 + 5
     
-    // Status
+    // Status e Data em linha separada
+    const statusText = estimativa.status.replace('_', ' ').toUpperCase()
+    const statusWidth = pdf.getTextWidth(statusText) + 8
     pdf.setFillColor(59, 130, 246)
-    pdf.roundedRect(middleCol, currentY - 3, 40, 6, 2, 2, 'F')
+    pdf.roundedRect(leftCol, currentY - 3, statusWidth, 6, 2, 2, 'F')
     pdf.setFontSize(8)
     pdf.setTextColor(255, 255, 255)
-    pdf.text(estimativa.status.replace('_', ' ').toUpperCase(), middleCol + 2, currentY + 1)
+    pdf.text(statusText, leftCol + 2, currentY + 1)
     
-    // Data
+    // Data ao lado do status
     pdf.setFontSize(9)
     pdf.setTextColor(100, 116, 139)
-    pdf.text('Criado em:', rightCol, currentY)
+    const dataX = leftCol + statusWidth + 10
+    pdf.text('Criado em:', dataX, currentY)
     pdf.setTextColor(15, 23, 42)
-    pdf.text(formatDate(estimativa.created_at), rightCol + 20, currentY)
+    pdf.text(formatDate(estimativa.created_at), dataX + 25, currentY)
+    currentY += 10
     
     // Observações se existirem
-    if (estimativa.observacoes) {
-      currentY += 8
+    if (observacoesLimpo) {
+      currentY += 3
       pdf.setFontSize(9)
       pdf.setTextColor(100, 116, 139)
       pdf.text('Observações:', leftCol, currentY)
       currentY += 4
       
       // Quebrar texto em linhas
-      const maxWidth = 240
-      const lines = pdf.splitTextToSize(estimativa.observacoes, maxWidth)
+      const lines = pdf.splitTextToSize(observacoesLimpo, maxWidth)
       pdf.setFontSize(8)
       pdf.setTextColor(15, 23, 42)
       lines.forEach((line: string, index: number) => {
@@ -695,7 +753,7 @@ export function useEstimativaDownload() {
     }
     
     return currentY + 15
-  }, [formatDate])
+  }, [formatDate, stripHtml])
 
   // Função para criar card de tarefas (versão cliente)
   const createTasksSectionCliente = useCallback((pdf: jsPDF, tarefas: TarefaEstimativa[], estimativa: EstimativaData, yPosition: number) => {
