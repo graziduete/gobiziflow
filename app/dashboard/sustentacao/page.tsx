@@ -10,6 +10,7 @@ import { BarChart3, Sparkles, ArrowLeft } from "lucide-react";
 export default function ClientSustentacaoPage() {
   const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
   const [userCompanyId, setUserCompanyId] = useState<string | null>(null);
+  const [companyName, setCompanyName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const supabase = createClient();
@@ -53,8 +54,10 @@ export default function ClientSustentacaoPage() {
           return
         }
 
+        const company = userCompany.companies as { id: string; name: string } | null;
         setUserCompanyId(userCompany.company_id)
         setSelectedCompanyId(userCompany.company_id) // Auto-selecionar a empresa do usuário
+        setCompanyName(company?.name || null)
         setLoading(false)
       } catch (error) {
         console.error('Erro ao carregar dados do cliente:', error)
@@ -182,6 +185,7 @@ export default function ClientSustentacaoPage() {
             companyId={selectedCompanyId} 
             useV2={selectedCompanyId !== '443a6a0e-768f-48e4-a9ea-0cd972375a30'}
             isClientView={true}
+            companyName={companyName || undefined}
           />
         </div>
       )}

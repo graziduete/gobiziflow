@@ -7,10 +7,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Calendar, Search, Clock, TrendingUp, TrendingDown, Minus, AlertTriangle, CheckCircle, FileText, RefreshCw, Wifi, WifiOff, Info, Filter } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { Calendar, Search, Clock, TrendingUp, TrendingDown, Minus, AlertTriangle, CheckCircle, FileText, RefreshCw, Wifi, WifiOff, Info, Filter, Download } from "lucide-react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { getMockSustentacaoData } from "@/lib/data/mock-sustentacao";
 import { SustentacaoFilters } from "./filters";
+import * as XLSX from 'xlsx';
 
 // Função para converter decimal para formato HH:MM
 const converterDecimalParaRelogio = (decimal: number): string => {
@@ -422,6 +423,63 @@ export function SustentacaoDashboard({
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength) + '...';
   };
+
+  // Função para exportar chamados para Excel
+  const handleExportToExcel = useCallback(() => {
+    if (filteredChamados.length === 0) {
+      alert('Não há chamados para exportar.');
+      return;
+    }
+
+    // Preparar dados para exportação
+    const exportData = filteredChamados.map(chamado => {
+      return {
+        'ID Ellevo': chamado.idEllevo || 'Não informado',
+        'Automação': chamado.automacao || 'Não informado',
+        'Assunto': chamado.assunto || 'Não informado',
+        'Categoria': chamado.categoria || 'Não informado',
+        'Status': chamado.status === 'RESOLVED' ? 'Resolvido' : chamado.status || 'Não informado',
+        'Solicitante': chamado.solicitante || 'Não informado',
+        'Data Abertura': chamado.dataAbertura || 'Não informado',
+        'Data Resolução': chamado.dataResolucao || 'Não informado',
+        'Tempo Atendimento': chamado.tempoAtendimento || '00:00:00'
+      };
+    });
+
+    // Criar workbook e worksheet
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(exportData);
+
+    // Ajustar largura das colunas
+    const colWidths = [
+      { wch: 12 }, // ID Ellevo
+      { wch: 20 }, // Automação
+      { wch: 50 }, // Assunto
+      { wch: 18 }, // Categoria
+      { wch: 18 }, // Status
+      { wch: 25 }, // Solicitante
+      { wch: 15 }, // Data Abertura
+      { wch: 15 }, // Data Resolução
+      { wch: 18 }  // Tempo Atendimento
+    ];
+
+    ws['!cols'] = colWidths;
+
+    // Adicionar worksheet ao workbook
+    XLSX.utils.book_append_sheet(wb, ws, 'Chamados');
+
+    // Gerar nome do arquivo com mês e ano
+    const meses = [
+      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+    ];
+    const nomeMes = meses[filters.mes - 1] || 'Mês';
+    const nomeEmpresa = companyName || 'Empresa';
+    const fileName = `Chamados_${nomeEmpresa}_${nomeMes}_${filters.ano}.xlsx`;
+
+    // Download
+    XLSX.writeFile(wb, fileName);
+  }, [filteredChamados, filters, companyName]);
 
   if (loading) {
     return (
@@ -957,6 +1015,14 @@ export function SustentacaoDashboard({
                 <SelectItem value="Aguardando">Aguardando</SelectItem>
               </SelectContent>
             </Select>
+            <button
+              onClick={handleExportToExcel}
+              disabled={filteredChamados.length === 0}
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-lg text-sm font-medium hover:from-emerald-600 hover:to-green-700 transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Download className="h-4 w-4" />
+              <span>Exportar Excel</span>
+            </button>
           </div>
         </CardHeader>
         <CardContent>
