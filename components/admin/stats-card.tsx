@@ -2,8 +2,11 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import type { LucideIcon } from "lucide-react"
-import { AlertTriangle } from "lucide-react"
+import { AlertTriangle, Info } from "lucide-react"
+import { formatDecimalToHHMM } from "@/lib/utils/hours"
+import { translateStatus } from "@/lib/utils/status-translation"
 
 interface StatsCardProps {
   title: string
@@ -14,9 +17,24 @@ interface StatsCardProps {
     value: number
     isPositive: boolean
   }
+  excessDetails?: {
+    exceededBy: number
+    contractedHours: number
+    totalConsumed: number
+    totalProjects: number
+    topConsumingProjects: Array<{
+      projectId: string
+      projectName: string
+      consumedHours: number
+      estimatedHours: number
+      status: string
+      cumulativeHours: number
+      isExceedingProject?: boolean
+    }>
+  }
 }
 
-export function StatsCard({ title, value, description, icon: Icon, trend }: StatsCardProps) {
+export function StatsCard({ title, value, description, icon: Icon, trend, excessDetails }: StatsCardProps) {
   // Debug: rastrear valores recebidos pelo StatsCard
   if (title.includes("Horas Consumidas")) {
     console.log("🔧 [StatsCard] Total de Horas Consumidas recebeu valor:", value)
@@ -97,6 +115,95 @@ export function StatsCard({ title, value, description, icon: Icon, trend }: Stat
           <p className="text-xs text-red-500 mt-1">
             Excedeu em {exceededHours} horas
           </p>
+        )}
+        {isNegative && excessDetails && excessDetails.topConsumingProjects.length > 0 && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="mt-2 pt-2 border-t border-red-200/50">
+                  <div className="flex items-center gap-1 text-xs text-red-600 cursor-help hover:text-red-700">
+                    <Info className="h-3 w-3" />
+                    <span className="font-medium">Ver o que está excedendo</span>
+                  </div>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-md p-4 bg-white border border-red-200 shadow-xl">
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-sm font-semibold text-red-700 mb-1">
+                      Excesso de {formatDecimalToHHMM(excessDetails.exceededBy)}
+                    </p>
+                    <p className="text-xs text-slate-600 mb-1">
+                      Contratadas: {formatDecimalToHHMM(excessDetails.contractedHours)} | 
+                      Consumidas: {formatDecimalToHHMM(excessDetails.totalConsumed)}
+                    </p>
+                    <p className="text-xs font-medium text-red-600 mt-2 mb-3">
+                      Projetos que estão causando o excesso:
+                    </p>
+                  </div>
+                  <div className="space-y-2 max-h-64 overflow-y-auto">
+                    {excessDetails.topConsumingProjects.map((project, index) => {
+                      const isExceeding = project.isExceedingProject
+                      const isLastItem = index === excessDetails.topConsumingProjects.length - 1
+                      
+                      return (
+                        <div 
+                          key={project.projectId} 
+                          className={`flex items-start justify-between gap-2 p-2 rounded border ${
+                            isExceeding 
+                              ? 'bg-red-50 border-red-300' 
+                              : 'bg-slate-50 border-slate-200'
+                          }`}
+                        >
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <p className={`text-xs font-semibold truncate ${
+                                isExceeding ? 'text-red-800' : 'text-slate-800'
+                              }`}>
+                                {index + 1}. {project.projectName}
+                              </p>
+                              {isExceeding && (
+                                <Badge variant="destructive" className="text-xs px-1.5 py-0">
+                                  Ultrapassou
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-xs text-slate-600 mb-0.5">
+                              Consumiu: {formatDecimalToHHMM(project.consumedHours)}
+                              {project.estimatedHours > 0 && (
+                                <span className="ml-1 text-slate-500">
+                                  (estimadas: {formatDecimalToHHMM(project.estimatedHours)})
+                                </span>
+                              )}
+                            </p>
+                            <p className="text-xs text-slate-500">
+                              {isLastItem ? (
+                                <span className="font-semibold text-slate-700">
+                                  Total acumulado: {formatDecimalToHHMM(project.cumulativeHours)}
+                                </span>
+                              ) : (
+                                <>
+                                  Acumulado até aqui: {formatDecimalToHHMM(project.cumulativeHours)}
+                                  {isExceeding && (
+                                    <span className="ml-1 text-red-600 font-medium">
+                                      (limite: {formatDecimalToHHMM(excessDetails.contractedHours)})
+                                    </span>
+                                  )}
+                                </>
+                              )}
+                            </p>
+                          </div>
+                          <Badge variant="outline" className="text-xs shrink-0">
+                            {translateStatus(project.status)}
+                          </Badge>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         )}
         {trend && (
           <div className="flex items-center pt-2 mt-2 border-t border-slate-100">

@@ -100,6 +100,16 @@ export class HourService {
     totalConsumedHours: number
     totalRemainingHours: number
     companiesWithPackages: number
+    excessDetails?: {
+      exceededBy: number
+      topConsumingProjects: Array<{
+        projectId: string
+        projectName: string
+        consumedHours: number
+        estimatedHours: number
+        status: string
+      }>
+    }
   }> {
     try {
       console.log("🔍 getDashboardHourStats chamado com:", { companyId, month, year, filteredCompanyIds })
@@ -179,11 +189,18 @@ export class HourService {
             totalRemainingHours: remainingHours
           })
 
+          // Se negativo, buscar detalhes do excesso
+          let excessDetails = undefined
+          if (remainingHours < 0) {
+            excessDetails = await this.getExcessDetails(companyId, month && year ? `${year}-${month.padStart(2, '0')}` : undefined)
+          }
+
           return {
             totalContractedHours: projectHours,
             totalConsumedHours: consumedHours,
             totalRemainingHours: remainingHours,
-            companiesWithPackages: 0
+            companiesWithPackages: 0,
+            excessDetails
           }
         }
 
@@ -221,11 +238,18 @@ export class HourService {
           remainingHours
         })
 
+        // Se negativo, buscar detalhes do excesso
+        let excessDetails = undefined
+        if (remainingHours < 0) {
+          excessDetails = await this.getExcessDetails(companyId, month && year ? `${year}-${month.padStart(2, '0')}` : undefined)
+        }
+
         return {
           totalContractedHours: contractedHours,
           totalConsumedHours: consumedHours,
           totalRemainingHours: remainingHours,
-          companiesWithPackages: 1
+          companiesWithPackages: 1,
+          excessDetails
         }
       } else {
         // Todas as empresas
@@ -376,6 +400,137 @@ export class HourService {
         totalConsumedHours: 0,
         totalRemainingHours: 0,
         companiesWithPackages: 0
+      }
+    }
+  }
+
+  /**
+   * Obter detalhes do excesso de horas (quando saldo é negativo)
+   * Mostra quais projetos estão causando o excesso e qual projeto fez ultrapassar o limite
+   */
+  static async getExcessDetails(companyId: string, monthYear?: string): Promise<{
+    exceededBy: number
+    contractedHours: number
+    totalConsumed: number
+    totalProjects: number // Total de projetos que consomem horas
+    topConsumingProjects: Array<{
+      projectId: string
+      projectName: string
+      consumedHours: number
+      estimatedHours: number
+      status: string
+      cumulativeHours: number // Horas acumuladas até este projeto
+      isExceedingProject?: boolean // Se este projeto fez ultrapassar o limite
+    }>
+  }> {
+    try {
+      const { data: projects, error } = await supabase
+        .from('projects')
+        .select('id, name, estimated_hours, status, actual_start_date, created_at')
+        .eq('company_id', companyId)
+
+      if (error || !projects) {
+        return {
+          exceededBy: 0,
+          contractedHours: 0,
+          totalConsumed: 0,
+          totalProjects: 0,
+          topConsumingProjects: []
+        }
+      }
+
+      // Obter horas contratadas
+      const companyData = await this.getCompanyHourData(companyId)
+      const contractedHours = companyData?.contracted_hours || 0
+
+      // Calcular horas consumidas por projeto
+      const allProjects = projects
+        .filter(p => p.status !== 'cancelled' && p.status !== 'commercial_proposal')
+        .map(project => {
+          const estimatedHours = project.estimated_hours || 0
+          // Mesma lógica: Planejamento = 0%, outros = 100%
+          const consumedHours = project.status === 'planning' ? 0 : estimatedHours
+          
+          // Determinar data de início para ordenação temporal
+          // Prioridade: actual_start_date > created_at
+          const startDate = project.actual_start_date 
+            ? new Date(project.actual_start_date).getTime()
+            : new Date(project.created_at).getTime()
+          
+          return {
+            projectId: project.id,
+            projectName: project.name || 'Projeto sem nome',
+            consumedHours,
+            estimatedHours,
+            status: project.status,
+            startDate // Para ordenação temporal
+          }
+        })
+        .filter(p => p.consumedHours > 0) // Apenas projetos que consumiram horas
+
+      // Ordenar por ordem TEMPORAL (quando realmente começou)
+      // Isso reflete a ordem real de consumo, não a ordem de grandeza
+      const sortedByTime = [...allProjects].sort((a, b) => a.startDate - b.startDate)
+      
+      // Calcular horas acumuladas na ordem TEMPORAL para identificar qual fez ultrapassar
+      let cumulativeHours = 0
+      let exceedingProjectId: string | null = null
+      
+      for (const project of sortedByTime) {
+        const previousCumulative = cumulativeHours
+        cumulativeHours += project.consumedHours
+        
+        // Identificar o projeto que fez ultrapassar o limite (baseado na ordem temporal)
+        if (previousCumulative < contractedHours && cumulativeHours >= contractedHours) {
+          exceedingProjectId = project.projectId
+          break
+        }
+      }
+
+      // Agora adicionar informações de acumulado e flag de ultrapassagem
+      const projectsWithDetails = sortedByTime.map((project, index) => {
+        // Recalcular acumulado para cada projeto na ordem temporal
+        const cumulative = sortedByTime
+          .slice(0, index + 1)
+          .reduce((sum, p) => sum + p.consumedHours, 0)
+        
+        return {
+          projectId: project.projectId,
+          projectName: project.projectName,
+          consumedHours: project.consumedHours,
+          estimatedHours: project.estimatedHours,
+          status: project.status,
+          cumulativeHours: cumulative,
+          isExceedingProject: project.projectId === exceedingProjectId
+        }
+      })
+
+      // Calcular total excedido
+      const totalConsumed = allProjects.reduce((sum, p) => sum + p.consumedHours, 0)
+      const exceededBy = totalConsumed - contractedHours
+
+      // Mostrar todos os projetos (não limitar a 10)
+      // Ajustar o acumulado do último projeto para mostrar o total real
+      if (projectsWithDetails.length > 0) {
+        const lastProject = projectsWithDetails[projectsWithDetails.length - 1]
+        lastProject.cumulativeHours = totalConsumed
+      }
+
+      return {
+        exceededBy: exceededBy > 0 ? exceededBy : 0,
+        contractedHours,
+        totalConsumed,
+        totalProjects: allProjects.length,
+        topConsumingProjects: projectsWithDetails
+      }
+    } catch (error) {
+      console.error('Erro ao obter detalhes do excesso:', error)
+      return {
+        exceededBy: 0,
+        contractedHours: 0,
+        totalConsumed: 0,
+        totalProjects: 0,
+        topConsumingProjects: []
       }
     }
   }

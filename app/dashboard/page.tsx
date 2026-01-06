@@ -15,7 +15,27 @@ import { formatDecimalToHHMM } from "@/lib/utils/hours"
 
 export default function ClientDashboard() {
   const { projects, company, isLoading, error, stats } = useClientData()
-  const [dashboardHourStats, setDashboardHourStats] = useState({
+  const [dashboardHourStats, setDashboardHourStats] = useState<{
+    totalContractedHours: number
+    totalConsumedHours: number
+    totalRemainingHours: number
+    companiesWithPackages: number
+    excessDetails?: {
+      exceededBy: number
+      contractedHours: number
+      totalConsumed: number
+      totalProjects: number
+      topConsumingProjects: Array<{
+        projectId: string
+        projectName: string
+        consumedHours: number
+        estimatedHours: number
+        status: string
+        cumulativeHours: number
+        isExceedingProject?: boolean
+      }>
+    }
+  }>({
     totalContractedHours: 0,
     totalConsumedHours: 0,
     totalRemainingHours: 0,
@@ -160,6 +180,7 @@ export default function ClientDashboard() {
           value={formatDecimalToHHMM(dashboardHourStats.totalRemainingHours)}
           description="Horas disponíveis"
           icon={Clock}
+          excessDetails={dashboardHourStats.excessDetails}
         />
       </div>
 
